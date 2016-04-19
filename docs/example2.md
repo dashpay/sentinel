@@ -1,5 +1,5 @@
 """
-	genius-cli [command] 
+	sentinel-cli [command] 
 
 	Help:
 
