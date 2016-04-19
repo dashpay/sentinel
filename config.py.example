@@ -1,0 +1,9 @@
+#!/usr/bin/env python
+
+"""
+    Setup your dash environment here and copy this file to config.py
+"""
+
+dashd_path = "/Users/evan/Desktop/dash/src/dash-cli"
+datadir = "/Users/evan/.dash"
+masternodes = ["masternode_01", "masternode_02"]

@@ -1,0 +1,18 @@
+#!/usr/bin/env python
+
+"""
+Dash-Voter
+----
+
+"""
+
+def cmd(exe, params):
+    dashcmd = dashd_path + " --datadir=" + datadir
+    p = subprocess.Popen(dashcmd + " " + params, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    while(True):
+      retcode = p.poll() #returns None while subprocess is running
+      line = p.stdout.readline()
+      yield line
+      if(retcode is not None):
+        break
+
