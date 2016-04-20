@@ -1,5 +1,24 @@
 
 
+class GovernanceObject:
+    # meta data
+    hash_parent = ""
+    priority = 0
+    revision = 0
+    time = 0
+    name = ""
+    start_time = 0
+    end_time = 0
+
+    # register data for specific classes
+    registers = []
+
+    def __init__(args):
+        hash_parent = 
+
+        if args.type == "user":
+            register = {args}
+
 class User:
     """A simple dash user"""
     userid = 0 #incremental
