@@ -1,5 +1,4 @@
 
-
 CREATE TABLE `governance_object` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `parent_id` int(11) DEFAULT NULL,
@@ -17,40 +16,239 @@ CREATE TABLE `governance_object` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-budget
-  name
-  amount
-  type
-  up_to_date_milestones
-  voted_status
+CREATE TABLE `budget` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `parent_id` int(11) DEFAULT NULL,
+  `name` int(11) DEFAULT NULL,
+  `start_time` date DEFAULT NULL,
+  `end_time` date DEFAULT NULL,
+  `company_id` int(11) DEFAULT NULL,
+  `user_submit_id` int(11) DEFAULT NULL,
+  `object_type` int(11) DEFAULT NULL,
+  `public_key_id` varchar(255) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `address` varchar(255) DEFAULT NULL,
+  `milestone_status` varchar(255) DEFAULT NULL,
+  `voted_status` varchar(255) DEFAULT NULL,
+  `amount` int(11) DEFAULT NULL,
+  `action_none_id` int(11) DEFAULT NULL,
+  `action_funding_id` int(11) DEFAULT NULL,
+  `action_valid_id` int(11) DEFAULT NULL,
+  `action_uptodate_id` int(11) DEFAULT NULL,
+  `action_delete_id` int(11) DEFAULT NULL,
+  `action_clear_registers` int(11) DEFAULT NULL,
+  `action_endorsed_id` int(11) DEFAULT NULL,
+  `event_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-companies
-  name
-  from_id
-  to_id
-  yes_votes
-  no_votes
-  abstain_votes
 
-company_contracts
-  name
-  from_id
-  to_id
-  yes_votes
-  no_votes
-  abstain_votes
+CREATE TABLE `company` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `parent_id` int(11) DEFAULT NULL,
+  `name` int(11) DEFAULT NULL,
+  `start_time` date DEFAULT NULL,
+  `end_time` date DEFAULT NULL,
+  `company_id` int(11) DEFAULT NULL,
+  `user_submit_id` int(11) DEFAULT NULL,
+  `object_type` int(11) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `owner_id` int(255) DEFAULT NULL,
+  `address` varchar(255) DEFAULT NULL,
+  `address1` varchar(255) DEFAULT NULL,
+  `city` varchar(255) DEFAULT NULL,
+  `state` varchar(255) DEFAULT NULL,
+  `country` varchar(255) DEFAULT NULL,
+  `region` varchar(255) DEFAULT NULL,
+  `milestone_status` varchar(255) DEFAULT NULL,
+  `voted_status` varchar(255) DEFAULT NULL,
+  `amount` int(11) DEFAULT NULL,
+  `action_none_id` int(11) DEFAULT NULL,
+  `action_funding_id` int(11) DEFAULT NULL,
+  `action_valid_id` int(11) DEFAULT NULL,
+  `action_uptodate_id` int(11) DEFAULT NULL,
+  `action_delete_id` int(11) DEFAULT NULL,
+  `action_clear_registers` int(11) DEFAULT NULL,
+  `action_endorsed_id` int(11) DEFAULT NULL,
+  `event_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-company_employees
-  name
-  user_id
-  from_id
-  to_id
+CREATE TABLE `company_employee` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `parent_id` int(11) DEFAULT NULL,
+  `name` int(11) DEFAULT NULL,
+  `start_time` date DEFAULT NULL,
+  `end_time` date DEFAULT NULL,
+  `company_id` int(11) DEFAULT NULL,
+  `user_submit_id` int(11) DEFAULT NULL,
+  `object_type` int(11) DEFAULT NULL,
+  `user_id` int(255) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `address` varchar(255) DEFAULT NULL,
+  `address1` varchar(255) DEFAULT NULL,
+  `city` varchar(255) DEFAULT NULL,
+  `state` varchar(255) DEFAULT NULL,
+  `country` varchar(255) DEFAULT NULL,
+  `region` varchar(255) DEFAULT NULL,
+  `milestone_status` varchar(255) DEFAULT NULL,
+  `voted_status` varchar(255) DEFAULT NULL,
+  `amount` int(11) DEFAULT NULL,
+  `action_none_id` int(11) DEFAULT NULL,
+  `action_funding_id` int(11) DEFAULT NULL,
+  `action_valid_id` int(11) DEFAULT NULL,
+  `action_uptodate_id` int(11) DEFAULT NULL,
+  `action_delete_id` int(11) DEFAULT NULL,
+  `action_clear_registers` int(11) DEFAULT NULL,
+  `action_endorsed_id` int(11) DEFAULT NULL,
+  `event_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-company_proposals
-create
-create_event
-groups
-group_member
-users
-user_member
-transaction
+CREATE TABLE `employee_contract` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `parent_id` int(11) DEFAULT NULL,
+  `name` int(11) DEFAULT NULL,
+  `start_time` date DEFAULT NULL,
+  `end_time` date DEFAULT NULL,
+  `company_id` int(11) DEFAULT NULL,
+  `user_submit_id` int(11) DEFAULT NULL,
+  `object_type` int(11) DEFAULT NULL,
+  `user_from_id` int(255) DEFAULT NULL,
+  `user_to_id` int(255) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `address` varchar(255) DEFAULT NULL,
+  `address1` varchar(255) DEFAULT NULL,
+  `city` varchar(255) DEFAULT NULL,
+  `state` varchar(255) DEFAULT NULL,
+  `country` varchar(255) DEFAULT NULL,
+  `region` varchar(255) DEFAULT NULL,
+  `milestone_status` varchar(255) DEFAULT NULL,
+  `voted_status` varchar(255) DEFAULT NULL,
+  `amount` int(11) DEFAULT NULL,
+  `action_none_id` int(11) DEFAULT NULL,
+  `action_funding_id` int(11) DEFAULT NULL,
+  `action_valid_id` int(11) DEFAULT NULL,
+  `action_uptodate_id` int(11) DEFAULT NULL,
+  `action_delete_id` int(11) DEFAULT NULL,
+  `action_clear_registers` int(11) DEFAULT NULL,
+  `action_endorsed_id` int(11) DEFAULT NULL,
+  `event_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+
+CREATE TABLE `employee_proposal` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `parent_id` int(11) DEFAULT NULL,
+  `name` int(11) DEFAULT NULL,
+  `start_time` date DEFAULT NULL,
+  `end_time` date DEFAULT NULL,
+  `company_id` int(11) DEFAULT NULL,
+  `user_submit_id` int(11) DEFAULT NULL,
+  `object_type` int(11) DEFAULT NULL,
+  `user_from_id` int(255) DEFAULT NULL,
+  `user_to_id` int(255) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `address` varchar(255) DEFAULT NULL,
+  `address1` varchar(255) DEFAULT NULL,
+  `city` varchar(255) DEFAULT NULL,
+  `state` varchar(255) DEFAULT NULL,
+  `country` varchar(255) DEFAULT NULL,
+  `region` varchar(255) DEFAULT NULL,
+  `milestone_status` varchar(255) DEFAULT NULL,
+  `voted_status` varchar(255) DEFAULT NULL,
+  `amount` int(11) DEFAULT NULL,
+  `action_none_id` int(11) DEFAULT NULL,
+  `action_funding_id` int(11) DEFAULT NULL,
+  `action_valid_id` int(11) DEFAULT NULL,
+  `action_uptodate_id` int(11) DEFAULT NULL,
+  `action_delete_id` int(11) DEFAULT NULL,
+  `action_clear_registers` int(11) DEFAULT NULL,
+  `action_endorsed_id` int(11) DEFAULT NULL,
+  `event_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+
+CREATE TABLE `event` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `start_time` datetime DEFAULT NULL,
+  `prepare_time` int(11) DEFAULT NULL,
+  `submit_time` date DEFAULT NULL,
+  `fee_tx` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+CREATE TABLE `company_group` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `parent_id` int(11) DEFAULT NULL,
+  `name` int(11) DEFAULT NULL,
+  `start_time` date DEFAULT NULL,
+  `end_time` date DEFAULT NULL,
+  `company_id` int(11) DEFAULT NULL,
+  `user_submit_id` int(11) DEFAULT NULL,
+  `object_type` int(11) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `voted_status` varchar(255) DEFAULT NULL,
+  `action_none_id` int(11) DEFAULT NULL,
+  `action_funding_id` int(11) DEFAULT NULL,
+  `action_valid_id` int(11) DEFAULT NULL,
+  `action_uptodate_id` int(11) DEFAULT NULL,
+  `action_delete_id` int(11) DEFAULT NULL,
+  `action_clear_registers` int(11) DEFAULT NULL,
+  `action_endorsed_id` int(11) DEFAULT NULL,
+  `event_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+CREATE TABLE `group_member` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `group_id` int(11) DEFAULT NULL,
+  `user_submit_id` int(11) DEFAULT NULL,
+  `object_type` int(11) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `voted_status` varchar(255) DEFAULT NULL,
+  `action_none_id` int(11) DEFAULT NULL,
+  `action_funding_id` int(11) DEFAULT NULL,
+  `action_valid_id` int(11) DEFAULT NULL,
+  `action_uptodate_id` int(11) DEFAULT NULL,
+  `action_delete_id` int(11) DEFAULT NULL,
+  `action_clear_registers` int(11) DEFAULT NULL,
+  `action_endorsed_id` int(11) DEFAULT NULL,
+  `event_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+CREATE TABLE `users` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `group_id` int(11) DEFAULT NULL,
+  `user_submit_id` int(11) DEFAULT NULL,
+  `object_type` int(11) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `address` varchar(255) DEFAULT NULL,
+  `address1` varchar(255) DEFAULT NULL,
+  `city` varchar(255) DEFAULT NULL,
+  `state` varchar(255) DEFAULT NULL,
+  `country` varchar(255) DEFAULT NULL,
+  `region` varchar(255) DEFAULT NULL,
+
+  `action_none_id` int(11) DEFAULT NULL,
+  `action_funding_id` int(11) DEFAULT NULL,
+  `action_valid_id` int(11) DEFAULT NULL,
+  `action_uptodate_id` int(11) DEFAULT NULL,
+  `action_delete_id` int(11) DEFAULT NULL,
+  `action_clear_registers` int(11) DEFAULT NULL,
+  `action_endorsed_id` int(11) DEFAULT NULL,
+  `event_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+CREATE TABLE `transactions` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `hash` int(11) DEFAULT NULL,
+  `object` int(11) DEFAULT NULL,
+  `user_from_id` int(11) DEFAULT NULL,
+  `user_to_id` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
