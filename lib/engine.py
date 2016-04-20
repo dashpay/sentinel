@@ -34,8 +34,7 @@ class Engine():
 			crontab will pick this up in scripts/events.sh
 		"""
 
-		if args.type == "user":
-			return load_user(args)
+		for each i in args:
 
 	def update_governance_items():
 		ret = cmd("governance list")
@@ -48,23 +47,12 @@ class Engine():
 
 		"""
 
-	def process_new_record(rec):
-		pass
-
-		"""
-
-		obj = load_governance_object(rec)
-
-		"""
-
-		obj.set_processed(True)
-		if obj.isvalid() == False:
-			vote(obj, VOTE_ACTION_VALID, VOTE_OUTCOME_NO)
-
-
 	" unserialize object, load into class "
 	def load_governance_object(rec):
 		pass
 
+	" submit the vote to the network"
 	def vote(obj, action, outcome):
 		pass
+
+engine = Engine()

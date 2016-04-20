@@ -1,7 +1,11 @@
+#!/usr/bin/env python
 
+"""
+    take any non-meta attributes and serialize them into a register
+"""
 
-def _create_register(a, value):
-	# serialize Register(a, value)
-	# return encoded(register)
+def convert_object_to_registers(obj):
+    return dumps(obj)
 
-	pass
+def convert_register_to_object(obj):
+    return loads(obj)

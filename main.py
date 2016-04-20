@@ -1,13 +1,20 @@
 import argparse
+import sys
+sys.path.append("lib")
+sys.path.append("scripts")
+
 import mysql 
+
+from govobj import GovernanceObject
+import events
 
 if __name__ == '__main__':
 
-	"""
-		--type=user --name=eduffield --address1= --address2= --user_id=1
+    """
+        -g=user --name=eduffield --address1= --address2= --user_id=1
 
-		--type=contract --name=transform_pr --months=6 --dash_monthly=322.12383
-	"""
+        -g=contract --name=transform_pr --months=6 --dash_monthly=322.12383
+    """
 
     parser = argparse.ArgumentParser()
     
@@ -17,7 +24,7 @@ if __name__ == '__main__':
     parser.add_argument('-o', '--vote-outcome')
 
     #governance objects
-    parser.add_argument('-t', '--type')
+    parser.add_argument('-g', '--govobj_type')
     parser.add_argument('-c', '--create')
     parser.add_argument('-a', '--amend')
     parser.add_argument('-r', '--revision')
@@ -40,10 +47,6 @@ if __name__ == '__main__':
     parser.add_argument('-m', '--member_add')
     parser.add_argument('-d', '--member_del')
 
-    #governance objects (proposals, contracts)
-    parser.add_argument('-p', '--priority')
-    parser.add_argument('-e', '--months')
-
     #governance objects (project)
     parser.add_argument('-p', '--project-type')
 
@@ -63,8 +66,15 @@ if __name__ == '__main__':
     # ... do something with args.verbose ..
 
 
-obj = Engine::get_object(args)
-if obj.is_dirty():
+
+if args.vote_times:
+	pass 
+
+if args.create or args.amend:
+	obj = GovernanceObject(item)
+
+	if not obj.is_valid():
+		print "obj is not valid"
+
 	obj.save()
-
-
+	events.process() #process this now and submit whatever is required
