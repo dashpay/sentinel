@@ -1,4 +1,24 @@
 
+/*
+TODO: http://www.endswithsaurus.com/2009/07/lesson-in-address-storage.html
+
+
+Street Number [Int]
+Street Number Suffix [VarChar] - A~Z 1/3 1/2 2/3 3/4 etc
+Street Name [VarChar]
+Street Type [VarChar] - Street, Road, Place etc. (I've found 262 unique street types in the English speaking world so far... and still finding them)
+Street Direction [VarChar] - N, NE, E, SE, S, SW, W, NW
+Address Type [VarChar] - For example Apartment, Suite, Office, Floor, Building etc.
+Address Type Identifier [VarChar] - For instance the apartment number, suite, office or floor number or building identifier.
+Minor Municipality (Village/Hamlet) [VarChar]
+Major Municipality (Town/City) [VarChar]
+Governing District (Province, State, County) [VarChar]
+Postal Area (Postal Code/Zip/Postcode)[VarChar]
+Country [VarChar]
+
+*/
+
+
 CREATE TABLE `governance_object` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   'processed' int(11) DEFAULT NULL,
