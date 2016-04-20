@@ -4,7 +4,9 @@ import mysql
 if __name__ == '__main__':
 
 	"""
-		--type=user --name=eduffield --address1= --address2= etc
+		--type=user --name=eduffield --address1= --address2= --user_id=1
+
+		--type=contract --name=transform_pr --months=6 --dash_monthly=322.12383
 	"""
 
     parser = argparse.ArgumentParser()
@@ -17,10 +19,11 @@ if __name__ == '__main__':
     #governance objects
     parser.add_argument('-t', '--type')
     parser.add_argument('-c', '--create')
-    parser.add_argument('-d', '--amend')
+    parser.add_argument('-a', '--amend')
     parser.add_argument('-r', '--revision')
     parser.add_argument('-u', '--url')
     parser.add_argument('-n', '--name')
+    parser.add_argument('-d', '--dash_monthly')
 
     #governance objects (users, groups, companies)
     parser.add_argument('-f', '--first_name')
@@ -31,9 +34,19 @@ if __name__ == '__main__':
     parser.add_argument('-s', '--state')
     parser.add_argument('-e', '--country')
 
+    #governance objects (groups, companies)
+    parser.add_argument('-m', '--member_add')
+    parser.add_argument('-d', '--member_del')
+
     #governance objects (proposals, contracts)
     parser.add_argument('-p', '--priority')
     parser.add_argument('-m', '--months')
+
+    #governance objects (project)
+    parser.add_argument('-p', '--project-type')
+
+    #governance objects (filing)
+    parser.add_argument('-f', '--filing-type')
 
     #ownership
     parser.add_argument('-u', '--user_owner_id')
@@ -46,4 +59,6 @@ if __name__ == '__main__':
     args = parser.parse_args()
     # ... do something with args.output ...
     # ... do something with args.verbose ..
+
+
 
