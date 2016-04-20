@@ -1,6 +1,7 @@
 
 CREATE TABLE `governance_object` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  'processed' int(11) DEFAULT NULL,
   `parent_id` int(11) DEFAULT NULL,
   `hash` varchar(255) DEFAULT NULL,
   `parent_hash` varchar(255) DEFAULT NULL,
@@ -250,5 +251,15 @@ CREATE TABLE `transactions` (
   `object` int(11) DEFAULT NULL,
   `user_from_id` int(11) DEFAULT NULL,
   `user_to_id` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+CREATE TABLE `action` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `action_type` int(11) DEFAULT NULL,
+  `yes_count` int(11) DEFAULT NULL,
+  `no_count` int(11) DEFAULT NULL,
+  `abstain_count` int(11) DEFAULT NULL,
+  `none_count` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
