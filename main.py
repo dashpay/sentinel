@@ -23,7 +23,9 @@ if __name__ == '__main__':
     parser.add_argument('-r', '--revision')
     parser.add_argument('-u', '--url')
     parser.add_argument('-n', '--name')
-    parser.add_argument('-d', '--dash_monthly')
+    parser.add_argument('-m', '--dash_monthly')
+    parser.add_argument('-i', '--start_date')
+    parser.add_argument('-h', '--end_date')
 
     #governance objects (users, groups, companies)
     parser.add_argument('-f', '--first_name')
@@ -40,7 +42,7 @@ if __name__ == '__main__':
 
     #governance objects (proposals, contracts)
     parser.add_argument('-p', '--priority')
-    parser.add_argument('-m', '--months')
+    parser.add_argument('-e', '--months')
 
     #governance objects (project)
     parser.add_argument('-p', '--project-type')
@@ -60,5 +62,9 @@ if __name__ == '__main__':
     # ... do something with args.output ...
     # ... do something with args.verbose ..
 
+
+obj = Engine::get_object(args)
+if obj.is_dirty():
+	obj.save()
 
 

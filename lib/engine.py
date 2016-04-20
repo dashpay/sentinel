@@ -20,6 +20,23 @@ class Engine():
 	def __init__():
 		pass
 
+	def get_object(self, args):
+
+		"""
+			convert parameters into json object representing the governance object
+			create converter for json object to register conversion, per version type
+
+			perform the following:
+				- find hash parent by ownership
+				- look in database for most recent revision, check instruction validity
+				- add to event table
+
+			crontab will pick this up in scripts/events.sh
+		"""
+
+		if args.type == "user":
+			return load_user(args)
+
 	def update_governance_items():
 		ret = cmd("governance list")
 
