@@ -2,9 +2,9 @@
 
 # v12 to 12.1 conversion
 
-This is a work in progress, I need to look at the proposal system and fit in the rest of everyone using it as well.
-
-I believe we should target ~30-50% of the budget to salary allocation. This will include "outside" projects as well.
+- This is a work in progress, I need to look at the proposal system and fit in the rest of everyone using it as well.
+- I believe we should target ~30-50% of the budget to salary allocation. This will include "outside" projects as well.
+- Amounts are not final and sort of random
 
 <pre>
     Evan : Employee, paid $2000/mo
