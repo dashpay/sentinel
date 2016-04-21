@@ -12,28 +12,16 @@
 - Amounts are not final and sort of random
 
 <pre>
-    Evan : Employee, paid $2000/mo
-    Ryan : Employee, paid $1200/mo 
-    Daniel : Employee, paid $1400/mo 
-    Duzy Chan : Employee, paid $1100/mo 
-    Fernando : Employee, paid $500/mo
-    Holger: Employee, paid $700/mo
-    Amanda : Employer, paid $700/mo
-    Robert : Employer, paid $1100/mo
-    Chris : Employee, paid $500/mo
-    UdjinM6 : Employee, paid $1100/mo 
-    Yashpal : Employee, paid $500/mo
-    Andy Freer : Employee, paid $1300/mo 
-    Ed Moncado : Employee, paid $500/mo
-    Harold  : Employee, paid $500/mo
-    Philipp Engelhorn : Employer, paid $1100/mo
-    Ira Miller: Employer, paid $1400/mo
-
-    -- others for possible inclusion
-
-    balu
-    eric sammons
-    yidakee
-    alex & raico
-    dash world people
+    Sib : Employee, paid $2000/mo
+    Maria : Employee, paid $1200/mo 
+    Tonio : Employee, paid $1400/mo 
+    Vien : Employee, paid $1100/mo 
+    Calgari : Employee, paid $500/mo
+    Picazo: Employee, paid $700/mo
+    Micco : Employer, paid $700/mo
+    Robby : Employer, paid $1100/mo
+    Fudd : Employee, paid $500/mo
+    Lickidy : Employee, paid $1100/mo 
+    Micca : Employee, paid $500/mo
+    Gala : Employee, paid $1300/mo 
 </pre>
