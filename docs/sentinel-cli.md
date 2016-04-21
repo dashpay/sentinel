@@ -12,9 +12,9 @@ All basic commands for creating objects:
 
 ### Subclass Options
 <pre>
---subclass="employer" = Someone mananging a project
---subclass="employee" = Someone working on a project
---subclass="evo" = Someone that uses Dash Evolution
+--subclass="employer" : Someone mananging a project
+--subclass="employee" : Someone working on a project
+--subclass="evo" : Someone that uses Dash Evolution
 </pre>
 
 ## Voting
