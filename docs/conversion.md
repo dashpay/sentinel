@@ -9,7 +9,6 @@
 - Expenses are limited to repaying people for what they've spent and can also be used to hire external contractors directly (in the case of Ira Miller)
 - This is a work in progress, I need to look at the proposal system and fit in the rest of everyone using it as well.
 - I believe we should target ~30-50% of the budget to salary allocation. This will include "outside" projects as well.
-- Amounts are not final and sort of random
 
 <pre>
     Sib : Employee, paid $2000/mo
