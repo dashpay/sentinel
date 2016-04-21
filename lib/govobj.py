@@ -2,82 +2,104 @@
 
 import calendar
 import time
+import argparse
+import sys
+sys.path.append("../")
+sys.path.append("../scripts")
+
+import mysql 
+from misc import *
 
 class GovernanceObject:
     # all arguments for this object
     obj = {}
 
+    #dictionary replace variables
+    governance_object = {}
+    user = {}
+    expense = {}
+    event = {}
+
     # convert to governance object
-    govobj_type = 0
-    hash_parent = ""
-    priority = 0
-    revision = 0
-    time = 0
+    parent_id = 0
+    this_hash = ""
+    parent_hash = ""
     name = ""
-    start_time = 0
-    end_time = 0
+    govobj_type = 0
+    revision = 0
+    pubkey = ""
+    fee_tx = ""
+    time = 0
+
 
     # register data for specific classes
     registers = []
 
     def __init__(self, args):
-        hash_parent = 
+        # load object up (iterate through the namespace)
+        for i in args.__dict__: 
+            self.obj[i] = args.__dict__[i]
 
-        # load object up
-        for i in arg:
-            obj[i] = arg[i]
+        print self.obj
 
         self.hash_parent = 0 #place under root
-    
-        if args.type in ['contract', "proposal"]:
-            self.priority = args.priority
 
-        self.govobj_type = convert_govobj_name_to_type(arg.govobj_type)
-        self.revision = args.revision
+        # convert to governance object parameters
+        # TODO: lookup parents and hashes for placement
+        self.parent_id = 0
+        self.this_hash = ""
+        self.parent_hash = ""
+        self.name = self.obj["name"]
+        self.govobj_type = convert_govobj_name_to_type(self.obj["govobj_type"])
+        self.revision = self.obj["revision"]
+        self.pubkey = self.obj["pubkey"]
+        self.fee_tx = ""
         self.time = calendar.timegm(time.gmtime())
-        self.start_time = calendar.timegm(time.strptime(args.start_date, '%Y-%m-%d'))
-        self.end_time = calendar.timegm(time.strptime(args.end_date, '%Y-%m-%d'))
 
-        if arg.govobj_type == "user":
-            self.registers[0] = convert_object_to_registers({
-                'first_name' : arg.first_name, 
-                'last_name' : arg.last_name, 
-                'address1' : arg.address1, 
-                'address2' : arg.address2, 
-                'city' : arg.city,
-                'state' : arg.state,
-                'country' : arg.country
-            })
+        governance_object = {
+            "parent_id" = self.parent_id,
+            "hash" = self.this_hash,
+            "parent_hash" = self.parent_hash,
+            "time" = self.time
+            "name" = self.name,
+            "govobj_type" = self.govobj_type,
+            "revision" = self.revision,
+            "pubkey" = self.pubkey,
+            "fee_tx" = self.fee_tx,
+        }
 
-        if arg.govobj_type == "group":
-            pass #groups have no register data (for now)
+        self.__process_object()
 
-        if arg.govobj_type == "company":
-            self.registers[0] = convert_object_to_registers({
-                'first_name' : arg.first_name, 
-                'last_name' : arg.last_name, 
-                'address1' : arg.address1, 
-                'address2' : arg.address2, 
-                'city' : arg.city,
-                'state' : arg.state,
-                'country' : arg.country
-            })
+    def __process_object():
+        if self.obj["govobj_type"] == "user":
+            self.registers.append(convert_object_to_registers({
+                'version' : 1, 
+                'first_name' : self.obj["first_name"], 
+                'last_name' : self.obj["last_name"], 
+                'address1' : self.obj["address1"], 
+                'address2' : self.obj["address2"], 
+                'city' : self.obj["city"],
+                'state' : self.obj["state"],
+                'country' : self.obj["country"],
+                'dash_monthly' : self.obj["dash_monthly"],
+            }))
 
-        if arg.govobj_type == "proposal":
-            self.registers[0] = convert_object_to_registers({
-                'monthly_dash_amount' : arg.monthly_dash_amount, 
-                'to_pubkey' : arg.to_pubkey
-            })
+            #address info and dash_monthly are used by the SQL
+            user = self.registers[0]
+            user['governance_object_id'] = 0
+            user['subclass'] = self.obj["subclass"]
+            user['event_id'] = 0
 
-        if arg.govobj_type == "contract":
-            self.registers[0] = convert_object_to_registers({
-                'monthly_dash_amount' : arg.monthly_dash_amount, 
-                'to_pubkey' : arg.to_pubkey
-            })
+            #event sql
+            event = {
+                'governance_object_id' : 0,
+                'start_time' : "CURRENT_DATETIME",
+                'prepare_time' : 0,
+                'submit_time' : 0,
+                'fee_tx' : 0
+            }
 
-    def is_valid():
-        pass
-
+    def is_valid(self):
         """
             - check tree position validity
             - check signatures of owners 
@@ -85,7 +107,9 @@ class GovernanceObject:
             - check validity of field data (address format, etc)
         """
 
-    def save():
+        return True
+
+    def save(self):
         pass
 
         """
@@ -93,10 +117,48 @@ class GovernanceObject:
             -- add new "event" to be processed by scripts/events.py
         """
 
-    def load_vote_data():
+    def save_as_governence_object(self):
+        sql = """
+            INSERT INTO governance_object
+                (parent_id, hash, parent_hash, time, name, govobj_type, revision, pubkey, 
+                    fee_tx, registers)
+            VALUES
+                ('%{parent_id}', '%{hash}', '%{parent_hash}',  '%{time}', '%{name}',  '%{govobj_type}',
+                    '%{revision}', '%{pubkey}', '%{fee_tx}', '%{registers}')
+            ON DUPLICATE KEY UPDATE
+        """
+
+        mysql.db.query(sql % governance_object)
+
+    def save_new_event(self):
+        sql = """
+            INSERT INTO event 
+                (governance_object_id, start_time, prepare_time, submit_time)
+            VALUES
+                ('%{governance_object_id}','%{start_time}','%{prepare_time}','%{submit_time}')
+            ON DUPLICATE KEY UPDATE
+        """
+
+        mysql.db.query(sql % event)
+
+    def save_as_user(self):
+        sql = """
+            INSERT INTO user 
+                (governance_object_id, subclass, address1, address2, city, state, country)
+            VALUES
+                ('%{governance_object_id}','%{subclass}','%{address1}','%{address2}','%{city}','%{state}',,'%{country}')
+            ON DUPLICATE KEY UPDATE
+        """
+
+        mysql.db.query(sql % user)
+
+    def save_as_expense(self):
         pass
 
-    def get_dashd_command(prepare_or_submit, hashtx):
+    def load_vote_data(self):
+        pass
+
+    def get_dashd_command(self, prepare_or_submit, hashtx):
         if not prepare_or_submit in ["prepare", "submit"]: return False
         return "mngovernance " + prepare_or_submit
         # mngovernance prepare <proposal-name> <url> <payment-count> <block-start> <dash-address> <monthly-payment-dash>'");

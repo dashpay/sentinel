@@ -8,7 +8,6 @@ sys.path.append("lib")
 
 from govobj import GovernanceObject
 
-
 """
     - this script is ran ~2.5/minutes and processes updates to the governance system 
 

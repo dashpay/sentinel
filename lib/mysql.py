@@ -1,3 +1,5 @@
 
 import _mysql
-db=_mysql.connect("localhost","joebob","moonpie","thangs")
+import config 
+db=_mysql.connect(config.hostname, config.username, config.password, config.database)
+
