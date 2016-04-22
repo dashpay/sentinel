@@ -31,10 +31,16 @@ def prepare():
     if row:
         event = Event()
         event.load(row[0])
-        event.set_prepared()
-        print "prepared"
-        event.save()
+        
+        govobj = GovernanceObject()
+        govobj.load(event.get_id())
 
+        print "prepared"
+        print " --cmd : ", govobj.get_prepare_command()
+        #print govobj.get_prepare_command()
+        #event.set_prepared()
+        
+        event.save()
     # prepare fee_tx, store into govobj
     # update record
 

@@ -10,6 +10,7 @@ sys.path.append("../scripts")
 import mysql 
 from misc import *
 from event import Event
+import binascii
 
 class GovernanceObject:
     # all arguments for this object
@@ -36,7 +37,10 @@ class GovernanceObject:
     # register data for specific classes
     registers = []
 
-    def __init__(self, args):
+    def __init__(self):
+        pass
+
+    def load_from_args(self, args):
         # load object up (iterate through the namespace)
         for i in args.__dict__: 
             self.obj[i] = args.__dict__[i]
@@ -72,6 +76,56 @@ class GovernanceObject:
             "registers" : json.dumps(self.registers)
         }
 
+    def load(self, record_id):
+        sql = """
+            select
+                id,
+                parent_id,
+                hash,
+                parent_hash,
+                time,
+                name,
+                govobj_type,
+                revision,
+                pubkey,
+                fee_tx,
+                registers,
+                action_none_id,
+                action_funding_id,
+                action_valid_id,
+                action_uptodate_id,
+                action_delete_id,
+                action_clear_registers,
+                action_endorsed_id
+            from governance_object where 
+                id = %s """ % record_id
+
+        mysql.db.query(sql)
+        res = mysql.db.store_result()
+        row = res.fetch_row()
+        if row:
+            (
+                self.governance_object["id"],
+                self.governance_object["parent_id"],
+                self.governance_object["hash"],
+                self.governance_object["parent_hash"],
+                self.governance_object["time"],
+                self.governance_object["name"],
+                self.governance_object["govobj_type"],
+                self.governance_object["revision"],
+                self.governance_object["pubkey"],
+                self.governance_object["fee_tx"],
+                self.governance_object["registers"],
+                self.governance_object["action_none_id"],
+                self.governance_object["action_funding_id"],
+                self.governance_object["action_valid_id"],
+                self.governance_object["action_uptodate_id"],
+                self.governance_object["action_delete_id"],
+                self.governance_object["action_clear_registers"],
+                self.governance_object["action_endorsed_id"]
+            ) = row[0]
+            print "loaded govobj successfully"
+
     def __process_object(self):
         if self.obj["govobj_type"] == "user":
             self.registers.append(convert_object_to_registers({
@@ -85,20 +139,6 @@ class GovernanceObject:
                 'country' : self.obj["country"],
                 'dash_monthly' : self.obj["dash_monthly"],
             }))
-
-            print """
-
-
-"""
-            print self.registers
-
-            print """
-
-
-
-"""
-
-
 
             #address info and dash_monthly are used by the SQL
             user = {
@@ -206,7 +246,23 @@ class GovernanceObject:
     def load_vote_data(self):
         pass
 
-    def get_dashd_command(self, prepare_or_submit, hashtx):
-        if not prepare_or_submit in ["prepare", "submit"]: return False
-        return "mngovernance " + prepare_or_submit
-        # mngovernance prepare <proposal-name> <url> <payment-count> <block-start> <dash-address> <monthly-payment-dash>'");
+    def get_prepare_command(self):
+        self.governance_object["registers_hex"] = binascii.hexlify(self.governance_object["registers"])
+
+        cmd = """
+        mngovernance prepare %(parent_hash)s %(revision)s %(time)s %(name)s %(registers_hex)s;
+        """ % self.governance_object
+
+        return cmd
+
+    def get_fee_tx_age(self):
+        return -1
+
+    def get_submit_command(self):
+        self.governance_object["registers_hex"] = binascii.hexlify(self.governance_object["registers"])
+
+        cmd = """
+        mngovernance submit %(fee_tx)s %(parent_hash)s %(revision)s %(time)s %(name)s %(registers_hex)s;
+        """ % self.governance_object
+
+        print cmd
