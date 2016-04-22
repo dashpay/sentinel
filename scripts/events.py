@@ -1,54 +1,56 @@
 #!/usr/bin/env python
 
 """
-	- look through events table, process what we're suppose to do
-	- can include building fee transactions, submitting govobjs to the network
+    - look through events table, process what we're suppose to do
+    - can include building fee transactions, submitting govobjs to the network
 
 """
 
 import sys
-sys.path.append("../lib")
+sys.path.append("lib")
 
 import mysql 
+import config 
 
 from govobj import GovernanceObject
 import events
+from event import Event
 import dashd
 
-def __prepare():
-	sql = "select * from events where prepare_time is NULL limit 1"
+def clear():
+    sql = "delete from event where prepare_time is NULL or submit_time is NULL"
+    mysql.db.query(sql)
+    
 
-	# prepare fee_tx, store into govobj
+def prepare():
+    sql = "select id from event where start_time < NOW() and prepare_time is NULL limit 1"
 
-	"""
-	obj = GovernanceObject(item)
-	prepare_cmd = obj.get_dashd_command("prepare")
-	dashd.cmd(prepare_cmd)
-	"""
+    mysql.db.query(sql)
+    res = mysql.db.store_result()
+    row = res.fetch_row()
+    if row:
+        event = Event()
+        event.load(row[0])
+        event.set_prepared()
+        print "prepared"
+        event.save()
 
-	# update record
-
-
-def __submit():
-	sql = "select * from events where prepare_time != NULL and submit_time is NULL limit 1"
-
-	# submit to network
-
-	"""
-	obj = GovernanceObject(item)
-	submit_cmd = obj.get_dashd_command("submit")
-	dashd.cmd(submit_cmd)
-	"""
-
-	# update records
-
-	pass
+    # prepare fee_tx, store into govobj
+    # update record
 
 
-def process():
-	__prepare()
-	__submit()
+def submit():
+    sql = "select id from event where start_time < NOW() and prepare_time < NOW() and submit_time is NULL limit 1"
 
+    mysql.db.query(sql)
+    res = mysql.db.store_result()
+    row = res.fetch_row()
+    if row:
+        event = Event()
+        event.load(row[0])
+        event.set_submitted()
+        print "submitted"
+        event.save()
+    # update records
 
-if __name__ == '__main__':
-	Process()
+    pass

@@ -9,6 +9,7 @@ sys.path.append("../scripts")
 
 import mysql 
 from misc import *
+from event import Event
 
 class GovernanceObject:
     # all arguments for this object
@@ -56,21 +57,22 @@ class GovernanceObject:
         self.fee_tx = ""
         self.time = calendar.timegm(time.gmtime())
 
-        governance_object = {
-            "parent_id" = self.parent_id,
-            "hash" = self.this_hash,
-            "parent_hash" = self.parent_hash,
-            "time" = self.time
-            "name" = self.name,
-            "govobj_type" = self.govobj_type,
-            "revision" = self.revision,
-            "pubkey" = self.pubkey,
-            "fee_tx" = self.fee_tx,
-        }
-
         self.__process_object()
 
-    def __process_object():
+        self.governance_object = {
+            "parent_id" : self.parent_id,
+            "hash" : self.this_hash,
+            "parent_hash" : self.parent_hash,
+            "time" : self.time,
+            "name" : self.name,
+            "govobj_type" : self.govobj_type,
+            "revision" : self.revision,
+            "pubkey" : self.pubkey,
+            "fee_tx" : self.fee_tx,
+            "registers" : json.dumps(self.registers)
+        }
+
+    def __process_object(self):
         if self.obj["govobj_type"] == "user":
             self.registers.append(convert_object_to_registers({
                 'version' : 1, 
@@ -84,8 +86,32 @@ class GovernanceObject:
                 'dash_monthly' : self.obj["dash_monthly"],
             }))
 
+            print """
+
+
+"""
+            print self.registers
+
+            print """
+
+
+
+"""
+
+
+
             #address info and dash_monthly are used by the SQL
-            user = self.registers[0]
+            user = {
+                'version' : 1, 
+                'first_name' : self.obj["first_name"], 
+                'last_name' : self.obj["last_name"], 
+                'address1' : self.obj["address1"], 
+                'address2' : self.obj["address2"], 
+                'city' : self.obj["city"],
+                'state' : self.obj["state"],
+                'country' : self.obj["country"],
+                'dash_monthly' : self.obj["dash_monthly"],
+            }
             user['governance_object_id'] = 0
             user['subclass'] = self.obj["subclass"]
             user['event_id'] = 0
@@ -110,47 +136,69 @@ class GovernanceObject:
         return True
 
     def save(self):
-        pass
 
         """
             -- save objects in relational form (user, groups, etc)
             -- add new "event" to be processed by scripts/events.py
         """
 
-    def save_as_governence_object(self):
+        last_id = self.save_as_governance_object()
+        self.event = Event()
+        self.event.create_new(last_id)
+        self.event.save()
+
+    def save_as_governance_object(self):
         sql = """
             INSERT INTO governance_object
                 (parent_id, hash, parent_hash, time, name, govobj_type, revision, pubkey, 
                     fee_tx, registers)
             VALUES
-                ('%{parent_id}', '%{hash}', '%{parent_hash}',  '%{time}', '%{name}',  '%{govobj_type}',
-                    '%{revision}', '%{pubkey}', '%{fee_tx}', '%{registers}')
+                ('%(parent_id)s', '%(hash)s', '%(parent_hash)s',  '%(time)s', '%(name)s',  '%(govobj_type)s', '%(revision)s', '%(pubkey)s', '%(fee_tx)s', '%(registers)s')
             ON DUPLICATE KEY UPDATE
+                parent_id='%(parent_id)s',
+                parent_hash='%(parent_hash)s',
+                hash='%(hash)s',
+                time='%(time)s',
+                name='%(name)s',
+                govobj_type='%(govobj_type)s',
+                revision='%(revision)s',
+                pubkey='%(pubkey)s',
+                fee_tx='%(fee_tx)s',
+                registers='%(registers)s'
+
         """
 
-        mysql.db.query(sql % governance_object)
+        mysql.db.query(sql % self.governance_object)
+        return mysql.db.insert_id()
 
-    def save_new_event(self):
+    def event_start(self):
         sql = """
-            INSERT INTO event 
-                (governance_object_id, start_time, prepare_time, submit_time)
-            VALUES
-                ('%{governance_object_id}','%{start_time}','%{prepare_time}','%{submit_time}')
-            ON DUPLICATE KEY UPDATE
+            INSERT INTO event SET 
+                governance_object_id='%(governance_object_id)s',
+                start_time='%(start_time)s',
+                prepare_time=NULL,
+                submit_time=NULL
         """
 
-        mysql.db.query(sql % event)
+        mysql.db.query(sql % self.event)
 
     def save_as_user(self):
-        sql = """
+        sql = """            
             INSERT INTO user 
                 (governance_object_id, subclass, address1, address2, city, state, country)
             VALUES
-                ('%{governance_object_id}','%{subclass}','%{address1}','%{address2}','%{city}','%{state}',,'%{country}')
+                ('%(governance_object_id)s','%(subclass)s','%(address1)s','%(address2)s','%(city)s','%(state)s','%(country)')
             ON DUPLICATE KEY UPDATE
+                governance_object_id='%(governance_object_id)s',
+                subclass='%(subclass)s',
+                address1='%(address1)s',
+                address2='%(address2)s',
+                city='%(city)s',
+                state='%(state)s',
+                country='%(country)'
         """
 
-        mysql.db.query(sql % user)
+        mysql.db.query(sql % self.user)
 
     def save_as_expense(self):
         pass
