@@ -18,42 +18,42 @@ All basic commands for creating objects:
 
     # coming to terms
     #  -- employment is a bid/ask, amounts much match and can be revised
-    #  -- evan bids 4500 DASH 
+    #  -- sib bids 4500 DASH 
     #  -- maria bids 2200 DASH
-    #  -- evan amends 3400 DASH
-    --amend=relationship --subclass="offer-of-employment" --to_user="evan" --bid="3400 DASH" #maria executes
+    #  -- sib amends 3400 DASH
+    --amend=relationship --subclass="offer-of-employment" --to_user="sib" --bid="3400 DASH" #maria executes
 </pre>
 
 ## Employee: Setting Up Employment
 <pre>
     # Create the employement relationship between parties
-    --create=relationship --subclass="offer-of-employment" --to_user="evan" --bid="4500 DASH" #maria executes
-    --create=relationship --subclass="request-of-employment" -to_user="maria" --ask="2200 DASH" #evan executes
-    --create=relationship --subclass="offer-of-employment-secondary" --to_user="evan" #robert executes
-    --create=relationship --subclass="request-of-employment-secondary" --to_user="robert" #evan executes
+    --create=relationship --subclass="offer-of-employment" --to_user="sib" --bid="4500 DASH" #maria executes
+    --create=relationship --subclass="request-of-employment" -to_user="maria" --ask="2200 DASH" #sib executes
+    --create=relationship --subclass="offer-of-employment-secondary" --to_user="sib" #robert executes
+    --create=relationship --subclass="request-of-employment-secondary" --to_user="robert" #sib executes
 
     # creating a relationship takes a two-way connection, if either party deletes a connection the employment is abandoned
     #  -- any of these will cause termination of employment, if employee doesn't find a new manager within 15 days
-    --delete=relationship --subclass="offer-of-employment" --to_user="evan" --bid="4500 DASH" #maria executes
+    --delete=relationship --subclass="offer-of-employment" --to_user="sib" --bid="4500 DASH" #maria executes
 
     # coming to terms
     #  -- employment is a bid/ask, amounts much match and can be revised
-    #  -- evan bids 4500 DASH 
+    #  -- sib bids 4500 DASH 
     #  -- maria bids 2200 DASH
-    #  -- evan amends 3400 DASH
-    --amend=relationship --subclass="offer-of-employment" --to_user="evan" --bid="3400 DASH" #maria executes
+    #  -- sib amends 3400 DASH
+    --amend=relationship --subclass="offer-of-employment" --to_user="sib" --bid="3400 DASH" #maria executes
 </pre>
 
 ## Expenses: Get reimbursed for something you're doing/did
 <pre>
     # Create the employement relationship between parties
-    --create=expense --subclass="travel" --to_user="maria" --bid="25.234 DASH" --desc="First Class Plane Ticket!"  #evan executes
-    --create=expense --subclass="travel" --to_user="evan" --bid="17.234 DASH" --desc="Not on our money."  #maria executes
+    --create=expense --subclass="travel" --to_user="maria" --bid="25.234 DASH" --desc="First Class Plane Ticket!"  #sib executes
+    --create=expense --subclass="travel" --to_user="sib" --bid="17.234 DASH" --desc="Not on our money."  #maria executes
 
     # coming to terms
     #  -- employment is a bid/ask, amounts much match and can be revised
-    #  -- evan bids 25.34 DASH 
+    #  -- sib bids 25.34 DASH 
     #  -- maria bids 17.234 DASH (network doesn't pay first class flights)
-    #  -- evan bids 17.234 DASH (paid next month)
-    --create=expense --subclass="travel" --to_user="maria" --bid="25.234 DASH" --desc="First Class Plane Ticket!"  #evan executes
+    #  -- sib bids 17.234 DASH (paid next month)
+    --create=expense --subclass="travel" --to_user="maria" --bid="25.234 DASH" --desc="First Class Plane Ticket!"  #sib executes
 </pre>
