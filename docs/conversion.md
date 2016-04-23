@@ -12,10 +12,10 @@
 
 <pre>
     Sib : Employee, paid $2000/mo
-    Maria : Employee, paid $1200/mo 
+    Maria : Manager, paid $1200/mo 
     Tonio : Employee, paid $1400/mo 
     Vien : Employee, paid $1100/mo 
-    Calgari : Employee, paid $500/mo
+    Calgari : Manager, paid $1500/mo
     Picazo: Employee, paid $700/mo
     Micco : Employer, paid $700/mo
     Robby : Employer, paid $1100/mo
