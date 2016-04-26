@@ -55,6 +55,21 @@ CREATE TABLE `user` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+/* projects */
+CREATE TABLE `project` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) DEFAULT NULL, /* name of the project */
+  `desc` varchar(255) DEFAULT NULL,
+  `bounty1` int(11) DEFAULT NULL, /* bounty 1 - dash amount */
+  `bounty2` int(11) DEFAULT NULL, /* bounty 2 - dash amount */
+  `bounty3` int(11) DEFAULT NULL, /* bounty 3 - dash amount */
+  `primary_manager` varchar(255) DEFAULT NULL,
+  `secondary_mananger` varchar(255) DEFAULT NULL,
+  `primary_user_id` int(1) DEFAULT NULL, 
+  `secondary_user_id` varchar(255) DEFAULT NULL
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 
 CREATE TABLE `expense` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,

@@ -11,16 +11,19 @@
 - I believe we should target ~30-50% of the budget to salary allocation. This will include "outside" projects as well.
 
 <pre>
-    Sib : Employee, paid $2000/mo
-    Maria : Manager, paid $1200/mo 
-    Tonio : Employee, paid $1400/mo 
-    Vien : Employee, paid $1100/mo 
-    Calgari : Manager, paid $1500/mo
-    Picazo: Employee, paid $700/mo
-    Micco : Employer, paid $700/mo
-    Robby : Employer, paid $1100/mo
-    Fudd : Employee, paid $500/mo
-    Lickidy : Employee, paid $1100/mo 
-    Micca : Employee, paid $500/mo
-    Gala : Employee, paid $1300/mo 
+    Random Employee/Manager
+
+    Terra : Manager, paid $1200/mo 
+    Cyan : Manager, paid $1500/mo
+    Setzer : Employer, paid $700/mo
+    Relm : Employer, paid $1100/mo
+    
+    Cid : Employee, paid $2000/mo
+    Locke : Employee, paid $1400/mo 
+    Celes : Employee, paid $1100/mo 
+    Edgar: Employee, paid $700/mo
+    Sabin : Employee, paid $500/mo
+    Mog : Employee, paid $1100/mo 
+    Strango : Employee, paid $500/mo
+    Gogo : Employee, paid $1300/mo 
 </pre>
