@@ -59,23 +59,44 @@ CREATE TABLE `user` (
 CREATE TABLE `project` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(255) DEFAULT NULL, /* name of the project */
-  `desc` varchar(255) DEFAULT NULL,
+  `description` varchar(255) DEFAULT NULL,
   `bounty1` int(11) DEFAULT NULL, /* bounty 1 - dash amount */
   `bounty2` int(11) DEFAULT NULL, /* bounty 2 - dash amount */
   `bounty3` int(11) DEFAULT NULL, /* bounty 3 - dash amount */
-  `primary_manager` varchar(255) DEFAULT NULL,
-  `secondary_mananger` varchar(255) DEFAULT NULL,
-  `primary_user_id` int(1) DEFAULT NULL, 
-  `secondary_user_id` varchar(255) DEFAULT NULL
+  `assigned_party` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+
+/* party */
+CREATE TABLE `party` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) DEFAULT NULL, /* name of the project */
+  `description` varchar(255) DEFAULT NULL,
+  /* seven users max per party */
+  `manager1` int(11) DEFAULT NULL, /* primary */
+  `manager2` int(11) DEFAULT NULL, /* secondary */
+  `employee1` int(11) DEFAULT NULL,
+  `employee2` int(11) DEFAULT NULL,
+  `employee3` int(11) DEFAULT NULL,
+  `employee4` int(11) DEFAULT NULL,
+  `employee5` int(11) DEFAULT NULL,
+  /* salaries */
+  `salary_manager1` int(11) DEFAULT NULL,
+  `salary_manager2` int(11) DEFAULT NULL,
+  `salary_employee1` int(11) DEFAULT NULL,
+  `salary_employee2` int(11) DEFAULT NULL,
+  `salary_employee3` int(11) DEFAULT NULL,
+  `salary_employee4` int(11) DEFAULT NULL,
+  `salary_employee5` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `expense` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `governance_object_id` int(11) DEFAULT NULL,
   `parent_id` int(11) DEFAULT NULL,
-  `desc` text DEFAULT NULL,
+  `description` text DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -89,6 +110,19 @@ CREATE TABLE `action` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+/* 
+  payment types: expense, salary, bounty
+*/
+
+CREATE TABLE `payment` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `payment_type` varchar(255) DEFAULT NULL,
+  `parent_id` int DEFAULT NULL,
+  `start_time` datetime DEFAULT NULL,
+  `amount` decimal(7, 11) DEFAULT NULL,
+  `pubkey` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `event` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,

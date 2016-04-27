@@ -21,3 +21,21 @@ def convert_govobj_type_to_name(govtype):
     if govtype == 2: return "user"
 
     return "error"
+
+## check parameters from the user
+
+def is_valid_address(args):
+    try:
+        if args.address1 or not args.address2 or not args.city or not args.state or not args.country: 
+            return False
+    except:
+        pass
+    return True
+
+def is_valid_first_last_name(args):
+    try:
+        if args.first_name or not args.last_name: 
+            return False
+    except:
+        pass
+    return True
