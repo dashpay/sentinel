@@ -88,3 +88,6 @@ ENV/
 
 # modeler files
 config.py
+
+.DS_Store
+docs/.DS_Store
