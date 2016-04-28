@@ -6,10 +6,10 @@ import json
     take any non-meta attributes and serialize them into a register
 """
 
-def convert_object_to_registers(obj):
+def convert_object_to_data(obj):
     return json.dumps(obj)
 
-def convert_register_to_object(obj):
+def convert_data_to_object(obj):
     return json.loads(obj)
 
 def convert_govobj_name_to_type(govname):

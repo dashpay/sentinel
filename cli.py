@@ -23,32 +23,27 @@ class SentinelShell(cmd.Cmd):
     def do_user(self, arg):
         'create a new governance object'
         ' user [--create --delete --amend] '
-        '    --revision=2 --pubkey=XPubkey --name="cid" '
-        '    --first_name --last_name --address1 --address2 --city --state --country '
+        '   --create --revision=1 --pubkey=XPubkey --username="user-cid" '
+        '   --amend --revision="next" --username="user-cid" --class="employee" --managed_by="user-terra" --project="release-dash-core-12.1x"'
+        '   --set-best-revision="newest" --username="user-cid" '
 
         parser = argparse.ArgumentParser(description='Create a dash evolution user using sentinel.')
 
-        # governance objects
-        parser.add_argument('-k', '--create', help="create") #
-        parser.add_argument('-l', '--delete', help="delete") #
-        parser.add_argument('-o', '--amend', help="amend")
-        parser.add_argument('-p', '--revision', help="revision")
-        parser.add_argument('-m', '--subclass', help="subclass")
-        parser.add_argument('-s', '--set-best-revision', help='set best revision')
+        # desired action
+        parser.add_argument('-a', '--create', help="create") #
+        parser.add_argument('-b', '--delete', help="delete") #
+        parser.add_argument('-g', '--amend', help="amend")
+        parser.add_argument('-h', '--set-best-revision', help='tell sentinel which revision to prefer')
 
-        # identity
-        parser.add_argument('-y', '--pubkey', help='pubkey')
+        # object identity (existentially... what does it mean to be a pubkey?)
+        parser.add_argument('-k', '--pubkey', help='your public key for this username (only required for --create)')
 
-        # meta data
-        parser.add_argument('-a', '--name', help='name')
-        parser.add_argument('-b', '--first_name', help='first_name')
-        parser.add_argument('-c', '--last_name', help='last_name')
-
-        parser.add_argument('-e', '--address1', help='address1')
-        parser.add_argument('-f', '--address2', help='address2')
-        parser.add_argument('-g', '--city', help='city') #h
-        parser.add_argument('-i', '--state', help='state')
-        parser.add_argument('-j', '--country', help='country')
+        # meta data (create or amend)
+        parser.add_argument('-r', '--revision', help="this revision number")
+        parser.add_argument('-u', '--username', help='your evolution username')
+        parser.add_argument('-c', '--class', help="classes available: none, employee, manager")
+        parser.add_argument('-m', '--managed_by', help='Who manages you?')
+        parser.add_argument('-p', '--project', help='What project are you working on?')
 
         # process
 
@@ -72,55 +67,65 @@ class SentinelShell(cmd.Cmd):
             if not misc.is_valid_address(args):    
                 print "user create requires a valid name --address1 --address2 --city --state --country"
 
-    # ----- alter a party -----
-    def do_party(self, arg):
-        'create/amend/delete a party'
-        ' party [--create --delete --amend] --name="dragon" --primary-manager="terra=100" --secondary-manager="cyan:50" --primary-employee="cid:300"'
 
-        parser = argparse.ArgumentParser(description='Create a new party and do cool stuff.')
+    # ----- alter a payday record -----
+    def do_payday(self, arg):
+        'create a new payday for your dash evolution user'
 
-        # generice governance object instruction
-        parser.add_argument('-j', '--create', help="create") #
-        parser.add_argument('-k', '--delete', help="delete") #
-        parser.add_argument('-l', '--amend', help="amend")
-        parser.add_argument('-m', '--revision', help="revision")
-        parser.add_argument('-n', '--name', help="name")
+        parser = argparse.ArgumentParser(description='Create a dash evolution payday using sentinel.')
 
-        #party instructions
-        parser.add_argument('-q', '--manager1')
-        parser.add_argument('-r', '--manager2')
-        parser.add_argument('-s', '--employee1')
-        parser.add_argument('-t', '--employee2')
-        parser.add_argument('-u', '--employee3')
-        parser.add_argument('-v', '--employee4')
-        parser.add_argument('-w', '--employee5')
+        # desired action
+        parser.add_argument('-a', '--create', help="create") #
 
-    # ----- alter a project -----
+        # meta data (create or amend)
+        parser.add_argument('-u', '--username', help='your evolution username')
+        parser.add_argument('-d', '--date', help='The agreed upon expenses for this period')
+        parser.add_argument('-i', '--income', help='The agreed upon pay for this period')
+        parser.add_argument('-e', '--expenses', help='The agreed upon pay for this period')
+        parser.add_argument('-s', '--signature1', help='Ask primary manager to sign off')
+        parser.add_argument('-t', '--signature2', help='Ask secondary manager to sign off')
+
+        # process
+
+        args = None
+        try:
+            args = parser.parse_args(parse(arg))
+        except:
+            pass
+
+        if not args:
+            return
+
+        ## creation requires a valid name, address, pubkey, etc
+        if not args.create:    
+            if not 'username' in args.__dict__:
+                print "user creation requires --username"
+
+            if not misc.is_name_valid(args):    
+                print "user create requires a valid name --first_name and --last_name"
+
+            if not misc.is_valid_address(args):    
+                print "user create requires a valid name --address1 --address2 --city --state --country"
+
+    # ----- alter a project record -----
     def do_project(self, arg):
         'create/amend/delete a project'
-        ' project --(create|delete|amend) --name --revision --bounty1 --bounty2 --bounty3 --pubkey'
-        ' project --assign-party=name'
-        ' project --release-bounty=1 to 3'
+        ' project --create --name="release-dash-core-12.1x" --description="devops for 12.1x"'
+        ' project --support --name="release-dash-core-12.1x"'
 
-        parser = argparse.ArgumentParser(description='Create a dash evolution user using sentinel.')
+        parser = argparse.ArgumentParser(description='Create a dash evolution project.')
 
-        # generice governance object instruction
-        parser.add_argument('-j', '--create', help="create") #
-        parser.add_argument('-k', '--delete', help="delete") #
-        parser.add_argument('-l', '--amend', help="amend")
-        parser.add_argument('-m', '--revision', help="revision")
+        # desired action
+        parser.add_argument('n', '--new', help="new") #
 
-        # bounties
-        parser.add_argument('-b', '--bounty1', help="set-bounty-1")
-        parser.add_argument('-c', '--bounty2', help="set-bounty-2")
-        parser.add_argument('-d', '--bounty3', help="set-bounty-3")
-        parser.add_argument('-e', '--release-bounty', help="release bounty 1, 2 or 3")
+        # meta data (create or amend)
+        parser.add_argument('-c', '--class', help="available classes: software, hardware, legal, etc?")
+        parser.add_argument('-e', '--name', help="this project name")
+        parser.add_argument('-d', '--description', help="classes available: none, employee, manager")
 
-        # party
-        parser.add_argument('-p', '--assign-party', help="assign a party to this project")
-
-        # process arg
-
+        # signal support
+        parser.add_argument('-s', '--support', help="provide support for this project (voting)")
+        
         args = None
         try:
             args = parser.parse_args(parse(arg))
@@ -133,19 +138,22 @@ class SentinelShell(cmd.Cmd):
         if not misc.is_valid_address(args):    
             print "Correct usage is create username first last address1 address2 city state country"
 
-    # ----- alter a expense -----
-    def do_expense(self, arg):
-        'create a new governance object'
-        '  expense --project_name=2017-promotion --user_name=cid --amount='
+
+    # ----- alter a project record -----
+    def do_report(self, arg):
+        'create/amend/delete a project'
+        ' report --new --project_name --url'
 
         parser = argparse.ArgumentParser(description='Create a dash evolution user using sentinel.')
 
-        # governance objects
-        parser.add_argument('-n', '--project_name', help="project_name")
-        parser.add_argument('-u', '--username', help="username")
-        parser.add_argument('-a', '--amount', help="amount") 
+        # desired action
+        parser.add_argument('-n', '--new', help="make a new report") #
 
-        # process arg
+        # meta data (create or amend)
+        parser.add_argument('-p', '--project_name', help="this project name")
+        parser.add_argument('-u', '--url', help="where is the url for the report?")
+        parser.add_argument('-d', '--description', help="the description of what the report is for")
+
 
         args = None
         try:
@@ -155,11 +163,9 @@ class SentinelShell(cmd.Cmd):
 
         if not args:
             return
-
-        " this is an expense. Each has a project and an employee. If the user is the project mananger we'll submit it as a bid, otherwise it's an ask "
-        "   -- the matching engine will pay when specific criterion are met"
-
-        # process
+    
+        if not misc.is_valid_address(args):    
+            print "Correct usage is create username first last address1 address2 city state country"
     
     # ----- vote on something -----
     def do_vote(self, arg):
@@ -174,19 +180,6 @@ class SentinelShell(cmd.Cmd):
         parser.add_argument('-o', '--outcome')
         parser.add_argument('-h', '--hash')
         parser.add_argument('-n', '--name')
-        parser.add_argument('-k', '--pubkey')
-
-    # ----- (internally used) make a new payment from the dash blockchain -----
-    def do_payment(self, arg):
-        'Do a payment'
-
-        parser = argparse.ArgumentParser(description='Vote on governance objects and signal what dash should do with them.')
-
-        #voting
-        parser.add_argument('-t', '--type')
-        parser.add_argument('-p', '--parent_id')
-        parser.add_argument('-s', '--start_time')
-        parser.add_argument('-a', '--amount')
         parser.add_argument('-k', '--pubkey')
 
 def parse(arg):
@@ -204,12 +197,8 @@ if __name__ == '__main__':
         SentinelShell().do_project(" ".join(args[1:]))
     elif args[0] == "vote":
         SentinelShell().do_vote(" ".join(args[1:]))
-    elif args[0] == "expense":
-        SentinelShell().do_expense(" ".join(args[1:]))
-    elif args[0] == "payment":
-        SentinelShell().do_payment(" ".join(args[1:]))
-    elif args[0] == "party":
-        SentinelShell().do_party(" ".join(args[1:]))
+    elif args[0] == "payday":
+        SentinelShell().do_payday(" ".join(args[1:]))
     else:
         SentinelShell().cmdloop()
 
@@ -217,44 +206,28 @@ if __name__ == '__main__':
     Test Flow (to be moved into unit tests):
 
     1.)  create our required users
-         user --create --revision=1 --pubkey=XPubkey --name="user-terra" --first_name="terra" --last_name="" --address1="Pobox 456" --address2="" --city="Miami" --state="FL" --country="USA"
-         user --create --revision=1 --pubkey=XPubkey --name="user-cyan" --first_name="cyan" --last_name="" --address1="Pobox 222" --address2="" --city="New York" --state="NY" --country="USA"
-         user --create --revision=1 --pubkey=XPubkey --name="user-cid" --first_name="cid" --last_name="" --address1="Pobox 123" --address2="" --city="Phoenix" --state="AZ" --country="USA"
-         user --create --revision=1 --pubkey=XPubkey --name="user-locke" --first_name="locke" --last_name="" --address1="Pobox 789" --address2="" --city="Portland" --state="OR" --country="USA"
+         user --create --revision=1 --pubkey=XPubkey --name="user-terra" 
+         user --create --revision=1 --pubkey=XPubkey --name="user-cid"
 
     2.)  self-promote our people
-         user --amend --revision=2 --name="user-terra" --subclass="manager"
-         user --amend --revision=2 --name="user-cyan" --subclass="manager"
-         user --amend --revision=2 --name="user-cid" --subclass="employee"
-         user --amend --revision=2 --name="user-locke" --subclass="employee"
+         user --amend --revision=2 --name="user-terra" --class="manager" --managed_by="user-cyan"
+         user --amend --revision=2 --name="user-cid" --class="employee" --managed_by="user-cid"
 
     3.)  manual masternode action
          # masternodes will vote valid=yes on rev=1 and valid=no on all others
          user --set-best-revision=2 --name="user-terra" 
-         user --set-best-revision=2 --name="user-cyan" 
          user --set-best-revision=2 --name="user-cid" 
-         user --set-best-revision=2 --name="user-locke"
 
-    4.)  Rejoice! We have setup some simple records, now we need to create the party.
+    4.) cid & terra privately make a deal for compensation
+         payday --name="user-terra" --date="2017-1-1" --income="333 USD" --expense="0 USD" --signature1="HEXSIGNATURE" --signature2="HEXSIGNATURE2"
+         payday --name="user-cid" --date="2017-1-1" --income="999 USD" --expense="0 USD" --signature1="HEXSIGNATURE" --signature2="HEXSIGNATURE2"
 
-    5.)  create a party, which is a small group of people which work on projects
-         party --create --revision=1 --name="dragon" --manager1="terra:100" --manager2="cyan:50 DASH" --employee1="cid:300 DASH" #terra signs
-         party --create --revision=1 --name="dragon" --manager1="terra:100" --manager2="cyan:50 DASH" --employee1="cid:300 DASH" #cyan signs
-         party --create --revision=1 --name="dragon" --manager1="terra:100" --manager2="cyan:50 DASH" --employee1="cid:300 DASH" #cid signs
+         # expenses and income are signed off on, the network will automatically switch revisions in this case
 
-    6.)  Someone creates a project
-         project --create --name="dash-con" --bounty1="100 DASH"
+    5.) cid & terra privately make a deal for expenses
+         payday --name="user-terra" --date="2017-01-15" --income="0 USD" --expense="333 USD" --signature1="HEXSIGNATURE" --signature2="HEXSIGNATURE2"
+         payday --name="user-cid" --date="2017-01-15" --income="0 USD" --expense="999 USD" --signature1="HEXSIGNATURE" --signature2="HEXSIGNATURE2"
 
-    7.)  Network assigns a project to a party (best revision)
-         project --assign-party="dragon" --name="dash-con"
-
-    8.)  Request an expense get paid for 256
-         expense --project-name="dash-con" --amount="256 DASH" #cid
-         expense --project-name="dash-con" --amount="256 DASH" #terra
-         expense --project-name="dash-con" --amount="256 DASH" #cyan
-
-    9.)  Release project bounty
-         project --name="dash-coin" --release-bounty==1 #terra
-         project --name="dash-coin" --release-bounty==1 #cyan
+         
 
 """
