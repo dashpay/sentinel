@@ -44,7 +44,7 @@ CREATE TABLE `governance_object` (
 
 CREATE TABLE `user` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `class` varchar(255) DEFAULT NULL, /* employer / employee */
+  `subclass` varchar(255) DEFAULT NULL, /* employer / employee */
   `username` varchar(255) DEFAULT NULL,
   `managed_by` varchar(255) DEFAULT NULL,
   `project` varchar(255) DEFAULT NULL,
@@ -65,7 +65,7 @@ CREATE TABLE `project` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(255) DEFAULT NULL, /* name of the project */
   `description` varchar(255) DEFAULT NULL,
-  `class` varchar(255) DEFAULT NULL,
+  `subclass` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -84,5 +84,15 @@ CREATE TABLE `event` (
   `start_time` datetime DEFAULT NULL,
   `prepare_time` datetime DEFAULT NULL,
   `submit_time` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+CREATE TABLE `setting` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `datetime` datetime DEFAULT NULL,
+  `setting` varchar(255) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `value` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

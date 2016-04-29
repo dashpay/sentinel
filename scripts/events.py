@@ -12,10 +12,15 @@ sys.path.append("lib")
 import mysql 
 import config 
 
-from govobj import GovernanceObject
-import events
-from event import Event
+from governance  import GovernanceObject
+from objects import Event
+
 import dashd
+
+' scripts/events.py '
+' ------------------------------- '
+
+' Flat module for processing sentinel events '
 
 def clear():
     sql = "delete from event where prepare_time is NULL or submit_time is NULL"

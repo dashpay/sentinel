@@ -10,10 +10,9 @@ sys.path.append("../scripts")
 
 import mysql 
 import misc
-from event import Event
 import binascii
 
-from objects import User, Project, Report, Payday
+from objects import User, Project, Report, Payday, Event
 
 class GovernanceObjectMananger:
 
@@ -50,6 +49,9 @@ class GovernanceObject:
     def __init__(self):
         pass
 
+    def get_hash(self):
+        return self.governance_object["object_hash"];
+
     def create_new(self, parent_name, name, type, revision, pubkey, fee_tx, creation_time):
         parent = GovernanceObjectMananger.find_object_by_name(parent_name);
         if parent == None:
@@ -66,7 +68,7 @@ class GovernanceObject:
             "object_revision" : object_revision,
             "object_pubkey" : pubkey,
             "object_fee_tx" : self.fee_tx,
-            "object_data" : ""
+            "object_data" : "",
             "action_none_id" : 0,
             "action_funding_id" : 0,
             "action_valid_id" : 0,
@@ -119,8 +121,8 @@ class GovernanceObject:
 
         return True
 
-    def add_subclass(self, class):
-        objects.append(class)
+    def add_subclass(self, subclass):
+        objects.append(subclass)
 
     def load(self, record_id):
 

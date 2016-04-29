@@ -5,12 +5,14 @@ import sys
 sys.path.append("lib")
 sys.path.append("scripts") 
 
-from govobj import GovernanceObject
 import misc
 import mysql
 import config
 import events
 import cmd, sys
+
+from governance import GovernanceObject
+from objects import Setting
 
 db = mysql.connect(config.hostname, config.username, config.password, config.database)
 
@@ -25,16 +27,15 @@ class SentinelShell(cmd.Cmd):
         ' user [--create --delete --amend] '
         '   --create --revision=1 --pubkey=XPubkey --username="user-cid" '
         '   --delete --revision=1 --username="user-cid" '
-        '   --amend --revision="next" --username="user-cid" --class="employee" --managed_by="user-terra" --project="release-dash-core-12.1x"'
-        '   --set-best-revision="newest" --username="user-cid" '
+        '   --amend --revision="next" --username="user-cid" --subclass="employee" --managed_by="user-terra" --project="release-dash-core-12.1x"'
 
         parser = argparse.ArgumentParser(description='Create a dash evolution user using sentinel.')
 
         # desired action
-        parser.add_argument('-a', '--create', help="create") #
-        parser.add_argument('-b', '--delete', help="delete") #
+        parser.add_argument('-a', '--create', help="create")
+        parser.add_argument('-b', '--delete', help="delete")
         parser.add_argument('-g', '--amend', help="amend")
-        parser.add_argument('-h', '--set-best-revision', help='tell sentinel which revision to prefer')
+        parser.add_argument('-d', '--best', help="best")
 
         # object identity (existentially... what does it mean to be a pubkey?)
         parser.add_argument('-k', '--pubkey', help='your public key for this username (only required for --create)')
@@ -42,7 +43,7 @@ class SentinelShell(cmd.Cmd):
         # meta data (create or amend)
         parser.add_argument('-r', '--revision', help="this revision number")
         parser.add_argument('-u', '--username', help='your evolution username')
-        parser.add_argument('-c', '--class', help="classes available: none, employee, manager")
+        parser.add_argument('-c', '--subclass', help="subclasses available: none, employee, manager")
         parser.add_argument('-m', '--managed_by', help='Who manages you?')
         parser.add_argument('-p', '--project', help='What project are you working on?')
 
@@ -57,10 +58,26 @@ class SentinelShell(cmd.Cmd):
         if not args:
             return
 
-        ### ------ SET BEST REVISION METHOD -------- ####
+        ### ------ SET BEST -------- ####
 
-        if args.set_best_revision:
-            print "unimplemented"
+        if args.username or args.best:
+            obj = GovernanceObject.find_object_by_name(args.username)
+            if obj is None:
+                print "object could not be found"
+                return 
+
+            if args.best == "newest":
+                revision = obj.get_newest_revision()
+
+            if isinstance(args.best, int):
+                revision = args.best
+                print "revision is int"
+
+            setting = Setting()
+            settings.create_new("object.best", obj.get_hash(), revision)
+            if settings.save():
+                print "saved setting"
+
             return
 
         ### ------ CREATE METHOD -------- ####
@@ -88,16 +105,20 @@ class SentinelShell(cmd.Cmd):
         ### ------ AMEND METHOD -------- ####
 
         if args.amend:
-            #--amend --revision="next" --username="user-cid" --class="employee" 
+            #--amend --revision="next" --username="user-cid" --subclass="employee" 
             if not args.revision or not args.pubkey or not args.username:
                 print "user create requires a valid revision, pubkey, username"
 
             #--managed_by="user-terra" --project="release-dash-core-12.1x"'
-            if not args.class or not args.managed_by or not args.project:
-                print "user amendment requires a valid reason for the update, either --class or --managed_by or --project "
+            if not args.subclass or not args.managed_by or not args.project:
+                print "user amendment requires a valid reason for the update, either --subclass or --managed_by or --project "
 
             print "unimplemented"
             return
+
+        ### ------- ELSE PRINT HELP --------------- ### 
+
+        parser.print_help()
 
 
     # ----- alter a payday record -----
@@ -136,37 +157,9 @@ class SentinelShell(cmd.Cmd):
             print "unimplemented"
             return
 
+        ### ------- ELSE PRINT HELP --------------- ### 
 
-    # ----- alter a project record -----
-    def do_project(self, arg):
-        'create/amend/delete a project'
-        ' project --create --name="release-dash-core-12.1x" --description="devops for 12.1x"'
-
-        parser = argparse.ArgumentParser(description='Create a dash evolution project.')
-
-        # desired action
-        parser.add_argument('n', '--new', help="new") #
-
-        # meta data (create or amend)
-        parser.add_argument('-c', '--class', help="available classes: software, hardware, legal, etc?")
-        parser.add_argument('-e', '--name', help="this project name")
-        parser.add_argument('-d', '--description', help="classes available: none, employee, manager")
-        
-        args = None
-        try:
-            args = parser.parse_args(parse(arg))
-        except:
-            pass
-
-        if not args:
-            return
-    
-        ### ------ NEW METHOD -------- ####
-
-        if args.new:
-            if args.name or args.class or args.description:
-                print "unimplemented"
-                return
+        parser.print_help()
 
     # ----- alter a project record -----
     def do_report(self, arg):
@@ -196,6 +189,9 @@ class SentinelShell(cmd.Cmd):
         if not misc.is_valid_address(args):    
             print "Correct usage is create username first last address1 address2 city state country"
 
+        ### ------- ELSE PRINT HELP --------------- ### 
+
+        parser.print_help()
 
     # ----- alter a project record -----
     def do_project(self, arg):
@@ -205,10 +201,11 @@ class SentinelShell(cmd.Cmd):
         parser = argparse.ArgumentParser(description='Create a dash evolution project.')
 
         # desired action
-        parser.add_argument('n', '--new', help="new") #
+        parser.add_argument('-n', '--new', help="create a new project") #
+        parser.add_argument('-b', '--best', help="tell sentinel which version is best") #
 
         # meta data (create or amend)
-        parser.add_argument('-c', '--class', help="available classes: software, hardware, legal, etc?")
+        parser.add_argument('-c', '--subclass', help="available classes: software, hardware, legal, etc?")
         parser.add_argument('-e', '--name', help="this project name")
         parser.add_argument('-d', '--description', help="classes available: none, employee, manager")
         
@@ -220,13 +217,38 @@ class SentinelShell(cmd.Cmd):
 
         if not args:
             return
-    
+
+        ### ------ SET BEST -------- ####
+
+        if args.name or args.best:
+            obj = GovernanceObject.get_newest_revision(args.name)
+            if obj is None:
+                print "object could not be found"
+                return 
+
+            if args.best == "newest":
+                revision = obj.get_newest_revision()
+
+            if isinstance(args.best, int):
+                revision = GovernanceObject.get_newest_revision(args.name)
+
+            setting = Setting()
+            settings.create_new("object.best", obj.get_hash(), revision)
+            if settings.save():
+                print "saved setting"
+
+            return
+
         ### ------ NEW METHOD -------- ####
 
         if args.new:
-            if args.name or args.class or args.description:
+            if args.name or args.subclass or args.description:
                 print "unimplemented"
                 return
+
+        ### ------- ELSE PRINT HELP --------------- ### 
+
+        parser.print_help()
 
     # ----- use your masternodes to vote yes on an object -----
     def do_support(self, arg):
@@ -252,6 +274,10 @@ class SentinelShell(cmd.Cmd):
             print "unimplemented"
             return
 
+        ### ------- ELSE PRINT HELP --------------- ### 
+
+        parser.print_help()
+
     # ----- use your masternodes to vote no on an object -----
     def do_abandon(self, arg):
         ' abandon --name="release-dash-core-12.1x"'
@@ -275,6 +301,10 @@ class SentinelShell(cmd.Cmd):
         if args.name:
             print "unimplemented"
             return
+
+        ### ------- ELSE PRINT HELP --------------- ### 
+
+        parser.print_help()
 
     # ----- use your masternodes to vote abstain on an object -----
     def do_abstain(self, arg):
@@ -300,6 +330,9 @@ class SentinelShell(cmd.Cmd):
             print "unimplemented"
             return
 
+        ### ------- ELSE PRINT HELP --------------- ### 
+
+        parser.print_help()
     
     # ----- (internal) vote on something -----
     def do___internal_vote(self, arg):
@@ -312,9 +345,20 @@ class SentinelShell(cmd.Cmd):
         parser.add_argument('-t', '--times')
         parser.add_argument('-p', '--type')
         parser.add_argument('-o', '--outcome')
-        parser.add_argument('-h', '--hash')
-        parser.add_argument('-n', '--name')
+        parser.add_argument('-n', '--hash')
         parser.add_argument('-k', '--pubkey')
+
+        ### ------- ELSE PRINT HELP --------------- ### 
+
+        parser.print_help()
+
+    # ----- quit the program -----
+    def do_quit(self, arg):
+        ' exit(0)'
+
+        print "goodbye."
+        sys.exit(0)
+        return
 
 def parse(arg):
     'Convert a series of zero or more numbers to an argument tuple'
@@ -325,14 +369,15 @@ args = sys.argv[1:]
 
 if __name__ == '__main__':
 
-    if args[0] == "user":
-        SentinelShell().do_user(" ".join(args[1:]))
-    elif args[0] == "project":
-        SentinelShell().do_project(" ".join(args[1:]))
-    elif args[0] == "vote":
-        SentinelShell().do_vote(" ".join(args[1:]))
-    elif args[0] == "payday":
-        SentinelShell().do_payday(" ".join(args[1:]))
+    if len(args) > 1:
+        if args[0] == "user":
+            SentinelShell().do_user(" ".join(args[1:]))
+        elif args[0] == "project":
+            SentinelShell().do_project(" ".join(args[1:]))
+        elif args[0] == "vote":
+            SentinelShell().do_vote(" ".join(args[1:]))
+        elif args[0] == "payday":
+            SentinelShell().do_payday(" ".join(args[1:]))
     else:
         SentinelShell().cmdloop()
 
@@ -344,8 +389,8 @@ if __name__ == '__main__':
          user --create --revision=1 --pubkey=XPubkey --name="user-cid"
 
     2.)  self-promote our people
-         user --amend --revision=2 --name="user-terra" --class="manager" --managed_by="user-cyan"
-         user --amend --revision=2 --name="user-cid" --class="employee" --managed_by="user-cid"
+         user --amend --revision=2 --name="user-terra" --subclass="manager" --managed_by="user-cyan"
+         user --amend --revision=2 --name="user-cid" --subclass="employee" --managed_by="user-cid"
 
     3.)  manual masternode action
          # masternodes will vote valid=yes on rev=1 and valid=no on all others

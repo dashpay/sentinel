@@ -12,69 +12,7 @@ import mysql
 from misc import *
 import event
 
-class User:
-    user = {}
-    def __init__(self):
-        pass
 
-    def create_new(self, last_id):
-        self.user["governance_object_id"] = last_id
-        self.user["class"] = ""
-        self.user["username"] = ""
-        self.user["revision"] = ""
-        self.user["managed_by"] = ""
-        self.user["project"] = ""
-        self.user["pubkey"] = ""
-
-    def load(self, record_id):
-        sql = """
-            select
-                governance_object_id,
-                class,
-                username,
-                revision,
-                project,
-                managed_by
-            from user where 
-                id = %s """ % record_id
-
-        mysql.db.query(sql)
-        res = mysql.db.store_result()
-        row = res.fetch_row()
-        if row:
-            print row[0]
-            (self.user["governance_object_id"], self.user["class"], self.user["username"], 
-                self.user["revision"], self.user["project"], self.user["managed_by"]) = row[0]
-            print "loaded user successfully"
-
-            return True
-
-        return False
-
-    def get_id(self):
-        pass
-
-    def save(self):
-        sql = """            
-            INSERT INTO user 
-                (governance_object_id, subclass, address1, address2, city, state, country)
-            VALUES
-                ('%(governance_object_id)s','%(subclass)s','%(address1)s','%(address2)s','%(city)s','%(state)s','%(country)')
-            ON DUPLICATE KEY UPDATE
-                governance_object_id='%(governance_object_id)s',
-                subclass='%(subclass)s',
-                address1='%(address1)s',
-                address2='%(address2)s',
-                city='%(city)s',
-                state='%(state)s',
-                country='%(country)'
-        """
-
-        mysql.db.query(sql % self.user)
-
-
-    def set_field(self, name, value):
-        self.user[name] = value
 
 class Payday:
     payday = {}
@@ -312,3 +250,125 @@ class Event:
         """
 
         mysql.db.query(sql % self.event)
+
+
+class Setting:
+    setting = {}
+    def __init__(self):
+        pass
+
+    def create_new(self, setting, name, value):
+        self.setting["id"] = 0
+        self.setting["setting"] = setting
+        self.setting["name"] = name
+        self.setting["value"] = value
+
+    def load(self, record_id):
+        sql = """
+            select
+                id,
+                name,
+                value
+            from setting where 
+                id = %s """ % record_id
+
+        mysql.db.query(sql)
+        res = mysql.db.store_result()
+        row = res.fetch_row()
+        if row:
+            print row[0]
+            (self.setting["id"], self.setting["name"], self.setting["value"]) = row[0]
+            print "loaded setting successfully"
+
+            return True
+
+        return False
+
+    def get_id(self):
+        pass
+
+    def save(self):
+        sql = """            
+            INSERT INTO setting 
+                (id, setting, name, value)
+            VALUES
+                ('%(id)s','%(setting)s','%(name)s','%(value)s')
+            ON DUPLICATE KEY UPDATE
+                id='%(id)s',
+                setting='%(setting)s',
+                name='%(name)s',
+                value='%(value)s'
+        """
+
+        mysql.db.query(sql % self.user)
+
+        return True
+
+
+    def set_field(self, name, value):
+        self.user[name] = value
+
+
+class User:
+    user = {}
+    def __init__(self):
+        pass
+
+    def create_new(self, last_id):
+        self.user["governance_object_id"] = last_id
+        self.user["class"] = ""
+        self.user["username"] = ""
+        self.user["revision"] = ""
+        self.user["managed_by"] = ""
+        self.user["project"] = ""
+        self.user["pubkey"] = ""
+
+    def load(self, record_id):
+        sql = """
+            select
+                governance_object_id,
+                class,
+                username,
+                revision,
+                project,
+                managed_by
+            from user where 
+                id = %s """ % record_id
+
+        mysql.db.query(sql)
+        res = mysql.db.store_result()
+        row = res.fetch_row()
+        if row:
+            print row[0]
+            (self.user["governance_object_id"], self.user["class"], self.user["username"], 
+                self.user["revision"], self.user["project"], self.user["managed_by"]) = row[0]
+            print "loaded user successfully"
+
+            return True
+
+        return False
+
+    def get_id(self):
+        pass
+
+    def save(self):
+        sql = """            
+            INSERT INTO user 
+                (governance_object_id, subclass, address1, address2, city, state, country)
+            VALUES
+                ('%(governance_object_id)s','%(subclass)s','%(address1)s','%(address2)s','%(city)s','%(state)s','%(country)')
+            ON DUPLICATE KEY UPDATE
+                governance_object_id='%(governance_object_id)s',
+                subclass='%(subclass)s',
+                address1='%(address1)s',
+                address2='%(address2)s',
+                city='%(city)s',
+                state='%(state)s',
+                country='%(country)'
+        """
+
+        mysql.db.query(sql % self.user)
+
+
+    def set_field(self, name, value):
+        self.user[name] = value

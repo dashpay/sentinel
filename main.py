@@ -5,7 +5,7 @@ import sys
 sys.path.append("lib")
 sys.path.append("scripts") 
 
-from govobj import GovernanceObject
+from governance  import GovernanceObject
 import misc
 import mysql
 import config
