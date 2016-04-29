@@ -24,6 +24,7 @@ class SentinelShell(cmd.Cmd):
         'create a new governance object'
         ' user [--create --delete --amend] '
         '   --create --revision=1 --pubkey=XPubkey --username="user-cid" '
+        '   --delete --revision=1 --username="user-cid" '
         '   --amend --revision="next" --username="user-cid" --class="employee" --managed_by="user-terra" --project="release-dash-core-12.1x"'
         '   --set-best-revision="newest" --username="user-cid" '
 
@@ -56,21 +57,53 @@ class SentinelShell(cmd.Cmd):
         if not args:
             return
 
-        ## creation requires a valid name, address, pubkey, etc
-        if not args.create:    
-            if not 'username' in args.__dict__:
-                print "user creation requires --username"
+        ### ------ SET BEST REVISION METHOD -------- ####
 
-            if not misc.is_name_valid(args):    
-                print "user create requires a valid name --first_name and --last_name"
+        if args.set_best_revision:
+            print "unimplemented"
+            return
 
-            if not misc.is_valid_address(args):    
-                print "user create requires a valid name --address1 --address2 --city --state --country"
+        ### ------ CREATE METHOD -------- ####
+
+        if args.create:
+            #--create --revision=1 --pubkey=XPubkey --username="user-cid" 
+            if args.username:
+                print "user creation requires a username"
+                return
+
+            print "unimplemented"
+            return
+
+        ### ------ DELETE METHOD -------- ####
+
+        if args.delete:
+            # --delete --revision=1 --username="user-cid"
+            if not args.revision or not args.pubkey or not args.username or not args.pubkey:
+                print "user create requires a valid revision, pubkey, username"
+                return
+
+            print "unimplemented"
+            return
+
+        ### ------ AMEND METHOD -------- ####
+
+        if args.amend:
+            #--amend --revision="next" --username="user-cid" --class="employee" 
+            if not args.revision or not args.pubkey or not args.username:
+                print "user create requires a valid revision, pubkey, username"
+
+            #--managed_by="user-terra" --project="release-dash-core-12.1x"'
+            if not args.class or not args.managed_by or not args.project:
+                print "user amendment requires a valid reason for the update, either --class or --managed_by or --project "
+
+            print "unimplemented"
+            return
 
 
     # ----- alter a payday record -----
     def do_payday(self, arg):
         'create a new payday for your dash evolution user'
+        ' --create --username="username-cid" --date="2017-01-01" --income="342 DASH" --expenses="523 USD" --signature_one="s1" --signature_two="s2" '
 
         parser = argparse.ArgumentParser(description='Create a dash evolution payday using sentinel.')
 
@@ -82,8 +115,8 @@ class SentinelShell(cmd.Cmd):
         parser.add_argument('-d', '--date', help='The agreed upon expenses for this period')
         parser.add_argument('-i', '--income', help='The agreed upon pay for this period')
         parser.add_argument('-e', '--expenses', help='The agreed upon pay for this period')
-        parser.add_argument('-s', '--signature1', help='Ask primary manager to sign off')
-        parser.add_argument('-t', '--signature2', help='Ask secondary manager to sign off')
+        parser.add_argument('-s', '--signature_one', help='Ask primary manager to sign off')
+        parser.add_argument('-t', '--signature_two', help='Ask secondary manager to sign off')
 
         # process
 
@@ -96,22 +129,18 @@ class SentinelShell(cmd.Cmd):
         if not args:
             return
 
-        ## creation requires a valid name, address, pubkey, etc
-        if not args.create:    
-            if not 'username' in args.__dict__:
-                print "user creation requires --username"
+        ### ------ CREATE METHOD -------- ####
 
-            if not misc.is_name_valid(args):    
-                print "user create requires a valid name --first_name and --last_name"
+        if args.create:
+            # --create --username="username-cid" --date="2017-01-01" --income="342 DASH" --expenses="523 USD" --signature_one="s1" --signature_two="s2" 
+            print "unimplemented"
+            return
 
-            if not misc.is_valid_address(args):    
-                print "user create requires a valid name --address1 --address2 --city --state --country"
 
     # ----- alter a project record -----
     def do_project(self, arg):
         'create/amend/delete a project'
         ' project --create --name="release-dash-core-12.1x" --description="devops for 12.1x"'
-        ' project --support --name="release-dash-core-12.1x"'
 
         parser = argparse.ArgumentParser(description='Create a dash evolution project.')
 
@@ -122,9 +151,6 @@ class SentinelShell(cmd.Cmd):
         parser.add_argument('-c', '--class', help="available classes: software, hardware, legal, etc?")
         parser.add_argument('-e', '--name', help="this project name")
         parser.add_argument('-d', '--description', help="classes available: none, employee, manager")
-
-        # signal support
-        parser.add_argument('-s', '--support', help="provide support for this project (voting)")
         
         args = None
         try:
@@ -135,9 +161,12 @@ class SentinelShell(cmd.Cmd):
         if not args:
             return
     
-        if not misc.is_valid_address(args):    
-            print "Correct usage is create username first last address1 address2 city state country"
+        ### ------ NEW METHOD -------- ####
 
+        if args.new:
+            if args.name or args.class or args.description:
+                print "unimplemented"
+                return
 
     # ----- alter a project record -----
     def do_report(self, arg):
@@ -166,11 +195,116 @@ class SentinelShell(cmd.Cmd):
     
         if not misc.is_valid_address(args):    
             print "Correct usage is create username first last address1 address2 city state country"
+
+
+    # ----- alter a project record -----
+    def do_project(self, arg):
+        'create/amend/delete a project'
+        ' project --create --name="release-dash-core-12.1x" --description="devops for 12.1x"'
+
+        parser = argparse.ArgumentParser(description='Create a dash evolution project.')
+
+        # desired action
+        parser.add_argument('n', '--new', help="new") #
+
+        # meta data (create or amend)
+        parser.add_argument('-c', '--class', help="available classes: software, hardware, legal, etc?")
+        parser.add_argument('-e', '--name', help="this project name")
+        parser.add_argument('-d', '--description', help="classes available: none, employee, manager")
+        
+        args = None
+        try:
+            args = parser.parse_args(parse(arg))
+        except:
+            pass
+
+        if not args:
+            return
     
-    # ----- vote on something -----
-    def do_vote(self, arg):
+        ### ------ NEW METHOD -------- ####
+
+        if args.new:
+            if args.name or args.class or args.description:
+                print "unimplemented"
+                return
+
+    # ----- use your masternodes to vote yes on an object -----
+    def do_support(self, arg):
+        ' support --name="release-dash-core-12.1x"'
+
+        parser = argparse.ArgumentParser(description='Create a dash evolution support.')
+
+        # meta data (create or amend)
+        parser.add_argument('-e', '--name', help="this support name")
+        
+        args = None
+        try:
+            args = parser.parse_args(parse(arg))
+        except:
+            pass
+
+        if not args:
+            return
+    
+        ### ------ NAME METHOD -------- ####
+
+        if args.name:
+            print "unimplemented"
+            return
+
+    # ----- use your masternodes to vote no on an object -----
+    def do_abandon(self, arg):
+        ' abandon --name="release-dash-core-12.1x"'
+
+        parser = argparse.ArgumentParser(description='Create a dash evolution abandon.')
+
+        # meta data (create or amend)
+        parser.add_argument('-e', '--name', help="this support name")
+        
+        args = None
+        try:
+            args = parser.parse_args(parse(arg))
+        except:
+            pass
+
+        if not args:
+            return
+    
+        ### ------ NAME METHOD -------- ####
+
+        if args.name:
+            print "unimplemented"
+            return
+
+    # ----- use your masternodes to vote abstain on an object -----
+    def do_abstain(self, arg):
+        ' abstain --name="release-dash-core-12.1x"'
+
+        parser = argparse.ArgumentParser(description='Create a dash evolution abstain.')
+
+        # meta data (create or amend)
+        parser.add_argument('-e', '--name', help="this support name")
+        
+        args = None
+        try:
+            args = parser.parse_args(parse(arg))
+        except:
+            pass
+
+        if not args:
+            return
+    
+        ### ------ NAME METHOD -------- ####
+
+        if args.name:
+            print "unimplemented"
+            return
+
+    
+    # ----- (internal) vote on something -----
+    def do___internal_vote(self, arg):
         'Command action on the dash network'
-        ' vote --times=22 --type=funding --outcome=yes [--hash=governance-hash --name=obj-name --pubkey]'
+        ' __internal_vote --times=22 --type=funding --outcome=yes [--hash=governance-hash --name=obj-name --pubkey]'
 
         parser = argparse.ArgumentParser(description='Vote on governance objects and signal what dash should do with them.')
 

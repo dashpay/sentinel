@@ -45,7 +45,6 @@ class GovernanceObject:
     # mysql record data
     governance_object = {}
     # object data for specific classes
-    data = [] #serialized subclasses
     subclasses = [] #object based subclasses
 
     def __init__(self):
@@ -113,6 +112,11 @@ class GovernanceObject:
                obj = Report()
                obj.load_by_dict(objdict)
                self.subclasses.append(obj)
+            if objdict["type"] == "payday":
+               obj = Payday()
+               obj.load_by_dict(objdict)
+               self.subclasses.append(obj)
+
         return True
 
     def add_subclass(self, class):
@@ -170,10 +174,10 @@ class GovernanceObject:
             ) = row[0]
             print "loaded govobj successfully"
 
-        __process_subclasses()
+        load_subclasses()
 
-    def add_object_to_stack(self, obj):
-        self.subclasses.append(obj)
+    def add_object_to_stack(self, typename, obj):
+        self.subclasses.append((typename,obj))
         
     def is_valid(self):
         """

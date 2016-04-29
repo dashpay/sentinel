@@ -42,18 +42,25 @@ CREATE TABLE `governance_object` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
-/* public address, like a pobox or something */
 CREATE TABLE `user` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `class` varchar(255) DEFAULT NULL, /* employer / employee */
   `username` varchar(255) DEFAULT NULL,
-  `payday_date` date DEFAULT NULL,
-  `payday_income` int(255) DEFAULT NULL,
-  `payday_expense` int(255) DEFAULT NULL,
+  `managed_by` varchar(255) DEFAULT NULL,
+  `project` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-/* projects */
+CREATE TABLE `payday` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `date` date DEFAULT NULL,
+  `income` varchar(255) DEFAULT NULL,
+  `expense` varchar(255) DEFAULT NULL,
+  `signature_one` varchar(255) DEFAULT NULL,
+  `signature_two` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 CREATE TABLE `project` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(255) DEFAULT NULL, /* name of the project */
