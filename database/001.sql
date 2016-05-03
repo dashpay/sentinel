@@ -88,6 +88,17 @@ CREATE TABLE `event` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
+CREATE TABLE `action` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `governance_object_id` int(11) DEFAULT NULL,
+  `absolute_yes_count` int DEFAULT NULL,
+  `yes_count` int DEFAULT NULL,
+  `no_count` int DEFAULT NULL,
+  `abstain_count` int DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
 CREATE TABLE `setting` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `datetime` datetime DEFAULT NULL,

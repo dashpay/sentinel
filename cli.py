@@ -11,9 +11,10 @@ import config
 import events
 import cmd, sys
 
-from governance import GovernanceObject
+from governance import GovernanceObject, GovernanceObjectMananger
 from objects import Setting
 
+misc.startup()
 db = mysql.connect(config.hostname, config.username, config.password, config.database)
 
 class SentinelShell(cmd.Cmd):
@@ -32,10 +33,10 @@ class SentinelShell(cmd.Cmd):
         parser = argparse.ArgumentParser(description='Create a dash evolution user using sentinel.')
 
         # desired action
-        parser.add_argument('-a', '--create', help="create")
-        parser.add_argument('-b', '--delete', help="delete")
-        parser.add_argument('-g', '--amend', help="amend")
-        parser.add_argument('-d', '--best', help="best")
+        parser.add_argument('-a', '--create', help="create", action='store_true')
+        parser.add_argument('-b', '--delete', help="delete", action='store_true')
+        parser.add_argument('-g', '--amend', help="amend", action='store_true')
+        parser.add_argument('-d', '--best', help="best", action='store_true')
 
         # object identity (existentially... what does it mean to be a pubkey?)
         parser.add_argument('-k', '--pubkey', help='your public key for this username (only required for --create)')
@@ -60,8 +61,8 @@ class SentinelShell(cmd.Cmd):
 
         ### ------ SET BEST -------- ####
 
-        if args.username or args.best:
-            obj = GovernanceObject.find_object_by_name(args.username)
+        if args.username and args.best:
+            obj = GovernanceObjectMananger.find_object_by_name(args.username)
             if obj is None:
                 print "object could not be found"
                 return 
@@ -84,9 +85,12 @@ class SentinelShell(cmd.Cmd):
 
         if args.create:
             #--create --revision=1 --pubkey=XPubkey --username="user-cid" 
-            if args.username:
+            if not args.username:
                 print "user creation requires a username"
                 return
+
+            newObj = GovernanceObject()
+            newObj.create_new(parent_name, name, type, revision, pubkey, fee_tx, creation_time)
 
             print "unimplemented"
             return
@@ -129,7 +133,7 @@ class SentinelShell(cmd.Cmd):
         parser = argparse.ArgumentParser(description='Create a dash evolution payday using sentinel.')
 
         # desired action
-        parser.add_argument('-a', '--create', help="create") #
+        parser.add_argument('-a', '--create', help="create", action='store_true') #
 
         # meta data (create or amend)
         parser.add_argument('-u', '--username', help='your evolution username')
@@ -169,7 +173,7 @@ class SentinelShell(cmd.Cmd):
         parser = argparse.ArgumentParser(description='Create a dash evolution user using sentinel.')
 
         # desired action
-        parser.add_argument('-n', '--new', help="make a new report") #
+        parser.add_argument('-n', '--new', help="make a new report", action='store_true') #
 
         # meta data (create or amend)
         parser.add_argument('-p', '--project_name', help="this project name")
@@ -201,8 +205,8 @@ class SentinelShell(cmd.Cmd):
         parser = argparse.ArgumentParser(description='Create a dash evolution project.')
 
         # desired action
-        parser.add_argument('-n', '--new', help="create a new project") #
-        parser.add_argument('-b', '--best', help="tell sentinel which version is best") #
+        parser.add_argument('-n', '--new', help="create a new project", action='store_true')
+        parser.add_argument('-b', '--best', help="tell sentinel which version is best", action='store_true')
 
         # meta data (create or amend)
         parser.add_argument('-c', '--subclass', help="available classes: software, hardware, legal, etc?")
@@ -254,7 +258,7 @@ class SentinelShell(cmd.Cmd):
     def do_support(self, arg):
         ' support --name="release-dash-core-12.1x"'
 
-        parser = argparse.ArgumentParser(description='Create a dash evolution support.')
+        parser = argparse.ArgumentParser(description='Create a dash evolution support.', action='store_true')
 
         # meta data (create or amend)
         parser.add_argument('-e', '--name', help="this support name")
@@ -285,7 +289,7 @@ class SentinelShell(cmd.Cmd):
         parser = argparse.ArgumentParser(description='Create a dash evolution abandon.')
 
         # meta data (create or amend)
-        parser.add_argument('-e', '--name', help="this support name")
+        parser.add_argument('-e', '--name', help="this support name", action='store_true')
         
         args = None
         try:
@@ -313,7 +317,7 @@ class SentinelShell(cmd.Cmd):
         parser = argparse.ArgumentParser(description='Create a dash evolution abstain.')
 
         # meta data (create or amend)
-        parser.add_argument('-e', '--name', help="this support name")
+        parser.add_argument('-e', '--name', help="this support name", action='store_true')
         
         args = None
         try:
@@ -385,8 +389,8 @@ if __name__ == '__main__':
     Test Flow (to be moved into unit tests):
 
     1.)  create our required users
-         user --create --revision=1 --pubkey=XPubkey --name="user-terra" 
-         user --create --revision=1 --pubkey=XPubkey --name="user-cid"
+         user --create --revision=1 --pubkey=XPubkey --username="user-terra"
+         user --create --revision=1 --pubkey=XPubkey --username="user-cid"
 
     2.)  self-promote our people
          user --amend --revision=2 --name="user-terra" --subclass="manager" --managed_by="user-cyan"

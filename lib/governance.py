@@ -23,10 +23,10 @@ class GovernanceObjectMananger:
             select
                 governance_object.id
             from governance_object left join action on governance_object.action_valid_id = action.id
-            having governance.name = '%s' 
+            where governance_object.object_name = '%s' 
             order by action.absolute_yes_count desc
             limit 1
-        """ % record_id
+        """ % name
 
         mysql.db.query(sql)
         res = mysql.db.store_result()
