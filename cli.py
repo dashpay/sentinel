@@ -8,11 +8,15 @@ sys.path.append("scripts")
 import misc
 import mysql
 import config
-import events
+import crontab
 import cmd, sys
+import govtypes
 
-from governance import GovernanceObject, GovernanceObjectMananger
-from objects import Setting
+from governance import GovernanceObject, GovernanceObjectMananger, Setting, Event
+from dashd import CTransaction
+
+parent = GovernanceObject()
+parent.init()
 
 misc.startup()
 db = mysql.connect(config.hostname, config.username, config.password, config.database)
@@ -89,10 +93,20 @@ class SentinelShell(cmd.Cmd):
                 print "user creation requires a username"
                 return
 
-            newObj = GovernanceObject()
-            newObj.create_new(parent_name, name, type, revision, pubkey, fee_tx, creation_time)
+            fee_tx = CTransaction()
 
-            print "unimplemented"
+            newObj = GovernanceObject()
+            last_id = newObj.create_new(parent, args.username, govtypes.user, args.revision, args.pubkey, fee_tx)
+
+            if last_id != None:
+                event = Event()
+                event.create_new(last_id)
+                event.save()
+
+                print "event queued successfully"
+            else:
+                print "error:", newObj.last_error()
+
             return
 
         ### ------ DELETE METHOD -------- ####
@@ -337,6 +351,50 @@ class SentinelShell(cmd.Cmd):
         ### ------- ELSE PRINT HELP --------------- ### 
 
         parser.print_help()
+
+
+    # ----- Do a crontab task -----
+    def do_crontab(self, arg):
+        ' crontab --task="(prepare_events|submit_events)"'
+        ''
+        ' Events: '
+        '             prepare_events : Process any queued events pending creation (stage 1: prepare colateral tx) '
+        '             submit_events : Submit any queued governance objects pending submission (stage 2: submission of colateral tx and governance object) '
+
+        parser = argparse.ArgumentParser(description='Do a crontab task')
+
+        # meta data (create or amend)
+        parser.add_argument('-t', '--task', help="the task to execute: prepare_events or submit_events")
+        
+        args = None
+        try:
+            args = parser.parse_args(parse(arg))
+        except:
+            pass
+
+        if not args:
+            return
+    
+        ### ------ NAME METHOD -------- ####
+
+        if args.task == "prepare_events":
+            count = crontab.prepare_events()
+            print count, "events successfully prepared (stage 1: wait at least 45 minutes before submission)"
+            return
+
+        elif args.task == "submit_events":
+            count = crontab.submit_events()
+            print count, "events successfully submissed (stage 1: wait at least 45 minutes before submission)"
+            print count
+            print "unimplemented"
+            return
+        else:
+            print "unknown command"
+            return
+
+        ### ------- ELSE PRINT HELP --------------- ### 
+
+        parser.print_help()
     
     # ----- (internal) vote on something -----
     def do___internal_vote(self, arg):
@@ -358,15 +416,21 @@ class SentinelShell(cmd.Cmd):
 
     # ----- quit the program -----
     def do_quit(self, arg):
-        ' exit(0)'
+        ' bye, see you later!'
 
-        print "goodbye."
+        print "Goodbye! See you soon!"
         sys.exit(0)
         return
 
 def parse(arg):
     'Convert a series of zero or more numbers to an argument tuple'
     return tuple(map(str, arg.split()))
+
+
+"""
+
+    Run the main cli
+"""
 
 import sys
 args = sys.argv[1:]
@@ -382,6 +446,8 @@ if __name__ == '__main__':
             SentinelShell().do_vote(" ".join(args[1:]))
         elif args[0] == "payday":
             SentinelShell().do_payday(" ".join(args[1:]))
+        elif args[0] == "crontab":
+            SentinelShell().do_crontab(" ".join(args[1:]))
     else:
         SentinelShell().cmdloop()
 

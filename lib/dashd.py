@@ -16,3 +16,10 @@ def cmd(exe, params):
       if(retcode is not None):
         break
 
+
+class CTransaction():
+    def __init__(self):
+        return None
+
+    def load(self, txid):
+        return True

@@ -12,7 +12,8 @@ import mysql
 import misc
 import binascii
 
-from objects import User, Project, Report, Payday, Event
+from classes import User, Project
+from subclasses import Report, Payday
 
 class GovernanceObjectMananger:
 
@@ -52,8 +53,34 @@ class GovernanceObject:
     def get_hash(self):
         return self.governance_object["object_hash"];
 
-    def create_new(self, parent_name, name, type, revision, pubkey, fee_tx, creation_time):
-        parent = GovernanceObjectMananger.find_object_by_name(parent_name);
+    def get_id(self):
+        return self.governance_object["id"]
+
+    def init(self):
+        self.governance_object = {
+            "id" : "0",
+            "parent_id" : "0",
+            "object_hash" : "",
+            "object_parent_hash" : "",
+            "object_creation_time" : 0,
+            "object_name" : "object_name",
+            "object_type" : "object_type",
+            "object_revision" : "object_revision",
+            "object_pubkey" : "pubkey",
+            "object_fee_tx" : "self.fee_tx",
+            "object_data" : "",
+            "action_none_id" : 0,
+            "action_funding_id" : 0,
+            "action_valid_id" : 0,
+            "action_uptodate_id" : 0,
+            "action_delete_id" : 0,
+            "action_clear_registers" : 0,
+            "action_endorsed_id" : 0
+        }
+
+    def create_new(self, parent, object_name, object_type, object_revision, object_pubkey, fee_tx):
+        creation_time = calendar.timegm(time.gmtime())
+
         if parent == None:
             return False
 
@@ -66,8 +93,8 @@ class GovernanceObject:
             "object_name" : object_name,
             "object_type" : object_type,
             "object_revision" : object_revision,
-            "object_pubkey" : pubkey,
-            "object_fee_tx" : self.fee_tx,
+            "object_pubkey" : object_pubkey,
+            "object_fee_tx" : fee_tx,
             "object_data" : "",
             "action_none_id" : 0,
             "action_funding_id" : 0,
@@ -78,10 +105,10 @@ class GovernanceObject:
             "action_endorsed_id" : 0
         }
 
-        self.object_name = name
-        self.object_type = type
-        self.object_revision = revision
-        self.pubkey = pubkey
+        self.object_name = object_name
+        self.object_type = object_type
+        self.object_revision = object_revision
+        self.pubkey = object_pubkey
         self.fee_tx = fee_tx
         self.creation_time = creation_time
 
@@ -92,7 +119,7 @@ class GovernanceObject:
         for subclass in subclasses:
             objects.append(subclass)
 
-        self.governance_object["object_data"] = json.dumps(objects)
+        self.governance_object["object_data"] = binascii.hexlify(json.dumps(objects))
 
         return True
 
@@ -104,7 +131,8 @@ class GovernanceObject:
         return True
 
     def load_subclasses(self):
-        objects = json.loads(self.governance_object["data"])
+        print self.governance_object
+        objects = binascii.unhexlifyjson(loads(self.governance_object["object_data"]))
         for objdict in objects:
             if objdict["type"] == "project":
                obj = Project()
@@ -176,7 +204,9 @@ class GovernanceObject:
             ) = row[0]
             print "loaded govobj successfully"
 
-        load_subclasses()
+            self.load_subclasses()
+        else:
+            print "object not found"
 
     def add_object_to_stack(self, typename, obj):
         self.subclasses.append((typename,obj))
@@ -240,8 +270,6 @@ class GovernanceObject:
         return mysql.db.insert_id()
 
     def get_prepare_command(self):
-        self.governance_object["registers_hex"] = binascii.hexlify(self.governance_object["registers"])
-
         cmd = """
         mngovernance prepare %(object_parent_hash)s %(object_revision)s %(object_time)s %(object_name)s %(object_data)s;
         """ % self.governance_object
@@ -252,10 +280,129 @@ class GovernanceObject:
         return -1
 
     def get_submit_command(self):
-        self.governance_object["registers_hex"] = binascii.hexlify(self.governance_object["registers"])
-
         cmd = """
         mngovernance submit %(object_fee_tx)s %(object_parent_hash)s %(object_revision)s %(object_time)s %(object_name)s %(object_data)s;
         """ % self.governance_object
 
         print cmd
+
+    def last_error(self):
+        return "n/a"
+
+
+
+class Event:
+    event = {}
+    def __init__(self):
+        pass
+
+    def create_new(self, last_id):
+        self.event["governance_object_id"] = last_id
+        self.event["start_time"] = calendar.timegm(time.gmtime())
+        self.event["prepare_time"] = 'NULL'
+        self.event["submit_time"] = 'NULL'
+
+    def load(self, record_id):
+        sql = """
+            select
+                id,
+                governance_object_id,
+                start_time,
+                prepare_time,
+                submit_time
+            from event where 
+                id = %s """ % record_id
+
+        mysql.db.query(sql)
+        res = mysql.db.store_result()
+        row = res.fetch_row()
+        if row:
+            print row[0]
+            (self.event["id"], self.event["governance_object_id"], self.event["start_time"],
+                self.event["prepare_time"], self.event["submit_time"]) = row[0]
+            print "loaded event successfully"
+
+            if self.event["start_time"] == None: self.event["start_time"] = 'NULL'
+            if self.event["submit_time"] == None: self.event["submit_time"] = 'NULL'
+            if self.event["prepare_time"] == None: self.event["prepare_time"] = 'NULL'
+
+    def get_id(self):
+        return self.event["governance_object_id"]
+
+    def set_prepared(self):
+        self.event["prepare_time"] = calendar.timegm(time.gmtime())
+
+    def set_submitted(self):
+        self.event["submit_time"] = calendar.timegm(time.gmtime())
+
+    def save(self):
+        sql = """
+            INSERT INTO event 
+                (governance_object_id, start_time, prepare_time, submit_time)
+            VALUES
+                (%(governance_object_id)s,%(start_time)s,%(prepare_time)s,%(submit_time)s)
+            ON DUPLICATE KEY UPDATE
+                governance_object_id=%(governance_object_id)s,
+                start_time=%(start_time)s,
+                prepare_time=%(prepare_time)s,
+                submit_time=%(submit_time)s
+        """
+
+        mysql.db.query(sql % self.event)
+
+
+class Setting:
+    setting = {}
+    def __init__(self):
+        pass
+
+    def create_new(self, setting, name, value):
+        self.setting["id"] = 0
+        self.setting["setting"] = setting
+        self.setting["name"] = name
+        self.setting["value"] = value
+
+    def load(self, record_id):
+        sql = """
+            select
+                id,
+                name,
+                value
+            from setting where 
+                id = %s """ % record_id
+
+        mysql.db.query(sql)
+        res = mysql.db.store_result()
+        row = res.fetch_row()
+        if row:
+            print row[0]
+            (self.setting["id"], self.setting["name"], self.setting["value"]) = row[0]
+            print "loaded setting successfully"
+
+            return True
+
+        return False
+
+    def get_id(self):
+        pass
+
+    def save(self):
+        sql = """            
+            INSERT INTO setting 
+                (id, setting, name, value)
+            VALUES
+                ('%(id)s','%(setting)s','%(name)s','%(value)s')
+            ON DUPLICATE KEY UPDATE
+                id='%(id)s',
+                setting='%(setting)s',
+                name='%(name)s',
+                value='%(value)s'
+        """
+
+        mysql.db.query(sql % self.user)
+
+        return True
+
+
+    def set_field(self, name, value):
+        self.user[name] = value

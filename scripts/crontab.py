@@ -12,8 +12,7 @@ sys.path.append("lib")
 import mysql 
 import config 
 
-from governance  import GovernanceObject
-from objects import Event
+from governance  import GovernanceObject, Event
 
 import dashd
 
@@ -22,12 +21,12 @@ import dashd
 
 ' Flat module for processing sentinel events '
 
-def clear():
+def clear_events():
     sql = "delete from event where prepare_time is NULL or submit_time is NULL"
     mysql.db.query(sql)
     
 
-def prepare():
+def prepare_events():
     sql = "select id from event where start_time < NOW() and prepare_time is NULL limit 1"
 
     mysql.db.query(sql)
@@ -50,7 +49,7 @@ def prepare():
     # update record
 
 
-def submit():
+def submit_events():
     sql = "select id from event where start_time < NOW() and prepare_time < NOW() and submit_time is NULL limit 1"
 
     mysql.db.query(sql)

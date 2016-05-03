@@ -6,6 +6,8 @@ import json
     take any non-meta attributes and serialize them into a register
 """
 
+sentinel_options = []
+
 def convert_object_to_data(obj):
     return json.dumps(obj)
 
@@ -40,6 +42,15 @@ def is_valid_first_last_name(args):
         pass
     return True
 
+def completer(text, state):
+    options = [i for i in commands if i.startswith(text)]
+    options.extend(sentinel_options)
+
+    if state < len(options):
+        return options[state]
+    else:
+        return None
+
 def startup():
     # python startup file 
     import readline 
@@ -48,6 +59,8 @@ def startup():
     import os 
     # tab completion 
     readline.parse_and_bind('tab: complete') 
+    readline.set_completer(completer)
+
     # history file 
     histfile = os.path.join(os.environ['HOME'], '.pythonhistory') 
     try: 
@@ -56,3 +69,6 @@ def startup():
         pass 
     atexit.register(readline.write_history_file, histfile) 
     del os, histfile, readline, rlcompleter
+
+    import readline
+
