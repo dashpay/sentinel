@@ -5,6 +5,7 @@ import sys
 sys.path.append("lib")
 sys.path.append("scripts") 
 
+import cmd
 import misc
 import mysql
 import config
@@ -18,12 +19,33 @@ from dashd import CTransaction
 parent = GovernanceObject()
 parent.init()
 
-misc.startup()
 db = mysql.connect(config.hostname, config.username, config.password, config.database)
+
+commands = [
+    "user",
+    "payday",
+    "project",
+    "report",
+    "crontab",
+    "support",
+    "abandon", 
+    "prepare_events",
+    "submit_events"]
 
 class SentinelShell(cmd.Cmd):
     intro = 'Welcome to the sentinel shell.   Type help or ? to list commands.\n'
     prompt = '(sentinel) '
+
+    def do_cmd(self, line):
+        print(line)
+
+    def complete_cmd(self, text, line, start_index, end_index):
+        if text:
+            return [command for command in commands
+                    if command.startswith(text)]
+        else:
+            return commands
+
     file = None
 
     # ----- alter a user record -----
@@ -96,7 +118,8 @@ class SentinelShell(cmd.Cmd):
             fee_tx = CTransaction()
 
             newObj = GovernanceObject()
-            last_id = newObj.create_new(parent, args.username, govtypes.user, args.revision, args.pubkey, fee_tx)
+            newObj.create_new(parent, args.username, govtypes.user, args.revision, args.pubkey, fee_tx)
+            last_id = newObj.save()
 
             if last_id != None:
                 event = Event()
@@ -358,8 +381,10 @@ class SentinelShell(cmd.Cmd):
         ' crontab --task="(prepare_events|submit_events)"'
         ''
         ' Events: '
+        '             clear_events : Clear event queue (for testing only) '
         '             prepare_events : Process any queued events pending creation (stage 1: prepare colateral tx) '
         '             submit_events : Submit any queued governance objects pending submission (stage 2: submission of colateral tx and governance object) '
+
 
         parser = argparse.ArgumentParser(description='Do a crontab task')
 
@@ -376,6 +401,11 @@ class SentinelShell(cmd.Cmd):
             return
     
         ### ------ NAME METHOD -------- ####
+
+        if args.task == "clear_events":
+            count = crontab.clear_events()
+            print count, "events cleared (I hope you meant to do that...)"
+            return
 
         if args.task == "prepare_events":
             count = crontab.prepare_events()
@@ -434,6 +464,11 @@ def parse(arg):
 
 import sys
 args = sys.argv[1:]
+
+misc.add_sentinel_option("clear_events")
+misc.add_sentinel_option("prepare_events")
+misc.add_sentinel_option("submit_events")
+misc.startup()
 
 if __name__ == '__main__':
 

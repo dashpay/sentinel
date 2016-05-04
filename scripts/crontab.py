@@ -24,7 +24,7 @@ import dashd
 def clear_events():
     sql = "delete from event where prepare_time is NULL or submit_time is NULL"
     mysql.db.query(sql)
-    
+    return mysql.db.affected_rows()
 
 def prepare_events():
     sql = "select id from event where start_time < NOW() and prepare_time is NULL limit 1"

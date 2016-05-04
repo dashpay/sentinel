@@ -31,7 +31,6 @@ CREATE TABLE `governance_object` (
   `object_pubkey` varchar(255) NOT NULL DEFAULT '',
   `object_data` text NOT NULL,
   `object_fee_tx` varchar(255) NOT NULL DEFAULT '',
-  `action_none_id` int(11) NOT NULL DEFAULT '0',
   `action_funding_id` int(11) NOT NULL DEFAULT '0',
   `action_valid_id` int(11) NOT NULL DEFAULT '0',
   `action_uptodate_id` int(11) NOT NULL DEFAULT '0',

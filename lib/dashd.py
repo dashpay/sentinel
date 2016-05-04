@@ -23,3 +23,6 @@ class CTransaction():
 
     def load(self, txid):
         return True
+
+    def get_hash(self):
+      return None

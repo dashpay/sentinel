@@ -8,6 +8,9 @@ import json
 
 sentinel_options = []
 
+def add_sentinel_option(param):
+    sentinel_options.append(param)
+
 def convert_object_to_data(obj):
     return json.dumps(obj)
 
@@ -46,10 +49,15 @@ def completer(text, state):
     options = [i for i in commands if i.startswith(text)]
     options.extend(sentinel_options)
 
+    print "HERE"
+    print options
+
+
     if state < len(options):
         return options[state]
     else:
         return None
+
 
 def startup():
     # python startup file 
@@ -59,7 +67,12 @@ def startup():
     import os 
     # tab completion 
     readline.parse_and_bind('tab: complete') 
+    print "STARTUPS"
     readline.set_completer(completer)
+
+    # do not use - as delimiter
+    old_delims = readline.get_completer_delims() # <-
+    readline.set_completer_delims(old_delims.replace('-', '')) # <-
 
     # history file 
     histfile = os.path.join(os.environ['HOME'], '.pythonhistory') 
