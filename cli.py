@@ -21,31 +21,40 @@ parent.init()
 
 db = mysql.connect(config.hostname, config.username, config.password, config.database)
 
-commands = [
-    "user",
-    "payday",
-    "project",
-    "report",
-    "crontab",
-    "support",
-    "abandon", 
-    "prepare_events",
-    "submit_events"]
+commands = {}
+
+'create a new governance object'
+' user [--create --delete --amend] '
+'   --create --revision=1 --pubkey=XPubkey --username="user-cid" '
+'   --delete --revision=1 --username="user-cid" '
+'   --amend --revision="next" --username="user-cid" --subclass="employee" --managed_by="user-terra" --project="release-dash-core-12.1x"'
+commands["user"] = [
+    "--create", "--delete", "--amend","--revision","--pubkey","--username",
+    "--subclass", "--managed_by","--project"]
+
+' --create --username="username-cid" --date="2017-01-01" --income="342 DASH" --expenses="523 USD" --signature_one="s1" --signature_two="s2" '
+commands["payday"] = [
+    "--username", "--date", "--income","--expenses","--signature_one","--signature_two"]
+
+' report --new --project_name --url'
+' project --create --name="release-dash-core-12.1x" --description="devops for 12.1x"'
+commands["project"] = [
+    "--new","--project_name","--url"
+]
+
+' support --name="release-dash-core-12.1x"'
+commands["support"] = ["--name"]
+commands["abandon"] = ["--name"]
+commands["abstain"] = ["--name"]
+
+' crontab --task="(prepare_events|submit_events)"'
+commands["crontab"] = ["--clear_events", "--prepare_events", "--submit_events"]
+
+
 
 class SentinelShell(cmd.Cmd):
     intro = 'Welcome to the sentinel shell.   Type help or ? to list commands.\n'
     prompt = '(sentinel) '
-
-    def do_cmd(self, line):
-        print(line)
-
-    def complete_cmd(self, text, line, start_index, end_index):
-        if text:
-            return [command for command in commands
-                    if command.startswith(text)]
-        else:
-            return commands
-
     file = None
 
     # ----- alter a user record -----
@@ -161,6 +170,12 @@ class SentinelShell(cmd.Cmd):
 
         parser.print_help()
 
+    def complete_user(self, text, line, start_index, end_index):
+        if text:
+            return [command for command in commands["user"]
+                    if command.startswith(text)]
+        else:
+            return commands
 
     # ----- alter a payday record -----
     def do_payday(self, arg):
@@ -202,6 +217,13 @@ class SentinelShell(cmd.Cmd):
 
         parser.print_help()
 
+    def complete_paypal(self, text, line, start_index, end_index):
+        if text:
+            return [command for command in commands["paypal"]
+                    if command.startswith(text)]
+        else:
+            return commands
+
     # ----- alter a project record -----
     def do_report(self, arg):
         'create/amend/delete a project'
@@ -233,6 +255,13 @@ class SentinelShell(cmd.Cmd):
         ### ------- ELSE PRINT HELP --------------- ### 
 
         parser.print_help()
+
+    def complete_report(self, text, line, start_index, end_index):
+        if text:
+            return [command for command in commands["report"]
+                    if command.startswith(text)]
+        else:
+            return commands
 
     # ----- alter a project record -----
     def do_project(self, arg):
@@ -291,6 +320,15 @@ class SentinelShell(cmd.Cmd):
 
         parser.print_help()
 
+
+
+    def complete_project(self, text, line, start_index, end_index):
+        if text:
+            return [command for command in commands["project"]
+                    if command.startswith(text)]
+        else:
+            return commands
+
     # ----- use your masternodes to vote yes on an object -----
     def do_support(self, arg):
         ' support --name="release-dash-core-12.1x"'
@@ -318,6 +356,13 @@ class SentinelShell(cmd.Cmd):
         ### ------- ELSE PRINT HELP --------------- ### 
 
         parser.print_help()
+
+    def complete_support(self, text, line, start_index, end_index):
+        if text:
+            return [command for command in commands["support"]
+                    if command.startswith(text)]
+        else:
+            return commands
 
     # ----- use your masternodes to vote no on an object -----
     def do_abandon(self, arg):
@@ -347,6 +392,13 @@ class SentinelShell(cmd.Cmd):
 
         parser.print_help()
 
+    def complete_abandon(self, text, line, start_index, end_index):
+        if text:
+            return [command for command in commands["abandon"]
+                    if command.startswith(text)]
+        else:
+            return commands
+
     # ----- use your masternodes to vote abstain on an object -----
     def do_abstain(self, arg):
         ' abstain --name="release-dash-core-12.1x"'
@@ -375,21 +427,23 @@ class SentinelShell(cmd.Cmd):
 
         parser.print_help()
 
+    def complete_abstain(self, text, line, start_index, end_index):
+        if text:
+            return [command for command in commands["abstain"]
+                    if command.startswith(text)]
+        else:
+            return commands
 
     # ----- Do a crontab task -----
     def do_crontab(self, arg):
-        ' crontab --task="(prepare_events|submit_events)"'
-        ''
-        ' Events: '
-        '             clear_events : Clear event queue (for testing only) '
-        '             prepare_events : Process any queued events pending creation (stage 1: prepare colateral tx) '
-        '             submit_events : Submit any queued governance objects pending submission (stage 2: submission of colateral tx and governance object) '
-
+        ' crontab [--clear_events --prepare_events --submit_events]"'
 
         parser = argparse.ArgumentParser(description='Do a crontab task')
 
         # meta data (create or amend)
-        parser.add_argument('-t', '--task', help="the task to execute: prepare_events or submit_events")
+        parser.add_argument('-p', '--prepare_events', help="Submit any queued governance objects pending submission (stage 2: submission of colateral tx and governance object)", action="store_true")
+        parser.add_argument('-s', '--submit_events', help="Process any queued events pending creation (stage 1: prepare colateral tx)", action="store_true")
+        parser.add_argument('-c', '--clear_events', help="Clear event queue (for testing only)", action="store_true")
         
         args = None
         try:
@@ -402,17 +456,17 @@ class SentinelShell(cmd.Cmd):
     
         ### ------ NAME METHOD -------- ####
 
-        if args.task == "clear_events":
+        if args.clear_events:
             count = crontab.clear_events()
             print count, "events cleared (I hope you meant to do that...)"
             return
 
-        if args.task == "prepare_events":
+        if args.prepare_events:
             count = crontab.prepare_events()
             print count, "events successfully prepared (stage 1: wait at least 45 minutes before submission)"
             return
 
-        elif args.task == "submit_events":
+        elif args.submit_events:
             count = crontab.submit_events()
             print count, "events successfully submissed (stage 1: wait at least 45 minutes before submission)"
             print count
@@ -425,7 +479,14 @@ class SentinelShell(cmd.Cmd):
         ### ------- ELSE PRINT HELP --------------- ### 
 
         parser.print_help()
-    
+
+    def complete_crontab(self, text, line, start_index, end_index):
+        if text:
+            return [command for command in commands["crontab"]
+                    if command.startswith(text)]
+        else:
+            return commands
+
     # ----- (internal) vote on something -----
     def do___internal_vote(self, arg):
         'Command action on the dash network'
