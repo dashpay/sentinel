@@ -463,14 +463,12 @@ class SentinelShell(cmd.Cmd):
 
         if args.prepare_events:
             count = crontab.prepare_events()
-            print count, "events successfully prepared (stage 1: wait at least 45 minutes before submission)"
+            print count, "events successfully prepared (stage 1)"
             return
 
         elif args.submit_events:
             count = crontab.submit_events()
-            print count, "events successfully submissed (stage 1: wait at least 45 minutes before submission)"
-            print count
-            print "unimplemented"
+            print count, "events successfully submitted (stage 2)"
             return
         else:
             print "unknown command"

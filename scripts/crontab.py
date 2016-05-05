@@ -38,6 +38,7 @@ def prepare_events():
         
         govobj = GovernanceObject()
         govobj.load(event.get_id())
+        event.set_prepared()
 
         print "prepared"
         print " --cmd : ", govobj.get_prepare_command()
@@ -45,8 +46,11 @@ def prepare_events():
         #event.set_prepared()
         
         event.save()
+        return 1
     # prepare fee_tx, store into govobj
     # update record
+
+    return 0
 
 
 def submit_events():

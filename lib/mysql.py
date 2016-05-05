@@ -13,7 +13,7 @@ def query_one(sql, dictionary):
         clean up records to work with sql updates
     """
     global db
-    db.query(sql)
+    db.query(sql % dictionary)
     res = db.store_result()
     rows = res.fetch_row()
 
@@ -21,7 +21,6 @@ def query_one(sql, dictionary):
         ret = []
         for col in rows[0]:
             if col:
-                print "'%s'", col
                 ret.append("'%s'" % col)
             else:
                 ret.append("NULL")
@@ -30,7 +29,7 @@ def query_one(sql, dictionary):
 
     return None
 
-def query_one(sql, dictionary):
+def query_many(sql, dictionary):
     """
         clean up records to work with sql updates
     """
@@ -45,7 +44,6 @@ def query_one(sql, dictionary):
             retrow = []
             for col in row:
                 if col:
-                    print "'%s'", col
                     retrow.append("'%s'" % col)
                 else:
                     retrow.append("NULL")

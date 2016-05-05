@@ -323,6 +323,8 @@ class Event:
             (self.event["id"], self.event["governance_object_id"], self.event["start_time"],
                 self.event["prepare_time"], self.event["submit_time"]) = row
             print "loaded event successfully"
+        else:
+            print "event not found", sql 
 
     def get_id(self):
         return self.event["governance_object_id"]
@@ -332,6 +334,9 @@ class Event:
 
     def set_submitted(self):
         self.event["submit_time"] = calendar.timegm(time.gmtime())
+
+    def set_start_time(self):
+        self.event["start_time"] = calendar.timegm(time.gmtime())
 
     def save(self):
         sql = """

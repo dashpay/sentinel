@@ -52,7 +52,7 @@ CREATE TABLE `user` (
 
 CREATE TABLE `payday` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `date` date DEFAULT NULL,
+  `pay_time` int(11) DEFAULT '0',
   `income` varchar(255) DEFAULT NULL,
   `expense` varchar(255) DEFAULT NULL,
   `signature_one` varchar(255) DEFAULT NULL,
@@ -70,22 +70,21 @@ CREATE TABLE `project` (
 
 CREATE TABLE `report` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `name` int(11) DEFAULT NULL,
-  `url` int(11) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `url` varchar(255) DEFAULT NULL,
   `description` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-
 CREATE TABLE `event` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `governance_object_id` int(11) DEFAULT NULL,
-  `start_time` datetime DEFAULT NULL,
-  `prepare_time` datetime DEFAULT NULL,
-  `submit_time` datetime DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
+  `start_time` int(11) DEFAULT '0',
+  `prepare_time` int(11) DEFAULT '0',
+  `submit_time` int(11) DEFAULT '0',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `governance_object_id` (`governance_object_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=45 DEFAULT CHARSET=utf8;
 
 CREATE TABLE `action` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
@@ -100,7 +99,7 @@ CREATE TABLE `action` (
 
 CREATE TABLE `setting` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `datetime` datetime DEFAULT NULL,
+  `datetime` int(11) DEFAULT '0',
   `setting` varchar(255) DEFAULT NULL,
   `name` varchar(255) DEFAULT NULL,
   `value` varchar(255) DEFAULT NULL,
