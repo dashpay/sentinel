@@ -22,7 +22,12 @@ import dashd
 ' Flat module for processing sentinel events '
 
 def clear_events():
-    sql = "delete from event where prepare_time is NULL or submit_time is NULL"
+    sql = "delete from event"
+    mysql.db.query(sql)
+    return mysql.db.affected_rows()
+
+def clear_governance_objects():
+    sql = "delete from governance_object"
     mysql.db.query(sql)
     return mysql.db.affected_rows()
 

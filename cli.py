@@ -444,6 +444,7 @@ class SentinelShell(cmd.Cmd):
         parser.add_argument('-p', '--prepare_events', help="Submit any queued governance objects pending submission (stage 2: submission of colateral tx and governance object)", action="store_true")
         parser.add_argument('-s', '--submit_events', help="Process any queued events pending creation (stage 1: prepare colateral tx)", action="store_true")
         parser.add_argument('-c', '--clear_events', help="Clear event queue (for testing only)", action="store_true")
+        parser.add_argument('-r', '--reset', help="Hard reset (for testing only)", action="store_true")
         
         args = None
         try:
@@ -458,7 +459,15 @@ class SentinelShell(cmd.Cmd):
 
         if args.clear_events:
             count = crontab.clear_events()
-            print count, "events cleared (I hope you meant to do that...)"
+            print count, "events cleared"
+            return
+
+        if args.reset:
+            print "Hard Reset:"
+            count = crontab.clear_events()
+            print count, "events cleared"
+            count = crontab.clear_governance_objects()
+            print count, "governance objects cleared"
             return
 
         if args.prepare_events:

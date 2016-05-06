@@ -10,7 +10,6 @@ sys.path.append("../scripts")
 
 import mysql 
 from misc import *
-import event
 
 
 """
