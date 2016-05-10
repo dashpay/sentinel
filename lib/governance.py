@@ -117,6 +117,14 @@ class GovernanceObject:
 
         return True
 
+    """
+        Subclasses:
+
+        - Governance objects can be converted into many subclasses by using the data field. 
+        - See subclasses.py for more information
+
+    """
+
     def compile_subclasses(self):
         objects = []
         for subclass in self.subclasses:
@@ -134,7 +142,6 @@ class GovernanceObject:
         return True
 
     def load_subclasses(self):
-        print self.governance_object
         objects = json.loads(binascii.unhexlify(self.governance_object["object_data"]))
         for objdict in objects:
             if objdict["type"] == "project":
@@ -154,6 +161,10 @@ class GovernanceObject:
 
     def add_subclass(self, subclass):
         objects.append(subclass)
+
+    """
+        load/save/update from database
+    """
 
     def load(self, record_id):
 
@@ -180,7 +191,6 @@ class GovernanceObject:
                 id = %s
         """ % record_id
 
-        print sql
 
         mysql.db.query(sql)
         res = mysql.db.store_result()
@@ -211,30 +221,11 @@ class GovernanceObject:
         else:
             print "object not found"
 
-    def add_object_to_stack(self, typename, obj):
-        self.subclasses.append((typename,obj))
-        
-    def is_valid(self):
-        """
-            - check tree position validity
-            - check signatures of owners 
-            - check validity of revision (must be n+1)
-            - check validity of field data (address format, etc)
-        """
+    def update_field(self, field, value):
+        self.governance_object[field] = value
 
-        return True
-
-    def save(self):
-
-        """
-            -- save objects in relational form (user, groups, etc)
-            -- add new "event" to be processed by scripts/events.py
-        """
-
-        last_id = self.save_as_governance_object()
-        self.event = Event()
-        self.event.create_new(last_id)
-        self.event.save()
+    def get_field(self, field):
+        return self.governance_object[field]
 
     def save(self):
         self.compile_subclasses()
@@ -274,9 +265,7 @@ class GovernanceObject:
         return mysql.db.insert_id()
 
     def get_prepare_command(self):
-        cmd = """
-        mngovernance prepare %(object_parent_hash)s %(object_revision)s %(object_creation_time)s %(object_name)s %(object_data)s;
-        """ % self.governance_object
+        cmd = "mngovernance prepare %(object_parent_hash)s %(object_revision)s %(object_creation_time)s %(object_name)s %(object_data)s" % self.governance_object
 
         return cmd
 
@@ -284,16 +273,25 @@ class GovernanceObject:
         return -1
 
     def get_submit_command(self):
-        cmd = """
-        mngovernance submit %(object_fee_tx)s %(object_parent_hash)s %(object_revision)s %(object_creation_time)s %(object_name)s %(object_data)s;
-        """ % self.governance_object
+        cmd = "mngovernance submit %(object_fee_tx)s %(object_parent_hash)s %(object_revision)s %(object_creation_time)s %(object_name)s %(object_data)s" % self.governance_object
 
         print cmd
 
     def last_error(self):
         return "n/a"
 
+    def add_object_to_stack(self, typename, obj):
+        self.subclasses.append((typename,obj))
+        
+    def is_valid(self):
+        """
+            - check tree position validity
+            - check signatures of owners 
+            - check validity of revision (must be n+1)
+            - check validity of field data (address format, etc)
+        """
 
+        return True
 
 class Event:
     event = {}
@@ -303,8 +301,10 @@ class Event:
     def create_new(self, last_id):
         self.event["governance_object_id"] = last_id
         self.event["start_time"] = calendar.timegm(time.gmtime())
-        self.event["prepare_time"] = 'NULL'
-        self.event["submit_time"] = 'NULL'
+        self.event["prepare_time"] = 0
+        self.event["submit_time"] = 0
+        self.event["error_time"] = 0
+        self.event["error_message"] = ""
 
     def load(self, record_id):
         sql = """
@@ -313,7 +313,9 @@ class Event:
                 governance_object_id,
                 start_time,
                 prepare_time,
-                submit_time
+                submit_time,
+                error_time,
+                error_message
             from event where 
                 id = %s """ % record_id
 
@@ -321,7 +323,7 @@ class Event:
         if row:
             print row
             (self.event["id"], self.event["governance_object_id"], self.event["start_time"],
-                self.event["prepare_time"], self.event["submit_time"]) = row
+                self.event["prepare_time"], self.event["submit_time"], self.event["error_time"], self.event["error_message"]) = row
             print "loaded event successfully"
         else:
             print "event not found", sql 
@@ -348,12 +350,18 @@ class Event:
                 governance_object_id=%(governance_object_id)s,
                 start_time=%(start_time)s,
                 prepare_time=%(prepare_time)s,
-                submit_time=%(submit_time)s
+                submit_time=%(submit_time)s,
+                error_time=%(error_time)s,
+                error_message='%(error_message)s'
         """
 
         print sql % self.event
 
         mysql.db.query(sql % self.event)
+
+
+    def update_field(self, field, value):
+        self.event[field] = value
 
 
 class Setting:

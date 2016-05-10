@@ -1,12 +1,23 @@
 #!/usr/bin/env python
 
 import json
+import calendar
+import time
+import re
 
 """
     take any non-meta attributes and serialize them into a register
 """
 
 sentinel_options = []
+
+def is_hash(s):
+    m = re.match('^([a-f0-9]+$', s)
+    if m: return True
+    return False
+
+def get_epoch():
+    return calendar.timegm(time.gmtime())
 
 def add_sentinel_option(param):
     sentinel_options.append(param)

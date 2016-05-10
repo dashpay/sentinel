@@ -1,21 +1,30 @@
 #!/usr/bin/env python
 
 """
-Dash-Voter
+Dashd interface
 ----
 
 """
 
-def cmd(exe, params):
-    dashcmd = dashd_path + " --datadir=" + datadir
-    p = subprocess.Popen(dashcmd + " " + params, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    while(True):
-      retcode = p.poll() #returns None while subprocess is running
-      line = p.stdout.readline()
-      yield line
-      if(retcode is not None):
-        break
+import os
+import config
+import subprocess
 
+def rpc_command(params):
+    dashcmd = config.dashd_path + " --datadir=" + config.datadir
+    
+    #print "'%s' '%s'" % (dashcmd, params)
+
+    proc = subprocess.Popen(dashcmd + " " + params, shell=True, bufsize=1, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    output = ""
+    while (True):
+        # Read line from stdout, break if EOF reached, append line to output
+        line = proc.stdout.readline()
+        line = line.decode()
+        if (line == ""): break
+        output += line
+
+    return output
 
 class CTransaction():
     def __init__(self):

@@ -79,12 +79,14 @@ CREATE TABLE `report` (
 CREATE TABLE `event` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `governance_object_id` int(11) DEFAULT NULL,
-  `start_time` int(11) DEFAULT '0',
-  `prepare_time` int(11) DEFAULT '0',
-  `submit_time` int(11) DEFAULT '0',
+  `start_time` int(11) NOT NULL DEFAULT '0',
+  `prepare_time` int(11) NOT NULL DEFAULT '0',
+  `submit_time` int(11) NOT NULL DEFAULT '0',
+  `error_time` int(11) NOT NULL DEFAULT '0',
+  `error_message` varchar(255) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`),
   UNIQUE KEY `governance_object_id` (`governance_object_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=45 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=70 DEFAULT CHARSET=utf8;
 
 CREATE TABLE `action` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,

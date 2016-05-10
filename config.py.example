@@ -7,3 +7,20 @@
 dashd_path = "/Users/evan/Desktop/dash/src/dash-cli"
 datadir = "/Users/evan/.dash"
 masternodes = ["masternode_01", "masternode_02"]
+
+hostname="hostname"
+username="username"
+password="password"
+database="sentinel"
+
+"""
+
+    Installation Instructions:
+
+    1.) install mysql and create "sentinel" database
+    2.) import database/001.sql into sentinel database
+    3.) create a mysql user that has access
+    4.) save configuration as config.py
+
+
+"""

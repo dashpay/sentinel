@@ -9,12 +9,13 @@
 import sys
 sys.path.append("lib")
 
+from governance  import GovernanceObject, Event
 import mysql 
 import config 
-
-from governance  import GovernanceObject, Event
-
+import misc 
 import dashd
+
+
 
 ' scripts/events.py '
 ' ------------------------------- '
@@ -32,7 +33,7 @@ def clear_governance_objects():
     return mysql.db.affected_rows()
 
 def prepare_events():
-    sql = "select id from event where start_time < NOW() and prepare_time is NULL limit 1"
+    sql = "select id from event where start_time < NOW() and error_time = 0 and prepare_time = 0 limit 1"
 
     mysql.db.query(sql)
     res = mysql.db.store_result()
@@ -43,23 +44,38 @@ def prepare_events():
         
         govobj = GovernanceObject()
         govobj.load(event.get_id())
-        event.set_prepared()
 
         print "prepared"
         print " --cmd : ", govobj.get_prepare_command()
         #print govobj.get_prepare_command()
         #event.set_prepared()
-        
-        event.save()
-        return 1
-    # prepare fee_tx, store into govobj
-    # update record
 
-    return 0
+        print "executing event ... getting fee_tx hash"
+        result = dashd.rpc_command(govobj.get_prepare_command())
+
+        print "-------"
+        print result
+        
+        # todo: what should it do incase of error?
+        if result[:5] != "error":
+            print "got hash", result
+            govobj.update_field("object_fee_tx", result)
+            govobj.save()
+            event.update_field("prepare_time", misc.get_epoch())
+            event.save()
+
+            return True
+        else:
+            print "got error", result
+            event.update_field("error_time", misc.get_epoch())
+            event.update_field("error_message", result)
+            event.save()
+
+    return False
 
 
 def submit_events():
-    sql = "select id from event where start_time < NOW() and prepare_time < NOW() and submit_time is NULL limit 1"
+    sql = "select id from event where start_time < NOW() and prepare_time < NOW() and submit_time = 0 limit 1"
 
     mysql.db.query(sql)
     res = mysql.db.store_result()
@@ -67,6 +83,14 @@ def submit_events():
     if row:
         event = Event()
         event.load(row[0])
+
+        govobj = GovernanceObject()
+        govobj.load(event.get_id())
+        hash = govobj.get_field("object_fee_tx")
+
+        if len(hash) > 10:
+            pass
+
         event.set_submitted()
         print "submitted"
         event.save()
