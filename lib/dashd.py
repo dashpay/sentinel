@@ -9,6 +9,7 @@ Dashd interface
 import os
 import config
 import subprocess
+import json
 
 def rpc_command(params):
     dashcmd = config.dashd_path + " --datadir=" + config.datadir
@@ -27,11 +28,26 @@ def rpc_command(params):
     return output
 
 class CTransaction():
+    tx = {}
+
     def __init__(self):
+        tx = {
+            "bcconfirmations" : 0
+        }
         return None
 
     def load(self, txid):
-        return True
+        result = rpc_command("gettransaction " + txid)
+        obj = json.loads(result)
+        if obj:
+            self.tx = obj
+            return True
+        else: 
+            print "error loading tx"
+            return False
 
     def get_hash(self):
-      return None
+        return None
+
+    def get_confirmations(self):
+        return self.tx["bcconfirmations"]

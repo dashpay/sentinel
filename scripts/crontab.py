@@ -85,15 +85,26 @@ def submit_events():
         event.load(row[0])
 
         govobj = GovernanceObject()
+        print event.get_id()
         govobj.load(event.get_id())
         hash = govobj.get_field("object_fee_tx")
 
+        print hash
         if len(hash) > 10:
-            pass
+            tx = dashd.CTransaction()
+            tx.load(hash)
+            print tx.get_confirmations()
+            
+            if tx.get_confirmations() > 7:
+                event.set_submitted()   
+                print "submitting:"
+                event.save()
 
-        event.set_submitted()
-        print "submitted"
-        event.save()
-    # update records
+                print "executing event ... getting fee_tx hash"
+                result = dashd.rpc_command(govobj.get_submit_command())
 
-    pass
+                print "-------"
+                print result
+
+            else:
+                print "waiting for confirmation"
