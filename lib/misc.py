@@ -12,7 +12,7 @@ import re
 sentinel_options = []
 
 def is_hash(s):
-    m = re.match('^([a-f0-9]+$', s)
+    m = re.match('^([a-f0-9]+)$', s)
     if m: return True
     return False
 

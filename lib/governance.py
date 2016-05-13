@@ -215,7 +215,7 @@ class GovernanceObject:
                 self.governance_object["action_clear_registers"],
                 self.governance_object["action_endorsed_id"]
             ) = row[0]
-            print "loaded govobj successfully"
+            print "loaded govobj successfully: ", self.governance_object["id"]
 
             self.load_subclasses()
         else:
@@ -269,6 +269,8 @@ class GovernanceObject:
                     id='%(id)s'
             """
 
+            print sql % self.governance_object
+
             mysql.db.query(sql % self.governance_object)
             self.save_subclasses()
 
@@ -277,7 +279,6 @@ class GovernanceObject:
 
     def get_prepare_command(self):
         cmd = "mngovernance prepare %(object_parent_hash)s %(object_revision)s %(object_creation_time)s %(object_name)s %(object_data)s" % self.governance_object
-
         return cmd
 
     def get_fee_tx_age(self):
@@ -285,8 +286,7 @@ class GovernanceObject:
 
     def get_submit_command(self):
         cmd = "mngovernance submit %(object_fee_tx)s %(object_parent_hash)s %(object_revision)s %(object_creation_time)s %(object_name)s %(object_data)s" % self.governance_object
-
-        print cmd
+        return cmd
 
     def last_error(self):
         return "n/a"
@@ -315,7 +315,6 @@ class Event:
         self.event["prepare_time"] = 0
         self.event["submit_time"] = 0
         self.event["error_time"] = 0
-        self.event["error_message"] = "''"
 
     def load(self, record_id):
         sql = """
@@ -331,13 +330,13 @@ class Event:
 
         row = mysql.query_one(sql, self.event)
         if row:
-            print row
+            print "retrieving record", row
             (self.event["id"], self.event["governance_object_id"], self.event["start_time"],
                 self.event["prepare_time"], self.event["submit_time"], self.event["error_time"]) = row
-            print "loaded event successfully"
-            print
-            print "!", self.event
-            print
+            # print "loaded event successfully"
+            # print
+            # print "!", self.event
+            # print
         else:
             print "event not found", sql 
 
@@ -364,14 +363,11 @@ class Event:
                 start_time=%(start_time)s,
                 prepare_time=%(prepare_time)s,
                 submit_time=%(submit_time)s,
-                error_time=%(error_time)s,
-                error_message=%(error_message)s
+                error_time=%(error_time)s
         """
 
         print sql % self.event
-
         mysql.db.query(sql % self.event)
-
 
     def update_field(self, field, value):
         self.event[field] = value

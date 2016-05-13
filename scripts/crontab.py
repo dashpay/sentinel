@@ -50,15 +50,15 @@ def prepare_events():
         #print govobj.get_prepare_command()
         #event.set_prepared()
 
-        print "executing event ... getting fee_tx hash"
+        print " -- executing event ... getting fee_tx hash"
         result = dashd.rpc_command(govobj.get_prepare_command())
 
-        print "-------"
-        print result
+        #print "-------"
+        #print result
         
         # todo: what should it do incase of error?
-        if result[:5] != "error":
-            print "got hash", result
+        if misc.is_hash(result):
+            print " --got hash:", result
             govobj.update_field("object_fee_tx", result)
             govobj.save()
             event.update_field("prepare_time", misc.get_epoch())
@@ -66,7 +66,7 @@ def prepare_events():
 
             return True
         else:
-            print "got error", result
+            print " --got error:", result
             event.update_field("error_time", misc.get_epoch())
             event.update_field("error_message", result)
             event.save()
@@ -89,22 +89,27 @@ def submit_events():
         govobj.load(event.get_id())
         hash = govobj.get_field("object_fee_tx")
 
-        print hash
-        if len(hash) > 10:
+        print "submitting:"
+        print " --cmd : ", govobj.get_submit_command()
+
+        if misc.is_hash(hash):
             tx = dashd.CTransaction()
             tx.load(hash)
-            print tx.get_confirmations()
+            print " --confirmations: ", tx.get_confirmations()
             
-            if tx.get_confirmations() > 7:
+            if tx.get_confirmations() >= 7:
                 event.set_submitted()   
-                print "submitting:"
-                event.save()
+                print " --executing event ... getting fee_tx hash"
 
-                print "executing event ... getting fee_tx hash"
                 result = dashd.rpc_command(govobj.get_submit_command())
+                if misc.is_hash(result):
+                    print " --got result", result
 
-                print "-------"
-                print result
+                    govobj.update_field("object_hash", result)
+                    event.save()
+                    govobj.save()
+                else:
+                    print " --got error", result
 
             else:
-                print "waiting for confirmation"
+                print " --waiting for confirmation"
