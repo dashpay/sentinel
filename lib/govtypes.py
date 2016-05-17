@@ -1,7 +1,11 @@
 
 # Name the types of governance objects here, dash is agnostict
 
-user = 1
-employee = 2
-manager = 3
-project = 4
+contract = 1
+
+"""
+user = 2
+employee = 3
+manager = 4
+project = 5
+"""

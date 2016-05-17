@@ -35,7 +35,7 @@ commands = {}
         mnbudget prepare beer-reimbursement2 www.dashwhale.org/p/beer-reimbursement2 1 481864 XfoGXXFJtobHvjwfszWnbMNZCBAHJWeN6G 50
         mnbudget submit beer-reimbursement2 www.dashwhale.org/p/beer-reimbursement2 1 481864 XfoGXXFJtobHvjwfszWnbMNZCBAHJWeN6G 50 REPLACE_WITH_COLLATERAL_HASH
 
-    1. contract --create --name="beer-reimbursement" --description_url="www.dashwhale.org/p/beer-reimbursement" --contract_url="beer-reimbursement.com/001.pdf" --start-date="2017/1/1" --end-date="2017/6/1"
+    1. contract --create --project_name="beer-reimbursement" --description_url="www.dashwhale.org/p/beer-reimbursement" --contract_url="beer-reimbursement.com/001.pdf" --start-date="2017/1/1" --end-date="2017/6/1"
     2. cron process (will automatically submit the proposal to the network)
 
 """
@@ -90,11 +90,12 @@ class SentinelShell(cmd.Cmd):
         parser.add_argument('-k', '--pubkey', help='your public key for this username (only required for --create)')
 
         # meta data (create or amend)
-        parser.add_argument('-n', '--name', help='your evolution name')
+        parser.add_argument('-p', '--project_name', help='the project name (must be unique)')
         parser.add_argument('-d', '--description_url', help='your proposals url where a description of the project can be found')
         parser.add_argument('-c', '--contract_url', help='the url where a pdf of the signed contract can be found')
         parser.add_argument('-s', '--start_date', help='starting data, must be the first of the month. Example : 2017/1/1')
         parser.add_argument('-e', '--end_date', help='ending data, must be the first of the month. Example : 2017/6/1')
+        parser.add_argument('-a', '--payment_address', help='the payment address where you wish to receive the funds')
 
         # process
 
@@ -111,14 +112,34 @@ class SentinelShell(cmd.Cmd):
 
         if args.create:
             #--create --revision=1 --pubkey=XPubkey --username="user-cid" 
-            if not args.username:
-                print "user creation requires a username"
+            if not args.project_name:
+                print "contract creation requires a project name, use --project_name"
+                return
+
+            if not args.description_url:
+                print "contract creation requires a description url, use --description_url"
+                return
+
+            if not args.contract_url:
+                print "contract creation requires a contract url, use --contract_url"
+                return
+
+            if not args.start_date:
+                print "start creation requires a start date, use --start_date"
+                return
+
+            if not args.end_date:
+                print "end creation requires a end date, use --end_date"
+                return
+
+            if not args.payment_address:
+                print "payment creation requires a valid base58 payment address, use --payment_address"
                 return
 
             fee_tx = CTransaction()
 
             newObj = GovernanceObject()
-            newObj.create_new(parent, args.username, govtypes.user, args.revision, args.pubkey, fee_tx)
+            newObj.create_new(parent, args.project_name, govtypes.contract, 1, args.payment_address, fee_tx)
             last_id = newObj.save()
 
             if last_id != None:
@@ -208,7 +229,9 @@ class SentinelShell(cmd.Cmd):
 
     """
 
-    def do_vote(self, arg):
+
+    # ----- (internal) vote on something -----
+    def do___internal_vote(self, arg):
         'Command action on the dash network'
         ' __internal_vote --times=22 --type=funding --outcome=yes [--hash=governance-hash --name=obj-name --pubkey]'
 
@@ -254,14 +277,10 @@ misc.startup()
 if __name__ == '__main__':
 
     if len(args) > 1:
-        if args[0] == "user":
+        if args[0] == "contract":
             SentinelShell().do_user(" ".join(args[1:]))
-        elif args[0] == "project":
-            SentinelShell().do_project(" ".join(args[1:]))
         elif args[0] == "vote":
             SentinelShell().do_vote(" ".join(args[1:]))
-        elif args[0] == "payday":
-            SentinelShell().do_payday(" ".join(args[1:]))
         elif args[0] == "crontab":
             SentinelShell().do_crontab(" ".join(args[1:]))
     else:
@@ -270,28 +289,12 @@ if __name__ == '__main__':
 """
     Test Flow (to be moved into unit tests):
 
-    1.)  create our required users
-         user --create --revision=1 --pubkey=XPubkey --username="user-terra"
-         user --create --revision=1 --pubkey=XPubkey --username="user-cid"
+    1.)  create an example contract
+         contract --create --project_name="beer-reimbursement" --description_url="www.dashwhale.org/p/beer-reimbursement" --contract_url="beer-reimbursement.com/001.pdf" --start-date="2017/1/1" --end-date="2017/6/1"
 
-    2.)  self-promote our people
-         user --amend --revision=2 --name="user-terra" --subclass="manager" --managed_by="user-cyan"
-         user --amend --revision=2 --name="user-cid" --subclass="employee" --managed_by="user-cid"
+    2.)  vote on the funding contract
+         contract --fund --project_name="beer-reimbursement" --vote_times=22
 
-    3.)  manual masternode action
-         # masternodes will vote valid=yes on rev=1 and valid=no on all others
-         user --set-best-revision=2 --name="user-terra" 
-         user --set-best-revision=2 --name="user-cid" 
-
-    4.) cid & terra privately make a deal for compensation
-         payday --name="user-terra" --date="2017-1-1" --income="333 USD" --expense="0 USD" --signature1="HEXSIGNATURE" --signature2="HEXSIGNATURE2"
-         payday --name="user-cid" --date="2017-1-1" --income="999 USD" --expense="0 USD" --signature1="HEXSIGNATURE" --signature2="HEXSIGNATURE2"
-
-         # expenses and income are signed off on, the network will automatically switch revisions in this case
-
-    5.) cid & terra privately make a deal for expenses
-         payday --name="user-terra" --date="2017-01-15" --income="0 USD" --expense="333 USD" --signature1="HEXSIGNATURE" --signature2="HEXSIGNATURE2"
-         payday --name="user-cid" --date="2017-01-15" --income="0 USD" --expense="999 USD" --signature1="HEXSIGNATURE" --signature2="HEXSIGNATURE2"
 
          
 
