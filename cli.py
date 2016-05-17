@@ -231,9 +231,9 @@ class SentinelShell(cmd.Cmd):
 
 
     # ----- (internal) vote on something -----
-    def do___internal_vote(self, arg):
+    def do_vote(self, arg):
         'Command action on the dash network'
-        ' __internal_vote --times=22 --type=funding --outcome=yes [--hash=governance-hash --name=obj-name --pubkey]'
+        ' vote --times=22 --type=funding --outcome=yes [--hash=governance-hash --name=obj-name]'
 
         parser = argparse.ArgumentParser(description='Vote on governance objects and signal what dash should do with them.')
 
@@ -293,8 +293,7 @@ if __name__ == '__main__':
          contract --create --project_name="beer-reimbursement" --description_url="www.dashwhale.org/p/beer-reimbursement" --contract_url="beer-reimbursement.com/001.pdf" --start-date="2017/1/1" --end-date="2017/6/1"
 
     2.)  vote on the funding contract
-         contract --fund --project_name="beer-reimbursement" --vote_times=22
-
+         vote --times=22 --type=funding --outcome=yes [--hash=governance-hash --name=obj-name]
 
          
 
