@@ -12,6 +12,7 @@ import config
 import crontab
 import cmd, sys
 import govtypes
+import time
 
 from governance import GovernanceObject, GovernanceObjectMananger, Setting, Event
 from dashd import CTransaction
@@ -23,65 +24,77 @@ db = mysql.connect(config.hostname, config.username, config.password, config.dat
 
 commands = {}
 
-'create a new governance object'
-' user [--create --delete --amend] '
-'   --create --revision=1 --pubkey=XPubkey --username="user-cid" '
-'   --delete --revision=1 --username="user-cid" '
-'   --amend --revision="next" --username="user-cid" --subclass="employee" --managed_by="user-terra" --project="release-dash-core-12.1x"'
-commands["user"] = [
-    "--create", "--delete", "--amend","--revision","--pubkey","--username",
-    "--subclass", "--managed_by","--project"]
+"""
 
-' --create --username="username-cid" --date="2017-01-01" --income="342 DASH" --expenses="523 USD" --signature_one="s1" --signature_two="s2" '
-commands["payday"] = [
-    "--username", "--date", "--income","--expenses","--signature_one","--signature_two"]
+    Sentinel - v1
+    --------------------------------    
 
-' report --new --project_name --url'
-' project --create --name="release-dash-core-12.1x" --description="devops for 12.1x"'
-commands["project"] = [
-    "--new","--project_name","--url"
+     - this is an exact copy of our existing functionality, just reimplemented in python using sentinel
+
+    old commands: 
+        mnbudget prepare beer-reimbursement2 www.dashwhale.org/p/beer-reimbursement2 1 481864 XfoGXXFJtobHvjwfszWnbMNZCBAHJWeN6G 50
+        mnbudget submit beer-reimbursement2 www.dashwhale.org/p/beer-reimbursement2 1 481864 XfoGXXFJtobHvjwfszWnbMNZCBAHJWeN6G 50 REPLACE_WITH_COLLATERAL_HASH
+
+    1. contract --create --name="beer-reimbursement" --description_url="www.dashwhale.org/p/beer-reimbursement" --contract_url="beer-reimbursement.com/001.pdf" --start-date="2017/1/1" --end-date="2017/6/1"
+    2. cron process (will automatically submit the proposal to the network)
+
+"""
+
+"""
+
+    Sentinel Autocomplete
+    --------------------------------
+"""
+
+' contract --create [...] '
+commands["contract"] = [
+    "--create",
+    "--name",
+    "--description_url",
+    "--contract_url",
+    "--start_date",
+    "--end_date"
 ]
 
-' support --name="release-dash-core-12.1x"'
-commands["support"] = ["--name"]
-commands["abandon"] = ["--name"]
-commands["abstain"] = ["--name"]
-
 ' crontab --task="(prepare_events|submit_events)"'
-commands["crontab"] = ["--clear_events", "--prepare_events", "--submit_events"]
+commands["crontab"] = [
+    "--clear_events",
+    "--prepare_events",
+    "--submit_events"
+]
 
+"""
 
+    Sentinel Shell (CLI)
+"""
 
 class SentinelShell(cmd.Cmd):
     intro = 'Welcome to the sentinel shell.   Type help or ? to list commands.\n'
     prompt = '(sentinel) '
     file = None
 
-    # ----- alter a user record -----
-    def do_user(self, arg):
-        'create a new governance object'
-        ' user [--create --delete --amend] '
-        '   --create --revision=1 --pubkey=XPubkey --username="user-cid" '
-        '   --delete --revision=1 --username="user-cid" '
-        '   --amend --revision="next" --username="user-cid" --subclass="employee" --managed_by="user-terra" --project="release-dash-core-12.1x"'
+    """
+        Network Contract Tasks
 
-        parser = argparse.ArgumentParser(description='Create a dash evolution user using sentinel.')
+    """
+    def do_contract(self, arg):
+        'contract'
+        '  user --create --name="beer-reimbursement" --description_url="www.dashwhale.org/p/beer-reimbursement" --contract_url="beer-reimbursement.com/001.pdf" --start-date="2017/1/1" --end-date="2017/6/1"'
+
+        parser = argparse.ArgumentParser(description='Create a dash contract')
 
         # desired action
         parser.add_argument('-a', '--create', help="create", action='store_true')
-        parser.add_argument('-b', '--delete', help="delete", action='store_true')
-        parser.add_argument('-g', '--amend', help="amend", action='store_true')
-        parser.add_argument('-d', '--best', help="best", action='store_true')
 
         # object identity (existentially... what does it mean to be a pubkey?)
         parser.add_argument('-k', '--pubkey', help='your public key for this username (only required for --create)')
 
         # meta data (create or amend)
-        parser.add_argument('-r', '--revision', help="this revision number")
-        parser.add_argument('-u', '--username', help='your evolution username')
-        parser.add_argument('-c', '--subclass', help="subclasses available: none, employee, manager")
-        parser.add_argument('-m', '--managed_by', help='Who manages you?')
-        parser.add_argument('-p', '--project', help='What project are you working on?')
+        parser.add_argument('-n', '--name', help='your evolution name')
+        parser.add_argument('-d', '--description_url', help='your proposals url where a description of the project can be found')
+        parser.add_argument('-c', '--contract_url', help='the url where a pdf of the signed contract can be found')
+        parser.add_argument('-s', '--start_date', help='starting data, must be the first of the month. Example : 2017/1/1')
+        parser.add_argument('-e', '--end_date', help='ending data, must be the first of the month. Example : 2017/6/1')
 
         # process
 
@@ -92,28 +105,6 @@ class SentinelShell(cmd.Cmd):
             pass
 
         if not args:
-            return
-
-        ### ------ SET BEST -------- ####
-
-        if args.username and args.best:
-            obj = GovernanceObjectMananger.find_object_by_name(args.username)
-            if obj is None:
-                print "object could not be found"
-                return 
-
-            if args.best == "newest":
-                revision = obj.get_newest_revision()
-
-            if isinstance(args.best, int):
-                revision = args.best
-                print "revision is int"
-
-            setting = Setting()
-            settings.create_new("object.best", obj.get_hash(), revision)
-            if settings.save():
-                print "saved setting"
-
             return
 
         ### ------ CREATE METHOD -------- ####
@@ -141,300 +132,17 @@ class SentinelShell(cmd.Cmd):
 
             return
 
-        ### ------ DELETE METHOD -------- ####
-
-        if args.delete:
-            # --delete --revision=1 --username="user-cid"
-            if not args.revision or not args.pubkey or not args.username or not args.pubkey:
-                print "user create requires a valid revision, pubkey, username"
-                return
-
-            print "unimplemented"
-            return
-
-        ### ------ AMEND METHOD -------- ####
-
-        if args.amend:
-            #--amend --revision="next" --username="user-cid" --subclass="employee" 
-            if not args.revision or not args.pubkey or not args.username:
-                print "user create requires a valid revision, pubkey, username"
-
-            #--managed_by="user-terra" --project="release-dash-core-12.1x"'
-            if not args.subclass or not args.managed_by or not args.project:
-                print "user amendment requires a valid reason for the update, either --subclass or --managed_by or --project "
-
-            print "unimplemented"
-            return
-
         ### ------- ELSE PRINT HELP --------------- ### 
 
         parser.print_help()
-
-    def complete_user(self, text, line, start_index, end_index):
-        if text:
-            return [command for command in commands["user"]
-                    if command.startswith(text)]
-        else:
-            return commands
-
-    # ----- alter a payday record -----
-    def do_payday(self, arg):
-        'create a new payday for your dash evolution user'
-        ' --create --username="username-cid" --date="2017-01-01" --income="342 DASH" --expenses="523 USD" --signature_one="s1" --signature_two="s2" '
-
-        parser = argparse.ArgumentParser(description='Create a dash evolution payday using sentinel.')
-
-        # desired action
-        parser.add_argument('-a', '--create', help="create", action='store_true') #
-
-        # meta data (create or amend)
-        parser.add_argument('-u', '--username', help='your evolution username')
-        parser.add_argument('-d', '--date', help='The agreed upon expenses for this period')
-        parser.add_argument('-i', '--income', help='The agreed upon pay for this period')
-        parser.add_argument('-e', '--expenses', help='The agreed upon pay for this period')
-        parser.add_argument('-s', '--signature_one', help='Ask primary manager to sign off')
-        parser.add_argument('-t', '--signature_two', help='Ask secondary manager to sign off')
-
-        # process
-
-        args = None
-        try:
-            args = parser.parse_args(parse(arg))
-        except:
-            pass
-
-        if not args:
-            return
 
         ### ------ CREATE METHOD -------- ####
 
-        if args.create:
-            # --create --username="username-cid" --date="2017-01-01" --income="342 DASH" --expenses="523 USD" --signature_one="s1" --signature_two="s2" 
-            print "unimplemented"
-            return
 
-        ### ------- ELSE PRINT HELP --------------- ### 
+    """
+        Contract Tasks
 
-        parser.print_help()
-
-    def complete_paypal(self, text, line, start_index, end_index):
-        if text:
-            return [command for command in commands["paypal"]
-                    if command.startswith(text)]
-        else:
-            return commands
-
-    # ----- alter a project record -----
-    def do_report(self, arg):
-        'create/amend/delete a project'
-        ' report --new --project_name --url'
-
-        parser = argparse.ArgumentParser(description='Create a dash evolution user using sentinel.')
-
-        # desired action
-        parser.add_argument('-n', '--new', help="make a new report", action='store_true') #
-
-        # meta data (create or amend)
-        parser.add_argument('-p', '--project_name', help="this project name")
-        parser.add_argument('-u', '--url', help="where is the url for the report?")
-        parser.add_argument('-d', '--description', help="the description of what the report is for")
-
-
-        args = None
-        try:
-            args = parser.parse_args(parse(arg))
-        except:
-            pass
-
-        if not args:
-            return
-    
-        if not misc.is_valid_address(args):    
-            print "Correct usage is create username first last address1 address2 city state country"
-
-        ### ------- ELSE PRINT HELP --------------- ### 
-
-        parser.print_help()
-
-    def complete_report(self, text, line, start_index, end_index):
-        if text:
-            return [command for command in commands["report"]
-                    if command.startswith(text)]
-        else:
-            return commands
-
-    # ----- alter a project record -----
-    def do_project(self, arg):
-        'create/amend/delete a project'
-        ' project --create --name="release-dash-core-12.1x" --description="devops for 12.1x"'
-
-        parser = argparse.ArgumentParser(description='Create a dash evolution project.')
-
-        # desired action
-        parser.add_argument('-n', '--new', help="create a new project", action='store_true')
-        parser.add_argument('-b', '--best', help="tell sentinel which version is best", action='store_true')
-
-        # meta data (create or amend)
-        parser.add_argument('-c', '--subclass', help="available classes: software, hardware, legal, etc?")
-        parser.add_argument('-e', '--name', help="this project name")
-        parser.add_argument('-d', '--description', help="classes available: none, employee, manager")
-        
-        args = None
-        try:
-            args = parser.parse_args(parse(arg))
-        except:
-            pass
-
-        if not args:
-            return
-
-        ### ------ SET BEST -------- ####
-
-        if args.name or args.best:
-            obj = GovernanceObject.get_newest_revision(args.name)
-            if obj is None:
-                print "object could not be found"
-                return 
-
-            if args.best == "newest":
-                revision = obj.get_newest_revision()
-
-            if isinstance(args.best, int):
-                revision = GovernanceObject.get_newest_revision(args.name)
-
-            setting = Setting()
-            settings.create_new("object.best", obj.get_hash(), revision)
-            if settings.save():
-                print "saved setting"
-
-            return
-
-        ### ------ NEW METHOD -------- ####
-
-        if args.new:
-            if args.name or args.subclass or args.description:
-                print "unimplemented"
-                return
-
-        ### ------- ELSE PRINT HELP --------------- ### 
-
-        parser.print_help()
-
-
-
-    def complete_project(self, text, line, start_index, end_index):
-        if text:
-            return [command for command in commands["project"]
-                    if command.startswith(text)]
-        else:
-            return commands
-
-    # ----- use your masternodes to vote yes on an object -----
-    def do_support(self, arg):
-        ' support --name="release-dash-core-12.1x"'
-
-        parser = argparse.ArgumentParser(description='Create a dash evolution support.', action='store_true')
-
-        # meta data (create or amend)
-        parser.add_argument('-e', '--name', help="this support name")
-        
-        args = None
-        try:
-            args = parser.parse_args(parse(arg))
-        except:
-            pass
-
-        if not args:
-            return
-    
-        ### ------ NAME METHOD -------- ####
-
-        if args.name:
-            print "unimplemented"
-            return
-
-        ### ------- ELSE PRINT HELP --------------- ### 
-
-        parser.print_help()
-
-    def complete_support(self, text, line, start_index, end_index):
-        if text:
-            return [command for command in commands["support"]
-                    if command.startswith(text)]
-        else:
-            return commands
-
-    # ----- use your masternodes to vote no on an object -----
-    def do_abandon(self, arg):
-        ' abandon --name="release-dash-core-12.1x"'
-
-        parser = argparse.ArgumentParser(description='Create a dash evolution abandon.')
-
-        # meta data (create or amend)
-        parser.add_argument('-e', '--name', help="this support name", action='store_true')
-        
-        args = None
-        try:
-            args = parser.parse_args(parse(arg))
-        except:
-            pass
-
-        if not args:
-            return
-    
-        ### ------ NAME METHOD -------- ####
-
-        if args.name:
-            print "unimplemented"
-            return
-
-        ### ------- ELSE PRINT HELP --------------- ### 
-
-        parser.print_help()
-
-    def complete_abandon(self, text, line, start_index, end_index):
-        if text:
-            return [command for command in commands["abandon"]
-                    if command.startswith(text)]
-        else:
-            return commands
-
-    # ----- use your masternodes to vote abstain on an object -----
-    def do_abstain(self, arg):
-        ' abstain --name="release-dash-core-12.1x"'
-
-        parser = argparse.ArgumentParser(description='Create a dash evolution abstain.')
-
-        # meta data (create or amend)
-        parser.add_argument('-e', '--name', help="this support name", action='store_true')
-        
-        args = None
-        try:
-            args = parser.parse_args(parse(arg))
-        except:
-            pass
-
-        if not args:
-            return
-    
-        ### ------ NAME METHOD -------- ####
-
-        if args.name:
-            print "unimplemented"
-            return
-
-        ### ------- ELSE PRINT HELP --------------- ### 
-
-        parser.print_help()
-
-    def complete_abstain(self, text, line, start_index, end_index):
-        if text:
-            return [command for command in commands["abstain"]
-                    if command.startswith(text)]
-        else:
-            return commands
-
-    # ----- Do a crontab task -----
+    """
     def do_crontab(self, arg):
         ' crontab [--clear_events --prepare_events --submit_events]"'
 
@@ -494,8 +202,13 @@ class SentinelShell(cmd.Cmd):
         else:
             return commands
 
-    # ----- (internal) vote on something -----
-    def do___internal_vote(self, arg):
+    """
+
+        Vote on a specific contract
+
+    """
+
+    def do_vote(self, arg):
         'Command action on the dash network'
         ' __internal_vote --times=22 --type=funding --outcome=yes [--hash=governance-hash --name=obj-name --pubkey]'
 

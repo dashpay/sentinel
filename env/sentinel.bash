@@ -18,6 +18,7 @@ cmd_sentinel()
     echo "Commands:";
     echo "  cd";
     echo "  start";
+    echo "  open";
     echo "";
     echo "";
   fi;
@@ -25,6 +26,7 @@ cmd_sentinel()
   #---- generic commands
   if [ "$1" = "start" ]; then cd ~/Desktop/projects/sentinel && ./sentinel-cli; return; fi;
   if [ "$1" = "cd" ]; then cd ~/Desktop/projects/sentinel; return; fi;
+  if [ "$1" = "open" ]; then cd ~/Desktop/projects/sentinel; sublime cli.py return; fi;
 }
 
 alias sentinel=cmd_sentinel;
