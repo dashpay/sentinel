@@ -191,7 +191,6 @@ class GovernanceObject:
                 id = %s
         """ % record_id
 
-
         mysql.db.query(sql)
         res = mysql.db.store_result()
         row = res.fetch_row()
@@ -220,6 +219,10 @@ class GovernanceObject:
             self.load_subclasses()
         else:
             print "object not found"
+            print 
+            print "SQL:"
+            print sql
+            print
 
     def update_field(self, field, value):
         self.governance_object[field] = value
@@ -274,7 +277,6 @@ class GovernanceObject:
             mysql.db.query(sql % self.governance_object)
             self.save_subclasses()
 
-            self.governance_object["id"] = mysql.db.insert_id()
             return self.governance_object["id"]
 
     def get_prepare_command(self):

@@ -173,6 +173,8 @@ class SentinelShell(cmd.Cmd):
             newObj.add_subclass(c)
             last_id = newObj.save()
 
+            print last_id
+
             if last_id != None:
                 event = Event()
                 event.create_new(last_id)
