@@ -141,6 +141,7 @@ class SentinelShell(cmd.Cmd):
                 print "payment creation requires a valid payment amount, use --payment_amount"
                 return
 
+            ### ---- CONVERT AND CHECK EPOCHS -----
 
             start_epoch = 0
             end_epoch = 0
@@ -153,29 +154,42 @@ class SentinelShell(cmd.Cmd):
                     start_epoch = datetime.strptime(args.start_date, '"%Y/%m/%d"').strftime('%s')
                     end_epoch = datetime.strptime(args.end_date, '"%Y/%m/%d"').strftime('%s')
                 except:
-                    print "start or end date has invalid format, YYYY/MM/DD or DD/MM/YY is required";
-                    return
+                    pass
+            
+            if start_epoch == 0 or end_epoch == 0:
+                print "start or end date has invalid format, YYYY/MM/DD or DD/MM/YY is required";
+                return
+
+            ### ---- CHECK NAME UNIQUENESS -----
+            if GovernanceObjectMananger.object_with_name_exists(args.project_name):
+                print "governance object with that name already exists"
+                return
+
                 
             fee_tx = CTransaction()
 
             newObj = GovernanceObject()
             newObj.create_new(parent, args.project_name, govtypes.contract, 1, args.payment_address, fee_tx)
-
-            c = Contract()
-            c.set_field("project_name", args.project_name)
-            c.set_field("description_url", args.description_url)
-            c.set_field("contract_url", args.contract_url)
-            c.set_field("start_date", start_epoch)
-            c.set_field("end_date", end_epoch)
-            c.set_field("payment_address", args.payment_address)
-            c.set_field("payment_amount", args.payment_amount)
-
-            newObj.add_subclass(c)
             last_id = newObj.save()
 
             print last_id
 
             if last_id != None:
+
+                # add our contract if this was successful
+                c = Contract()
+                c.set_field("governance_object_id", last_id)
+                c.set_field("project_name", args.project_name)
+                c.set_field("description_url", args.description_url)
+                c.set_field("contract_url", args.contract_url)
+                c.set_field("start_date", start_epoch)
+                c.set_field("end_date", end_epoch)
+                c.set_field("payment_address", args.payment_address)
+                c.set_field("payment_amount", args.payment_amount)
+
+                newObj.add_subclass("contract", c)
+                newObj.save()
+
                 event = Event()
                 event.create_new(last_id)
                 event.save()

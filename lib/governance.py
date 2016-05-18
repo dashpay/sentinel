@@ -11,11 +11,28 @@ sys.path.append("../scripts")
 import mysql 
 import misc
 import binascii
-
+from classes import Contract
 # from classes import User, Project
 # from subclasses import Report, Payday
 
 class GovernanceObjectMananger:
+
+    @staticmethod
+    def object_with_name_exists(name):
+
+        sql = """
+            select id from governance_object 
+            where governance_object.object_name = '%s' 
+            limit 1
+        """ % name
+
+        mysql.db.query(sql)
+        res = mysql.db.store_result()
+        row = res.fetch_row()
+        if row:
+            return True
+
+        return False
 
     @staticmethod
     def find_object_by_name(name):
@@ -127,8 +144,8 @@ class GovernanceObject:
 
     def compile_subclasses(self):
         objects = []
-        for subclass in self.subclasses:
-            objects.append(subclass.get_dict())
+        for (obj_type, obj) in self.subclasses:
+            objects.append((obj_type, obj.get_dict()))
 
         self.governance_object["object_data"] = binascii.hexlify(json.dumps(objects))
 
@@ -136,31 +153,22 @@ class GovernanceObject:
 
     def save_subclasses(self):
         objects = []
-        for subclass in self.subclasses:
-            subclass.save()
+        for (obj_type, obj) in self.subclasses:
+            obj.save()
 
         return True
 
     def load_subclasses(self):
         objects = json.loads(binascii.unhexlify(self.governance_object["object_data"]))
-        for objdict in objects:
-            if objdict["type"] == "project":
-               obj = Project()
-               obj.load_by_dict(objdict)
-               self.subclasses.append(obj)
-            if objdict["type"] == "report":
-               obj = Report()
-               obj.load_by_dict(objdict)
-               self.subclasses.append(obj)
-            if objdict["type"] == "payday":
-               obj = Payday()
-               obj.load_by_dict(objdict)
-               self.subclasses.append(obj)
+
+        ## todo -- make plugin system for subclasses?
+        for (obj_type, obj_data) in objects:
+            if obj_type == "contract":
+               obj = Contract()
+               obj.load_dict(obj_data)
+               self.subclasses.append((obj_type, obj))
 
         return True
-
-    def add_subclass(self, subclass):
-        self.subclasses.append(subclass)
 
     """
         load/save/update from database
@@ -293,7 +301,7 @@ class GovernanceObject:
     def last_error(self):
         return "n/a"
 
-    def add_object_to_stack(self, typename, obj):
+    def add_subclass(self, typename, obj):
         self.subclasses.append((typename,obj))
         
     def is_valid(self):
