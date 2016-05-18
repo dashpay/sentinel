@@ -6,9 +6,6 @@
 # **** change these each project, so that the default is correct usually ****
 #
 
-HOMEUSER="evan"
-DASHBINARY="./sentinel-cli"
-
 cmd_sentinel()
 {
   if [ "$1" = "help" ]; then
