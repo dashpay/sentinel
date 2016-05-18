@@ -22,33 +22,38 @@ from misc import *
 """
 
 
-"""
-    The base User object for the governance system
-"""
-class User:
-    user = {}
+class Contract:
+    contract = {}
     def __init__(self):
         pass
 
-    def create_new(self, last_id):
-        self.user["governance_object_id"] = last_id
-        self.user["class"] = ""
-        self.user["username"] = ""
-        self.user["revision"] = ""
-        self.user["managed_by"] = ""
-        self.user["project"] = ""
-        self.user["pubkey"] = ""
+    """
+        contract --create --contract_name="beer-reimbursement" 
+        --description_url="www.dashwhale.org/p/beer-reimbursement" 
+        --contract_url="beer-reimbursement.com/001.pdf" 
+        --start_date="2017/1/1" 
+        --end_date="2017/6/1" 
+        --payment_address="Xy2LKJJdeQxeyHrn4tGDQB8bjhvFEdaUv7"'
+    """
+
+    def __init__(self):
+        self.contract["governance_object_id"] = 0
+        self.contract["project_name"] = ""
+        self.contract["start_date"] = ""
+        self.contract["end_date"] = ""
+        self.contract["payment_address"] = ""
+        self.contract["payment_amount"] = ""
 
     def load(self, record_id):
         sql = """
             select
                 governance_object_id,
-                class,
-                username,
-                revision,
-                project,
-                managed_by
-            from user where 
+                contract_name,
+                start_date,
+                end_date,
+                payment_address,
+                payment_amount
+            from contract where 
                 id = %s """ % record_id
 
         mysql.db.query(sql)
@@ -56,94 +61,38 @@ class User:
         row = res.fetch_row()
         if row:
             print row[0]
-            (self.user["governance_object_id"], self.user["class"], self.user["username"], 
-                self.user["revision"], self.user["project"], self.user["managed_by"]) = row[0]
-            print "loaded user successfully"
+            ( self.contract["governance_object_id"], self.contract["project_name"], 
+                self.contract["start_date"], self.contract["end_date"], 
+                self.contract["payment_address"], self.contract["payment_amount"]) = row[0]
+            print "loaded contract successfully"
 
             return True
 
         return False
 
-    def get_id(self):
-        pass
-
-    def save(self):
-        sql = """            
-            INSERT INTO user 
-                (governance_object_id, subclass, address1, address2, city, state, country)
-            VALUES
-                ('%(governance_object_id)s','%(subclass)s','%(address1)s','%(address2)s','%(city)s','%(state)s','%(country)')
-            ON DUPLICATE KEY UPDATE
-                governance_object_id='%(governance_object_id)s',
-                subclass='%(subclass)s',
-                address1='%(address1)s',
-                address2='%(address2)s',
-                city='%(city)s',
-                state='%(state)s',
-                country='%(country)'
-        """
-
-        mysql.db.query(sql % self.user)
-
-
-    def set_field(self, name, value):
-        self.user[name] = value
-
-
-class Project:
-    project = {}
-    def __init__(self):
-        pass
-
-    def create_new(self, last_id):
-        self.project["governance_object_id"] = last_id
-        self.project["name"] = ""
-        self.project["class"] = ""
-        self.project["description"] = ""
-
-    def load(self, record_id):
-        sql = """
-            select
-                governance_object_id,
-                name,
-                class,
-                description
-            from project where 
-                id = %s """ % record_id
-
-        mysql.db.query(sql)
-        res = mysql.db.store_result()
-        row = res.fetch_row()
-        if row:
-            print row[0]
-            (self.project["governance_object_id"], self.project["name"], self.project["class"], self.project["description"]) = row[0]
-            print "loaded project successfully"
-
-            return True
-
-        return False
-
-    def get_id(self):
-        pass
-
-    def add_report(self, obj):
-        self.project["reports"].append(obj)
-
     def save(self):
         sql = """
-            INSERT INTO project 
-                (governance_object_id, name, class, description)
+            INSERT INTO contract 
+                (governance_object_id, contract_name, start_date, end_date, payment_address, payment_amount)
             VALUES
-                (%(governance_object_id)s,%(name)s,%(class)s,%(description)s)
+                (%(governance_object_id)s,%(project_name)s,%(start_date)s,%(end_date)s,%(payment_address)s,%(payment_amount)s)
             ON DUPLICATE KEY UPDATE
                 governance_object_id=%(governance_object_id)s,
-                name=%(name)s,
-                class=%(class)s,
-                description=%(description)s
+                contract_name=%(project_name)s,
+                start_date=%(start_date)s,
+                end_date=%(end_date)s,
+                payment_address=%(payment_address)s,
+                payment_amount=%(payment_amount)s
         """
 
-        mysql.db.query(sql % self.project)
+        mysql.db.query(sql % self.contract)
 
     def set_field(self, name, value):
-        self.project[name] = value 
+        self.contract[name] = value 
+
+    def get_dict(self):
+        return self.contract
+
+    def load_dict(self, dict):
+        self.contract = dict
 

@@ -41,38 +41,14 @@ CREATE TABLE `governance_object` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
-CREATE TABLE `user` (
+CREATE TABLE `contract` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `subclass` varchar(255) DEFAULT NULL, /* employer / employee */
-  `username` varchar(255) DEFAULT NULL,
-  `managed_by` varchar(255) DEFAULT NULL,
-  `project` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE `payday` (
-  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `pay_time` int(11) DEFAULT '0',
-  `income` varchar(255) DEFAULT NULL,
-  `expense` varchar(255) DEFAULT NULL,
-  `signature_one` varchar(255) DEFAULT NULL,
-  `signature_two` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE `project` (
-  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) DEFAULT NULL, /* name of the project */
-  `description` varchar(255) DEFAULT NULL,
-  `subclass` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE `report` (
-  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) DEFAULT NULL,
-  `url` varchar(255) DEFAULT NULL,
-  `description` int(11) DEFAULT NULL,
+  `governance_object_id` int(11) DEFAULT NULL,
+  `contract_name` varchar(255) DEFAULT NULL, /* name of the contract */
+  `start_date` int(11) DEFAULT NULL,
+  `end_date` int(11) DEFAULT NULL,
+  `payment_address` varchar(255) DEFAULT NULL,
+  `payment_amount` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 

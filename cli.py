@@ -12,9 +12,10 @@ import config
 import crontab
 import cmd, sys
 import govtypes
-import time
+from datetime import datetime, date, time
 
 from governance import GovernanceObject, GovernanceObjectMananger, Setting, Event
+from classes import Contract
 from dashd import CTransaction
 
 parent = GovernanceObject()
@@ -78,13 +79,12 @@ class SentinelShell(cmd.Cmd):
 
     """
     def do_contract(self, arg):
-        'contract'
-        '  user --create --name="beer-reimbursement" --description_url="www.dashwhale.org/p/beer-reimbursement" --contract_url="beer-reimbursement.com/001.pdf" --start-date="2017/1/1" --end-date="2017/6/1"'
+        'contract --create --project_name="beer-reimbursement" --description_url="www.dashwhale.org/p/beer-reimbursement" --contract_url="beer-reimbursement.com/001.pdf" --start_date="2017/1/1" --end_date="2017/6/1" --payment_address="Xy2LKJJdeQxeyHrn4tGDQB8bjhvFEdaUv7"'
 
         parser = argparse.ArgumentParser(description='Create a dash contract')
 
         # desired action
-        parser.add_argument('-a', '--create', help="create", action='store_true')
+        parser.add_argument('-c', '--create', help="create", action='store_true')
 
         # object identity (existentially... what does it mean to be a pubkey?)
         parser.add_argument('-k', '--pubkey', help='your public key for this username (only required for --create)')
@@ -92,10 +92,11 @@ class SentinelShell(cmd.Cmd):
         # meta data (create or amend)
         parser.add_argument('-p', '--project_name', help='the project name (must be unique)')
         parser.add_argument('-d', '--description_url', help='your proposals url where a description of the project can be found')
-        parser.add_argument('-c', '--contract_url', help='the url where a pdf of the signed contract can be found')
+        parser.add_argument('-u', '--contract_url', help='the url where a pdf of the signed contract can be found')
         parser.add_argument('-s', '--start_date', help='starting data, must be the first of the month. Example : 2017/1/1')
         parser.add_argument('-e', '--end_date', help='ending data, must be the first of the month. Example : 2017/6/1')
-        parser.add_argument('-a', '--payment_address', help='the payment address where you wish to receive the funds')
+        parser.add_argument('-x', '--payment_address', help='the payment address where you wish to receive the funds')
+        parser.add_argument('-a', '--payment_amount', help='how much to send in each payment to the payment address')
 
         # process
 
@@ -136,10 +137,40 @@ class SentinelShell(cmd.Cmd):
                 print "payment creation requires a valid base58 payment address, use --payment_address"
                 return
 
+            if not args.payment_amount:
+                print "payment creation requires a valid payment amount, use --payment_amount"
+                return
+
+
+            start_epoch = 0
+            end_epoch = 0
+
+            try:
+                start_epoch = datetime.strptime(args.start_date, '"%d/%m/%y"').strftime('%s')
+                end_epoch = datetime.strptime(args.end_date, '"%d/%m/%y"').strftime('%s')
+            except:
+                try:
+                    start_epoch = datetime.strptime(args.start_date, '"%Y/%m/%d"').strftime('%s')
+                    end_epoch = datetime.strptime(args.end_date, '"%Y/%m/%d"').strftime('%s')
+                except:
+                    print "start or end date has invalid format, YYYY/MM/DD or DD/MM/YY is required";
+                    return
+                
             fee_tx = CTransaction()
 
             newObj = GovernanceObject()
             newObj.create_new(parent, args.project_name, govtypes.contract, 1, args.payment_address, fee_tx)
+
+            c = Contract()
+            c.set_field("project_name", args.project_name)
+            c.set_field("description_url", args.description_url)
+            c.set_field("contract_url", args.contract_url)
+            c.set_field("start_date", start_epoch)
+            c.set_field("end_date", end_epoch)
+            c.set_field("payment_address", args.payment_address)
+            c.set_field("payment_amount", args.payment_amount)
+
+            newObj.add_subclass(c)
             last_id = newObj.save()
 
             if last_id != None:

@@ -12,8 +12,8 @@ import mysql
 import misc
 import binascii
 
-from classes import User, Project
-from subclasses import Report, Payday
+# from classes import User, Project
+# from subclasses import Report, Payday
 
 class GovernanceObjectMananger:
 
@@ -128,7 +128,7 @@ class GovernanceObject:
     def compile_subclasses(self):
         objects = []
         for subclass in self.subclasses:
-            objects.append(subclass)
+            objects.append(subclass.get_dict())
 
         self.governance_object["object_data"] = binascii.hexlify(json.dumps(objects))
 
@@ -160,7 +160,7 @@ class GovernanceObject:
         return True
 
     def add_subclass(self, subclass):
-        objects.append(subclass)
+        self.subclasses.append(subclass)
 
     """
         load/save/update from database
