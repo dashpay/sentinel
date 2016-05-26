@@ -11,6 +11,11 @@ import re
 
 sentinel_options = []
 
+def clean_hash(s):
+    m = re.match('^([a-f0-9]+)$', s)
+    if m: return m.group(1)
+    return None
+
 def is_hash(s):
     m = re.match('^([a-f0-9]+)$', s)
     if m: return True
@@ -48,21 +53,9 @@ def is_valid_address(args):
         pass
     return True
 
-def is_valid_first_last_name(args):
-    try:
-        if args.first_name or not args.last_name: 
-            return False
-    except:
-        pass
-    return True
-
 def completer(text, state):
     options = [i for i in commands if i.startswith(text)]
     options.extend(sentinel_options)
-
-    print "HERE"
-    print options
-
 
     if state < len(options):
         return options[state]
@@ -78,7 +71,6 @@ def startup():
     import os 
     # tab completion 
     readline.parse_and_bind('tab: complete') 
-    print "STARTUPS"
     readline.set_completer(completer)
 
     # do not use - as delimiter

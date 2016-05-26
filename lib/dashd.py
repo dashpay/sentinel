@@ -10,6 +10,7 @@ import os
 import config
 import subprocess
 import json
+import sys
 
 def rpc_command(params):
     dashcmd = config.dashd_path + " --datadir=" + config.datadir
@@ -38,12 +39,20 @@ class CTransaction():
 
     def load(self, txid):
         result = rpc_command("gettransaction " + txid)
-        obj = json.loads(result)
-        if obj:
-            self.tx = obj
-            return True
-        else: 
-            print "error loading tx"
+
+        try:
+            obj = json.loads(result)
+            if obj:
+                self.tx = obj
+                return True
+            else: 
+                print "error loading tx"
+                return False
+        except:
+            print "Unexpected error:", sys.exc_info()[0]
+            print 
+            print "dashd result:", result
+            print
             return False
 
     def get_hash(self):

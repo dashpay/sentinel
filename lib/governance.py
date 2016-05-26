@@ -382,6 +382,19 @@ class Event:
     def update_field(self, field, value):
         self.event[field] = value
 
+    def update_error_message(self, message):
+        sql = """
+            UPDATE event 
+            SET
+                error_message=%s
+            WHERE id = %s
+        """
+
+        c=mysql.db.cursor()
+        c.execute(sql , (message, self.event['id']))
+        c.close()
+
+
 
 class Setting:
     setting = {}

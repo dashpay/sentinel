@@ -58,18 +58,22 @@ def prepare_events():
         
         # todo: what should it do incase of error?
         if misc.is_hash(result):
-            print " --got hash:", result
-            govobj.update_field("object_fee_tx", result)
+            hashtx = misc.clean_hash(result)
+            print " --got hash:", hashtx
+            govobj.update_field("object_fee_tx", hashtx)
             govobj.save()
             event.update_field("prepare_time", misc.get_epoch())
             event.save()
+            mysql.db.commit()
 
             return True
         else:
             print " --got error:", result
             event.update_field("error_time", misc.get_epoch())
-            event.update_field("error_message", result)
             event.save()
+            # separately update event error message
+            event.update_error_message(result)
+            mysql.db.commit()
 
     return False
 
@@ -94,22 +98,22 @@ def submit_events():
 
         if misc.is_hash(hash):
             tx = dashd.CTransaction()
-            tx.load(hash)
-            print " --confirmations: ", tx.get_confirmations()
-            
-            if tx.get_confirmations() >= 7:
-                event.set_submitted()   
-                print " --executing event ... getting fee_tx hash"
+            if tx.load(hash):
+                print " --confirmations: ", tx.get_confirmations()
+                
+                if tx.get_confirmations() >= 7:
+                    event.set_submitted()   
+                    print " --executing event ... getting fee_tx hash"
 
-                result = dashd.rpc_command(govobj.get_submit_command())
-                if misc.is_hash(result):
-                    print " --got result", result
+                    result = dashd.rpc_command(govobj.get_submit_command())
+                    if misc.is_hash(result):
+                        print " --got result", result
 
-                    govobj.update_field("object_hash", result)
-                    event.save()
-                    govobj.save()
+                        govobj.update_field("object_hash", result)
+                        event.save()
+                        govobj.save()
+                        mysql.db.commit()
+                    else:
+                        print " --got error", result
                 else:
-                    print " --got error", result
-
-            else:
-                print " --waiting for confirmation"
+                    print " --waiting for confirmation"
