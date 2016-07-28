@@ -9,7 +9,7 @@
 		vector<CNetworkVariable> vecNetworkVariables;
 		vector<CDashProject> vecProjects;
 		vector<CGovernanceObject> vecProposals;
-		vector<CBudgetContract> vecContracts;
+		vector<CBudgetProposal> vecProposals;
 		vector<CBudgetUsers> vecUsers;
 
 	CDashProject:

@@ -12,10 +12,13 @@ import config
 import crontab
 import cmd, sys
 import govtypes
+import random 
+import json 
+
 from datetime import datetime, date, time
 
 from governance import GovernanceObject, GovernanceObjectMananger, Setting, Event
-from classes import Contract
+from classes import Proposal, Superblock
 from dashd import CTransaction
 
 parent = GovernanceObject()
@@ -36,33 +39,40 @@ commands = {}
         mnbudget prepare beer-reimbursement2 www.dashwhale.org/p/beer-reimbursement2 1 481864 XfoGXXFJtobHvjwfszWnbMNZCBAHJWeN6G 50
         mnbudget submit beer-reimbursement2 www.dashwhale.org/p/beer-reimbursement2 1 481864 XfoGXXFJtobHvjwfszWnbMNZCBAHJWeN6G 50 REPLACE_WITH_COLLATERAL_HASH
 
-    1. contract --create --project_name="beer-reimbursement" --description_url="www.dashwhale.org/p/beer-reimbursement" --contract_url="beer-reimbursement.com/001.pdf" --start-date="2017/1/1" --end-date="2017/6/1"
+    1. proposal --create --project_name="beer-reimbursement" --description_url="www.dashwhale.org/p/beer-reimbursement" --start-date="2017/1/1" --end-date="2017/6/1"
     2. cron process (will automatically submit the proposal to the network)
 
 """
 
-"""
+# ---------------------------------------------------------------------
 
-    Sentinel Autocomplete
-    --------------------------------
-"""
+""" SENTINEL AUTOCOMPLETE FOR CLI """
 
-' contract --create [...] '
-commands["contract"] = [
+# proposal --create [...] 
+commands["proposal"] = [
     "--create",
     "--name",
     "--description_url",
-    "--contract_url",
+    "--proposal_url",
     "--start_date",
     "--end_date"
 ]
 
-' crontab --task="(prepare_events|submit_events)"'
+# superblock --create [...] 
+commands["trigger"] = [
+    "--create",
+    "--date",
+    "--payments"
+]
+
+# crontab --task="(prepare_events|submit_events)"
 commands["crontab"] = [
     "--clear_events",
     "--prepare_events",
     "--submit_events"
 ]
+
+# ---------------------------------------------------------------------
 
 """
 
@@ -75,13 +85,13 @@ class SentinelShell(cmd.Cmd):
     file = None
 
     """
-        Network Contract Tasks
+        Network Proposal Tasks
 
     """
-    def do_contract(self, arg):
-        'contract --create --project_name="beer-reimbursement" --description_url="www.dashwhale.org/p/beer-reimbursement" --contract_url="beer-reimbursement.com/001.pdf" --start_date="2017/1/1" --end_date="2017/6/1" --payment_address="Xy2LKJJdeQxeyHrn4tGDQB8bjhvFEdaUv7"'
+    def do_proposal(self, arg):
+        'proposal --create --project_name="beer-reimbursement" --description_url="www.dashwhale.org/p/beer-reimbursement" --proposal_url="beer-reimbursement.com/001.pdf" --start_date="2017/1/1" --end_date="2017/6/1" --payment_address="Xy2LKJJdeQxeyHrn4tGDQB8bjhvFEdaUv7"'
 
-        parser = argparse.ArgumentParser(description='Create a dash contract')
+        parser = argparse.ArgumentParser(description='Create a dash proposal')
 
         # desired action
         parser.add_argument('-c', '--create', help="create", action='store_true')
@@ -92,7 +102,6 @@ class SentinelShell(cmd.Cmd):
         # meta data (create or amend)
         parser.add_argument('-p', '--project_name', help='the project name (must be unique)')
         parser.add_argument('-d', '--description_url', help='your proposals url where a description of the project can be found')
-        parser.add_argument('-u', '--contract_url', help='the url where a pdf of the signed contract can be found')
         parser.add_argument('-s', '--start_date', help='starting data, must be the first of the month. Example : 2017/1/1')
         parser.add_argument('-e', '--end_date', help='ending data, must be the first of the month. Example : 2017/6/1')
         parser.add_argument('-x', '--payment_address', help='the payment address where you wish to receive the funds')
@@ -114,15 +123,11 @@ class SentinelShell(cmd.Cmd):
         if args.create:
             #--create --revision=1 --pubkey=XPubkey --username="user-cid" 
             if not args.project_name:
-                print "contract creation requires a project name, use --project_name"
+                print "proposal creation requires a project name, use --project_name"
                 return
 
             if not args.description_url:
-                print "contract creation requires a description url, use --description_url"
-                return
-
-            if not args.contract_url:
-                print "contract creation requires a contract url, use --contract_url"
+                print "proposal creation requires a description url, use --description_url"
                 return
 
             if not args.start_date:
@@ -169,34 +174,41 @@ class SentinelShell(cmd.Cmd):
             fee_tx = CTransaction()
 
             newObj = GovernanceObject()
-            newObj.create_new(parent, args.project_name, govtypes.contract, 1, args.payment_address, fee_tx)
+            newObj.create_new(parent, args.project_name, govtypes.proposal, govtypes.FIRST_REVISION, fee_tx)
             last_id = newObj.save()
 
             print last_id
 
             if last_id != None:
+                # ADD OUR PROPOSAL AS A SUB-OBJECT WITHIN GOVERNANCE OBJECT
 
-                # add our contract if this was successful
-                c = Contract()
+                c = Proposal()
                 c.set_field("governance_object_id", last_id)
+                c.set_field("type", govtypes.proposal)
                 c.set_field("project_name", args.project_name)
                 c.set_field("description_url", args.description_url)
-                c.set_field("contract_url", args.contract_url)
                 c.set_field("start_date", start_epoch)
                 c.set_field("end_date", end_epoch)
                 c.set_field("payment_address", args.payment_address)
                 c.set_field("payment_amount", args.payment_amount)
 
-                newObj.add_subclass("contract", c)
+                # APPEND TO GOVERNANCE OBJECT
+
+                newObj.add_subclass("proposal", c)
                 newObj.save()
 
+                # CREATE EVENT TO TALK TO DASHD / PREPARE / SUBMIT OBJECT
+                
                 event = Event()
                 event.create_new(last_id)
                 event.save()
+                mysql.db.commit()
 
                 print "event queued successfully"
             else:
                 print "error:", newObj.last_error()
+
+                # abort mysql commit
 
             return
 
@@ -207,8 +219,124 @@ class SentinelShell(cmd.Cmd):
         ### ------ CREATE METHOD -------- ####
 
 
+
     """
-        Contract Tasks
+        Superblock 
+
+    """
+    def do_superblock(self, arg):
+        'superblock --create --event_block_height="28224" --payments="yLipDagwb1gM15RaUq3hpcaTxzDsFsSy9a=100"'
+        'superblock --create --event_date="2017/1/1" --payments="Addr1=amount,Addr2=amount,Addr3=amount"'
+
+        parser = argparse.ArgumentParser(description='Create a dash proposal')
+
+        # desired action
+        parser.add_argument('-c', '--create', help="create", action='store_true')
+
+        # meta data (create or amend)
+        parser.add_argument('-p', '--payments', help='the payments desired in the superblock, serialized as a list. example: {"Addr1": amount,"Addr2": amount}')
+        parser.add_argument('-b', '--event_block_height', help='block height to issue superblock')
+
+        # process
+
+        args = None
+        try:
+            args = parser.parse_args(parse(arg))
+        except:
+            pass
+
+        if not args:
+            return
+
+        ### ------ CREATE METHOD -------- ####
+
+        if args.create:
+            #--create --revision=1 --pubkey=XPubkey --username="user-cid" 
+            if not args.payments:
+                print "superblock creation requires a payment descriptions, use --payments"
+                return
+
+            if not args.event_block_height:
+                print "superblock creation requires a event_block_height, use --event_block_height"
+                return
+
+            ### ---- CONVERT AND CHECK EPOCHS -----
+
+            payments = misc.normalize(args.payments).split(",")
+            if len(payments) > 0:
+                pass
+
+            # COMPILE LIST OF ADDRESSES AND AMOUNTS 
+
+            list_addr = []
+            list_amount = []
+            for payment in payments:
+                print payment
+                addr,amount = payment.split("=")
+                list_addr.append(addr)
+                list_amount.append(amount)
+
+            print list_amount
+            print list_addr
+
+            # CREATE NAME ACCORDING TO STARTING DATE (NON-UNIQUE IS NOT AN ATTACK)
+            proposal_name = "sb" + str(random.randint(1000000, 9999999))
+
+            # DOES THIS ALREADY EXIST?
+            if GovernanceObjectMananger.object_with_name_exists(proposal_name):
+                print "governance object with that name already exists"
+                return
+
+            event_block_height = misc.normalize(args.event_block_height);
+
+            fee_tx = CTransaction()
+
+            newObj = GovernanceObject()
+            newObj.create_new(parent, proposal_name, govtypes.trigger, govtypes.FIRST_REVISION, fee_tx)
+            last_id = newObj.save()
+
+            print last_id
+
+            if last_id != None:
+                # ADD OUR PROPOSAL AS A SUB-OBJECT WITHIN GOVERNANCE OBJECT
+
+                c = Superblock()
+                c.set_field("governance_object_id", last_id)
+                c.set_field("type", govtypes.trigger)
+                c.set_field("subtype", "superblock")
+                c.set_field("proposal_name", proposal_name)
+                c.set_field("event_block_height", event_block_height)
+                c.set_field("payment_addresses", "|".join(list_addr))
+                c.set_field("payment_amounts", "|".join(list_amount))
+
+                # APPEND TO GOVERNANCE OBJECT
+
+                newObj.add_subclass("trigger", c)
+                newObj.save()
+
+                # CREATE EVENT TO TALK TO DASHD / PREPARE / SUBMIT OBJECT
+
+                event = Event()
+                event.create_new(last_id)
+                event.save()
+                mysql.db.commit()
+
+                print "event queued successfully"
+            else:
+                print "error:", newObj.last_error()
+
+                # abort mysql commit
+
+            return
+
+        ### ------- ELSE PRINT HELP --------------- ### 
+
+        parser.print_help()
+
+        ### ------ CREATE METHOD -------- ####
+
+    """
+        Crontab Tasks
 
     """
     def do_crontab(self, arg):
@@ -219,6 +347,7 @@ class SentinelShell(cmd.Cmd):
         # meta data (create or amend)
         parser.add_argument('-p', '--prepare_events', help="Submit any queued governance objects pending submission (stage 2: submission of colateral tx and governance object)", action="store_true")
         parser.add_argument('-s', '--submit_events', help="Process any queued events pending creation (stage 1: prepare colateral tx)", action="store_true")
+        parser.add_argument('-b', '--process_budget', help="Process superblock for monthly budget")
         parser.add_argument('-c', '--clear_events', help="Clear event queue (for testing only)", action="store_true")
         parser.add_argument('-r', '--reset', help="Hard reset (for testing only)", action="store_true")
         
@@ -244,6 +373,12 @@ class SentinelShell(cmd.Cmd):
             print count, "events cleared"
             count = crontab.clear_governance_objects()
             print count, "governance objects cleared"
+            return
+
+        ### --- EXECUTED DESIRED CRONTAB FOR USER --- ####
+
+        if args.process_budget:
+            print crontab.process_budget()
             return
 
         if args.prepare_events:
@@ -272,7 +407,7 @@ class SentinelShell(cmd.Cmd):
 
     """
 
-        Vote on a specific contract
+        Vote on a specific proposal
 
     """
 
@@ -324,22 +459,24 @@ misc.startup()
 if __name__ == '__main__':
 
     if len(args) > 1:
-        if args[0] == "contract":
+        if args[0] == "proposal":
             SentinelShell().do_user(" ".join(args[1:]))
         elif args[0] == "vote":
             SentinelShell().do_vote(" ".join(args[1:]))
         elif args[0] == "crontab":
             SentinelShell().do_crontab(" ".join(args[1:]))
+        elif args[0] == "superblock":
+            SentinelShell().do_superblock(" ".join(args[1:]))
     else:
         SentinelShell().cmdloop()
 
 """
     Test Flow (to be moved into unit tests):
 
-    1.)  create an example contract
-         contract --create --project_name="beer-reimbursement" --description_url="www.dashwhale.org/p/beer-reimbursement" --contract_url="beer-reimbursement.com/001.pdf" --start-date="2017/1/1" --end-date="2017/6/1"
+    1.)  create an example proposal
+         proposal --create --project_name="beer-reimbursement" --description_url="www.dashwhale.org/p/beer-reimbursement" --start-date="2017/1/1" --end-date="2017/6/1"
 
-    2.)  vote on the funding contract
+    2.)  vote on the funding proposal
          vote --times=22 --type=funding --outcome=yes [--hash=governance-hash --name=obj-name]
 
          

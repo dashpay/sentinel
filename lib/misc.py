@@ -4,12 +4,20 @@ import json
 import calendar
 import time
 import re
+import datetime
+import random
+from time import sleep
 
 """
     take any non-meta attributes and serialize them into a register
 """
 
 sentinel_options = []
+
+def first_day_of_next_month():
+    d = datetime.datetime.now() #todays date
+    d + datetime.timedelta(days=29) #add 29 days
+    return date(d.year, d.month, 1) #get first of month
 
 def clean_hash(s):
     m = re.match('^([a-f0-9]+)$', s)
@@ -21,17 +29,15 @@ def is_hash(s):
     if m: return True
     return False
 
+def normalize(s):
+    # args passes in enclosing quotations 
+    return s.replace("'", "").replace("\"", "")
+
 def get_epoch():
     return calendar.timegm(time.gmtime())
 
 def add_sentinel_option(param):
     sentinel_options.append(param)
-
-def convert_object_to_data(obj):
-    return json.dumps(obj)
-
-def convert_data_to_object(obj):
-    return json.loads(obj)
 
 def convert_govobj_name_to_type(govname):
     if govname == "user": return 2
@@ -62,13 +68,13 @@ def completer(text, state):
     else:
         return None
 
-
 def startup():
     # python startup file 
     import readline 
     import rlcompleter 
     import atexit 
     import os 
+
     # tab completion 
     readline.parse_and_bind('tab: complete') 
     readline.set_completer(completer)
@@ -87,4 +93,3 @@ def startup():
     del os, histfile, readline, rlcompleter
 
     import readline
-

@@ -14,46 +14,42 @@ from misc import *
 
 """
 
-    Dash Classes 
-    -- 
+    Proposal Object
 
-    These are 1-to-1 in relationship to our governance objects.
+    - These objects are created when a user would like to be paid by the network via superblock. 
 
 """
 
 
-class Contract:
-    contract = {}
-    def __init__(self):
-        pass
+class Proposal:
+    proposal = {}
 
     """
-        contract --create --contract_name="beer-reimbursement" 
+        proposal --create --proposal_name="beer-reimbursement" 
         --description_url="www.dashwhale.org/p/beer-reimbursement" 
-        --contract_url="beer-reimbursement.com/001.pdf" 
         --start_date="2017/1/1" 
         --end_date="2017/6/1" 
         --payment_address="Xy2LKJJdeQxeyHrn4tGDQB8bjhvFEdaUv7"'
     """
 
     def __init__(self):
-        self.contract["governance_object_id"] = 0
-        self.contract["project_name"] = ""
-        self.contract["start_date"] = ""
-        self.contract["end_date"] = ""
-        self.contract["payment_address"] = ""
-        self.contract["payment_amount"] = ""
+        self.proposal["governance_object_id"] = 0
+        self.proposal["project_name"] = ""
+        self.proposal["start_epoch"] = ""
+        self.proposal["end_epoch"] = ""
+        self.proposal["payment_address"] = ""
+        self.proposal["payment_amount"] = ""
 
     def load(self, record_id):
         sql = """
             select
                 governance_object_id,
-                contract_name,
-                start_date,
-                end_date,
+                proposal_name,
+                start_epoch,
+                end_epoch,
                 payment_address,
                 payment_amount
-            from contract where 
+            from proposal where 
                 id = %s """ % record_id
 
         mysql.db.query(sql)
@@ -61,10 +57,10 @@ class Contract:
         row = res.fetch_row()
         if row:
             print row[0]
-            ( self.contract["governance_object_id"], self.contract["project_name"], 
-                self.contract["start_date"], self.contract["end_date"], 
-                self.contract["payment_address"], self.contract["payment_amount"]) = row[0]
-            print "loaded contract successfully"
+            ( self.proposal["governance_object_id"], self.proposal["project_name"], 
+                self.proposal["start_epoch"], self.proposal["end_epoch"], 
+                self.proposal["payment_address"], self.proposal["payment_amount"]) = row[0]
+            print "loaded proposal successfully"
 
             return True
 
@@ -72,27 +68,115 @@ class Contract:
 
     def save(self):
         sql = """
-            INSERT INTO contract 
-                (governance_object_id, contract_name, start_date, end_date, payment_address, payment_amount)
+            INSERT INTO proposal 
+                (governance_object_id, proposal_name, start_epoch, end_epoch, payment_address, payment_amount)
             VALUES
-                (%(governance_object_id)s,%(project_name)s,%(start_date)s,%(end_date)s,%(payment_address)s,%(payment_amount)s)
+                (%(governance_object_id)s,%(project_name)s,%(start_epoch)s,%(end_epoch)s,%(payment_address)s,%(payment_amount)s)
             ON DUPLICATE KEY UPDATE
                 governance_object_id=%(governance_object_id)s,
-                contract_name=%(project_name)s,
-                start_date=%(start_date)s,
-                end_date=%(end_date)s,
+                proposal_name=%(project_name)s,
+                start_epoch=%(start_epoch)s,
+                end_epoch=%(end_epoch)s,
                 payment_address=%(payment_address)s,
                 payment_amount=%(payment_amount)s
         """
 
-        mysql.db.query(sql % self.contract)
+        print sql % self.proposal
+
+        mysql.db.query(sql % self.proposal)
 
     def set_field(self, name, value):
-        self.contract[name] = value 
+        self.proposal[name] = value 
 
     def get_dict(self):
-        return self.contract
+        return self.proposal
 
     def load_dict(self, dict):
-        self.contract = dict
+        self.proposal = dict
+
+"""
+    
+    Superblock
+
+"""
+
+
+class Superblock():
+    trigger = {}
+
+    """
+        superblock --create --start_date="2017/1/1" 
+        --payments="[Addr1, amount],[Addr2, amount],[Addr3, amount]" 
+
+        --
+
+        object structure: 
+        {
+            "governance_object_id" : last_id,
+            "type" : govtypes.trigger,
+            "subtype" : "superblock",
+            "superblock_name" : superblock_name,
+            "event_block_height" : event_block_height,
+            "payments" : args.payments
+        }
+
+    """
+
+    def __init__(self):
+        self.trigger["governance_object_id"] = 0
+        self.trigger["type"] = -1
+        self.trigger["superblock_name"] = "unknown"
+        self.trigger["event_block_height"] = ""
+        self.trigger["payments"] = ""
+
+    def load(self, record_id):
+        sql = """
+            select 
+                governance_object_id,
+                superblock_name,
+                event_block_height,
+                payments
+            from trigger where 
+                id = %s """ % record_id
+
+        mysql.db.query(sql)
+        res = mysql.db.store_result()
+        row = res.fetch_row()
+        if row:
+            print row[0]
+            ( self.trigger["governance_object_id"], self.trigger["project_name"], 
+                self.trigger["event_block_height"], self.trigger["payments"]) = row[0]
+            print "loaded trigger successfully"
+
+            return True
+
+        return False
+
+    def save(self):
+
+        sql = """
+            INSERT INTO `trigger.superblock` 
+                (governance_object_id,proposal_name,event_block_height,payment_addresses,payment_amounts)
+            VALUES
+                ("%(governance_object_id)s","%(proposal_name)s","%(event_block_height)s","%(payment_addresses)s","%(payment_amounts)s")
+            ON DUPLICATE KEY UPDATE
+                governance_object_id="%(governance_object_id)s",
+                proposal_name="%(proposal_name)s",
+                event_block_height="%(event_block_height)s",
+                payment_addresses="%(payment_addresses)s",
+                payment_amounts="%(payment_amounts)s"
+        """
+
+        print sql % self.trigger
+
+        mysql.db.query(sql % self.trigger)
+
+    def set_field(self, name, value):
+        self.trigger[name] = value 
+
+    def get_dict(self):
+        return self.trigger
+
+    def load_dict(self, dict):
+        self.trigger = dict
 

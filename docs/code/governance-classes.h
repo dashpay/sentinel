@@ -18,13 +18,13 @@
  *   company-type us.llc, us.501c3, us.501c6, us.inc, etc
  *   committee-type science, technology, economics
  *   foundation-type us.501c6, us.501c3
- *   contract-type blockchain/internal, external/contractor
+ *   proposal-type blockchain/internal, external/proposalor
  *   proposal-type explicit, governance, wikiamend, generic, black
  *   
  *   lvl 1,2,3,4.. roman
  *   status ok, error, active-removal
  *   proposal-rights explicit, explicit_generic, all
- *   contract-rights internal, external
+ *   proposal-rights internal, external
  *   status-error missing-documentation, doa, report-outstanding
  *   milestone-status research, hiring, ongoing, complete, failure, overdue, error //programmatic workflow?
  *   milestone-status-error mia, option2, option3
@@ -34,7 +34,7 @@
  *   committee-type business, sciencific_advisory, research
  *   global-type-variable switch, int, string, enum // enum should be defined by another category
  *   category-type primary, secondary, tertiary, quaternary, quinary, senary, septenary, octonary
- *   contract-status ok, error
+ *   proposal-status ok, error
  *   cantract-status-error none, error1, error2
  *   committee-type research, business_advisory, economic_advisory
  *
@@ -50,14 +50,14 @@
  *   CNetworkGlobalVariable lvl, global-type, status, status-error
  *   // base: actor
  *   CGroup lvl, actor-type, status, status-error, group-type
- *   CUser lvl, actor-type, status, status-error, user-type, contract-status, contract-status-error 
+ *   CUser lvl, actor-type, status, status-error, user-type, proposal-status, proposal-status-error 
  *   CDAO lvl, actor-type, status, status-error, dao-type
  *   CCompany lvl, actor-type, secondary-type, ternary-type, status, status-error
  *   CCommittee lvl, actor-type, status, status-error, committee-type ov 
  *   CFoundation lvl, actor-type, status, status-error, foundation-type ov
  *   // base: project manangement
  *   CProposal lvl, proposal-type, status, status-error
- *   CContract lvl, contract-type, status, status-error, proposal-rights, contract-rights
+ *   CProposal lvl, proposal-type, status, status-error, proposal-rights, proposal-rights
  *   CProject lvl, project-type, status, status-error
  *   CProjectReport lvl, report-type, status, status-error
  *   CProjectMilestone lvl, milestone-type, status, status-error, milestone-status, milestone-status-error, ov
@@ -344,7 +344,7 @@ public:
 
 //         GetAverageMonthlySpending();
 //         GetYearlySpent();
-//         GetContractCount(CCategory category)
+//         GetProposalCount(CCategory category)
 //     */
 // };
 
@@ -597,7 +597,7 @@ public:
 // };
 
 
-// class CContract : public CGovernanceObject
+// class CProposal : public CGovernanceObject
 // {
 // private:
 //     std::string strName;

@@ -12,14 +12,14 @@
 
 //     //         count * 0.00 : Proposal (marked charity)  :   0% to 05%
 //     //         count * 0.05 : Proposals                  :   5% to 100%
-//     //         count * 1.00 : Contracts                  :   100% to 200%
-//     //         count * 2.00 : High Priority Contracts    :   200%+
+//     //         count * 1.00 : Proposals                  :   100% to 200%
+//     //         count * 2.00 : High Priority Proposals    :   200%+
 //     //     */
 //     //     int nOffset = 0;
 
 //     //     if((*it).second.GetGovernanceType() == Setting) {it++; continue;}
 //     //     if((*it).second.GetGovernanceType() == Proposal) nOffset += 0;
-//     //     if((*it).second.GetGovernanceType() == Contract) nOffset += mnodeman.CountEnabled();
+//     //     if((*it).second.GetGovernanceType() == Proposal) nOffset += mnodeman.CountEnabled();
         
 //     //     vBudgetPorposalsSort.push_back(make_pair(&((*it).second), nOffset+((*it).second.GetYesCount()-(*it).second.GetNoCount())));
 

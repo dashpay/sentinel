@@ -1,5 +1,5 @@
 
-# Blockchain Contractor Rules
+# Blockchain Proposalor Rules
 - Employees must work for an Employer (Probably a primary and secondary)
 - Employees can't be fired directly by the network
 - Employers can fire employees, but there must be consensus among the project manangers

@@ -17,7 +17,7 @@ GovernanceObjectType GovernanceStringToType(std::string strType) {
     if(strType == "ProjectReport") type = ProjectReport;
     if(strType == "ProjectMilestone") type = ProjectMilestone;
     if(strType == "Proposal") type = Proposal;
-    if(strType == "Contract") type = Contract;
+    if(strType == "Proposal") type = Proposal;
 
     return type;
 };
@@ -38,7 +38,7 @@ std::string GovernanceTypeToString(GovernanceObjectType type) {
     if(type == ProjectReport) s = "ProjectReport";
     if(type == ProjectMilestone) s = "ProjectMilestone";
     if(type == Proposal) s = "Proposal";
-    if(type == Contract) s = "Contract";
+    if(type == Proposal) s = "Proposal";
 
     return s;
 };

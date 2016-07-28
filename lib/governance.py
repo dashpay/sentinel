@@ -11,7 +11,7 @@ sys.path.append("../scripts")
 import mysql 
 import misc
 import binascii
-from classes import Contract
+from classes import Proposal, Superblock
 # from classes import User, Project
 # from subclasses import Report, Payday
 
@@ -85,7 +85,6 @@ class GovernanceObject:
             "object_name" : "root",
             "object_type" : "root",
             "object_revision" : 1,
-            "object_pubkey" : "",
             "object_fee_tx" : "",
             "object_data" : binascii.hexlify(json.dumps([])),
             "action_none_id" : 0,
@@ -97,7 +96,7 @@ class GovernanceObject:
             "action_endorsed_id" : 0
         }
 
-    def create_new(self, parent, object_name, object_type, object_revision, object_pubkey, fee_tx):
+    def create_new(self, parent, object_name, object_type, object_revision, fee_tx):
         creation_time = calendar.timegm(time.gmtime())
         self.fee_tx = fee_tx
 
@@ -113,7 +112,6 @@ class GovernanceObject:
             "object_name" : object_name,
             "object_type" : object_type,
             "object_revision" : object_revision,
-            "object_pubkey" : object_pubkey,
             "object_fee_tx" : fee_tx.get_hash(),
             "object_data" : "",
             "action_none_id" : 0,
@@ -128,7 +126,6 @@ class GovernanceObject:
         self.object_name = object_name
         self.object_type = object_type
         self.object_revision = object_revision
-        self.pubkey = object_pubkey
         self.fee_tx = fee_tx
         self.creation_time = creation_time
 
@@ -144,6 +141,7 @@ class GovernanceObject:
 
     def compile_subclasses(self):
         objects = []
+        
         for (obj_type, obj) in self.subclasses:
             objects.append((obj_type, obj.get_dict()))
 
@@ -154,6 +152,7 @@ class GovernanceObject:
     def save_subclasses(self):
         objects = []
         for (obj_type, obj) in self.subclasses:
+            print obj
             obj.save()
 
         return True
@@ -163,10 +162,16 @@ class GovernanceObject:
 
         ## todo -- make plugin system for subclasses?
         for (obj_type, obj_data) in objects:
-            if obj_type == "contract":
-               obj = Contract()
+            
+            if obj_type == "proposal":
+               obj = Proposal()
                obj.load_dict(obj_data)
                self.subclasses.append((obj_type, obj))
+
+            if obj_type == "trigger":
+               trigger = Superblock()
+               trigger.load_dict(obj_data)
+               self.subclasses.append((obj_type, trigger))
 
         return True
 
@@ -186,7 +191,6 @@ class GovernanceObject:
                 object_name,
                 object_type,
                 object_revision,
-                object_pubkey,
                 object_data,
                 object_fee_tx,
                 action_funding_id,
@@ -212,7 +216,6 @@ class GovernanceObject:
                 self.governance_object["object_name"],
                 self.governance_object["object_type"],
                 self.governance_object["object_revision"],
-                self.governance_object["object_pubkey"],
                 self.governance_object["object_data"],
                 self.governance_object["object_fee_tx"],
                 self.governance_object["action_funding_id"],
@@ -244,10 +247,10 @@ class GovernanceObject:
         if self.governance_object["id"] == 0:
             sql = """
                 INSERT INTO governance_object
-                    (parent_id, object_hash, object_parent_hash, object_creation_time, object_name, object_type, object_revision, object_pubkey, 
+                    (parent_id, object_hash, object_parent_hash, object_creation_time, object_name, object_type, object_revision, 
                         object_fee_tx, object_data, action_funding_id, action_valid_id, action_uptodate_id, action_delete_id, action_clear_registers, action_endorsed_id)
                 VALUES
-                    ('%(parent_id)s', '%(object_hash)s', '%(object_parent_hash)s',  '%(object_creation_time)s', '%(object_name)s',  '%(object_type)s', '%(object_revision)s', '%(object_pubkey)s', 
+                    ('%(parent_id)s', '%(object_hash)s', '%(object_parent_hash)s',  '%(object_creation_time)s', '%(object_name)s',  '%(object_type)s', '%(object_revision)s', 
                         '%(object_fee_tx)s', '%(object_data)s', '%(action_funding_id)s', '%(action_valid_id)s', '%(action_uptodate_id)s', '%(action_delete_id)s', '%(action_clear_registers)s', '%(action_endorsed_id)s')
             """
 
@@ -267,7 +270,6 @@ class GovernanceObject:
                     object_name='%(object_name)s',
                     object_type='%(object_type)s',
                     object_revision='%(object_revision)s',
-                    object_pubkey='%(object_pubkey)s',
                     object_fee_tx='%(object_fee_tx)s',
                     object_data='%(object_data)s',
                     action_funding_id='%(action_funding_id)s',

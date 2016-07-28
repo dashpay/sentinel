@@ -61,7 +61,7 @@ All basic commands for creating objects:
 </pre>
 
 ## To fund projects and work on them, we can create new types of objects with built in rewards
-## structure is a bid/ask system for creating projects and executing them. The network will decide the contractor by matching 
+## structure is a bid/ask system for creating projects and executing them. The network will decide the proposalor by matching 
 <pre>
     # Create the employement relationship between parties
     --create=project --subclass="software" --name="core-12.1x" --users="terra:cyan:cid:locke" --bid_bounties="250:0:0" --desc="release 12.1"  #cid executes

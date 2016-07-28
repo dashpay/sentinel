@@ -37,7 +37,7 @@ enum GovernanceObjectType {
     
     // Budgets & Funding
     Proposal = 4000,
-    Contract = 4001
+    Proposal = 4001
 };
 
 // Functions for converting between the governance types and strings
