@@ -38,19 +38,19 @@ import govtypes
 
 def clear_events():
     sql = "delete from event"
-    mysql.db.query(sql)
-    return mysql.db.affected_rows()
+    libmysql.db.query(sql)
+    return libmysql.db.affected_rows()
 
 def clear_governance_objects():
     sql = "delete from governance_object"
-    mysql.db.query(sql)
-    return mysql.db.affected_rows()
+    libmysql.db.query(sql)
+    return libmysql.db.affected_rows()
 
 def prepare_events():
     sql = "select id from event where start_time < NOW() and error_time = 0 and prepare_time = 0 limit 1"
 
-    mysql.db.query(sql)
-    res = mysql.db.store_result()
+    libmysql.db.query(sql)
+    res = libmysql.db.store_result()
     row = res.fetch_row()
     if row:
         event = Event()
@@ -80,7 +80,7 @@ def prepare_events():
             govobj.save()
             event.update_field("prepare_time", misc.get_epoch())
             event.save()
-            mysql.db.commit()
+            libmysql.db.commit()
 
             return True
         else:
@@ -89,7 +89,7 @@ def prepare_events():
             event.save()
             # separately update event error message
             event.update_error_message(result)
-            mysql.db.commit()
+            libmysql.db.commit()
 
     return False
 
@@ -97,8 +97,8 @@ def prepare_events():
 def submit_events():
     sql = "select id from event where start_time < NOW() and prepare_time < NOW() and submit_time = 0 limit 1"
 
-    mysql.db.query(sql)
-    res = mysql.db.store_result()
+    libmysql.db.query(sql)
+    res = libmysql.db.store_result()
     row = res.fetch_row()
     if row:
         event = Event()
@@ -141,7 +141,7 @@ def submit_events():
                         govobj.update_field("object_hash", result)
                         event.save()
                         govobj.save()
-                        mysql.db.commit()
+                        libmysql.db.commit()
                     else:
                         print " --got error", result
                 else:
@@ -228,8 +228,8 @@ def process_budget():
     # list_addresses = []
     # list_amount = []
 
-    # mysql.db.query(sql)
-    # res = mysql.db.store_result()
+    # libmysql.db.query(sql)
+    # res = libmysql.db.store_result()
     # row = res.fetch_row()
     # if row:
     #     address, amount = row[4], row[5]
@@ -268,8 +268,8 @@ def process_budget():
 
     # # SEE IF SUPERBLOCK ALREADY EXISTS
         
-    # mysql.db.query(sql)
-    # res = mysql.db.store_result()
+    # libmysql.db.query(sql)
+    # res = libmysql.db.store_result()
     # row = res.fetch_row()
     # if not row:
         
@@ -309,7 +309,7 @@ def process_budget():
     #         event = Event()
     #         event.create_new(last_id)
     #         event.save()
-    #         mysql.db.commit()
+    #         libmysql.db.commit()
 
     #         print "event queued successfully"
 

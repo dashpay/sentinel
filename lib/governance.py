@@ -8,7 +8,7 @@ import json
 sys.path.append("../")
 sys.path.append("../scripts")
 
-import mysql 
+import libmysql 
 import misc
 import binascii
 from classes import Proposal, Superblock
@@ -26,8 +26,8 @@ class GovernanceObjectMananger:
             limit 1
         """ % name
 
-        mysql.db.query(sql)
-        res = mysql.db.store_result()
+        libmysql.db.query(sql)
+        res = libmysql.db.store_result()
         row = res.fetch_row()
         if row:
             return True
@@ -46,8 +46,8 @@ class GovernanceObjectMananger:
             limit 1
         """ % name
 
-        mysql.db.query(sql)
-        res = mysql.db.store_result()
+        libmysql.db.query(sql)
+        res = libmysql.db.store_result()
         row = res.fetch_row()
         if row:
             print "found govobj id", row[0][0]
@@ -203,8 +203,8 @@ class GovernanceObject:
                 id = %s
         """ % record_id
 
-        mysql.db.query(sql)
-        res = mysql.db.store_result()
+        libmysql.db.query(sql)
+        res = libmysql.db.store_result()
         row = res.fetch_row()
         if row:
             (
@@ -254,10 +254,10 @@ class GovernanceObject:
                         '%(object_fee_tx)s', '%(object_data)s', '%(action_funding_id)s', '%(action_valid_id)s', '%(action_uptodate_id)s', '%(action_delete_id)s', '%(action_clear_registers)s', '%(action_endorsed_id)s')
             """
 
-            mysql.db.query(sql % self.governance_object)
+            libmysql.db.query(sql % self.governance_object)
             self.save_subclasses()
 
-            self.governance_object["id"] = mysql.db.insert_id()
+            self.governance_object["id"] = libmysql.db.insert_id()
             return self.governance_object["id"]
 
         else:
@@ -284,7 +284,7 @@ class GovernanceObject:
 
             print sql % self.governance_object
 
-            mysql.db.query(sql % self.governance_object)
+            libmysql.db.query(sql % self.governance_object)
             self.save_subclasses()
 
             return self.governance_object["id"]
@@ -379,7 +379,7 @@ class Event:
         """
 
         print sql % self.event
-        mysql.db.query(sql % self.event)
+        libmysql.db.query(sql % self.event)
 
     def update_field(self, field, value):
         self.event[field] = value
@@ -392,7 +392,7 @@ class Event:
             WHERE id = %s
         """
 
-        c=mysql.db.cursor()
+        c=libmysql.db.cursor()
         c.execute(sql , (message, self.event['id']))
         c.close()
 
@@ -418,8 +418,8 @@ class Setting:
             from setting where 
                 id = %s """ % record_id
 
-        mysql.db.query(sql)
-        res = mysql.db.store_result()
+        libmysql.db.query(sql)
+        res = libmysql.db.store_result()
         row = res.fetch_row()
         if row:
             print row[0]
@@ -446,7 +446,7 @@ class Setting:
                 value='%(value)s'
         """
 
-        mysql.db.query(sql % self.user)
+        libmysql.db.query(sql % self.user)
 
         return True
 

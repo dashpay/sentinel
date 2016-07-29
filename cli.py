@@ -7,7 +7,7 @@ sys.path.append("scripts")
 
 import cmd
 import misc
-import mysql
+import libmysql
 import config
 import crontab
 import cmd, sys
@@ -24,7 +24,7 @@ from dashd import CTransaction
 parent = GovernanceObject()
 parent.init()
 
-db = mysql.connect(config.hostname, config.username, config.password, config.database)
+db = libmysql.connect(config.hostname, config.username, config.password, config.database)
 
 commands = {}
 
@@ -89,7 +89,7 @@ class SentinelShell(cmd.Cmd):
 
     """
     def do_proposal(self, arg):
-        'proposal --create --project_name="beer-reimbursement" --description_url="www.dashwhale.org/p/beer-reimbursement" --proposal_url="beer-reimbursement.com/001.pdf" --start_date="2017/1/1" --end_date="2017/6/1" --payment_address="Xy2LKJJdeQxeyHrn4tGDQB8bjhvFEdaUv7"'
+        'proposal --create --project_name="beer-reimbursement" --description_url="www.dashwhale.org/p/beer-reimbursement" --start_date="2017/1/1" --end_date="2017/6/1" --payment_address="Xy2LKJJdeQxeyHrn4tGDQB8bjhvFEdaUv7"'
 
         parser = argparse.ArgumentParser(description='Create a dash proposal')
 
@@ -202,7 +202,7 @@ class SentinelShell(cmd.Cmd):
                 event = Event()
                 event.create_new(last_id)
                 event.save()
-                mysql.db.commit()
+                libmysql.db.commit()
 
                 print "event queued successfully"
             else:
@@ -319,7 +319,7 @@ class SentinelShell(cmd.Cmd):
                 event = Event()
                 event.create_new(last_id)
                 event.save()
-                mysql.db.commit()
+                libmysql.db.commit()
 
                 print "event queued successfully"
             else:
@@ -474,7 +474,7 @@ if __name__ == '__main__':
     Test Flow (to be moved into unit tests):
 
     1.)  create an example proposal
-         proposal --create --project_name="beer-reimbursement" --description_url="www.dashwhale.org/p/beer-reimbursement" --start-date="2017/1/1" --end-date="2017/6/1"
+        proposal --create --project_name="beer-reimbursement" --description_url="www.dashwhale.org/p/beer-reimbursement" --start_date="2017/1/1" --end_date="2017/6/1"
 
     2.)  vote on the funding proposal
          vote --times=22 --type=funding --outcome=yes [--hash=governance-hash --name=obj-name]

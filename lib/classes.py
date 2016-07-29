@@ -52,8 +52,8 @@ class Proposal:
             from proposal where 
                 id = %s """ % record_id
 
-        mysql.db.query(sql)
-        res = mysql.db.store_result()
+        libmysql.db.query(sql)
+        res = libmysql.db.store_result()
         row = res.fetch_row()
         if row:
             print row[0]
@@ -83,7 +83,7 @@ class Proposal:
 
         print sql % self.proposal
 
-        mysql.db.query(sql % self.proposal)
+        libmysql.db.query(sql % self.proposal)
 
     def set_field(self, name, value):
         self.proposal[name] = value 
@@ -139,8 +139,8 @@ class Superblock():
             from trigger where 
                 id = %s """ % record_id
 
-        mysql.db.query(sql)
-        res = mysql.db.store_result()
+        libmysql.db.query(sql)
+        res = libmysql.db.store_result()
         row = res.fetch_row()
         if row:
             print row[0]
@@ -169,7 +169,7 @@ class Superblock():
 
         print sql % self.trigger
 
-        mysql.db.query(sql % self.trigger)
+        libmysql.db.query(sql % self.trigger)
 
     def set_field(self, name, value):
         self.trigger[name] = value 
