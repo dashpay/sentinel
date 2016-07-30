@@ -22,13 +22,14 @@ CREATE TABLE `governance_object` (
 CREATE TABLE `proposal` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `governance_object_id` int(11) DEFAULT NULL,
-  `proposal_name` varchar(255) DEFAULT NULL, /* name of the proposal */
+  `proposal_name` varchar(255) DEFAULT NULL,
   `start_epoch` int(11) DEFAULT NULL,
   `end_epoch` int(11) DEFAULT NULL,
   `payment_address` varchar(255) DEFAULT NULL,
   `payment_amount` int(11) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `index2` (`governance_object_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8;
 
 CREATE TABLE `trigger.superblock` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
