@@ -39,7 +39,7 @@ commands = {}
         mnbudget prepare beer-reimbursement2 www.dashwhale.org/p/beer-reimbursement2 1 481864 XfoGXXFJtobHvjwfszWnbMNZCBAHJWeN6G 50
         mnbudget submit beer-reimbursement2 www.dashwhale.org/p/beer-reimbursement2 1 481864 XfoGXXFJtobHvjwfszWnbMNZCBAHJWeN6G 50 REPLACE_WITH_COLLATERAL_HASH
 
-    1. proposal --create --project_name="beer-reimbursement" --description_url="www.dashwhale.org/p/beer-reimbursement" --start-date="2017/1/1" --end-date="2017/6/1"
+    1. proposal --create --proposal_name="beer-reimbursement" --description_url="www.dashwhale.org/p/beer-reimbursement" --start-date="2017/1/1" --end-date="2017/6/1"
     2. cron process (will automatically submit the proposal to the network)
 
 """
@@ -89,7 +89,7 @@ class SentinelShell(cmd.Cmd):
 
     """
     def do_proposal(self, arg):
-        'proposal --create --project_name="beer-reimbursement" --description_url="www.dashwhale.org/p/beer-reimbursement" --start_date="2017/1/1" --end_date="2017/6/1" --payment_address="Xy2LKJJdeQxeyHrn4tGDQB8bjhvFEdaUv7"'
+        'proposal --create --proposal_name="sb-test" --description_url="www.dashwhale.org/p/sb-test" --start_date="2016/8/1" --end_date="2017/1/1" --payment_address="ydE7B1A7htNwSTvvER6xBdgpKZqNDbbEhPydE7B1A7htNwSTvvER6xBdgpKZqNDbbEhP" --payment_amount="23"'
 
         parser = argparse.ArgumentParser(description='Create a dash proposal')
 
@@ -100,7 +100,7 @@ class SentinelShell(cmd.Cmd):
         parser.add_argument('-k', '--pubkey', help='your public key for this username (only required for --create)')
 
         # meta data (create or amend)
-        parser.add_argument('-p', '--project_name', help='the project name (must be unique)')
+        parser.add_argument('-p', '--proposal_name', help='the proposal name (must be unique)')
         parser.add_argument('-d', '--description_url', help='your proposals url where a description of the project can be found')
         parser.add_argument('-s', '--start_date', help='starting data, must be the first of the month. Example : 2017/1/1')
         parser.add_argument('-e', '--end_date', help='ending data, must be the first of the month. Example : 2017/6/1')
@@ -122,8 +122,8 @@ class SentinelShell(cmd.Cmd):
 
         if args.create:
             #--create --revision=1 --pubkey=XPubkey --username="user-cid" 
-            if not args.project_name:
-                print "proposal creation requires a project name, use --project_name"
+            if not args.proposal_name:
+                print "proposal creation requires a proposal name, use --proposal_name"
                 return
 
             if not args.description_url:
@@ -166,7 +166,7 @@ class SentinelShell(cmd.Cmd):
                 return
 
             ### ---- CHECK NAME UNIQUENESS -----
-            if GovernanceObjectMananger.object_with_name_exists(args.project_name):
+            if GovernanceObjectMananger.object_with_name_exists(args.proposal_name):
                 print "governance object with that name already exists"
                 return
 
@@ -174,7 +174,7 @@ class SentinelShell(cmd.Cmd):
             fee_tx = CTransaction()
 
             newObj = GovernanceObject()
-            newObj.create_new(parent, args.project_name, govtypes.proposal, govtypes.FIRST_REVISION, fee_tx)
+            newObj.create_new(parent, args.proposal_name, govtypes.proposal, govtypes.FIRST_REVISION, fee_tx)
             last_id = newObj.save()
 
             print last_id
@@ -185,10 +185,10 @@ class SentinelShell(cmd.Cmd):
                 c = Proposal()
                 c.set_field("governance_object_id", last_id)
                 c.set_field("type", govtypes.proposal)
-                c.set_field("project_name", args.project_name)
+                c.set_field("proposal_name", args.proposal_name)
                 c.set_field("description_url", args.description_url)
-                c.set_field("start_date", start_epoch)
-                c.set_field("end_date", end_epoch)
+                c.set_field("start_epoch", start_epoch)
+                c.set_field("end_epoch", end_epoch)
                 c.set_field("payment_address", args.payment_address)
                 c.set_field("payment_amount", args.payment_amount)
 
@@ -474,7 +474,7 @@ if __name__ == '__main__':
     Test Flow (to be moved into unit tests):
 
     1.)  create an example proposal
-        proposal --create --project_name="beer-reimbursement" --description_url="www.dashwhale.org/p/beer-reimbursement" --start_date="2017/1/1" --end_date="2017/6/1"
+        proposal --create --proposal_name="beer-reimbursement" --description_url="www.dashwhale.org/p/beer-reimbursement" --start_date="2017/1/1" --end_date="2017/6/1"
 
     2.)  vote on the funding proposal
          vote --times=22 --type=funding --outcome=yes [--hash=governance-hash --name=obj-name]

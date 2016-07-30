@@ -10,7 +10,7 @@ import sys
 sys.path.append("lib")
 
 from governance  import GovernanceObject, Event
-import mysql 
+import libmysql 
 import config 
 import misc 
 import dashd
@@ -61,12 +61,8 @@ def prepare_events():
 
         print "# PREPARING EVENTS FOR DASH NETWORK"
         print
-        print " --cmd : ", govobj.get_prepare_command()
+        print " -- cmd : ", govobj.get_prepare_command()
         print
-
-        misc.look_busy()
-        print " -- executing event ... getting fee_tx hash"
-        misc.look_busy()
 
         result = dashd.rpc_command(govobj.get_prepare_command())
         print " -- executing event ... getting fee_tx hash"
@@ -75,23 +71,23 @@ def prepare_events():
         # todo: what should it do incase of error?
         if misc.is_hash(result):
             hashtx = misc.clean_hash(result)
-            print " --got hash:", hashtx
+            print " -- got hash:", hashtx
             govobj.update_field("object_fee_tx", hashtx)
             govobj.save()
             event.update_field("prepare_time", misc.get_epoch())
             event.save()
             libmysql.db.commit()
 
-            return True
+            return 1
         else:
-            print " --got error:", result
+            print " -- got error:", result
             event.update_field("error_time", misc.get_epoch())
             event.save()
             # separately update event error message
             event.update_error_message(result)
             libmysql.db.commit()
 
-    return False
+    return 0
 
 
 def submit_events():
@@ -109,43 +105,37 @@ def submit_events():
         govobj.load(event.get_id())
         hash = govobj.get_field("object_fee_tx")
 
-        print "# PREPARING EVENTS FOR DASH NETWORK"
+        print "# SUBMIT PREPARED EVENTS FOR DASH NETWORK"
 
         print
-        print " --cmd : ", govobj.get_prepare_command()
-        print
-
-        misc.look_busy()
-        
+        print " -- cmd : ", govobj.get_submit_command()
+        print        
         print " -- executing event ... getting fee_tx hash"
-
-        misc.look_busy()
 
         if misc.is_hash(hash):
             tx = dashd.CTransaction()
             if tx.load(hash):
-                print " --confirmations: ", tx.get_confirmations()
-                misc.look_busy()
+                print " -- confirmations: ", tx.get_confirmations()
                 
                 if tx.get_confirmations() >= 7:
                     event.set_submitted()   
-                    print " --executing event ... getting fee_tx hash"
-                    misc.look_busy()
+                    print " -- executing event ... getting fee_tx hash"
 
-                    misc.look_busy()
                     result = dashd.rpc_command(govobj.get_submit_command())
                     if misc.is_hash(result):
-                        print " --got result", result
+                        print " -- got result", result
 
-                        misc.look_busy()
                         govobj.update_field("object_hash", result)
                         event.save()
                         govobj.save()
                         libmysql.db.commit()
+                        return 1
                     else:
-                        print " --got error", result
+                        print " -- got error", result
                 else:
-                    print " --waiting for confirmation"
+                    print " -- waiting for confirmation"
+
+        return 0
 
 #
 # AUTONOMOUS VOTING 

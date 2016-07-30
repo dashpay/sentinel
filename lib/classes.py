@@ -8,7 +8,7 @@ sys.path.append("../")
 sys.path.append("../lib")
 sys.path.append("../scripts")
 
-import mysql 
+import libmysql 
 from misc import *
 
 
@@ -34,7 +34,7 @@ class Proposal:
 
     def __init__(self):
         self.proposal["governance_object_id"] = 0
-        self.proposal["project_name"] = ""
+        self.proposal["proposal_name"] = ""
         self.proposal["start_epoch"] = ""
         self.proposal["end_epoch"] = ""
         self.proposal["payment_address"] = ""
@@ -57,7 +57,7 @@ class Proposal:
         row = res.fetch_row()
         if row:
             print row[0]
-            ( self.proposal["governance_object_id"], self.proposal["project_name"], 
+            ( self.proposal["governance_object_id"], self.proposal["proposal_name"], 
                 self.proposal["start_epoch"], self.proposal["end_epoch"], 
                 self.proposal["payment_address"], self.proposal["payment_amount"]) = row[0]
             print "loaded proposal successfully"
@@ -71,10 +71,10 @@ class Proposal:
             INSERT INTO proposal 
                 (governance_object_id, proposal_name, start_epoch, end_epoch, payment_address, payment_amount)
             VALUES
-                (%(governance_object_id)s,%(project_name)s,%(start_epoch)s,%(end_epoch)s,%(payment_address)s,%(payment_amount)s)
+                (%(governance_object_id)s,%(proposal_name)s,%(start_epoch)s,%(end_epoch)s,%(payment_address)s,%(payment_amount)s)
             ON DUPLICATE KEY UPDATE
                 governance_object_id=%(governance_object_id)s,
-                proposal_name=%(project_name)s,
+                proposal_name=%(proposal_name)s,
                 start_epoch=%(start_epoch)s,
                 end_epoch=%(end_epoch)s,
                 payment_address=%(payment_address)s,
@@ -144,7 +144,7 @@ class Superblock():
         row = res.fetch_row()
         if row:
             print row[0]
-            ( self.trigger["governance_object_id"], self.trigger["project_name"], 
+            ( self.trigger["governance_object_id"], self.trigger["proposal_name"], 
                 self.trigger["event_block_height"], self.trigger["payments"]) = row[0]
             print "loaded trigger successfully"
 

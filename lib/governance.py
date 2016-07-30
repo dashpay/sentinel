@@ -83,17 +83,10 @@ class GovernanceObject:
             "object_parent_hash" : 0,
             "object_creation_time" : 0,
             "object_name" : "root",
-            "object_type" : "root",
+            "object_type" : "0",
             "object_revision" : 1,
             "object_fee_tx" : "",
-            "object_data" : binascii.hexlify(json.dumps([])),
-            "action_none_id" : 0,
-            "action_funding_id" : 0,
-            "action_valid_id" : 0,
-            "action_uptodate_id" : 0,
-            "action_delete_id" : 0,
-            "action_clear_registers" : 0,
-            "action_endorsed_id" : 0
+            "object_data" : binascii.hexlify(json.dumps([]))
         }
 
     def create_new(self, parent, object_name, object_type, object_revision, fee_tx):
@@ -113,14 +106,7 @@ class GovernanceObject:
             "object_type" : object_type,
             "object_revision" : object_revision,
             "object_fee_tx" : fee_tx.get_hash(),
-            "object_data" : "",
-            "action_none_id" : 0,
-            "action_funding_id" : 0,
-            "action_valid_id" : 0,
-            "action_uptodate_id" : 0,
-            "action_delete_id" : 0,
-            "action_clear_registers" : 0,
-            "action_endorsed_id" : 0
+            "object_data" : ""
         }
 
         self.object_name = object_name
@@ -181,6 +167,8 @@ class GovernanceObject:
 
     def load(self, record_id):
 
+        self.init()
+
         sql = """
             select
                 id,
@@ -192,13 +180,7 @@ class GovernanceObject:
                 object_type,
                 object_revision,
                 object_data,
-                object_fee_tx,
-                action_funding_id,
-                action_valid_id,
-                action_uptodate_id,
-                action_delete_id,
-                action_clear_registers,
-                action_endorsed_id
+                object_fee_tx
             from governance_object where 
                 id = %s
         """ % record_id
@@ -217,13 +199,7 @@ class GovernanceObject:
                 self.governance_object["object_type"],
                 self.governance_object["object_revision"],
                 self.governance_object["object_data"],
-                self.governance_object["object_fee_tx"],
-                self.governance_object["action_funding_id"],
-                self.governance_object["action_valid_id"],
-                self.governance_object["action_uptodate_id"],
-                self.governance_object["action_delete_id"],
-                self.governance_object["action_clear_registers"],
-                self.governance_object["action_endorsed_id"]
+                self.governance_object["object_fee_tx"]
             ) = row[0]
             print "loaded govobj successfully: ", self.governance_object["id"]
 
@@ -248,11 +224,13 @@ class GovernanceObject:
             sql = """
                 INSERT INTO governance_object
                     (parent_id, object_hash, object_parent_hash, object_creation_time, object_name, object_type, object_revision, 
-                        object_fee_tx, object_data, action_funding_id, action_valid_id, action_uptodate_id, action_delete_id, action_clear_registers, action_endorsed_id)
+                        object_fee_tx, object_data)
                 VALUES
                     ('%(parent_id)s', '%(object_hash)s', '%(object_parent_hash)s',  '%(object_creation_time)s', '%(object_name)s',  '%(object_type)s', '%(object_revision)s', 
-                        '%(object_fee_tx)s', '%(object_data)s', '%(action_funding_id)s', '%(action_valid_id)s', '%(action_uptodate_id)s', '%(action_delete_id)s', '%(action_clear_registers)s', '%(action_endorsed_id)s')
+                        '%(object_fee_tx)s', '%(object_data)s')
             """
+
+            print sql % self.governance_object
 
             libmysql.db.query(sql % self.governance_object)
             self.save_subclasses()
@@ -271,13 +249,7 @@ class GovernanceObject:
                     object_type='%(object_type)s',
                     object_revision='%(object_revision)s',
                     object_fee_tx='%(object_fee_tx)s',
-                    object_data='%(object_data)s',
-                    action_funding_id='%(action_funding_id)s',
-                    action_valid_id='%(action_valid_id)s',
-                    action_uptodate_id='%(action_uptodate_id)s',
-                    action_delete_id='%(action_delete_id)s',
-                    action_clear_registers='%(action_clear_registers)s',
-                    action_endorsed_id='%(action_endorsed_id)s'
+                    object_data='%(object_data)s'
                 WHERE 
                     id='%(id)s'
             """
@@ -340,7 +312,7 @@ class Event:
             from event where 
                 id = %s """ % record_id
 
-        row = mysql.query_one(sql, self.event)
+        row = libmysql.query_one(sql, self.event)
         if row:
             print "retrieving record", row
             (self.event["id"], self.event["governance_object_id"], self.event["start_time"],
