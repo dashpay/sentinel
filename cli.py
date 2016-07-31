@@ -438,6 +438,9 @@ class SentinelShell(cmd.Cmd):
         sys.exit(0)
         return
 
+    def emptyline(self):
+             pass
+
 def parse(arg):
     'Convert a series of zero or more numbers to an argument tuple'
     return tuple(map(str, arg.split()))
