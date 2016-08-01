@@ -280,19 +280,21 @@ class SentinelShell(cmd.Cmd):
             print list_addr
 
             # CREATE NAME ACCORDING TO STARTING DATE (NON-UNIQUE IS NOT AN ATTACK)
-            proposal_name = "sb" + str(random.randint(1000000, 9999999))
+            superblock_name = "sb" + str(random.randint(1000000, 9999999))
 
             # DOES THIS ALREADY EXIST?
-            if GovernanceObjectMananger.object_with_name_exists(proposal_name):
+            if GovernanceObjectMananger.object_with_name_exists(superblock_name):
                 print "governance object with that name already exists"
                 return
 
             event_block_height = misc.normalize(args.event_block_height);
 
+            print event_block_height
+
             fee_tx = CTransaction()
 
             newObj = GovernanceObject()
-            newObj.create_new(parent, proposal_name, govtypes.trigger, govtypes.FIRST_REVISION, fee_tx)
+            newObj.create_new(parent, superblock_name, govtypes.trigger, govtypes.FIRST_REVISION, fee_tx)
             last_id = newObj.save()
 
             print last_id
@@ -304,7 +306,7 @@ class SentinelShell(cmd.Cmd):
                 c.set_field("governance_object_id", last_id)
                 c.set_field("type", govtypes.trigger)
                 c.set_field("subtype", "superblock")
-                c.set_field("proposal_name", proposal_name)
+                c.set_field("superblock_name", superblock_name)
                 c.set_field("event_block_height", event_block_height)
                 c.set_field("payment_addresses", "|".join(list_addr))
                 c.set_field("payment_amounts", "|".join(list_amount))

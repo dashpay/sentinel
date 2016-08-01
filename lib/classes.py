@@ -111,13 +111,15 @@ class Superblock():
         --
 
         object structure: 
+
         {
-            "governance_object_id" : last_id,
-            "type" : govtypes.trigger,
-            "subtype" : "superblock",
-            "superblock_name" : superblock_name,
-            "event_block_height" : event_block_height,
-            "payments" : args.payments
+            'subtype': 'superblock', 
+            'superblock_name': 'sb1803405', 
+            'governance_object_id': 0, 
+            'event_block_height': '', 
+            'type': -1
+            'payment_addresses': 'yNaE8Le2MVwk1zpwuEKveTMCEQHVxdcfCS', 
+            'payment_amounts': '100',  
         }
 
     """
@@ -126,17 +128,21 @@ class Superblock():
         self.trigger["governance_object_id"] = 0
         self.trigger["type"] = -1
         self.trigger["superblock_name"] = "unknown"
-        self.trigger["event_block_height"] = ""
-        self.trigger["payments"] = ""
+        self.trigger["event_block_height"] = "0"
+        self.trigger["payment_addresses"] = "0"
+        self.trigger["payment_amounts"] = "0"
 
     def load(self, record_id):
         sql = """
             select 
+
+
                 governance_object_id,
                 superblock_name,
                 event_block_height,
-                payments
-            from trigger where 
+                payment_addresses,
+                payment_amounts
+            from superblock where 
                 id = %s """ % record_id
 
         libmysql.db.query(sql)
@@ -144,8 +150,9 @@ class Superblock():
         row = res.fetch_row()
         if row:
             print row[0]
-            ( self.trigger["governance_object_id"], self.trigger["proposal_name"], 
-                self.trigger["event_block_height"], self.trigger["payments"]) = row[0]
+            ( self.trigger["governance_object_id"], self.trigger["superblock_name"], 
+                self.trigger["event_block_height"], self.trigger["payment_addresses"], self.trigger["payment_amounts"]) = row[0]
+
             print "loaded trigger successfully"
 
             return True
@@ -155,17 +162,19 @@ class Superblock():
     def save(self):
 
         sql = """
-            INSERT INTO `trigger.superblock` 
-                (governance_object_id,proposal_name,event_block_height,payment_addresses,payment_amounts)
+            INSERT INTO superblock
+                (governance_object_id,superblock_name,event_block_height,payment_addresses,payment_amounts)
             VALUES
-                ("%(governance_object_id)s","%(proposal_name)s","%(event_block_height)s","%(payment_addresses)s","%(payment_amounts)s")
+                ("%(governance_object_id)s","%(superblock_name)s","%(event_block_height)s","%(payment_addresses)s","%(payment_amounts)s")
             ON DUPLICATE KEY UPDATE
                 governance_object_id="%(governance_object_id)s",
-                proposal_name="%(proposal_name)s",
+                superblock_name="%(superblock_name)s",
                 event_block_height="%(event_block_height)s",
                 payment_addresses="%(payment_addresses)s",
                 payment_amounts="%(payment_amounts)s"
         """
+
+        print self.trigger
 
         print sql % self.trigger
 

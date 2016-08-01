@@ -31,10 +31,10 @@ CREATE TABLE `proposal` (
   UNIQUE KEY `index2` (`governance_object_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8;
 
-CREATE TABLE `trigger.superblock` (
+CREATE TABLE superblock (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `governance_object_id` int(11) DEFAULT NULL,
-  `proposal_name` varchar(255) DEFAULT NULL,
+  `superblock_name` varchar(255) DEFAULT NULL,
   `event_block_height` int(11) DEFAULT NULL,
   `payment_addresses` text,
   `payment_amounts` text,

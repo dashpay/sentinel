@@ -55,7 +55,7 @@ def prepare_events():
     if row:
         event = Event()
         event.load(row[0])
-        
+
         govobj = GovernanceObject()
         govobj.load(event.get_id())
 
@@ -67,7 +67,6 @@ def prepare_events():
         result = dashd.rpc_command(govobj.get_prepare_command())
         print " -- executing event ... getting fee_tx hash"
 
-        
         # todo: what should it do incase of error?
         if misc.is_hash(result):
             hashtx = misc.clean_hash(result)

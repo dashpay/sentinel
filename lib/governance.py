@@ -188,6 +188,7 @@ class GovernanceObject:
         libmysql.db.query(sql)
         res = libmysql.db.store_result()
         row = res.fetch_row()
+        
         if row:
             (
                 self.governance_object["id"],
@@ -201,6 +202,7 @@ class GovernanceObject:
                 self.governance_object["object_data"],
                 self.governance_object["object_fee_tx"]
             ) = row[0]
+
             print "loaded govobj successfully: ", self.governance_object["id"]
 
             self.load_subclasses()
@@ -262,14 +264,14 @@ class GovernanceObject:
             return self.governance_object["id"]
 
     def get_prepare_command(self):
-        cmd = "mngovernance prepare %(object_parent_hash)s %(object_revision)s %(object_creation_time)s %(object_name)s %(object_data)s" % self.governance_object
+        cmd = "gobject prepare %(object_parent_hash)s %(object_revision)s %(object_creation_time)s %(object_name)s %(object_data)s" % self.governance_object
         return cmd
 
     def get_fee_tx_age(self):
         return -1
 
     def get_submit_command(self):
-        cmd = "mngovernance submit %(object_fee_tx)s %(object_parent_hash)s %(object_revision)s %(object_creation_time)s %(object_name)s %(object_data)s" % self.governance_object
+        cmd = "gobject submit %(object_fee_tx)s %(object_parent_hash)s %(object_revision)s %(object_creation_time)s %(object_name)s %(object_data)s" % self.governance_object
         return cmd
 
     def last_error(self):
@@ -317,10 +319,7 @@ class Event:
             print "retrieving record", row
             (self.event["id"], self.event["governance_object_id"], self.event["start_time"],
                 self.event["prepare_time"], self.event["submit_time"], self.event["error_time"]) = row
-            # print "loaded event successfully"
-            # print
-            # print "!", self.event
-            # print
+            print "loaded event successfully", record_id
         else:
             print "event not found", sql 
 
@@ -350,6 +349,7 @@ class Event:
                 error_time=%(error_time)s
         """
 
+        print "save governance_object"
         print sql % self.event
         libmysql.db.query(sql % self.event)
 
