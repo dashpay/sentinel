@@ -39,11 +39,13 @@ import govtypes
 def clear_events():
     sql = "delete from event"
     libmysql.db.query(sql)
+    libmysql.db.commit()
     return libmysql.db.affected_rows()
 
 def clear_governance_objects():
     sql = "delete from governance_object"
     libmysql.db.query(sql)
+    libmysql.db.commit()
     return libmysql.db.affected_rows()
 
 def prepare_events():
