@@ -102,7 +102,6 @@ class Proposal:
 
 
 class Superblock():
-    trigger = {}
 
     """
         superblock --create --start_date="2017/1/1" 
@@ -125,6 +124,8 @@ class Superblock():
     """
 
     def __init__(self):
+        self.loaded = False
+        self.trigger = {}
         self.trigger["governance_object_id"] = 0
         self.trigger["type"] = -1
         self.trigger["superblock_name"] = "unknown"
@@ -155,24 +156,30 @@ class Superblock():
 
             print "loaded trigger successfully"
 
+            self.loaded = True
+
             return True
 
         return False
 
     def save(self):
 
-        sql = """
-            INSERT INTO superblock
-                (governance_object_id,superblock_name,event_block_height,payment_addresses,payment_amounts)
-            VALUES
-                ("%(governance_object_id)s","%(superblock_name)s","%(event_block_height)s","%(payment_addresses)s","%(payment_amounts)s")
-            ON DUPLICATE KEY UPDATE
-                governance_object_id="%(governance_object_id)s",
-                superblock_name="%(superblock_name)s",
-                event_block_height="%(event_block_height)s",
-                payment_addresses="%(payment_addresses)s",
-                payment_amounts="%(payment_amounts)s"
-        """
+        if self.loaded:
+            sql = """
+                     UPDATE superblock SET
+                            governance_object_id="%(governance_object_id)s",
+                            superblock_name="%(superblock_name)s",
+                            event_block_height="%(event_block_height)s",
+                            payment_addresses="%(payment_addresses)s",
+                            payment_amounts="%(payment_amounts)s"
+            """
+        else:
+            sql = """
+                     INSERT INTO superblock
+                                 (governance_object_id,superblock_name,event_block_height,payment_addresses,payment_amounts)
+                     VALUES
+                                 ("%(governance_object_id)s","%(superblock_name)s","%(event_block_height)s","%(payment_addresses)s","%(payment_amounts)s")
+            """
 
         print self.trigger
 
@@ -187,5 +194,6 @@ class Superblock():
         return self.trigger
 
     def load_dict(self, dict):
+        self.loaded = True
         self.trigger = dict
 
