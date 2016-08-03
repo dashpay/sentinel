@@ -377,6 +377,8 @@ class SentinelShell(cmd.Cmd):
             print count, "governance objects cleared"
             count = crontab.clear_superblocks()
             print count, "superblocks cleared"
+            count = crontab.clear_proposals()
+            print count, "proposals cleared"
             return
 
         ### --- EXECUTED DESIRED CRONTAB FOR USER --- ####

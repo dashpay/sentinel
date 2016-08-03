@@ -36,6 +36,8 @@ import govtypes
 
 """
 
+CONFIRMATIONS_REQUIRED = 7
+
 def clear_events():
     sql = "delete from event"
     libmysql.db.query(sql)
@@ -52,6 +54,13 @@ def clear_governance_objects():
 
 def clear_superblocks():
     sql = "delete from superblock"
+    libmysql.db.query(sql)
+    nrows = libmysql.db.affected_rows() 
+    libmysql.db.commit()
+    return nrows
+
+def clear_proposals():
+    sql = "delete from proposal"
     libmysql.db.query(sql)
     nrows = libmysql.db.affected_rows() 
     libmysql.db.commit()
@@ -127,7 +136,7 @@ def submit_events():
             if tx.load(hash):
                 print " -- confirmations: ", tx.get_confirmations()
                 
-                if tx.get_confirmations() >= 7:
+                if tx.get_confirmations() >= CONFIRMATIONS_REQUIRED:
                     event.set_submitted()   
                     print " -- executing event ... getting fee_tx hash"
 
