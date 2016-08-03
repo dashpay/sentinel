@@ -15,7 +15,7 @@ CREATE TABLE `governance_object` (
   `object_type` int(20) NOT NULL DEFAULT '0',
   `object_revision` int(20) NOT NULL DEFAULT '0',
   `object_data` text NOT NULL,
-  `object_fee_tx` varchar(255) NOT NULL DEFAULT ''
+  `object_fee_tx` varchar(255) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -38,7 +38,8 @@ CREATE TABLE superblock (
   `event_block_height` int(11) DEFAULT NULL,
   `payment_addresses` text,
   `payment_amounts` text,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `index2` (`governance_object_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `event` (

@@ -36,15 +36,35 @@ import govtypes
 
 """
 
+CONFIRMATIONS_REQUIRED = 7
+
 def clear_events():
     sql = "delete from event"
     libmysql.db.query(sql)
-    return libmysql.db.affected_rows()
+    nrows = libmysql.db.affected_rows() 
+    libmysql.db.commit()
+    return nrows
 
 def clear_governance_objects():
     sql = "delete from governance_object"
     libmysql.db.query(sql)
-    return libmysql.db.affected_rows()
+    nrows = libmysql.db.affected_rows() 
+    libmysql.db.commit()
+    return nrows
+
+def clear_superblocks():
+    sql = "delete from superblock"
+    libmysql.db.query(sql)
+    nrows = libmysql.db.affected_rows() 
+    libmysql.db.commit()
+    return nrows
+
+def clear_proposals():
+    sql = "delete from proposal"
+    libmysql.db.query(sql)
+    nrows = libmysql.db.affected_rows() 
+    libmysql.db.commit()
+    return nrows
 
 def prepare_events():
     sql = "select id from event where start_time < NOW() and error_time = 0 and prepare_time = 0 limit 1"
@@ -90,7 +110,7 @@ def prepare_events():
 
 
 def submit_events():
-    sql = "select id from event where start_time < NOW() and prepare_time < NOW() and submit_time = 0 limit 1"
+    sql = "select id from event where start_time < NOW() and prepare_time < NOW() and prepare_time > 0 and submit_time = 0 limit 1"
 
     libmysql.db.query(sql)
     res = libmysql.db.store_result()
@@ -116,7 +136,7 @@ def submit_events():
             if tx.load(hash):
                 print " -- confirmations: ", tx.get_confirmations()
                 
-                if tx.get_confirmations() >= 7:
+                if tx.get_confirmations() >= CONFIRMATIONS_REQUIRED:
                     event.set_submitted()   
                     print " -- executing event ... getting fee_tx hash"
 

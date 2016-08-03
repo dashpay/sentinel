@@ -21,6 +21,9 @@ from governance import GovernanceObject, GovernanceObjectMananger, Setting, Even
 from classes import Proposal, Superblock
 from dashd import CTransaction
 
+# Enable only for testing:
+crontab.CONFIRMATIONS_REQUIRED = 1
+
 parent = GovernanceObject()
 parent.init()
 
@@ -375,6 +378,10 @@ class SentinelShell(cmd.Cmd):
             print count, "events cleared"
             count = crontab.clear_governance_objects()
             print count, "governance objects cleared"
+            count = crontab.clear_superblocks()
+            print count, "superblocks cleared"
+            count = crontab.clear_proposals()
+            print count, "proposals cleared"
             return
 
         ### --- EXECUTED DESIRED CRONTAB FOR USER --- ####

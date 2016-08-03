@@ -59,15 +59,13 @@ class GovernanceObjectMananger:
         return None
 
 class GovernanceObject:
-    # mysql record data
-    governance_object = {}
     # object data for specific classes
-    subclasses = [] #object based subclasses
-
-    fee_tx = None
 
     def __init__(self):
-        pass
+        self.subclasses = [] #object based subclasses
+        # mysql record data
+        self.governance_object = {}
+        self.fee_tx = None
 
     def get_hash(self):
         return self.governance_object["object_hash"];
@@ -148,7 +146,7 @@ class GovernanceObject:
 
         ## todo -- make plugin system for subclasses?
         for (obj_type, obj_data) in objects:
-            
+
             if obj_type == "proposal":
                obj = Proposal()
                obj.load_dict(obj_data)
@@ -259,6 +257,7 @@ class GovernanceObject:
             print sql % self.governance_object
 
             libmysql.db.query(sql % self.governance_object)
+
             self.save_subclasses()
 
             return self.governance_object["id"]
@@ -291,9 +290,9 @@ class GovernanceObject:
         return True
 
 class Event:
-    event = {}
+
     def __init__(self):
-        pass
+        self.event = {}
 
     def create_new(self, last_id):
         self.event["governance_object_id"] = last_id
@@ -371,9 +370,9 @@ class Event:
 
 
 class Setting:
-    setting = {}
+
     def __init__(self):
-        pass
+        self.setting = {}
 
     def create_new(self, setting, name, value):
         self.setting["id"] = 0
