@@ -59,14 +59,13 @@ class GovernanceObjectMananger:
         return None
 
 class GovernanceObject:
-    # mysql record data
-    governance_object = {}
     # object data for specific classes
-
-    fee_tx = None
 
     def __init__(self):
         self.subclasses = [] #object based subclasses
+        # mysql record data
+        self.governance_object = {}
+        self.fee_tx = None
 
     def get_hash(self):
         return self.governance_object["object_hash"];
@@ -291,9 +290,9 @@ class GovernanceObject:
         return True
 
 class Event:
-    event = {}
+
     def __init__(self):
-        pass
+        self.event = {}
 
     def create_new(self, last_id):
         self.event["governance_object_id"] = last_id
@@ -371,9 +370,9 @@ class Event:
 
 
 class Setting:
-    setting = {}
+
     def __init__(self):
-        pass
+        self.setting = {}
 
     def create_new(self, setting, name, value):
         self.setting["id"] = 0

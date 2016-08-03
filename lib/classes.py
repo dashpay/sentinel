@@ -22,7 +22,6 @@ from misc import *
 
 
 class Proposal:
-    proposal = {}
 
     """
         proposal --create --proposal_name="beer-reimbursement" 
@@ -33,6 +32,7 @@ class Proposal:
     """
 
     def __init__(self):
+        self.proposal = {}
         self.proposal["governance_object_id"] = 0
         self.proposal["proposal_name"] = ""
         self.proposal["start_epoch"] = ""
@@ -172,6 +172,7 @@ class Superblock():
                             event_block_height="%(event_block_height)s",
                             payment_addresses="%(payment_addresses)s",
                             payment_amounts="%(payment_amounts)s"
+                     WHERE  governance_object_id="%(governance_object_id)s"
             """
         else:
             sql = """
