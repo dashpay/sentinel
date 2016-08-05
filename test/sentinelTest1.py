@@ -82,7 +82,7 @@ def do_test():
     last_id = newObj.save()
 
     blockCount = int(rpc_command("getblockcount"))
-    event_block_height = "%d" % (blockCount + 10)
+    event_block_height = "%d" % (blockCount + crontab.CONFIRMATIONS_REQUIRED + 5)
 
     if last_id is None:
         raise(Exception("do_test: superblock creation failed"))
@@ -174,6 +174,9 @@ def do_events():
     print count, "events successfully submitted (stage 2)"
 
 crontab.CONFIRMATIONS_REQUIRED = 1
+
+# Clear the tables
+crontab.reset()
 
 while True:
     do_test()
