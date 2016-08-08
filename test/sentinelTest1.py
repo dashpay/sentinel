@@ -61,6 +61,11 @@ def wait_for_blocks(n,initial=None):
     while (get_block_count() - initial) < n:
         time.sleep(30)
 
+def vote(hash):
+    command = "gobject vote-conf %s funding yes" % ( hash )
+    print "vote: command = ", command
+    rpc_command(command)
+
 def do_test():
     parent = GovernanceObject()
     parent.init()
@@ -77,12 +82,12 @@ def do_test():
 
     fee_tx = CTransaction()
 
-    newObj = GovernanceObject()
-    newObj.create_new(parent, superblock_name, govtypes.trigger, govtypes.FIRST_REVISION, fee_tx)
-    last_id = newObj.save()
+    sbObj = GovernanceObject()
+    sbObj.create_new(parent, superblock_name, govtypes.trigger, govtypes.FIRST_REVISION, fee_tx)
+    last_id = sbObj.save()
 
     blockCount = int(rpc_command("getblockcount"))
-    event_block_height = "%d" % (blockCount + 10)
+    event_block_height = "%d" % (blockCount + crontab.CONFIRMATIONS_REQUIRED + 5)
 
     if last_id is None:
         raise(Exception("do_test: superblock creation failed"))
@@ -100,8 +105,8 @@ def do_test():
     
     # APPEND TO GOVERNANCE OBJECT
 
-    newObj.add_subclass("trigger", c)
-    newObj.save()
+    sbObj.add_subclass("trigger", c)
+    sbObj.save()
 
     # CREATE EVENT TO TALK TO DASHD / PREPARE / SUBMIT OBJECT
 
@@ -111,9 +116,20 @@ def do_test():
     libmysql.db.commit()
     
     # Step 2 - Prepare/submit events
+    print "Before do_events"
     do_events()
+    print "After do_events"
 
-    # Step 3 - Create proposal
+    # Step 3 - Vote up the superblock
+    sbObj.load( sbObj.governance_object['id'] )
+    print "sbObj.governance_object = %s" % ( sbObj.governance_object )
+    print "Getting objectHash"
+    objectHash = sbObj.get_field("object_hash").strip()
+    print "preparing to vote: objectHash = %s, length = %d" % ( objectHash, len( objectHash ) )
+    if len(objectHash) == 64:
+        vote(objectHash)
+
+    # Step 4 - Create proposal
 
     proposal_name = "tprop-" + str(random.randint(1000000, 9999999))
 
@@ -153,7 +169,7 @@ def do_test():
     event.save()
     libmysql.db.commit()
 
-    # Step 4 - Prepare/submit events
+    # Step 5 - Prepare/submit events
     do_events()
 
 def do_events():
@@ -174,6 +190,9 @@ def do_events():
     print count, "events successfully submitted (stage 2)"
 
 crontab.CONFIRMATIONS_REQUIRED = 1
+
+# Clear the tables
+crontab.reset()
 
 while True:
     do_test()

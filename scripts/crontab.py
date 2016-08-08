@@ -66,6 +66,12 @@ def clear_proposals():
     libmysql.db.commit()
     return nrows
 
+def reset():
+    clear_events()
+    clear_governance_objects()
+    clear_superblocks()
+    clear_proposals()	
+
 def prepare_events():
     sql = "select id from event where start_time < NOW() and error_time = 0 and prepare_time = 0 limit 1"
 
