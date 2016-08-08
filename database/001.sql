@@ -26,7 +26,7 @@ CREATE TABLE `proposal` (
   `start_epoch` int(11) DEFAULT NULL,
   `end_epoch` int(11) DEFAULT NULL,
   `payment_address` varchar(255) DEFAULT NULL,
-  `payment_amount` int(11) DEFAULT NULL,
+  `payment_amount` decimal(16,8) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `index2` (`governance_object_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8;
