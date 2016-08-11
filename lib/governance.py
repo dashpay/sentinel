@@ -129,7 +129,7 @@ class GovernanceObject:
         for (obj_type, obj) in self.subclasses:
             objects.append((obj_type, obj.get_dict()))
 
-        self.governance_object["object_data"] = binascii.hexlify(json.dumps(objects))
+        self.governance_object["object_data"] = binascii.hexlify(json.dumps(objects, sort_keys = True))
 
         return True
 
