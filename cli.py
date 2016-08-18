@@ -472,7 +472,7 @@ if __name__ == '__main__':
 
     if len(args) > 1:
         if args[0] == "proposal":
-            SentinelShell().do_user(" ".join(args[1:]))
+            SentinelShell().do_proposal(" ".join(args[1:]))
         elif args[0] == "vote":
             SentinelShell().do_vote(" ".join(args[1:]))
         elif args[0] == "crontab":
