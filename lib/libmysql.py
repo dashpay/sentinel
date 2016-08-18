@@ -14,7 +14,7 @@ def query_one(sql, dictionary):
     """
     global db
     cur = db.cursor()
-    cur.execute(sql % dictionary)
+    cur.execute(sql, dictionary)
     row = cur.fetchone()
 
     return row

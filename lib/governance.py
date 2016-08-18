@@ -21,18 +21,18 @@ class GovernanceObjectMananger:
     def object_with_name_exists(name):
 
         sql = """
-            select id from governance_object 
-            where governance_object.object_name = '%s' 
+            select count(*) from governance_object
+            where governance_object.object_name = %s
             limit 1
-        """ % name
+        """
 
-        libmysql.db.query(sql)
-        res = libmysql.db.store_result()
-        row = res.fetch_row()
-        if row:
-            return True
+        cursor = libmysql.db.cursor()
+        cursor.execute(sql, (name,))
+        res = cursor.fetchall()
+        count = [row[0] for row in res]
+        cursor.close()
 
-        return False
+        return count > 0
 
     @staticmethod
     def find_object_by_name(name):
