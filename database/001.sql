@@ -7,7 +7,7 @@
 
 CREATE TABLE `governance_object` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `parent_id` int(11) NOT NULL DEFAULT '0',
+  `parent_id` int(11) unsigned NOT NULL DEFAULT '0',
   `object_creation_time` int(11) NOT NULL DEFAULT '0',
   `object_hash` varchar(255) NOT NULL DEFAULT '',
   `object_parent_hash` varchar(255) NOT NULL DEFAULT '',
@@ -19,9 +19,9 @@ CREATE TABLE `governance_object` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE `proposal` (  
+CREATE TABLE `proposal` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `governance_object_id` int(11) DEFAULT NULL,
+  `governance_object_id` int(11) unsigned DEFAULT NULL,
   `proposal_name` varchar(255) DEFAULT NULL,
   `start_epoch` int(11) DEFAULT NULL,
   `end_epoch` int(11) DEFAULT NULL,
@@ -33,7 +33,7 @@ CREATE TABLE `proposal` (
 
 CREATE TABLE superblock (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `governance_object_id` int(11) DEFAULT NULL,
+  `governance_object_id` int(11) unsigned DEFAULT NULL,
   `superblock_name` varchar(255) DEFAULT NULL,
   `event_block_height` int(11) DEFAULT NULL,
   `payment_addresses` text,
@@ -44,7 +44,7 @@ CREATE TABLE superblock (
 
 CREATE TABLE `event` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `governance_object_id` int(11) DEFAULT NULL,
+  `governance_object_id` int(11) unsigned DEFAULT NULL,
   `start_time` int(11) NOT NULL DEFAULT '0',
   `prepare_time` int(11) NOT NULL DEFAULT '0',
   `submit_time` int(11) NOT NULL DEFAULT '0',
@@ -56,7 +56,7 @@ CREATE TABLE `event` (
 
 CREATE TABLE `action` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `governance_object_id` int(11) DEFAULT NULL,
+  `governance_object_id` int(11) unsigned DEFAULT NULL,
   `absolute_yes_count` int DEFAULT NULL,
   `yes_count` int DEFAULT NULL,
   `no_count` int DEFAULT NULL,
