@@ -27,7 +27,8 @@ crontab.CONFIRMATIONS_REQUIRED = 1
 parent = GovernanceObject()
 parent.init()
 
-db = libmysql.connect(config.hostname, config.username, config.password, config.database)
+db_creds = config.db_config
+db = libmysql.connect(db_creds['hostname'], db_creds['username'], db_creds['password'], db_creds['database'])
 
 commands = {}
 
