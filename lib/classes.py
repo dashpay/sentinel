@@ -8,7 +8,7 @@ sys.path.append("../")
 sys.path.append("../lib")
 sys.path.append("../scripts")
 
-import libmysql 
+import libmysql
 from misc import *
 
 
@@ -16,7 +16,7 @@ from misc import *
 
     Proposal Object
 
-    - These objects are created when a user would like to be paid by the network via superblock. 
+    - These objects are created when a user would like to be paid by the network via superblock.
 
 """
 
@@ -24,10 +24,10 @@ from misc import *
 class Proposal:
 
     """
-        proposal --create --proposal_name="beer-reimbursement" 
-        --description_url="www.dashwhale.org/p/beer-reimbursement" 
-        --start_date="2017/1/1" 
-        --end_date="2017/6/1" 
+        proposal --create --proposal_name="beer-reimbursement"
+        --description_url="www.dashwhale.org/p/beer-reimbursement"
+        --start_date="2017/1/1"
+        --end_date="2017/6/1"
         --payment_address="Xy2LKJJdeQxeyHrn4tGDQB8bjhvFEdaUv7"'
     """
 
@@ -57,8 +57,8 @@ class Proposal:
         row = cursor.fetchone()
         if row:
             print row[0]
-            ( self.proposal["governance_object_id"], self.proposal["proposal_name"], 
-                self.proposal["start_epoch"], self.proposal["end_epoch"], 
+            ( self.proposal["governance_object_id"], self.proposal["proposal_name"],
+                self.proposal["start_epoch"], self.proposal["end_epoch"],
                 self.proposal["payment_address"], self.proposal["payment_amount"]) = row[0]
             print "loaded proposal successfully"
 
@@ -100,7 +100,7 @@ class Proposal:
         gov_obj_id = cursor.lastrowid
 
     def set_field(self, name, value):
-        self.proposal[name] = value 
+        self.proposal[name] = value
 
     def get_dict(self):
         return self.proposal
@@ -109,7 +109,7 @@ class Proposal:
         self.proposal = dict
 
 """
-    
+
     Superblock
 
 """
@@ -118,21 +118,21 @@ class Proposal:
 class Superblock():
 
     """
-        superblock --create --start_date="2017/1/1" 
-        --payments="[Addr1, amount],[Addr2, amount],[Addr3, amount]" 
+        superblock --create --start_date="2017/1/1"
+        --payments="[Addr1, amount],[Addr2, amount],[Addr3, amount]"
 
         --
 
-        object structure: 
+        object structure:
 
         {
-            'subtype': 'superblock', 
-            'superblock_name': 'sb1803405', 
-            'governance_object_id': 0, 
-            'event_block_height': '', 
+            'subtype': 'superblock',
+            'superblock_name': 'sb1803405',
+            'governance_object_id': 0,
+            'event_block_height': '',
             'type': -1
-            'payment_addresses': 'yNaE8Le2MVwk1zpwuEKveTMCEQHVxdcfCS', 
-            'payment_amounts': '100',  
+            'payment_addresses': 'yNaE8Le2MVwk1zpwuEKveTMCEQHVxdcfCS',
+            'payment_amounts': '100',
         }
 
     """
@@ -149,7 +149,7 @@ class Superblock():
 
     def load(self, record_id):
         sql = """
-            select 
+            select
 
 
                 governance_object_id,
@@ -157,7 +157,7 @@ class Superblock():
                 event_block_height,
                 payment_addresses,
                 payment_amounts
-            from superblock where 
+            from superblock where
                 id = %s """ % record_id
 
         libmysql.db.query(sql)
@@ -165,7 +165,7 @@ class Superblock():
         row = res.fetch_row()
         if row:
             print row[0]
-            ( self.trigger["governance_object_id"], self.trigger["superblock_name"], 
+            ( self.trigger["governance_object_id"], self.trigger["superblock_name"],
                 self.trigger["event_block_height"], self.trigger["payment_addresses"], self.trigger["payment_amounts"]) = row[0]
 
             print "loaded trigger successfully"
@@ -203,7 +203,7 @@ class Superblock():
         libmysql.db.query(sql % self.trigger)
 
     def set_field(self, name, value):
-        self.trigger[name] = value 
+        self.trigger[name] = value
 
     def get_dict(self):
         return self.trigger
@@ -211,4 +211,3 @@ class Superblock():
     def load_dict(self, dict):
         self.loaded = True
         self.trigger = dict
-
