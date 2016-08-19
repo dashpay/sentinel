@@ -68,22 +68,34 @@ class Proposal:
 
     def save(self):
         sql = """
-            INSERT INTO proposal 
-                (governance_object_id, proposal_name, start_epoch, end_epoch, payment_address, payment_amount)
-            VALUES
-                (%(governance_object_id)s,%(proposal_name)s,%(start_epoch)s,%(end_epoch)s,%(payment_address)s,%(payment_amount)s)
+            INSERT INTO proposal (
+                governance_object_id
+              , proposal_name
+              , start_epoch
+              , end_epoch
+              , payment_address
+              , payment_amount
+              )
+            VALUES (%s, %s, %s, %s, %s, %s)
             ON DUPLICATE KEY UPDATE
-                governance_object_id=%(governance_object_id)s,
-                proposal_name=%(proposal_name)s,
-                start_epoch=%(start_epoch)s,
-                end_epoch=%(end_epoch)s,
-                payment_address=%(payment_address)s,
-                payment_amount=%(payment_amount)s
+                governance_object_id = %s
+             ,         proposal_name = %s
+             ,           start_epoch = %s
+             ,             end_epoch = %s
+             ,       payment_address = %s
+             ,        payment_amount = %s
         """
 
-        print sql % self.proposal
+        values = [ self.proposal['governance_object_id'],
+                   self.proposal['proposal_name'],
+                   self.proposal['start_epoch'],
+                   self.proposal['end_epoch'],
+                   self.proposal['payment_address'],
+                   self.proposal['payment_amount'] ]
+        # print sql % self.proposal
+        # libmysql.db.query(sql % self.proposal)
 
-        libmysql.db.query(sql % self.proposal)
+        cursor = libmysql.db.cursor()
 
     def set_field(self, name, value):
         self.proposal[name] = value 

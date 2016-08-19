@@ -368,16 +368,13 @@ class Event:
     def update_error_message(self, message):
         sql = """
             UPDATE event 
-            SET
-                error_message=%s
-            WHERE id = %s
+               SET error_message = %s
+             WHERE id = %s
         """
 
-        c=libmysql.db.cursor()
+        c = libmysql.db.cursor()
         c.execute(sql , (message, self.event['id']))
         c.close()
-
-
 
 class Setting:
 
