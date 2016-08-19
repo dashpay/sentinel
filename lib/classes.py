@@ -150,28 +150,25 @@ class Superblock():
     def load(self, record_id):
         sql = """
             select
-
-
                 governance_object_id,
                 superblock_name,
                 event_block_height,
                 payment_addresses,
                 payment_amounts
             from superblock where
-                id = %s """ % record_id
+                id = %s """
 
-        libmysql.db.query(sql)
-        res = libmysql.db.store_result()
-        row = res.fetch_row()
+        cursor = libmysql.db.cursor()
+        cursor.execute(sql, (record_id,))
+        row = cursor.fetchone()
+        cursor.close()
+
         if row:
             print row[0]
             ( self.trigger["governance_object_id"], self.trigger["superblock_name"],
                 self.trigger["event_block_height"], self.trigger["payment_addresses"], self.trigger["payment_amounts"]) = row[0]
-
             print "loaded trigger successfully"
-
             self.loaded = True
-
             return True
 
         return False
