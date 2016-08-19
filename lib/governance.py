@@ -28,8 +28,7 @@ class GovernanceObjectMananger:
 
         cursor = libmysql.db.cursor()
         cursor.execute(sql, (name,))
-        res = cursor.fetchall()
-        count = [row[0] for row in res]
+        count = cursor.fetchone()[0]
         cursor.close()
 
         return count > 0
