@@ -311,9 +311,12 @@ class Event:
                 submit_time,
                 error_time
             from event where 
-                id = %s """ % record_id
+                id = %s """
 
-        row = libmysql.query_one(sql, self.event)
+        cursor = libmysql.db.cursor()
+        cursor.execute(sql, record_id)
+        row = cursor.fetchone()
+
         if row:
             print "retrieving record", row
             (self.event["id"], self.event["governance_object_id"], self.event["start_time"],
@@ -321,6 +324,8 @@ class Event:
             print "loaded event successfully", record_id
         else:
             print "event not found", sql 
+
+        cursor.close()
 
     def get_id(self):
         return self.event["governance_object_id"]
