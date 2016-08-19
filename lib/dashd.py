@@ -13,11 +13,11 @@ import json
 import sys
 
 def rpc_command(params):
-    dashcmd = config.dashd_path + " --datadir=" + config.datadir
-    
-    #print "'%s' '%s'" % (dashcmd, params)
+    dashcmd = [ config.dash_cli , "--datadir=%s" % config.datadir , params ]
 
-    proc = subprocess.Popen(dashcmd + " " + params, shell=True, bufsize=1, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    # print "dashcmd = [%s]" % (' '.join(dashcmd))
+
+    proc = subprocess.Popen(dashcmd, bufsize=1, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     output = ""
     while (True):
         # Read line from stdout, break if EOF reached, append line to output
