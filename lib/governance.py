@@ -41,22 +41,27 @@ class GovernanceObjectMananger:
             select
                 governance_object.id
             from governance_object left join action on governance_object.action_valid_id = action.id
-            where governance_object.object_name = '%s' 
+            where governance_object.object_name = %s
             order by action.absolute_yes_count desc
             limit 1
-        """ % name
+        """
 
-        libmysql.db.query(sql)
-        res = libmysql.db.store_result()
-        row = res.fetch_row()
+        cursor = libmysql.db.cursor()
+        cursor.execute(sql, (name))
+        row = cursor.fetchone()
+
+        objid = None
         if row:
-            print "found govobj id", row[0][0]
-            objid = row.pop(0).pop(0)
+            print "found govobj id", row[0]
+            objid = row[0]
+        cursor.close()
+
+        obj = None
+        if objid:
             obj = GovernanceObject()
             obj.load(objid)
-            return obj
 
-        return None
+        return obj
 
 class GovernanceObject:
     # object data for specific classes
