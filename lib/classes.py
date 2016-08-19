@@ -49,12 +49,12 @@ class Proposal:
                 end_epoch,
                 payment_address,
                 payment_amount
-            from proposal where 
-                id = %s """ % record_id
+            from proposal where
+                id = %s """
 
-        libmysql.db.query(sql)
-        res = libmysql.db.store_result()
-        row = res.fetch_row()
+        cursor = libmysql.db.cursor()
+        cursor.execute(sql, (record_id))
+        row = cursor.fetchone()
         if row:
             print row[0]
             ( self.proposal["governance_object_id"], self.proposal["proposal_name"], 
@@ -96,6 +96,8 @@ class Proposal:
         # libmysql.db.query(sql % self.proposal)
 
         cursor = libmysql.db.cursor()
+        cursor.execute(sql, values + values)
+        gov_obj_id = cursor.lastrowid
 
     def set_field(self, name, value):
         self.proposal[name] = value 
