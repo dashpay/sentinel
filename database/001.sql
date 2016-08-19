@@ -4,6 +4,13 @@
 
 */
 
+DROP TABLE if exists `proposal` ;
+DROP TABLE if exists `superblock` ;
+DROP TABLE if exists `event` ;
+DROP TABLE if exists `action` ;
+DROP TABLE if exists `setting` ;
+DROP TABLE if exists `governance_object` ;
+
 
 CREATE TABLE `governance_object` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
