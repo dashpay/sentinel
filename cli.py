@@ -156,12 +156,12 @@ class SentinelShell(cmd.Cmd):
             end_epoch = 0
 
             try:
-                start_epoch = datetime.strptime(args.start_date, '"%d/%m/%y"').strftime('%s')
-                end_epoch = datetime.strptime(args.end_date, '"%d/%m/%y"').strftime('%s')
+                start_epoch = datetime.strptime(args.start_date, '%d/%m/%y').strftime('%s')
+                end_epoch = datetime.strptime(args.end_date, '%d/%m/%y').strftime('%s')
             except:
                 try:
-                    start_epoch = datetime.strptime(args.start_date, '"%Y/%m/%d"').strftime('%s')
-                    end_epoch = datetime.strptime(args.end_date, '"%Y/%m/%d"').strftime('%s')
+                    start_epoch = datetime.strptime(args.start_date, '%Y/%m/%d').strftime('%s')
+                    end_epoch = datetime.strptime(args.end_date, '%Y/%m/%d').strftime('%s')
                 except:
                     pass
             
