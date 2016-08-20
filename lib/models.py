@@ -6,7 +6,17 @@ db = MySQLDatabase('sentinel', host='127.0.0.1', user='dashdrive', passwd='dashd
 
 # === models ===
 
-class PeeWeeAction(Model):
+class BaseModel(Model):
+    def get_dict(self):
+      dikt = {}
+      for field_name in self._meta.sorted_field_names:
+        dikt[ field_name ] = self.__getattribute__( field_name )
+      return dikt
+
+    class Meta:
+      database = db
+
+class PeeWeeAction(BaseModel):
     id = IntegerField(primary_key = True)
     governance_object_id = IntegerField(unique=True)
     absolute_yes_count = IntegerField()
@@ -17,7 +27,7 @@ class PeeWeeAction(Model):
       database = db
       db_table = 'action'
 
-class PeeWeeEvent(Model):
+class PeeWeeEvent(BaseModel):
     id = IntegerField(primary_key = True)
     governance_object_id = IntegerField(unique=True)
     start_time = IntegerField(default=int(time()))
@@ -25,11 +35,12 @@ class PeeWeeEvent(Model):
     submit_time = IntegerField()
     error_time = IntegerField()
     error_message = CharField()
+
     class Meta:
       database = db
       db_table = 'event'
 
-class User(Model):
+class User(BaseModel):
     username = CharField(primary_key = True)
     userkey  = CharField()
     email    = CharField()
@@ -39,7 +50,7 @@ class User(Model):
       database = db
       db_table = 'users'
 
-class Setting(Model):
+class Setting(BaseModel):
     id = IntegerField(primary_key = True)
     datetime = IntegerField()
     setting  = CharField()
@@ -49,7 +60,7 @@ class Setting(Model):
       database = db
       db_table = 'setting'
 
-class PeeWeeProposal(Model):
+class PeeWeeProposal(BaseModel):
     id = IntegerField(primary_key = True)
     governance_object_id = IntegerField(unique=True)
     proposal_name = CharField(unique=True)
@@ -61,7 +72,7 @@ class PeeWeeProposal(Model):
       database = db
       db_table = 'proposal'
 
-class PeeWeeSuperblock(Model):
+class PeeWeeSuperblock(BaseModel):
     id = IntegerField(primary_key = True)
     governance_object_id = IntegerField(unique=True)
     superblock_name      = CharField() # unique?
@@ -72,7 +83,7 @@ class PeeWeeSuperblock(Model):
       database = db
       db_table = 'superblock'
 
-class PeeWeeGovernanceObject(Model):
+class PeeWeeGovernanceObject(BaseModel):
     id = IntegerField(primary_key = True)
     parent_id = IntegerField()
     object_creation_time = IntegerField()
