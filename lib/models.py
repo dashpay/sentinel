@@ -100,9 +100,4 @@ class PeeWeeGovernanceObject(BaseModel):
 
 db.connect()
 
-#for e in Event.select():
-#    print e.id
-#    e.prepare_time = int(time())
-#    e.save()
-#    pprint(vars(e))
 
