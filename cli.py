@@ -20,7 +20,7 @@ from models import PeeWeeEvent, PeeWeeSuperblock, PeeWeeProposal, PeeWeeGovernan
 
 from datetime import datetime, date, time
 
-from governance import GovernanceObject, GovernanceObjectMananger
+from governance import GovernanceObject
 from dashd import CTransaction
 
 # Enable only for testing:

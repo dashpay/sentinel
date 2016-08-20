@@ -16,23 +16,6 @@ import binascii
 from models import PeeWeeEvent, PeeWeeSuperblock, PeeWeeProposal
 from pprint import pprint
 
-class GovernanceObjectMananger:
-
-    @staticmethod
-    def object_with_name_exists(name):
-
-        sql = """
-            select count(*) from governance_object
-            where governance_object.object_name = %s
-        """
-
-        cursor = libmysql.db.cursor()
-        cursor.execute(sql, (name,))
-        count = cursor.fetchone()[0]
-        cursor.close()
-
-        return count > 0
-
 class GovernanceObject:
     # object data for specific classes
 
