@@ -4,16 +4,25 @@ import re
 import sys
 import io
 sys.path.append("lib")
-from models import PeeWeeEvent, PeeWeeSuperblock, PeeWeeProposal
+from models import PeeWeeEvent, PeeWeeSuperblock, PeeWeeProposal, PeeWeeGovernanceObject
 from datetime import datetime, date, time
 
+# e = PeeWeeEvent()
+# e.governance_object_id = 7
+# print e.get_dict()
 
-e = PeeWeeEvent()
-e.governance_object_id = 7
+# check if object with name 'helloworld6' exists
+#
+#PeeWeeGovernanceObject
+#object_name: helloworld6
 
-# pprint(dir(e))
-# print e.__getattribute__( 'governance_object_id' )
+on = 'helloworld6'
+#count = PeeWeeGovernanceObject.select().where(PeeWeeGovernanceObject.object_name == on).count()
+#print "count = %d" % count
 
-print e.get_dict()
+print PeeWeeGovernanceObject.object_with_name_exists(on)
 
+
+# select count(*) from governance_object
+# where governance_object.object_name = %s
 
