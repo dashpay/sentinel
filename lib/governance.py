@@ -11,9 +11,9 @@ sys.path.append("../scripts")
 import libmysql 
 import misc
 import binascii
-from classes import Proposal, Superblock
-# from classes import User, Project
-# from subclasses import Report, Payday
+
+# PeeWee models -- to replace hand-coded versions
+from models import PeeWeeEvent, PeeWeeSuperblock, PeeWeeProposal
 
 class GovernanceObjectMananger:
 
