@@ -16,11 +16,11 @@ import random
 import json 
 
 # PeeWee models -- to replace hand-coded versions
-from models import PeeWeeEvent, PeeWeeSuperblock, PeeWeeProposal
+from models import PeeWeeEvent, PeeWeeSuperblock, PeeWeeProposal, PeeWeeGovernanceObject
 
 from datetime import datetime, date, time
 
-from governance import GovernanceObject, GovernanceObjectMananger, Setting, Event
+from governance import GovernanceObject, GovernanceObjectMananger
 from dashd import CTransaction
 
 # Enable only for testing:
@@ -172,7 +172,7 @@ class SentinelShell(cmd.Cmd):
                 return
 
             ### ---- CHECK NAME UNIQUENESS -----
-            if GovernanceObjectMananger.object_with_name_exists(args.proposal_name):
+            if PeeWeeGovernanceObject.object_with_name_exists(args.proposal_name):
                 print "governance object with that name already exists"
                 return
 
@@ -207,9 +207,8 @@ class SentinelShell(cmd.Cmd):
                 pwevent = PeeWeeEvent()
                 pwevent.governance_object_id = last_id
                 pwevent.save()
-                #event = Event()
-                #event.create_new(last_id)
-                #event.save()
+
+                # TODO: remove when finished with full ORM replacement
                 libmysql.db.commit()
 
                 print "event queued successfully"
@@ -291,7 +290,7 @@ class SentinelShell(cmd.Cmd):
             superblock_name = "sb" + str(random.randint(1000000, 9999999))
 
             # DOES THIS ALREADY EXIST?
-            if GovernanceObjectMananger.object_with_name_exists(superblock_name):
+            if PeeWeeGovernanceObject.object_with_name_exists(superblock_name):
                 print "governance object with that name already exists"
                 return
 
@@ -331,12 +330,11 @@ class SentinelShell(cmd.Cmd):
 
                 # CREATE EVENT TO TALK TO DASHD / PREPARE / SUBMIT OBJECT
 
-                #event = Event()
-                #event.create_new(last_id)
-                #event.save()
                 pwevent = PeeWeeEvent()
                 pwevent.governance_object_id = last_id
                 pwevent.save()
+
+                # TODO: remove when finished with full ORM replacement
                 libmysql.db.commit()
 
                 print "event queued successfully"
@@ -503,7 +501,5 @@ if __name__ == '__main__':
 
     2.)  vote on the funding proposal
          vote --times=22 --type=funding --outcome=yes [--hash=governance-hash --name=obj-name]
-
-         
 
 """
