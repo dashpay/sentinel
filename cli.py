@@ -21,7 +21,6 @@ from models import PeeWeeEvent, PeeWeeSuperblock, PeeWeeProposal
 from datetime import datetime, date, time
 
 from governance import GovernanceObject, GovernanceObjectMananger, Setting, Event
-from classes import Proposal, Superblock
 from dashd import CTransaction
 
 # Enable only for testing:
@@ -189,19 +188,18 @@ class SentinelShell(cmd.Cmd):
             if last_id != None:
                 # ADD OUR PROPOSAL AS A SUB-OBJECT WITHIN GOVERNANCE OBJECT
 
-                c = Proposal()
-                c.set_field("governance_object_id", last_id)
-                c.set_field("type", govtypes.proposal)
-                c.set_field("proposal_name", args.proposal_name)
-                c.set_field("description_url", args.description_url)
-                c.set_field("start_epoch", start_epoch)
-                c.set_field("end_epoch", end_epoch)
-                c.set_field("payment_address", args.payment_address)
-                c.set_field("payment_amount", args.payment_amount)
+                pw_proposal = PeeWeeProposal()
+                pw_proposal.governance_object_id = last_id
+                pw_proposal.proposal_name = args.proposal_name
+                pw_proposal.description_url = args.description_url
+                pw_proposal.start_epoch = start_epoch
+                pw_proposal.end_epoch = end_epoch
+                pw_proposal.payment_address = args.payment_address
+                pw_proposal.payment_amount = args.payment_amount
 
                 # APPEND TO GOVERNANCE OBJECT
 
-                newObj.add_subclass("proposal", c)
+                newObj.add_subclass("proposal", pw_proposal)
                 newObj.save()
 
                 # CREATE EVENT TO TALK TO DASHD / PREPARE / SUBMIT OBJECT
@@ -326,18 +324,9 @@ class SentinelShell(cmd.Cmd):
                 pwsb.payment_addresses = ("|".join(list_addr))
                 pwsb.payment_amounts = ("|".join(list_amount))
 
-                c = Superblock()
-                c.set_field("governance_object_id", last_id)
-                c.set_field("type", govtypes.trigger)
-                c.set_field("subtype", "superblock")
-                c.set_field("superblock_name", superblock_name)
-                c.set_field("event_block_height", event_block_height)
-                c.set_field("payment_addresses", "|".join(list_addr))
-                c.set_field("payment_amounts", "|".join(list_amount))
-
                 # APPEND TO GOVERNANCE OBJECT
 
-                newObj.add_subclass("trigger", c)
+                newObj.add_subclass("trigger", pwsb)
                 newObj.save()
 
                 # CREATE EVENT TO TALK TO DASHD / PREPARE / SUBMIT OBJECT
