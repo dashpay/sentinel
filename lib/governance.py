@@ -116,7 +116,8 @@ class GovernanceObject:
         return True
 
     def load_subclasses(self):
-        objects = json.loads(binascii.unhexlify(self.governance_object["object_data"]))
+        json = binascii.unhexlify(self.governance_object["object_data"])
+        objects = json.loads( json )
 
         ## todo -- make plugin system for subclasses?
         for (obj_type, obj_data) in objects:
