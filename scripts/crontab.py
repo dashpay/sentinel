@@ -10,9 +10,9 @@ import sys
 sys.path.append("lib")
 
 from governance  import GovernanceObject, Event
-import libmysql 
-import config 
-import misc 
+import libmysql
+import config
+import misc
 import dashd
 import random
 import govtypes
@@ -20,20 +20,20 @@ import govtypes
 from models import PeeWeeEvent, PeeWeeSuperblock, PeeWeeProposal, PeeWeeGovernanceObject
 
 """
- 
- scripts/crontab.py 
- ------------------------------- 
- 
+
+ scripts/crontab.py
+ -------------------------------
+
 
  FLAT MODULE FOR PROCESSING SENTINEL EVENTS
- 
+
  - prepare_events
 
     This process creates the collateral/burned transaction which allows the governance object to propagate
 
  - submit_events
 
-    Upon maturation of the collateral tranasction, the system will submit an rpc command, 
+    Upon maturation of the collateral tranasction, the system will submit an rpc command,
     propagating the object thoughout the network
 
 """
@@ -56,7 +56,7 @@ def reset():
     clear_events()
     clear_governance_objects()
     clear_superblocks()
-    clear_proposals()	
+    clear_proposals()
 
 def prepare_events():
     sql = "select id from event where start_time < NOW() and error_time = 0 and prepare_time = 0 limit 1"
@@ -90,6 +90,7 @@ def prepare_events():
             libmysql.db.commit()
 
             return 1
+
         else:
             print " -- got error:", result
             event.update_field("error_time", misc.get_epoch())
@@ -120,16 +121,16 @@ def submit_events():
 
         print
         print " -- cmd : ", govobj.get_submit_command()
-        print        
+        print
         print " -- executing event ... getting fee_tx hash"
 
         if misc.is_hash(hash):
             tx = dashd.CTransaction()
             if tx.load(hash):
                 print " -- confirmations: ", tx.get_confirmations()
-                
+
                 if tx.get_confirmations() >= CONFIRMATIONS_REQUIRED:
-                    event.set_submitted()   
+                    event.set_submitted()
                     print " -- executing event ... getting fee_tx hash"
 
                     result = dashd.rpc_command(govobj.get_submit_command())
@@ -149,7 +150,7 @@ def submit_events():
         return 0
 
 #
-# AUTONOMOUS VOTING 
+# AUTONOMOUS VOTING
 #
 # - CHECK VALIDITY, VOTE AFFIRMATIVE
 # - IF INVALID, VOTE FOR DELETION
@@ -175,7 +176,7 @@ def process_budget():
 
     # """
     #     OBJECTS WHICH REQUIRE PAYMENTS WILL HAVE:
-   
+
     #     - abs yes count > 10 percent of network votes
     #     - start_epoch <= event_epoch
     #     - end_epoch >= event_epoch
@@ -185,7 +186,7 @@ def process_budget():
 
     # sql = """
 
-    #     SELECT 
+    #     SELECT
     #         g.id,
     #         p.governence_object_id,
     #         a.governence_object_id,
@@ -201,15 +202,15 @@ def process_budget():
     #         masternode m
     #     ON
     #         g.id = p.governance_object_id and
-    #         a.id = g.action_funding_id and 
-    #         v.id = g.action_valid_id 
+    #         a.id = g.action_funding_id and
+    #         v.id = g.action_valid_id
     #     WHERE
     #         a.absolute_yes_count > count(m.id)/10 and
     #         v.absolute_yes_count > count(m.id)/10 and
     #         p.start_epoch <= %d and
     #         p.end_epoch >= %d
     #     ORDER BY
-    #         a.absolute_yes_count DESC; 
+    #         a.absolute_yes_count DESC;
     # """ % (event_epoch)
 
     # # GROUP ALL OF THE TABLES TOGETHER TO GET THE CORRECT INFORMATION ABOUT OUR BUDGET!
@@ -224,7 +225,7 @@ def process_budget():
     # #       - A LIST OF ADDRESSES
     # #       - A LIST OF AMOUNTS
     # #       - THEN WE'LL COMPILE TWO STRINGS DELIMITED ADDRESSES AND AMOUNTS
-    # #    
+    # #
 
     # list_addresses = []
     # list_amount = []
@@ -250,11 +251,11 @@ def process_budget():
 
     # record = {
     #     'payment_addresses' : addresses,
-    #     'payment_amounts' : payment_amounts, 
+    #     'payment_amounts' : payment_amounts,
     #     'event_epoch' : event_epoch
     # }
 
-    # # QUERY SYSTEM FOR THIS SUPERBLOCK 
+    # # QUERY SYSTEM FOR THIS SUPERBLOCK
 
     # sql = """
     #     select
@@ -262,18 +263,18 @@ def process_budget():
     #     from
     #         `trigger.superblock`
     #     where
-    #         payment_addresses = 's(payment_addresses)%' and 
-    #         payment_amounts = 's(payment_amounts)%' and 
+    #         payment_addresses = 's(payment_addresses)%' and
+    #         payment_amounts = 's(payment_amounts)%' and
     #         event_epoch >= 's(event_epoch)%'
     # """
 
     # # SEE IF SUPERBLOCK ALREADY EXISTS
-        
+
     # libmysql.db.query(sql)
     # res = libmysql.db.store_result()
     # row = res.fetch_row()
     # if not row:
-        
+
     #     # IF THIS SUPERBLOCK DOESN'T EXIST WE SHOULD CREATE IT
     #     # -- TODO : TIMING/RACECONDITIONS
 
@@ -318,4 +319,3 @@ def process_budget():
     #         print "error:", newObj.last_error()
 
     #         # abort mysql commit
-
