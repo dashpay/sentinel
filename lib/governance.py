@@ -33,35 +33,6 @@ class GovernanceObjectMananger:
 
         return count > 0
 
-    @staticmethod
-    def find_object_by_name(name):
-
-        sql = """
-            select
-                governance_object.id
-            from governance_object left join action on governance_object.action_valid_id = action.id
-            where governance_object.object_name = %s
-            order by action.absolute_yes_count desc
-            limit 1
-        """
-
-        cursor = libmysql.db.cursor()
-        cursor.execute(sql, (name))
-        row = cursor.fetchone()
-
-        objid = None
-        if row:
-            print "found govobj id", row[0]
-            objid = row[0]
-        cursor.close()
-
-        obj = None
-        if objid:
-            obj = GovernanceObject()
-            obj.load(objid)
-
-        return obj
-
 class GovernanceObject:
     # object data for specific classes
 
