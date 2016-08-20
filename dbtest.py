@@ -5,7 +5,8 @@ import sys
 import io
 sys.path.append("lib")
 from models import PeeWeeEvent, PeeWeeSuperblock, PeeWeeProposal, PeeWeeGovernanceObject
-from datetime import datetime, date, time
+#from datetime import datetime, date, time
+from time import time
 
 # e = PeeWeeEvent()
 # e.governance_object_id = 7
@@ -29,4 +30,20 @@ from datetime import datetime, date, time
 #print PeeWeeSuperblock.delete().execute()
 #print PeeWeeProposal.delete().execute()
 #print PeeWeeGovernanceObject.delete().execute()
+
+
+#pw = PeeWeeEvent.get(PeeWeeEvent.id == 9)
+#print pw.governance_object_id
+
+epoch = int(time())
+
+# SELECT t1`.`id`, `t1`.`governance_object_id`, `t1`.`start_time`, `t1`.`prepare_time`, `t1`.`submit_time`, `t1`.`error_time`, `t1`.`error_message` FROM `event` AS t1 WHERE (((`t1`.`start_time` < %s) AND (`t1`.`error_time` = %s)) AND (`t1`.`prepare_time` = %s))', [1471728359, 0, 0])
+
+e = PeeWeeEvent.get(
+    (PeeWeeEvent.start_time < epoch ) &
+    (PeeWeeEvent.error_time == 0) &
+    (PeeWeeEvent.prepare_time == 0)
+)
+print(e.id)
+
 
