@@ -24,7 +24,6 @@ class PeeWeeAction(BaseModel):
     no_count = IntegerField()
     abstain_count = IntegerField()
     class Meta:
-      database = db
       db_table = 'action'
 
 class PeeWeeEvent(BaseModel):
@@ -35,9 +34,7 @@ class PeeWeeEvent(BaseModel):
     submit_time = IntegerField()
     error_time = IntegerField()
     error_message = CharField()
-
     class Meta:
-      database = db
       db_table = 'event'
 
 class User(BaseModel):
@@ -47,7 +44,6 @@ class User(BaseModel):
     created_at = DateTimeField()
     updated_at = DateTimeField()
     class Meta:
-      database = db
       db_table = 'users'
 
 class Setting(BaseModel):
@@ -57,7 +53,6 @@ class Setting(BaseModel):
     name     = CharField()
     value    = CharField()
     class Meta:
-      database = db
       db_table = 'setting'
 
 class PeeWeeProposal(BaseModel):
@@ -69,7 +64,6 @@ class PeeWeeProposal(BaseModel):
     payment_address = CharField()
     payment_amount = DecimalField(max_digits=16, decimal_places=8)
     class Meta:
-      database = db
       db_table = 'proposal'
 
 class PeeWeeSuperblock(BaseModel):
@@ -80,7 +74,6 @@ class PeeWeeSuperblock(BaseModel):
     payment_addresses    = TextField()
     payment_amounts      = TextField()
     class Meta:
-      database = db
       db_table = 'superblock'
 
 class PeeWeeGovernanceObject(BaseModel):
@@ -94,6 +87,14 @@ class PeeWeeGovernanceObject(BaseModel):
     object_revision = IntegerField()
     object_data = TextField()
     object_fee_tx = CharField()
+
+    class Meta:
+      db_table = 'governance_object'
+
+    @classmethod
+    def object_with_name_exists(self, name):
+        count = self.select().where(self.object_name == name).count()
+        return count > 0
 
 # === /models ===
 
