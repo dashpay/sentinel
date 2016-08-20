@@ -16,13 +16,17 @@ from datetime import datetime, date, time
 #PeeWeeGovernanceObject
 #object_name: helloworld6
 
-on = 'helloworld6'
+#on = 'helloworld6'
 #count = PeeWeeGovernanceObject.select().where(PeeWeeGovernanceObject.object_name == on).count()
 #print "count = %d" % count
 
-print PeeWeeGovernanceObject.object_with_name_exists(on)
-
+#print PeeWeeGovernanceObject.object_with_name_exists(on)
 
 # select count(*) from governance_object
 # where governance_object.object_name = %s
+
+#print PeeWeeEvent.delete().execute()
+#print PeeWeeSuperblock.delete().execute()
+#print PeeWeeProposal.delete().execute()
+#print PeeWeeGovernanceObject.delete().execute()
 
