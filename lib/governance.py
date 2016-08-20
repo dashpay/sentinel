@@ -288,14 +288,8 @@ class Event:
     def get_id(self):
         return self.event["governance_object_id"]
 
-    def set_prepared(self):
-        self.event["prepare_time"] = calendar.timegm(time.gmtime())
-
     def set_submitted(self):
         self.event["submit_time"] = calendar.timegm(time.gmtime())
-
-    def set_start_time(self):
-        self.event["start_time"] = calendar.timegm(time.gmtime())
 
     def save(self):
         sql = """
