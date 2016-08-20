@@ -46,7 +46,7 @@ class GovernanceObject:
         }
 
     def create_new(self, parent, object_name, object_type, object_revision, fee_tx):
-        creation_time = calendar.timegm(time.gmtime())
+        creation_time = misc.get_epoch()
         self.fee_tx = fee_tx
 
         if parent == None:
@@ -254,7 +254,7 @@ class Event:
 
     def create_new(self, last_id):
         self.event["governance_object_id"] = last_id
-        self.event["start_time"] = calendar.timegm(time.gmtime())
+        self.event["start_time"] = misc.get_epoch()
         self.event["prepare_time"] = 0
         self.event["submit_time"] = 0
         self.event["error_time"] = 0
@@ -289,7 +289,7 @@ class Event:
         return self.event["governance_object_id"]
 
     def set_submitted(self):
-        self.event["submit_time"] = calendar.timegm(time.gmtime())
+        self.event["submit_time"] = misc.get_epoch()
 
     def save(self):
         sql = """
