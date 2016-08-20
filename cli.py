@@ -176,7 +176,7 @@ class SentinelShell(cmd.Cmd):
                 print "governance object with that name already exists"
                 return
 
-                
+            # -- gets bcconfirmations...
             fee_tx = CTransaction()
 
             newObj = GovernanceObject()
