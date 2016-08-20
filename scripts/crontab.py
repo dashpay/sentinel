@@ -9,7 +9,7 @@
 import sys
 sys.path.append("lib")
 
-from governance  import GovernanceObject, Event
+from governance  import GovernanceObject
 import libmysql
 import config
 import misc
@@ -59,20 +59,33 @@ def reset():
     clear_proposals()
 
 def prepare_events():
-    sql = "select id from event where start_time < NOW() and error_time = 0 and prepare_time = 0 limit 1"
+    sql = """
+    select id
+      from event
+     where start_time < NOW()
+       and error_time = 0
+       and prepare_time = 0
+     limit 1
+    """
 
-    # PeeWeeEvent.select().where(start_time < now()
-    # )
+    pw_event = PeeWeeEvent.get(
+        (PeeWeeEvent.start_time < misc.get_epoch() ) &
+        (PeeWeeEvent.error_time == 0) &
+        (PeeWeeEvent.prepare_time == 0)
+    )
 
-    libmysql.db.query(sql)
-    res = libmysql.db.store_result()
-    row = res.fetch_row()
-    if row:
-        event = Event()
-        event.load(row[0])
+    # libmysql.db.query(sql)
+    # res = libmysql.db.store_result()
+    # row = res.fetch_row()
+    if pw_event:
+        # pw_event = PeeWeeEvent.get(PeeWeeEvent.id == row[0])
+        # >>> User.get(User.id == 1)
+        # event = Event()
+        # event.load(row[0])
 
         govobj = GovernanceObject()
-        govobj.load(event.get_id())
+        # govobj.load(event.get_id())
+        govobj.load(pw_event.governance_object_id)
 
         print "# PREPARING EVENTS FOR DASH NETWORK"
         print
@@ -88,36 +101,57 @@ def prepare_events():
             print " -- got hash:", hashtx
             govobj.update_field("object_fee_tx", hashtx)
             govobj.save()
-            event.update_field("prepare_time", misc.get_epoch())
-            event.save()
+            pw_event.prepare_time = misc.get_epoch()
+            pw_event.save()
+            # event.update_field("prepare_time", misc.get_epoch())
+            # event.save()
             libmysql.db.commit()
-
             return 1
 
         else:
             print " -- got error:", result
-            event.update_field("error_time", misc.get_epoch())
-            event.save()
+            # event.update_field("error_time", misc.get_epoch())
+            # event.save()
+            pw_event.error_time = misc.get_epoch()
+            pw_event.save()
             # separately update event error message -- NGM: why separately?
-            event.update_error_message(result)
+            # event.update_error_message(result)
+            pw_event.error_message = result
             libmysql.db.commit()
 
     return 0
 
 
 def submit_events():
-    sql = "select id from event where start_time < NOW() and prepare_time < NOW() and prepare_time > 0 and submit_time = 0 limit 1"
+    sql = """
+    select id
+      from event
+     where start_time < NOW()
+       and prepare_time < NOW()
+       and prepare_time > 0
+       and submit_time = 0
+       limit 1
+    """
 
-    libmysql.db.query(sql)
-    res = libmysql.db.store_result()
-    row = res.fetch_row()
-    if row:
-        event = Event()
-        event.load(row[0])
+    now = misc.get_epoch()
+    pw_event = PeeWeeEvent.get(
+        (PeeWeeEvent.start_time < now ) &
+        (PeeWeeEvent.prepare_time < now ) &
+        (PeeWeeEvent.prepare_time > 0 ) &
+        (PeeWeeEvent.submit_time == 0)
+    )
+
+    # libmysql.db.query(sql)
+    # res = libmysql.db.store_result()
+    # row = res.fetch_row()
+    # if row:
+    if pw_event:
+        # event = Event()
+        # event.load(row[0])
 
         govobj = GovernanceObject()
-        print event.get_id()
-        govobj.load(event.get_id())
+        print pw_event.governance_object_id
+        govobj.load(pw_event.governance_object_id)
         hash = govobj.get_field("object_fee_tx")
 
         print "# SUBMIT PREPARED EVENTS FOR DASH NETWORK"
@@ -133,7 +167,8 @@ def submit_events():
                 print " -- confirmations: ", tx.get_confirmations()
 
                 if tx.get_confirmations() >= CONFIRMATIONS_REQUIRED:
-                    event.set_submitted()
+                    # event.set_submitted()
+                    pw_event.submit_time = misc.get_epoch()
                     print " -- executing event ... getting fee_tx hash"
 
                     result = dashd.rpc_command(govobj.get_submit_command())
@@ -141,7 +176,7 @@ def submit_events():
                         print " -- got result", result
 
                         govobj.update_field("object_hash", result)
-                        event.save()
+                        pw_event.save()
                         govobj.save()
                         libmysql.db.commit()
                         return 1
