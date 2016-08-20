@@ -123,14 +123,12 @@ class GovernanceObject:
         for (obj_type, obj_data) in objects:
 
             if obj_type == "proposal":
-               obj = Proposal()
-               obj.load_dict(obj_data)
-               self.subclasses.append((obj_type, obj))
+               obj = PeeWeeProposal(**obj_data)
 
             if obj_type == "trigger":
-               trigger = Superblock()
-               trigger.load_dict(obj_data)
-               self.subclasses.append((obj_type, trigger))
+               obj = PeeWeeSuperblock(**obj_data)
+
+            self.subclasses.append((obj_type, obj))
 
         return True
 
@@ -230,12 +228,13 @@ class GovernanceObject:
             """
 
             print sql % self.governance_object
-
             libmysql.db.query(sql % self.governance_object)
-
             self.save_subclasses()
 
             return self.governance_object["id"]
+
+
+    # === governance commands
 
     def get_prepare_command(self):
         cmd = "gobject prepare %(object_parent_hash)s %(object_revision)s %(object_creation_time)s %(object_name)s %(object_data)s" % self.governance_object
