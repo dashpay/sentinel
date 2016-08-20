@@ -14,6 +14,7 @@ import binascii
 
 # PeeWee models -- to replace hand-coded versions
 from models import PeeWeeEvent, PeeWeeSuperblock, PeeWeeProposal
+from pprint import pprint
 
 class GovernanceObjectMananger:
 
