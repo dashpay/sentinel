@@ -23,7 +23,6 @@ class GovernanceObjectMananger:
         sql = """
             select count(*) from governance_object
             where governance_object.object_name = %s
-            limit 1
         """
 
         cursor = libmysql.db.cursor()
