@@ -17,6 +17,8 @@ import dashd
 import random
 import govtypes
 
+from models import PeeWeeEvent, PeeWeeSuperblock, PeeWeeProposal, PeeWeeGovernanceObject
+
 """
  
  scripts/crontab.py 
@@ -39,32 +41,16 @@ import govtypes
 CONFIRMATIONS_REQUIRED = 7
 
 def clear_events():
-    sql = "delete from event"
-    libmysql.db.query(sql)
-    nrows = libmysql.db.affected_rows() 
-    libmysql.db.commit()
-    return nrows
+    return PeeWeeEvent.delete().execute()
 
 def clear_governance_objects():
-    sql = "delete from governance_object"
-    libmysql.db.query(sql)
-    nrows = libmysql.db.affected_rows() 
-    libmysql.db.commit()
-    return nrows
+    return PeeWeeGovernanceObject.delete().execute()
 
 def clear_superblocks():
-    sql = "delete from superblock"
-    libmysql.db.query(sql)
-    nrows = libmysql.db.affected_rows() 
-    libmysql.db.commit()
-    return nrows
+    return PeeWeeSuperblock.delete().execute()
 
 def clear_proposals():
-    sql = "delete from proposal"
-    libmysql.db.query(sql)
-    nrows = libmysql.db.affected_rows() 
-    libmysql.db.commit()
-    return nrows
+    return PeeWeeProposal.delete().execute()
 
 def reset():
     clear_events()
