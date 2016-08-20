@@ -15,6 +15,9 @@ import govtypes
 import random 
 import json 
 
+# PeeWee models -- to replace hand-coded versions
+from models import PeeWeeEvent, PeeWeeSuperblock, PeeWeeProposal
+
 from datetime import datetime, date, time
 
 from governance import GovernanceObject, GovernanceObjectMananger, Setting, Event
@@ -203,9 +206,12 @@ class SentinelShell(cmd.Cmd):
 
                 # CREATE EVENT TO TALK TO DASHD / PREPARE / SUBMIT OBJECT
                 
-                event = Event()
-                event.create_new(last_id)
-                event.save()
+                pwevent = PeeWeeEvent()
+                pwevent.governance_object_id = last_id
+                pwevent.save()
+                #event = Event()
+                #event.create_new(last_id)
+                #event.save()
                 libmysql.db.commit()
 
                 print "event queued successfully"
@@ -301,10 +307,24 @@ class SentinelShell(cmd.Cmd):
             newObj.create_new(parent, superblock_name, govtypes.trigger, govtypes.FIRST_REVISION, fee_tx)
             last_id = newObj.save()
 
+            #pWnewObj = PeeWeeGovernanceObject()
+            #pWnewObj.create_new(parent, superblock_name, govtypes.trigger,
+            #                    govtypes.FIRST_REVISION, fee_tx)
+            #last_id = pWnewObj.save()
+
             print last_id
 
             if last_id != None:
                 # ADD OUR PROPOSAL AS A SUB-OBJECT WITHIN GOVERNANCE OBJECT
+
+                pwsb = PeeWeeSuperblock()
+                pwsb.governance_object_id = last_id
+                #pwsb.type = govtypes.trigger
+                #pwsb.subtype = 'superblock'
+                pwsb.superblock_name = superblock_name
+                pwsb.event_block_height = event_block_height
+                pwsb.payment_addresses = ("|".join(list_addr))
+                pwsb.payment_amounts = ("|".join(list_amount))
 
                 c = Superblock()
                 c.set_field("governance_object_id", last_id)
@@ -322,9 +342,12 @@ class SentinelShell(cmd.Cmd):
 
                 # CREATE EVENT TO TALK TO DASHD / PREPARE / SUBMIT OBJECT
 
-                event = Event()
-                event.create_new(last_id)
-                event.save()
+                #event = Event()
+                #event.create_new(last_id)
+                #event.save()
+                pwevent = PeeWeeEvent()
+                pwevent.governance_object_id = last_id
+                pwevent.save()
                 libmysql.db.commit()
 
                 print "event queued successfully"
