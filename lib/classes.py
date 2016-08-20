@@ -175,29 +175,38 @@ class Superblock():
 
     def save(self):
 
+        values = [
+          self.trigger['governance_object_id'],
+          self.trigger['superblock_name'],
+          self.trigger['event_block_height'],
+          self.trigger['payment_addresses'],
+          self.trigger['payment_amounts'],
+        ]
+
         if self.loaded:
             sql = """
-                     UPDATE superblock SET
-                            governance_object_id="%(governance_object_id)s",
-                            superblock_name="%(superblock_name)s",
-                            event_block_height="%(event_block_height)s",
-                            payment_addresses="%(payment_addresses)s",
-                            payment_amounts="%(payment_amounts)s"
-                     WHERE  governance_object_id="%(governance_object_id)s"
+  UPDATE superblock
+     SET governance_object_id = %s
+       , superblock_name = %s
+       , event_block_height = %s
+       , payment_addresses = %s
+       , payment_amounts = %s
+  WHERE  governance_object_id = %s
             """
+            values.append(self.trigger['governance_object_id'])
         else:
             sql = """
-                     INSERT INTO superblock
-                                 (governance_object_id,superblock_name,event_block_height,payment_addresses,payment_amounts)
-                     VALUES
-                                 ("%(governance_object_id)s","%(superblock_name)s","%(event_block_height)s","%(payment_addresses)s","%(payment_amounts)s")
+  INSERT INTO superblock
+  ( governance_object_id
+  , superblock_name
+  , event_block_height
+  , payment_addresses
+  , payment_amounts )
+  VALUES (%s, %s, %s, %s, %s)
             """
 
-        print self.trigger
-
-        print sql % self.trigger
-
-        libmysql.db.query(sql % self.trigger)
+        cursor = libmysql.db.cursor()
+        cursor.execute(sql, values)
 
     def set_field(self, name, value):
         self.trigger[name] = value
