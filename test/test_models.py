@@ -42,3 +42,22 @@ def test_proposal(proposal):
   assert sorted_keys == fields
 
 
+# GovernanceObject model
+@pytest.fixture
+def governance_object():
+  from models import PeeWeeGovernanceObject
+  return PeeWeeGovernanceObject()
+
+def test_governance_object(governance_object):
+  d = governance_object.get_dict()
+  assert type(d) == type({})
+
+  fields = [ 'parent_id', 'object_creation_time', 'object_hash',
+      'object_parent_hash', 'object_name', 'object_type', 'object_revision',
+      'object_data', 'object_fee_tx' ]
+
+  fields.sort()
+  sorted_keys = d.keys()
+  sorted_keys.sort()
+  assert sorted_keys == fields
+
