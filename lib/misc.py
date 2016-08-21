@@ -15,9 +15,8 @@ from time import sleep
 sentinel_options = []
 
 def first_day_of_next_month():
-    d = datetime.datetime.now() #todays date
-    d + datetime.timedelta(days=29) #add 29 days
-    return date(d.year, d.month, 1) #get first of month
+    d = datetime.datetime.now() # today
+    return date(d.year, d.month + 1, 1) # get first day of next month
 
 def clean_hash(s):
     m = re.match('^([a-f0-9]+)$', s)
