@@ -29,6 +29,8 @@ def rpc_command(params):
 
     return output
 
+# NGM: this really isn't implemented yet, will probably remove 'til JSON-RPC
+# interface is finished
 
 class CTransaction():
     tx = {}
