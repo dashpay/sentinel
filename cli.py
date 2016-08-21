@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 
+# NGM/TODO: extract command-line parsing into a "parser".py script and focus on
+# business/dash logic
+
 import pdb
 import argparse
 import sys
@@ -206,13 +209,17 @@ class SentinelShell(cmd.Cmd):
                 pwevent.governance_object_id = last_id
                 pwevent.save()
 
-                # TODO: remove when finished with full ORM replacement
-                libmysql.db.commit()
+                # NGM/TODO:  I think it's easier to have autocommit on and only
+                # disable for specific transaction sequences which have to be
+                # atomic, and all at once and encapsulated so that it's easy to
+                # see the logic.
+                # PeeWeeEvent._meta.database.commit()
 
                 print "event queued successfully"
             else:
                 print "error:", newObj.last_error()
 
+                # PeeWeeEvent._meta.database.rollback()
                 # abort mysql commit
 
             return
@@ -323,13 +330,18 @@ class SentinelShell(cmd.Cmd):
                 pwevent.governance_object_id = last_id
                 pwevent.save()
 
-                # TODO: remove when finished with full ORM replacement
-                libmysql.db.commit()
+                # NGM/TODO:  I think it's easier to have autocommit on and only
+                # disable for specific transaction sequences which have to be
+                # atomic, and all at once and encapsulated so that it's easy to
+                # see the logic.
+                #
+                # PeeWeeEvent._meta.database.commit()
 
                 print "event queued successfully"
             else:
                 print "error:", newObj.last_error()
 
+                # PeeWeeEvent._meta.database.rollback()
                 # abort mysql commit
 
             return
