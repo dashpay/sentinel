@@ -12,6 +12,7 @@ import subprocess
 import json
 import sys
 
+# NGM/TODO: replace the guts of this with an actual JSON-RPC implementation
 def rpc_command(params):
     dashcmd = [ config.dash_cli , "--datadir=%s" % config.datadir , params ]
 
@@ -27,6 +28,7 @@ def rpc_command(params):
         output += line
 
     return output
+
 
 class CTransaction():
     tx = {}

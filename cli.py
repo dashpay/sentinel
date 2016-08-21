@@ -304,11 +304,6 @@ class SentinelShell(cmd.Cmd):
             newObj.create_new(parent, superblock_name, govtypes.trigger, govtypes.FIRST_REVISION, fee_tx)
             last_id = newObj.save()
 
-            #pWnewObj = PeeWeeGovernanceObject()
-            #pWnewObj.create_new(parent, superblock_name, govtypes.trigger,
-            #                    govtypes.FIRST_REVISION, fee_tx)
-            #last_id = pWnewObj.save()
-
             print last_id
 
             if last_id != None:
@@ -316,8 +311,6 @@ class SentinelShell(cmd.Cmd):
 
                 pwsb = PeeWeeSuperblock()
                 pwsb.governance_object_id = last_id
-                #pwsb.type = govtypes.trigger
-                #pwsb.subtype = 'superblock'
                 pwsb.superblock_name = superblock_name
                 pwsb.event_block_height = event_block_height
                 pwsb.payment_addresses = ("|".join(list_addr))

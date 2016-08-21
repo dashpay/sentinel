@@ -3,7 +3,6 @@
 """
     - look through events table, process what we're suppose to do
     - can include building fee transactions, submitting govobjs to the network
-
 """
 
 import sys
@@ -58,6 +57,7 @@ def reset():
     clear_superblocks()
     clear_proposals()
 
+# TODO: description of what exactly this method does
 def prepare_events():
     sql = """
     select id
@@ -122,6 +122,7 @@ def prepare_events():
     return 0
 
 
+# TODO: description of what exactly this method does
 def submit_events():
     sql = """
     select id
