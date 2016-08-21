@@ -288,6 +288,7 @@ class SentinelShell(cmd.Cmd):
             print list_addr
 
             # CREATE NAME ACCORDING TO STARTING DATE (NON-UNIQUE IS NOT AN ATTACK)
+            # NGM/TODO: why random? why not current epoch for this second?
             superblock_name = "sb" + str(random.randint(1000000, 9999999))
 
             # DOES THIS ALREADY EXIST?
@@ -295,15 +296,20 @@ class SentinelShell(cmd.Cmd):
                 print "governance object with that name already exists"
                 return
 
-            event_block_height = misc.normalize(args.event_block_height);
+            # NGM: might be easier to perform sanitization further up and
+            # separate from the actual logic...
+            event_block_height = misc.normalize(args.event_block_height)
 
-            print event_block_height
+            # NGM: Let's add a little more output so that the random numbers make sense...
+            print "event_block_height: %s" % event_block_height
 
+            # pw_gobj = PeeWeeGovernanceObject.create(**kwargs)
+            # pw_gobj.id
             newObj = GovernanceObject()
             newObj.create_new(parent, superblock_name, govtypes.trigger, govtypes.FIRST_REVISION)
             last_id = newObj.save()
 
-            print last_id
+            print "new GovernanceObject id = %d" % last_id
 
             if last_id != None:
                 # ADD OUR PROPOSAL AS A SUB-OBJECT WITHIN GOVERNANCE OBJECT
