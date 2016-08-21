@@ -4,7 +4,7 @@ import pdb
 import argparse
 import sys
 sys.path.append("lib")
-sys.path.append("scripts") 
+sys.path.append("scripts")
 
 import cmd
 import misc
@@ -13,8 +13,8 @@ import config
 import crontab
 import cmd, sys
 import govtypes
-import random 
-import json 
+import random
+import json
 
 # PeeWee models -- to replace hand-coded versions
 from models import PeeWeeEvent, PeeWeeSuperblock, PeeWeeProposal, PeeWeeGovernanceObject
@@ -38,11 +38,11 @@ commands = {}
 """
 
     Sentinel - v1
-    --------------------------------    
+    --------------------------------
 
      - this is an exact copy of our existing functionality, just reimplemented in python using sentinel
 
-    old commands: 
+    old commands:
         mnbudget prepare beer-reimbursement2 www.dashwhale.org/p/beer-reimbursement2 1 481864 XfoGXXFJtobHvjwfszWnbMNZCBAHJWeN6G 50
         mnbudget submit beer-reimbursement2 www.dashwhale.org/p/beer-reimbursement2 1 481864 XfoGXXFJtobHvjwfszWnbMNZCBAHJWeN6G 50 REPLACE_WITH_COLLATERAL_HASH
 
@@ -55,7 +55,7 @@ commands = {}
 
 """ SENTINEL AUTOCOMPLETE FOR CLI """
 
-# proposal --create [...] 
+# proposal --create [...]
 commands["proposal"] = [
     "--create",
     "--name",
@@ -65,7 +65,7 @@ commands["proposal"] = [
     "--end_date"
 ]
 
-# superblock --create [...] 
+# superblock --create [...]
 commands["trigger"] = [
     "--create",
     "--date",
@@ -128,7 +128,7 @@ class SentinelShell(cmd.Cmd):
         ### ------ CREATE METHOD -------- ####
 
         if args.create:
-            #--create --revision=1 --pubkey=XPubkey --username="user-cid" 
+            #--create --revision=1 --pubkey=XPubkey --username="user-cid"
             if not args.proposal_name:
                 print "proposal creation requires a proposal name, use --proposal_name"
                 return
@@ -167,7 +167,7 @@ class SentinelShell(cmd.Cmd):
                     end_epoch = datetime.strptime(args.end_date, '%Y/%m/%d').strftime('%s')
                 except:
                     pass
-            
+
             if start_epoch == 0 or end_epoch == 0:
                 print "start or end date has invalid format, YYYY/MM/DD or DD/MM/YY is required";
                 return
@@ -201,7 +201,7 @@ class SentinelShell(cmd.Cmd):
                 newObj.save()
 
                 # CREATE EVENT TO TALK TO DASHD / PREPARE / SUBMIT OBJECT
-                
+
                 pwevent = PeeWeeEvent()
                 pwevent.governance_object_id = last_id
                 pwevent.save()
@@ -217,7 +217,7 @@ class SentinelShell(cmd.Cmd):
 
             return
 
-        ### ------- ELSE PRINT HELP --------------- ### 
+        ### ------- ELSE PRINT HELP --------------- ###
 
         parser.print_help()
 
@@ -226,7 +226,7 @@ class SentinelShell(cmd.Cmd):
 
 
     """
-        Superblock 
+        Superblock
 
     """
     def do_superblock(self, arg):
@@ -256,7 +256,7 @@ class SentinelShell(cmd.Cmd):
         ### ------ CREATE METHOD -------- ####
 
         if args.create:
-            #--create --revision=1 --pubkey=XPubkey --username="user-cid" 
+            #--create --revision=1 --pubkey=XPubkey --username="user-cid"
             if not args.payments:
                 print "superblock creation requires a payment descriptions, use --payments"
                 return
@@ -271,7 +271,7 @@ class SentinelShell(cmd.Cmd):
             if len(payments) > 0:
                 pass
 
-            # COMPILE LIST OF ADDRESSES AND AMOUNTS 
+            # COMPILE LIST OF ADDRESSES AND AMOUNTS
 
             list_addr = []
             list_amount = []
@@ -334,7 +334,7 @@ class SentinelShell(cmd.Cmd):
 
             return
 
-        ### ------- ELSE PRINT HELP --------------- ### 
+        ### ------- ELSE PRINT HELP --------------- ###
 
         parser.print_help()
 
@@ -355,7 +355,7 @@ class SentinelShell(cmd.Cmd):
         parser.add_argument('-b', '--process_budget', help="Process superblock for monthly budget")
         parser.add_argument('-c', '--clear_events', help="Clear event queue (for testing only)", action="store_true")
         parser.add_argument('-r', '--reset', help="Hard reset (for testing only)", action="store_true")
-        
+
         args = None
         try:
             args = parser.parse_args(parse(arg))
@@ -364,7 +364,7 @@ class SentinelShell(cmd.Cmd):
 
         if not args:
             return
-    
+
         ### ------ NAME METHOD -------- ####
 
         if args.clear_events:
@@ -403,7 +403,7 @@ class SentinelShell(cmd.Cmd):
             print "unknown command"
             return
 
-        ### ------- ELSE PRINT HELP --------------- ### 
+        ### ------- ELSE PRINT HELP --------------- ###
 
         parser.print_help()
 
@@ -435,7 +435,7 @@ class SentinelShell(cmd.Cmd):
         parser.add_argument('-n', '--hash')
         parser.add_argument('-k', '--pubkey')
 
-        ### ------- ELSE PRINT HELP --------------- ### 
+        ### ------- ELSE PRINT HELP --------------- ###
 
         parser.print_help()
 
