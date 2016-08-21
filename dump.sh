@@ -14,4 +14,8 @@ run_query "$QUERY"
 QUERY="select * from governance_object\\G"
 run_query "$QUERY"
 
+QUERY="select * from superblock\\G"
+run_query "$QUERY"
+
+
 
