@@ -4,8 +4,8 @@ import re
 import sys
 import io
 sys.path.append("lib")
+
 from models import PeeWeeEvent, PeeWeeSuperblock, PeeWeeProposal, PeeWeeGovernanceObject
-#from datetime import datetime, date, time
 from time import time
 
 # e = PeeWeeEvent()
@@ -46,11 +46,20 @@ from time import time
 #)
 #print(e.id)
 
+#gobj = PeeWeeGovernanceObject.get()
+#print gobj.object_name
 
-gobj = PeeWeeGovernanceObject.get()
-print gobj.object_name
+#gobj.__setattr__( 'object_name' , '123456' )
+#gobj.save()
+#print gobj.object_name
 
-gobj.__setattr__( 'object_name' , '123456' )
-gobj.save()
-print gobj.object_name
+
+e = PeeWeeEvent.get()
+print e.start_time
+
+e.start_time = 1471751122
+e.save()
+
+# PeeWeeEvent._meta.database.commit()
+
 
