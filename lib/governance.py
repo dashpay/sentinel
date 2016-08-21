@@ -12,7 +12,7 @@ import misc
 import binascii
 
 # PeeWee models -- to replace hand-coded versions
-from models import PeeWeeEvent, PeeWeeSuperblock, PeeWeeProposal
+from models import PeeWeeEvent, PeeWeeSuperblock, PeeWeeProposal, PeeWeeGovernanceObject
 from pprint import pprint
 
 class GovernanceObject:
@@ -245,80 +245,4 @@ class GovernanceObject:
         """
 
         return True
-
-class Event:
-
-    def __init__(self):
-        self.event = {}
-
-    def create_new(self, last_id):
-        self.event["governance_object_id"] = last_id
-        self.event["start_time"] = misc.get_epoch()
-        self.event["prepare_time"] = 0
-        self.event["submit_time"] = 0
-        self.event["error_time"] = 0
-
-    def load(self, record_id):
-        sql = """
-            select
-                id,
-                governance_object_id,
-                start_time,
-                prepare_time,
-                submit_time,
-                error_time
-            from event where 
-                id = %s """
-
-        cursor = libmysql.db.cursor()
-        cursor.execute(sql, record_id)
-        row = cursor.fetchone()
-
-        if row:
-            print "retrieving record", row
-            (self.event["id"], self.event["governance_object_id"], self.event["start_time"],
-                self.event["prepare_time"], self.event["submit_time"], self.event["error_time"]) = row
-            print "loaded event successfully", record_id
-        else:
-            print "event not found", sql 
-
-        cursor.close()
-
-    def get_id(self):
-        return self.event["governance_object_id"]
-
-    def set_submitted(self):
-        self.event["submit_time"] = misc.get_epoch()
-
-    def save(self):
-        sql = """
-            INSERT INTO event 
-                (governance_object_id, start_time, prepare_time, submit_time)
-            VALUES
-                (%(governance_object_id)s,%(start_time)s,%(prepare_time)s,%(submit_time)s)
-            ON DUPLICATE KEY UPDATE
-                governance_object_id=%(governance_object_id)s,
-                start_time=%(start_time)s,
-                prepare_time=%(prepare_time)s,
-                submit_time=%(submit_time)s,
-                error_time=%(error_time)s
-        """
-
-        print "save governance_object"
-        print sql % self.event
-        libmysql.db.query(sql % self.event)
-
-    def update_field(self, field, value):
-        self.event[field] = value
-
-    def update_error_message(self, message):
-        sql = """
-            UPDATE event 
-               SET error_message = %s
-             WHERE id = %s
-        """
-
-        c = libmysql.db.cursor()
-        c.execute(sql , (message, self.event['id']))
-        c.close()
 
