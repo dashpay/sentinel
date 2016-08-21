@@ -10,6 +10,11 @@ class BaseModel(Model):
     def get_dict(self):
       dikt = {}
       for field_name in self._meta.sorted_field_names:
+
+        # don't include DB id
+        if "id" == field_name:
+            continue
+
         dikt[ field_name ] = self.__getattribute__( field_name )
       return dikt
 
@@ -99,5 +104,3 @@ class PeeWeeGovernanceObject(BaseModel):
 # === /models ===
 
 db.connect()
-
-
