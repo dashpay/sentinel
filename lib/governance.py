@@ -22,7 +22,6 @@ class GovernanceObject:
         self.subclasses = [] #object based subclasses
         # mysql record data
         self.governance_object = {}
-        self.fee_tx = None
 
     def get_hash(self):
         return self.governance_object.object_hash
@@ -45,9 +44,8 @@ class GovernanceObject:
         }
         self.governance_object = PeeWeeGovernanceObject(**empty_gobj_dict)
 
-    def create_new(self, parent, object_name, object_type, object_revision, fee_tx):
+    def create_new(self, parent, object_name, object_type, object_revision):
         creation_time = misc.get_epoch()
-        self.fee_tx = fee_tx
 
         if parent == None:
             return False
@@ -70,7 +68,6 @@ class GovernanceObject:
         self.object_name = object_name
         self.object_type = object_type
         self.object_revision = object_revision
-        self.fee_tx = fee_tx
         self.creation_time = creation_time
 
         return True
