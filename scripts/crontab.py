@@ -59,32 +59,16 @@ def reset():
 
 # TODO: description of what exactly this method does
 def prepare_events():
-    sql = """
-    select id
-      from event
-     where start_time < NOW()
-       and error_time = 0
-       and prepare_time = 0
-     limit 1
-    """
 
+    # select a single Event
     pw_event = PeeWeeEvent.get(
         (PeeWeeEvent.start_time < misc.get_epoch() ) &
         (PeeWeeEvent.error_time == 0) &
         (PeeWeeEvent.prepare_time == 0)
     )
 
-    # libmysql.db.query(sql)
-    # res = libmysql.db.store_result()
-    # row = res.fetch_row()
     if pw_event:
-        # pw_event = PeeWeeEvent.get(PeeWeeEvent.id == row[0])
-        # >>> User.get(User.id == 1)
-        # event = Event()
-        # event.load(row[0])
-
         govobj = GovernanceObject()
-        # govobj.load(event.get_id())
         govobj.load(pw_event.governance_object_id)
 
         print "# PREPARING EVENTS FOR DASH NETWORK"
@@ -99,24 +83,26 @@ def prepare_events():
         if misc.is_hash(result):
             hashtx = misc.clean_hash(result)
             print " -- got hash:", hashtx
+
             govobj.update_field("object_fee_tx", hashtx)
             govobj.save()
+
             pw_event.prepare_time = misc.get_epoch()
             pw_event.save()
-            # event.update_field("prepare_time", misc.get_epoch())
-            # event.save()
+
+            # TODO: remove this or implement transactions
             libmysql.db.commit()
+
             return 1
 
         else:
             print " -- got error:", result
-            # event.update_field("error_time", misc.get_epoch())
-            # event.save()
+
             pw_event.error_time = misc.get_epoch()
-            pw_event.save()
-            # separately update event error message -- NGM: why separately?
-            # event.update_error_message(result)
             pw_event.error_message = result
+            pw_event.save()
+
+            # TODO: remove this or implement transactions
             libmysql.db.commit()
 
     return 0
@@ -124,16 +110,6 @@ def prepare_events():
 
 # TODO: description of what exactly this method does
 def submit_events():
-    sql = """
-    select id
-      from event
-     where start_time < NOW()
-       and prepare_time < NOW()
-       and prepare_time > 0
-       and submit_time = 0
-       limit 1
-    """
-
     now = misc.get_epoch()
     pw_event = PeeWeeEvent.get(
         (PeeWeeEvent.start_time < now ) &
@@ -142,14 +118,7 @@ def submit_events():
         (PeeWeeEvent.submit_time == 0)
     )
 
-    # libmysql.db.query(sql)
-    # res = libmysql.db.store_result()
-    # row = res.fetch_row()
-    # if row:
     if pw_event:
-        # event = Event()
-        # event.load(row[0])
-
         govobj = GovernanceObject()
         print pw_event.governance_object_id
         govobj.load(pw_event.governance_object_id)
@@ -168,7 +137,6 @@ def submit_events():
                 print " -- confirmations: ", tx.get_confirmations()
 
                 if tx.get_confirmations() >= CONFIRMATIONS_REQUIRED:
-                    # event.set_submitted()
                     pw_event.submit_time = misc.get_epoch()
                     print " -- executing event ... getting fee_tx hash"
 
@@ -179,7 +147,10 @@ def submit_events():
                         govobj.update_field("object_hash", result)
                         pw_event.save()
                         govobj.save()
+
+                        # TODO: implement transactions or remove this
                         libmysql.db.commit()
+
                         return 1
                     else:
                         print " -- got error", result
