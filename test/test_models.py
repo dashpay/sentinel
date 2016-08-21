@@ -1,7 +1,7 @@
 import pytest
+import os
 import sys
-import io
-sys.path.append("lib")
+sys.path.append( os.path.join( os.path.dirname(__file__), '..', 'lib' ) )
 
 # setup/teardown?
 
