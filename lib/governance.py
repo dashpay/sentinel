@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import pdb
 import time
 import argparse
 import sys
@@ -140,8 +141,12 @@ class GovernanceObject:
 
     def save(self):
         self.compile_subclasses()
+
+        #pdb.set_trace()
         self.governance_object.save()
+
         self.save_subclasses()
+
         return self.governance_object.id
 
     # === governance commands
