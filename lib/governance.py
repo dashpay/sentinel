@@ -46,8 +46,6 @@ class GovernanceObject:
         self.governance_object = PeeWeeGovernanceObject(**empty_gobj_dict)
 
     def create_new(self, parent, object_name, object_type, object_revision):
-        creation_time = misc.get_epoch()
-
         if parent == None:
             return False
 
@@ -55,7 +53,7 @@ class GovernanceObject:
             "parent_id" : parent.get_id(),
             "object_hash" : "",
             "object_parent_hash" : parent.get_hash(),
-            "object_creation_time" : creation_time,
+            "object_creation_time" : misc.get_epoch(),
             "object_name" : object_name,
             "object_type" : object_type,
             "object_revision" : object_revision,
