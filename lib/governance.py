@@ -29,11 +29,10 @@ class GovernanceObject:
         return self.governance_object.object_hash
 
     def get_id(self):
-        return self.governance_object.id
+        return self.governance_object.id or 0
 
     def init(self):
         empty_gobj_dict = {
-            "id" : 0,
             "parent_id" : 0,
             "object_hash" : 0,
             "object_parent_hash" : 0,
@@ -53,7 +52,6 @@ class GovernanceObject:
             return False
 
         new_gobj_dict = {
-            "id" : 0,
             "parent_id" : parent.get_id(),
             "object_hash" : "",
             "object_parent_hash" : parent.get_hash(),
@@ -61,7 +59,7 @@ class GovernanceObject:
             "object_name" : object_name,
             "object_type" : object_type,
             "object_revision" : object_revision,
-            "object_fee_tx" : None,
+            "object_fee_tx" : '',
             "object_data" : ""
         }
         self.governance_object = PeeWeeGovernanceObject(**new_gobj_dict)
