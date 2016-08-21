@@ -25,13 +25,13 @@ class GovernanceObject:
         self.fee_tx = None
 
     def get_hash(self):
-        return self.governance_object["object_hash"];
+        return self.governance_object.object_hash
 
     def get_id(self):
-        return self.governance_object["id"]
+        return self.governance_object.id
 
     def init(self):
-        self.governance_object = {
+        empty_gobj_dict = {
             "id" : 0,
             "parent_id" : 0,
             "object_hash" : 0,
@@ -43,6 +43,7 @@ class GovernanceObject:
             "object_fee_tx" : "",
             "object_data" : binascii.hexlify(json.dumps([]))
         }
+        self.governance_object = PeeWeeGovernanceObject(**empty_gobj_dict)
 
     def create_new(self, parent, object_name, object_type, object_revision, fee_tx):
         creation_time = misc.get_epoch()
@@ -51,7 +52,7 @@ class GovernanceObject:
         if parent == None:
             return False
 
-        self.governance_object = {
+        new_gobj_dict = {
             "id" : 0,
             "parent_id" : parent.get_id(),
             "object_hash" : "",
@@ -63,7 +64,9 @@ class GovernanceObject:
             "object_fee_tx" : fee_tx.get_hash(),
             "object_data" : ""
         }
+        self.governance_object = PeeWeeGovernanceObject(**new_gobj_dict)
 
+        # NGM: hmm....
         self.object_name = object_name
         self.object_type = object_type
         self.object_revision = object_revision
