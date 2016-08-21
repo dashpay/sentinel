@@ -21,7 +21,8 @@ class GovernanceObject:
     def __init__(self):
         self.subclasses = [] #object based subclasses
         # mysql record data
-        self.governance_object = {}
+        # self.governance_object = {}
+        self.governance_object = PeeWeeGovernanceObject()
 
     def get_hash(self):
         return self.governance_object.object_hash
@@ -64,12 +65,6 @@ class GovernanceObject:
         }
         self.governance_object = PeeWeeGovernanceObject(**new_gobj_dict)
 
-        # NGM: hmm....
-        self.object_name = object_name
-        self.object_type = object_type
-        self.object_revision = object_revision
-        self.creation_time = creation_time
-
         return True
 
     """
@@ -86,7 +81,7 @@ class GovernanceObject:
         for (obj_type, obj) in self.subclasses:
             objects.append((obj_type, obj.get_dict()))
 
-        self.governance_object["object_data"] = binascii.hexlify(json.dumps(objects, sort_keys = True))
+        self.governance_object.object_data = binascii.hexlify(json.dumps(objects, sort_keys = True))
 
         return True
 
@@ -99,7 +94,7 @@ class GovernanceObject:
         return True
 
     def load_subclasses(self):
-        json = binascii.unhexlify(self.governance_object["object_data"])
+        json = binascii.unhexlify(self.governance_object.object_data)
         objects = json.loads( json )
 
         ## todo -- make plugin system for subclasses?
@@ -120,60 +115,28 @@ class GovernanceObject:
     """
 
     def load(self, record_id):
-
         self.init()
 
-        sql = """
-            select
-                id,
-                parent_id,
-                object_creation_time,
-                object_hash,
-                object_parent_hash,
-                object_name,
-                object_type,
-                object_revision,
-                object_data,
-                object_fee_tx
-            from governance_object where
-                id = %s
-        """ % record_id
+        gobj = PeeWeeGovernanceObject.get(PeeWeeGovernanceObject.id == record_id)
 
-        libmysql.db.query(sql)
-        res = libmysql.db.store_result()
-        row = res.fetch_row()
+        if gobj:
+            self.governance_object = gobj
 
-        if row:
-            (
-                self.governance_object["id"],
-                self.governance_object["parent_id"],
-                self.governance_object["object_creation_time"],
-                self.governance_object["object_hash"],
-                self.governance_object["object_parent_hash"],
-                self.governance_object["object_name"],
-                self.governance_object["object_type"],
-                self.governance_object["object_revision"],
-                self.governance_object["object_data"],
-                self.governance_object["object_fee_tx"]
-            ) = row[0]
-
-            print "loaded govobj successfully: ", self.governance_object["id"]
+            print "loaded govobj successfully: ", self.governance_object.id
 
             self.load_subclasses()
         else:
             print "object not found"
             print
-            print "SQL:"
-            print sql
-            print
+            # print "SQL:"
+            # print sql
+            # print
 
-    # TODO: ensure the ORM class is updated
     def update_field(self, field, value):
-        self.governance_object[field] = value
+        self.governance_object.__setattr__(field, value)
 
-    # TODO: ensure the ORM class is updated
     def get_field(self, field):
-        return self.governance_object[field]
+        return self.governance_object.__getattr__(field)
 
     def save(self):
         self.compile_subclasses()
