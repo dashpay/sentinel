@@ -35,15 +35,22 @@ from time import time
 #pw = PeeWeeEvent.get(PeeWeeEvent.id == 9)
 #print pw.governance_object_id
 
-epoch = int(time())
+# epoch = int(time())
 
 # SELECT t1`.`id`, `t1`.`governance_object_id`, `t1`.`start_time`, `t1`.`prepare_time`, `t1`.`submit_time`, `t1`.`error_time`, `t1`.`error_message` FROM `event` AS t1 WHERE (((`t1`.`start_time` < %s) AND (`t1`.`error_time` = %s)) AND (`t1`.`prepare_time` = %s))', [1471728359, 0, 0])
+#
+#e = PeeWeeEvent.get(
+#    (PeeWeeEvent.start_time < epoch ) &
+#    (PeeWeeEvent.error_time == 0) &
+#    (PeeWeeEvent.prepare_time == 0)
+#)
+#print(e.id)
 
-e = PeeWeeEvent.get(
-    (PeeWeeEvent.start_time < epoch ) &
-    (PeeWeeEvent.error_time == 0) &
-    (PeeWeeEvent.prepare_time == 0)
-)
-print(e.id)
 
+gobj = PeeWeeGovernanceObject.get()
+print gobj.object_name
+
+gobj.__setattr__( 'object_name' , '123456' )
+gobj.save()
+print gobj.object_name
 
