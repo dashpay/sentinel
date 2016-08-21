@@ -11,7 +11,6 @@ sys.path.append("scripts")
 
 import cmd
 import misc
-import libmysql
 import config
 import crontab
 import cmd, sys
@@ -32,9 +31,6 @@ crontab.CONFIRMATIONS_REQUIRED = 1
 
 parent = GovernanceObject()
 parent.init()
-
-db_creds = config.db_config
-db = libmysql.connect(db_creds['hostname'], db_creds['username'], db_creds['password'], db_creds['database'])
 
 commands = {}
 
