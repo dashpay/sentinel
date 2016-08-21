@@ -61,7 +61,7 @@ class GovernanceObject:
             "object_name" : object_name,
             "object_type" : object_type,
             "object_revision" : object_revision,
-            "object_fee_tx" : fee_tx.get_hash(),
+            "object_fee_tx" : None,
             "object_data" : ""
         }
         self.governance_object = PeeWeeGovernanceObject(**new_gobj_dict)
@@ -170,64 +170,25 @@ class GovernanceObject:
             print sql
             print
 
+    # TODO: ensure the ORM class is updated
     def update_field(self, field, value):
         self.governance_object[field] = value
 
+    # TODO: ensure the ORM class is updated
     def get_field(self, field):
         return self.governance_object[field]
 
     def save(self):
         self.compile_subclasses()
-
-        if self.governance_object["id"] == 0:
-            sql = """
-                INSERT INTO governance_object
-                    (parent_id, object_hash, object_parent_hash, object_creation_time, object_name, object_type, object_revision,
-                        object_fee_tx, object_data)
-                VALUES
-                    ('%(parent_id)s', '%(object_hash)s', '%(object_parent_hash)s',  '%(object_creation_time)s', '%(object_name)s',  '%(object_type)s', '%(object_revision)s',
-                        '%(object_fee_tx)s', '%(object_data)s')
-            """
-
-            print sql % self.governance_object
-
-            libmysql.db.query(sql % self.governance_object)
-            self.save_subclasses()
-
-            self.governance_object["id"] = libmysql.db.insert_id()
-            return self.governance_object["id"]
-
-        else:
-            sql = """
-                UPDATE governance_object SET
-                    parent_id='%(parent_id)s',
-                    object_hash='%(object_hash)s',
-                    object_parent_hash='%(object_parent_hash)s',
-                    object_creation_time='%(object_creation_time)s',
-                    object_name='%(object_name)s',
-                    object_type='%(object_type)s',
-                    object_revision='%(object_revision)s',
-                    object_fee_tx='%(object_fee_tx)s',
-                    object_data='%(object_data)s'
-                WHERE
-                    id='%(id)s'
-            """
-
-            print sql % self.governance_object
-            libmysql.db.query(sql % self.governance_object)
-            self.save_subclasses()
-
-            return self.governance_object["id"]
-
+        self.governance_object.save()
+        self.save_subclasses()
+        return self.governance_object.id
 
     # === governance commands
 
     def get_prepare_command(self):
         cmd = "gobject prepare %(object_parent_hash)s %(object_revision)s %(object_creation_time)s %(object_name)s %(object_data)s" % self.governance_object
         return cmd
-
-    def get_fee_tx_age(self):
-        return -1
 
     def get_submit_command(self):
         cmd = "gobject submit %(object_fee_tx)s %(object_parent_hash)s %(object_revision)s %(object_creation_time)s %(object_name)s %(object_data)s" % self.governance_object
