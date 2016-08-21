@@ -17,7 +17,7 @@ class BaseModel(Model):
       database = db
 
 class PeeWeeAction(BaseModel):
-    id = IntegerField(primary_key = True)
+    #id = IntegerField(primary_key = True)
     governance_object_id = IntegerField(unique=True)
     absolute_yes_count = IntegerField()
     yes_count = IntegerField()
@@ -27,7 +27,7 @@ class PeeWeeAction(BaseModel):
       db_table = 'action'
 
 class PeeWeeEvent(BaseModel):
-    id = IntegerField(primary_key = True)
+    #id = IntegerField(primary_key = True)
     governance_object_id = IntegerField(unique=True)
     start_time = IntegerField(default=int(time()))
     prepare_time = IntegerField()
@@ -47,7 +47,7 @@ class User(BaseModel):
       db_table = 'users'
 
 class Setting(BaseModel):
-    id = IntegerField(primary_key = True)
+    #id = IntegerField(primary_key = True)
     datetime = IntegerField()
     setting  = CharField()
     name     = CharField()
@@ -56,7 +56,7 @@ class Setting(BaseModel):
       db_table = 'setting'
 
 class PeeWeeProposal(BaseModel):
-    id = IntegerField(primary_key = True)
+    #id = IntegerField(primary_key = True)
     governance_object_id = IntegerField(unique=True)
     proposal_name = CharField(unique=True)
     start_epoch = IntegerField()
@@ -67,7 +67,7 @@ class PeeWeeProposal(BaseModel):
       db_table = 'proposal'
 
 class PeeWeeSuperblock(BaseModel):
-    id = IntegerField(primary_key = True)
+    #id = IntegerField(primary_key = True)
     governance_object_id = IntegerField(unique=True)
     superblock_name      = CharField() # unique?
     event_block_height   = IntegerField()
@@ -77,7 +77,7 @@ class PeeWeeSuperblock(BaseModel):
       db_table = 'superblock'
 
 class PeeWeeGovernanceObject(BaseModel):
-    id = IntegerField(primary_key = True)
+    #id = IntegerField(primary_key = True)
     parent_id = IntegerField()
     object_creation_time = IntegerField()
     object_hash = CharField()
