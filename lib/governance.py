@@ -7,7 +7,7 @@ import json
 sys.path.append("../")
 sys.path.append("../scripts")
 
-import libmysql 
+import libmysql
 import misc
 import binascii
 
@@ -78,14 +78,14 @@ class GovernanceObject:
     """
         Subclasses:
 
-        - Governance objects can be converted into many subclasses by using the data field. 
+        - Governance objects can be converted into many subclasses by using the data field.
         - See subclasses.py for more information
 
     """
 
     def compile_subclasses(self):
         objects = []
-        
+
         for (obj_type, obj) in self.subclasses:
             objects.append((obj_type, obj.get_dict()))
 
@@ -138,14 +138,14 @@ class GovernanceObject:
                 object_revision,
                 object_data,
                 object_fee_tx
-            from governance_object where 
+            from governance_object where
                 id = %s
         """ % record_id
 
         libmysql.db.query(sql)
         res = libmysql.db.store_result()
         row = res.fetch_row()
-        
+
         if row:
             (
                 self.governance_object["id"],
@@ -165,7 +165,7 @@ class GovernanceObject:
             self.load_subclasses()
         else:
             print "object not found"
-            print 
+            print
             print "SQL:"
             print sql
             print
@@ -182,10 +182,10 @@ class GovernanceObject:
         if self.governance_object["id"] == 0:
             sql = """
                 INSERT INTO governance_object
-                    (parent_id, object_hash, object_parent_hash, object_creation_time, object_name, object_type, object_revision, 
+                    (parent_id, object_hash, object_parent_hash, object_creation_time, object_name, object_type, object_revision,
                         object_fee_tx, object_data)
                 VALUES
-                    ('%(parent_id)s', '%(object_hash)s', '%(object_parent_hash)s',  '%(object_creation_time)s', '%(object_name)s',  '%(object_type)s', '%(object_revision)s', 
+                    ('%(parent_id)s', '%(object_hash)s', '%(object_parent_hash)s',  '%(object_creation_time)s', '%(object_name)s',  '%(object_type)s', '%(object_revision)s',
                         '%(object_fee_tx)s', '%(object_data)s')
             """
 
@@ -209,7 +209,7 @@ class GovernanceObject:
                     object_revision='%(object_revision)s',
                     object_fee_tx='%(object_fee_tx)s',
                     object_data='%(object_data)s'
-                WHERE 
+                WHERE
                     id='%(id)s'
             """
 
@@ -238,14 +238,13 @@ class GovernanceObject:
 
     def add_subclass(self, typename, obj):
         self.subclasses.append((typename,obj))
-        
+
     def is_valid(self):
         """
             - check tree position validity
-            - check signatures of owners 
+            - check signatures of owners
             - check validity of revision (must be n+1)
             - check validity of field data (address format, etc)
         """
 
         return True
-
