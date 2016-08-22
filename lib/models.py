@@ -18,7 +18,7 @@ db = MySQLDatabase(dbname, **db_cfg)
 class BaseModel(Model):
     def get_dict(self):
       dikt = {}
-      for field_name in self._meta.sorted_field_names:
+      for field_name in self._meta.columns.keys():
 
         # don't include DB id
         if "id" == field_name:
@@ -30,9 +30,31 @@ class BaseModel(Model):
     class Meta:
       database = db
 
+
+class PeeWeeGovernanceObject(BaseModel):
+    #id = IntegerField(primary_key = True)
+    parent_id = IntegerField()
+    object_creation_time = IntegerField()
+    object_hash = CharField()
+    object_parent_hash = CharField()
+    object_name = CharField()
+    object_type = IntegerField()
+    object_revision = IntegerField()
+    object_data = TextField()
+    object_fee_tx = CharField()
+
+    class Meta:
+      db_table = 'governance_object'
+
+    @classmethod
+    def object_with_name_exists(self, name):
+        count = self.select().where(self.object_name == name).count()
+        return count > 0
+
 class PeeWeeAction(BaseModel):
     #id = IntegerField(primary_key = True)
-    governance_object_id = IntegerField(unique=True)
+    #governance_object_id = IntegerField(unique=True)
+    governance_object = ForeignKeyField(PeeWeeGovernanceObject, related_name = 'action')
     absolute_yes_count = IntegerField()
     yes_count = IntegerField()
     no_count = IntegerField()
@@ -42,7 +64,8 @@ class PeeWeeAction(BaseModel):
 
 class PeeWeeEvent(BaseModel):
     #id = IntegerField(primary_key = True)
-    governance_object_id = IntegerField(unique=True)
+    #governance_object_id = IntegerField(unique=True)
+    governance_object = ForeignKeyField(PeeWeeGovernanceObject, related_name = 'event')
     start_time = IntegerField(default=int(time()))
     prepare_time = IntegerField()
     submit_time = IntegerField()
@@ -71,7 +94,8 @@ class Setting(BaseModel):
 
 class PeeWeeProposal(BaseModel):
     #id = IntegerField(primary_key = True)
-    governance_object_id = IntegerField(unique=True)
+    #governance_object_id = IntegerField(unique=True)
+    governance_object = ForeignKeyField(PeeWeeGovernanceObject, related_name = 'proposal')
     proposal_name = CharField(unique=True)
     start_epoch = IntegerField()
     end_epoch = IntegerField()
@@ -82,33 +106,14 @@ class PeeWeeProposal(BaseModel):
 
 class PeeWeeSuperblock(BaseModel):
     #id = IntegerField(primary_key = True)
-    governance_object_id = IntegerField(unique=True)
+    #governance_object_id = IntegerField(unique=True)
+    governance_object = ForeignKeyField(PeeWeeGovernanceObject, related_name = 'superblock')
     superblock_name      = CharField() # unique?
     event_block_height   = IntegerField()
     payment_addresses    = TextField()
     payment_amounts      = TextField()
     class Meta:
       db_table = 'superblock'
-
-class PeeWeeGovernanceObject(BaseModel):
-    #id = IntegerField(primary_key = True)
-    parent_id = IntegerField()
-    object_creation_time = IntegerField()
-    object_hash = CharField()
-    object_parent_hash = CharField()
-    object_name = CharField()
-    object_type = IntegerField()
-    object_revision = IntegerField()
-    object_data = TextField()
-    object_fee_tx = CharField()
-
-    class Meta:
-      db_table = 'governance_object'
-
-    @classmethod
-    def object_with_name_exists(self, name):
-        count = self.select().where(self.object_name == name).count()
-        return count > 0
 
 # === /models ===
 
