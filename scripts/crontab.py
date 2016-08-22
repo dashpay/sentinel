@@ -5,8 +5,10 @@
     - can include building fee transactions, submitting govobjs to the network
 """
 
+import os
 import sys
-sys.path.append("lib")
+sys.path.append( os.path.join( os.path.dirname(__file__), '..', 'lib' ) )
+sys.path.append( os.path.join( os.path.dirname(__file__), '..') )
 
 from governance  import GovernanceObject
 import config
