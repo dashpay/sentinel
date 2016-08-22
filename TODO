@@ -24,6 +24,8 @@
 
 * a test suite which passes EVERY TIME with EVERY COMMIT -- testing DB, etc. Everything.
 
+* test do_proposal and do_superblock, etc. all the "do"'s.
+
 * talk to dashd via JSONRPC
   - using a shell-out to dash-cli is kludgey
   - dash-cli simply uses the JSON-RPC credentials/interface also
