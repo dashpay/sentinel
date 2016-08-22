@@ -1,4 +1,27 @@
 
+    Sentinel - v1
+    --------------------------------
+
+     - this is an exact copy of our existing functionality, just reimplemented in python using sentinel
+
+    old commands:
+        mnbudget prepare beer-reimbursement2 www.dashwhale.org/p/beer-reimbursement2 1 481864 XfoGXXFJtobHvjwfszWnbMNZCBAHJWeN6G 50
+        mnbudget submit beer-reimbursement2 www.dashwhale.org/p/beer-reimbursement2 1 481864 XfoGXXFJtobHvjwfszWnbMNZCBAHJWeN6G 50 REPLACE_WITH_COLLATERAL_HASH
+
+    1. proposal --create --proposal_name="beer-reimbursement" --description_url="www.dashwhale.org/p/beer-reimbursement" --start-date="2017/1/1" --end-date="2017/6/1"
+    2. cron process (will automatically submit the proposal to the network)
+
+    def get_prepare_command(self):
+        cmd = "gobject prepare %(object_parent_hash)s %(object_revision)s %(object_creation_time)s %(object_name)s %(object_data)s" % self.governance_object
+        return cmd
+
+    def get_submit_command(self):
+        cmd = "gobject submit %(object_fee_tx)s %(object_parent_hash)s %(object_revision)s %(object_creation_time)s %(object_name)s %(object_data)s" % self.governance_object
+        return cmd
+
+
+
+
 * a test suite which passes EVERY TIME with EVERY COMMIT -- testing DB, etc. Everything.
 
 * talk to dashd via JSONRPC
