@@ -74,8 +74,10 @@ def prepare_events():
 
         print "# PREPARING EVENTS FOR DASH NETWORK"
         print
-        print " -- cmd : ", govobj.get_prepare_command()
+        print " -- cmd : [%s]" % govobj.get_prepare_command()
         print
+
+        sys.exit(2)
 
         result = dashd.rpc_command(govobj.get_prepare_command())
         print " -- executing event ... getting fee_tx hash"
@@ -159,3 +161,5 @@ def submit_events():
                     print " -- waiting for confirmation"
 
         return 0
+
+prepare_events()
