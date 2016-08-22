@@ -13,7 +13,6 @@ newObj.init(
 )
 last_id = newObj.save()
 
-
 if last_id != None:
     # ADD OUR PROPOSAL AS A SUB-OBJECT WITHIN GOVERNANCE OBJECT
     pw_proposal = PeeWeeProposal()
@@ -42,7 +41,7 @@ if last_id != None:
 
     print "event queued successfully"
 else:
-    print "error:", newObj.last_error()
+    print "error: Could not save GovernanceObject"
 
     # PeeWeeEvent._meta.database.rollback()
     # abort mysql commit
