@@ -14,15 +14,17 @@ newObj.init(
 last_id = newObj.save()
 
 if last_id != None:
+
     # ADD OUR PROPOSAL AS A SUB-OBJECT WITHIN GOVERNANCE OBJECT
-    pw_proposal = PeeWeeProposal()
-    pw_proposal.governance_object_id = last_id
-    pw_proposal.proposal_name = args.proposal_name
-    pw_proposal.description_url = args.description_url
-    pw_proposal.start_epoch = start_epoch
-    pw_proposal.end_epoch = end_epoch
-    pw_proposal.payment_address = args.payment_address
-    pw_proposal.payment_amount = args.payment_amount
+    pw_proposal = PeeWeeProposal(
+        governance_object_id = last_id,
+        proposal_name = args.proposal_name,
+        description_url = args.description_url,
+        start_epoch = start_epoch,
+        end_epoch = end_epoch,
+        payment_address = args.payment_address,
+        payment_amount = args.payment_amount
+    )
 
     # APPEND TO GOVERNANCE OBJECT
     newObj.add_subclass("proposal", pw_proposal)
