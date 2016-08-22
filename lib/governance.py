@@ -66,7 +66,6 @@ class GovernanceObject:
     def save_subclasses(self):
         objects = []
         for (obj_type, obj) in self.subclasses:
-            print obj
             obj.save()
 
         return True
@@ -99,16 +98,12 @@ class GovernanceObject:
 
         if gobj:
             self.governance_object = gobj
-
             print "loaded govobj successfully: ", self.governance_object.id
 
             self.load_subclasses()
         else:
             print "object not found"
             print
-            # print "SQL:"
-            # print sql
-            # print
 
     def update_field(self, field, value):
         self.governance_object.__setattr__(field, value)
@@ -129,7 +124,7 @@ class GovernanceObject:
     # === governance commands
 
     def get_prepare_command(self):
-    #    cmd = "gobject prepare %(object_parent_hash)s %(object_revision)s %(object_creation_time)s %(object_name)s %(object_data)s" % self.governance_object
+        # cmd = "gobject prepare %(object_parent_hash)s %(object_revision)s %(object_creation_time)s %(object_name)s %(object_data)s" % self.governance_object
 
         cmd = "gobject prepare %s %s %s %s %s" % (
             self.governance_object.object_parent_hash,
@@ -137,7 +132,7 @@ class GovernanceObject:
             self.governance_object.object_creation_time,
             self.governance_object.object_name,
             self.governance_object.object_data
-          )
+        )
 
         return cmd
 
