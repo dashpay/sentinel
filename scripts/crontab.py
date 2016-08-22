@@ -9,7 +9,6 @@ import sys
 sys.path.append("lib")
 
 from governance  import GovernanceObject
-import libmysql
 import config
 import misc
 import dashd
@@ -91,7 +90,7 @@ def prepare_events():
             pw_event.save()
 
             # TODO: remove this or implement transactions
-            libmysql.db.commit()
+            #libmysql.db.commit()
 
             return 1
 
@@ -103,7 +102,7 @@ def prepare_events():
             pw_event.save()
 
             # TODO: remove this or implement transactions
-            libmysql.db.commit()
+            #libmysql.db.commit()
 
     return 0
 
@@ -149,7 +148,7 @@ def submit_events():
                         govobj.save()
 
                         # TODO: implement transactions or remove this
-                        libmysql.db.commit()
+                        #libmysql.db.commit()
 
                         return 1
                     else:

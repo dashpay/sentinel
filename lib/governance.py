@@ -8,7 +8,6 @@ import json
 sys.path.append("../")
 sys.path.append("../scripts")
 
-import libmysql
 import misc
 import binascii
 
