@@ -10,11 +10,9 @@ sys.path.append( os.path.join( os.path.dirname(__file__), '..', 'lib' ) )
 
 def setup():
     pass
-    #this is doog.
 
 def teardown():
     pass
-    #you SON OF A BITCH!
 
 # pw_event = PeeWeeEvent.get(
 # (PeeWeeEvent.start_time < misc.get_epoch() ) &
@@ -25,8 +23,6 @@ def teardown():
 # if pw_event:
 # govobj = GovernanceObject()
 # govobj.load(pw_event.governance_object_id)
-
-# setup/teardown?
 
 # Event model
 
@@ -40,12 +36,11 @@ def governance_object():
   govobj = GovernanceObject()
   govobj.init()
 
-  pprint(vars(govobj.governance_object._meta.database))
-
   return govobj
 
+
 def test_prepare_command(governance_object):
-  d = governance_object.get_dict()
+  d = governance_object.governance_object.get_dict()
   assert type(d) == type({})
 
   fields = [ 'parent_id', 'object_creation_time', 'object_hash',
