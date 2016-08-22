@@ -14,6 +14,11 @@ def setup():
 def teardown():
     pass
 
+
+# @pytest.fixture
+# def proposal_name():
+#     return "chrono-trigger-party"
+
 # pw_event = PeeWeeEvent.get(
 # (PeeWeeEvent.start_time < misc.get_epoch() ) &
 # (PeeWeeEvent.error_time == 0) &
@@ -34,7 +39,8 @@ def governance_object():
   from models import PeeWeeGovernanceObject
   from governance import GovernanceObject
   govobj = GovernanceObject()
-  govobj.init()
+  govobj.init(object_name = "chrono-trigger-party", object_creation_time = 1471899315)
+  govobj.save()
 
   return govobj
 
@@ -51,18 +57,36 @@ def governance_object():
 
 
 def test_prepare_command(governance_object):
+  from models import PeeWeeProposal
+
   #d = governance_object.governance_object.get_dict()
   #assert type(d) == type({})
 
   go = governance_object
-  gobj_id = go.save()
+  goid = go.governance_object.id
+  proposal_name = "chrono-trigger-party"
+
+  description_url = "https://dashcentral.com/chrono-trigger-party"
+  payment_address = "yYe8KwyaUu5YswSYmB3q3ryx8XTUu9y7Ui"
+  payment_amount = 7
+
+  pw_proposal = PeeWeeProposal(
+    start_epoch = 1472706000,
+    end_epoch = 1475298000,
+    # governance_object_id = goid,
+    governance_object_id = 5,
+    proposal_name = proposal_name,
+    description_url = description_url,
+    payment_address = payment_address,
+    payment_amount = payment_amount
+  )
+  go.add_subclass("proposal", pw_proposal)
+  go.compile_subclasses()
+  # go.save()
+  # pw_proposal.save()
 
 
-  fields = [ 'parent_id', 'object_creation_time', 'object_hash',
-      'object_parent_hash', 'object_name', 'object_type', 'object_revision',
-      'object_data', 'object_fee_tx' ]
+  # gobject_command = "gobject prepare 0 1 1471898632 %s 5b5b2270726f706f73616c222c207b22656e645f65706f6368223a20313437353239383030302c2022676f7665726e616e63655f6f626a6563745f6964223a20352c20227061796d656e745f61646472657373223a2022795965384b77796155753559737753596d4233713372797838585455753979375569222c20227061796d656e745f616d6f756e74223a20372c202270726f706f73616c5f6e616d65223a20226368726f6e6f2d747269676765722d7061727479222c202273746172745f65706f6368223a20313437323730363030307d5d5d" % proposal_name
+  gobject_command = "gobject prepare 0 1 1471899315 chrono-trigger-party 5b5b2270726f706f73616c222c207b22656e645f65706f6368223a20313437353239383030302c2022676f7665726e616e63655f6f626a6563745f6964223a20352c20227061796d656e745f61646472657373223a2022795965384b77796155753559737753596d4233713372797838585455753979375569222c20227061796d656e745f616d6f756e74223a20372c202270726f706f73616c5f6e616d65223a20226368726f6e6f2d747269676765722d7061727479222c202273746172745f65706f6368223a20313437323730363030307d5d5d"
 
-  fields.sort()
-  sorted_keys = d.keys()
-  sorted_keys.sort()
-  assert sorted_keys == fields
+  assert go.get_prepare_command() == gobject_command
