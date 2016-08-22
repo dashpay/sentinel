@@ -18,6 +18,7 @@ import random
 import govtypes
 
 from models import PeeWeeEvent, PeeWeeSuperblock, PeeWeeProposal, PeeWeeGovernanceObject
+import pdb
 
 """
 
@@ -72,6 +73,7 @@ def prepare_events():
         govobj = GovernanceObject()
         govobj.load(pw_event.governance_object_id)
 
+        pdb.set_trace()
         print "# PREPARING EVENTS FOR DASH NETWORK"
         print
         print " -- cmd : [%s]" % govobj.get_prepare_command()
