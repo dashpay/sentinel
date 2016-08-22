@@ -24,38 +24,26 @@ class GovernanceObject:
         # self.governance_object = {}
         self.governance_object = PeeWeeGovernanceObject()
 
-    def init(self):
-        empty_gobj_dict = {
+    def init(self, **kwargs):
+        new_gobj_dict = {
             "parent_id" : 0,
             "object_hash" : 0,
             "object_parent_hash" : 0,
-            "object_creation_time" : 0,
-            "object_name" : "root",
-            "object_type" : "0",
+            "object_creation_time" : misc.get_epoch(),
+            "object_name" : "",
+            "object_type" : "",
             "object_revision" : 1,
             "object_fee_tx" : "",
-            "object_data" : binascii.hexlify(json.dumps([]))
-        }
-        self.governance_object = PeeWeeGovernanceObject(**empty_gobj_dict)
-
-    def create_new(self, parent, object_name, object_type, object_revision):
-        if parent == None:
-            return False
-
-        new_gobj_dict = {
-            "parent_id" : parent.get_id(),
-            "object_hash" : "",
-            "object_parent_hash" : parent.get_hash(),
-            "object_creation_time" : misc.get_epoch(),
-            "object_name" : object_name,
-            "object_type" : object_type,
-            "object_revision" : object_revision,
-            "object_fee_tx" : '',
             "object_data" : ""
         }
+
+        if kwargs:
+            for key, value in kwargs.iteritems():
+              new_gobj_dict[ key ] = value
+
         self.governance_object = PeeWeeGovernanceObject(**new_gobj_dict)
 
-        return True
+        return self
 
     """
         Subclasses:
