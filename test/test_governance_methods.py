@@ -1,4 +1,5 @@
 import pytest
+from pprint import pprint
 import os
 os.environ['SENTINEL_ENV'] = 'test'
 import sys
@@ -37,8 +38,11 @@ def governance_object():
   from models import PeeWeeGovernanceObject
   from governance import GovernanceObject
   govobj = GovernanceObject()
-  #govobj.
-  return
+  govobj.init()
+
+  pprint(vars(govobj.governance_object._meta.database))
+
+  return govobj
 
 def test_prepare_command(governance_object):
   d = governance_object.get_dict()
