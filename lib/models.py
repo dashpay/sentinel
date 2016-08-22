@@ -2,7 +2,16 @@ from peewee import *
 from pprint import pprint
 from time import time
 
-db = MySQLDatabase('sentinel', host='127.0.0.1', user='dashdrive', passwd='dashdrive')
+import os
+import sys
+sys.path.append( os.path.join( os.path.dirname(__file__), '..' ) )
+import config
+
+env = os.environ.get('SENTINEL_ENV') or 'production'
+db_cfg = config.db[env]
+dbname = db_cfg.pop('database')
+
+db = MySQLDatabase(dbname, **db_cfg)
 
 # === models ===
 
