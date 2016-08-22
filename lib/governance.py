@@ -28,7 +28,7 @@ class GovernanceObject:
     def root(self):
         root_object_dict = {
             "object_name" : "root",
-            "object_type" : "0",
+            "object_type" : 0,
             "object_creation_time" : 0,
             "object_data" : binascii.hexlify(json.dumps([]))
         }
@@ -44,7 +44,7 @@ class GovernanceObject:
             "object_parent_hash" : 0,
             "object_creation_time" : misc.get_epoch(),
             "object_name" : "",
-            "object_type" : "",
+            "object_type" : 0,
             "object_revision" : 1,
             "object_fee_tx" : "",
             "object_data" : ""
