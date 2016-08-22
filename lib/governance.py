@@ -24,6 +24,19 @@ class GovernanceObject:
         # self.governance_object = {}
         self.governance_object = PeeWeeGovernanceObject()
 
+    @classmethod
+    def root(self):
+        root_object_dict = {
+            "object_name" : "root",
+            "object_type" : "0",
+            "object_creation_time" : 0,
+            "object_data" : binascii.hexlify(json.dumps([]))
+        }
+
+        root = GovernanceObject()
+        root.init(**root_object_dict)
+        return root
+
     def init(self, **kwargs):
         new_gobj_dict = {
             "parent_id" : 0,
