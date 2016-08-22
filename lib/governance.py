@@ -148,7 +148,16 @@ class GovernanceObject:
     # === governance commands
 
     def get_prepare_command(self):
-        cmd = "gobject prepare %(object_parent_hash)s %(object_revision)s %(object_creation_time)s %(object_name)s %(object_data)s" % self.governance_object
+    #    cmd = "gobject prepare %(object_parent_hash)s %(object_revision)s %(object_creation_time)s %(object_name)s %(object_data)s" % self.governance_object
+
+        cmd = "gobject prepare %s %s %s %s %s" % (
+            self.governance_object.object_parent_hash,
+            self.governance_object.object_revision,
+            self.governance_object.object_creation_time,
+            self.governance_object.object_name,
+            self.governance_object.object_data
+          )
+
         return cmd
 
     def get_submit_command(self):
