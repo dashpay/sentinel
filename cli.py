@@ -181,7 +181,7 @@ class SentinelShell(cmd.Cmd):
                 return
 
             newObj = GovernanceObject()
-            newObj.create_new(parent, args.proposal_name, govtypes.proposal, govtypes.FIRST_REVISION)
+            newObj.init(parent_id = 0, object_parent_hash = 0, object_name = proposal_name, object_type = govtypes.proposal, object_revision = govtypes.FIRST_REVISION)
             last_id = newObj.save()
 
             print last_id
@@ -310,7 +310,7 @@ class SentinelShell(cmd.Cmd):
             # pw_gobj = PeeWeeGovernanceObject.create(**kwargs)
             # pw_gobj.id
             newObj = GovernanceObject()
-            newObj.create_new(parent, superblock_name, govtypes.trigger, govtypes.FIRST_REVISION)
+            newObj.init(parent_id = 0, object_parent_hash = 0, object_name = superblock_name, object_type = govtypes.trigger, object_revision = govtypes.FIRST_REVISION)
             last_id = newObj.save()
 
             print "new GovernanceObject id = %d" % last_id
