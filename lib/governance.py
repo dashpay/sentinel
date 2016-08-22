@@ -15,6 +15,12 @@ import binascii
 from models import PeeWeeEvent, PeeWeeSuperblock, PeeWeeProposal, PeeWeeGovernanceObject
 from pprint import pprint
 
+# ==============================================================================
+# = NGM/TODO: add a serialize to/from method for all sub-objects VIA FOREIGN
+#             KEYS... (e.g. object_data should be a calculated field...)
+# ==============================================================================
+
+
 class GovernanceObject:
     # object data for specific classes
 
