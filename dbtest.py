@@ -57,8 +57,8 @@ from time import time
 e = PeeWeeEvent.get()
 print e.start_time
 
-e.start_time = 1471751122
-e.save()
+#e.start_time = 1471751122
+#e.save()
 
 # PeeWeeEvent._meta.database.commit()
 
