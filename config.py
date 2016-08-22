@@ -10,11 +10,19 @@ dash_conf = "/Users/nmarley/Library/Application Support/DashCore/dash.conf"
 network = 'testnet'
 #rpcport = 48727
 
-db_config = {
-  'hostname': '127.0.0.1',
-  'username': 'dashdrive',
-  'password': 'dashdrive',
-  'database': 'sentinel',
+db = {
+  'production': {
+    'host': '127.0.0.1',
+    'user': 'dashdrive',
+    'passwd': 'dashdrive',
+    'database': 'sentinel',
+  },
+  'test': {
+    'host': '127.0.0.1',
+    'user': 'dashdrive',
+    'passwd': 'dashdrive',
+    'database': 'sentinel_test',
+  },
 }
 
 """
