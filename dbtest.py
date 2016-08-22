@@ -8,6 +8,9 @@ sys.path.append("lib")
 from models import PeeWeeEvent, PeeWeeSuperblock, PeeWeeProposal, PeeWeeGovernanceObject
 from time import time
 
+from governance import GovernanceObject
+import govtypes
+
 # e = PeeWeeEvent()
 # e.governance_object_id = 7
 # print e.get_dict()
@@ -54,12 +57,26 @@ from time import time
 #print gobj.object_name
 
 
-e = PeeWeeEvent.get()
-print e.start_time
+#e = PeeWeeEvent.get()
+#print e.start_time
 
 #e.start_time = 1471751122
 #e.save()
 
 # PeeWeeEvent._meta.database.commit()
+
+#parent = GovernanceObject.root()
+#pprint(vars(parent.governance_object))
+
+#parent = GovernanceObject().root()
+#pprint(vars(parent))
+
+proposal_name = "chrono-trigger-party"
+object_type   = govtypes.proposal
+revision = 1
+
+go = GovernanceObject()
+go.init(parent_id = 0, object_parent_hash = 0, object_name = proposal_name, object_type = object_type, object_revision = 1)
+pprint(vars(go.governance_object))
 
 
