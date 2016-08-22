@@ -183,29 +183,27 @@ class SentinelShell(cmd.Cmd):
             newObj = GovernanceObject()
             newObj.init(parent_id = 0, object_parent_hash = 0, object_name = proposal_name, object_type = govtypes.proposal, object_revision = govtypes.FIRST_REVISION)
             last_id = newObj.save()
-            # print last_id
+
 
             if last_id != None:
-                # ADD OUR PROPOSAL AS A SUB-OBJECT WITHIN GOVERNANCE OBJECT
 
-                pw_proposal = PeeWeeProposal()
-                pw_proposal.governance_object_id = last_id
-                pw_proposal.proposal_name = args.proposal_name
-                pw_proposal.description_url = args.description_url
-                pw_proposal.start_epoch = start_epoch
-                pw_proposal.end_epoch = end_epoch
-                pw_proposal.payment_address = args.payment_address
-                pw_proposal.payment_amount = args.payment_amount
+                # ADD OUR PROPOSAL AS A SUB-OBJECT WITHIN GOVERNANCE OBJECT
+                pw_proposal = PeeWeeProposal(
+                    governance_object_id = last_id,
+                    proposal_name = args.proposal_name,
+                    description_url = args.description_url,
+                    start_epoch = start_epoch,
+                    end_epoch = end_epoch,
+                    payment_address = args.payment_address,
+                    payment_amount = args.payment_amount
+                )
 
                 # APPEND TO GOVERNANCE OBJECT
-
                 newObj.add_subclass("proposal", pw_proposal)
                 newObj.save()
 
                 # CREATE EVENT TO TALK TO DASHD / PREPARE / SUBMIT OBJECT
-
-                pwevent = PeeWeeEvent()
-                pwevent.governance_object_id = last_id
+                pwevent = PeeWeeEvent(governance_object_id = last_id)
                 pwevent.save()
 
                 # NGM/TODO:  I think it's easier to have autocommit on and only
@@ -305,33 +303,29 @@ class SentinelShell(cmd.Cmd):
             # NGM: Let's add a little more output so that the random numbers make sense...
             print "event_block_height: %s" % event_block_height
 
-            # pw_gobj = PeeWeeGovernanceObject.create(**kwargs)
-            # pw_gobj.id
             newObj = GovernanceObject()
             newObj.init(parent_id = 0, object_parent_hash = 0, object_name = superblock_name, object_type = govtypes.trigger, object_revision = govtypes.FIRST_REVISION)
             last_id = newObj.save()
 
-            print "new GovernanceObject id = %d" % last_id
+            # print "new GovernanceObject id = %d" % last_id
 
             if last_id != None:
-                # ADD OUR PROPOSAL AS A SUB-OBJECT WITHIN GOVERNANCE OBJECT
 
-                pwsb = PeeWeeSuperblock()
-                pwsb.governance_object_id = last_id
-                pwsb.superblock_name = superblock_name
-                pwsb.event_block_height = event_block_height
-                pwsb.payment_addresses = ("|".join(list_addr))
-                pwsb.payment_amounts = ("|".join(list_amount))
+                # ADD OUR PROPOSAL AS A SUB-OBJECT WITHIN GOVERNANCE OBJECT
+                pwsb = PeeWeeSuperblock(
+                    governance_object_id = last_id,
+                    superblock_name = superblock_name,
+                    event_block_height = event_block_height,
+                    payment_addresses = ("|".join(list_addr)),
+                    payment_amounts = ("|".join(list_amount))
+                )
 
                 # APPEND TO GOVERNANCE OBJECT
-
                 newObj.add_subclass("trigger", pwsb)
                 newObj.save()
 
                 # CREATE EVENT TO TALK TO DASHD / PREPARE / SUBMIT OBJECT
-
-                pwevent = PeeWeeEvent()
-                pwevent.governance_object_id = last_id
+                pwevent = PeeWeeEvent(governance_object_id = last_id)
                 pwevent.save()
 
                 # NGM/TODO:  I think it's easier to have autocommit on and only
