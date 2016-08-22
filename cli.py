@@ -171,6 +171,10 @@ class SentinelShell(cmd.Cmd):
                 print "start or end date has invalid format, YYYY/MM/DD or DD/MM/YY is required";
                 return
 
+
+
+            # == ngm /parser logic, begin Dash logic
+
             ### ---- CHECK NAME UNIQUENESS -----
             if PeeWeeGovernanceObject.object_with_name_exists(args.proposal_name):
                 print "governance object with that name already exists"
