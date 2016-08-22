@@ -71,12 +71,30 @@ import govtypes
 #parent = GovernanceObject().root()
 #pprint(vars(parent))
 
-proposal_name = "chrono-trigger-party"
 object_type   = govtypes.proposal
 revision = 1
+proposal_name = "chrono-trigger-party"
 
 go = GovernanceObject()
 go.init(parent_id = 0, object_parent_hash = 0, object_name = proposal_name, object_type = object_type, object_revision = 1)
-pprint(vars(go.governance_object))
+goid = go.save()
+#pprint(vars(go.governance_object))
 
+url = "https://dashcentral.com/chrono-trigger-party"
+payment_address = "yYe8KwyaUu5YswSYmB3q3ryx8XTUu9y7Ui"
+payment_amount = 7
 
+pw_proposal = PeeWeeProposal(
+    start_epoch = 1472706000,
+    end_epoch = 1475298000,
+    governance_object_id = goid,
+    proposal_name = proposal_name,
+    description_url = url,
+    payment_address = payment_address,
+    payment_amount = payment_amount
+)
+pprint(vars(pw_proposal))
+
+pw_proposal.save()
+
+pprint(vars(pw_proposal))
