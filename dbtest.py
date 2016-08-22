@@ -99,13 +99,20 @@ import govtypes
 #
 #pprint(vars(pw_proposal))
 
-proposal_name = "chrono-trigger-party"
+#proposal_name = "chrono-trigger-party"
+#
+#from governance import GovernanceObject
+#govobj = GovernanceObject()
+#govobj.init(object_name = proposal_name)
+#govobj.save()
+#
+#pprint(vars(govobj.governance_object))
 
-from governance import GovernanceObject
-govobj = GovernanceObject()
-govobj.init(object_name = proposal_name)
-govobj.save()
+#pw_event = PeeWeeEvent.get(PeeWeeEvent.id == 1)
+#print pw_event.governance_object_id
 
-pprint(vars(govobj.governance_object))
+gobj = PeeWeeGovernanceObject.get(PeeWeeGovernanceObject.id == 1)
+for e in gobj.event:
+  pprint(vars(e))
 
 
