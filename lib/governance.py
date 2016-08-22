@@ -24,12 +24,6 @@ class GovernanceObject:
         # self.governance_object = {}
         self.governance_object = PeeWeeGovernanceObject()
 
-    def get_hash(self):
-        return self.governance_object.object_hash
-
-    def get_id(self):
-        return self.governance_object.id or 0
-
     def init(self):
         empty_gobj_dict = {
             "parent_id" : 0,
