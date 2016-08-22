@@ -183,8 +183,7 @@ class SentinelShell(cmd.Cmd):
             newObj = GovernanceObject()
             newObj.init(parent_id = 0, object_parent_hash = 0, object_name = proposal_name, object_type = govtypes.proposal, object_revision = govtypes.FIRST_REVISION)
             last_id = newObj.save()
-
-            print last_id
+            # print last_id
 
             if last_id != None:
                 # ADD OUR PROPOSAL AS A SUB-OBJECT WITHIN GOVERNANCE OBJECT
