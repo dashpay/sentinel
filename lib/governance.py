@@ -153,9 +153,6 @@ class GovernanceObject:
         cmd = "gobject submit %(object_fee_tx)s %(object_parent_hash)s %(object_revision)s %(object_creation_time)s %(object_name)s %(object_data)s" % self.governance_object
         return cmd
 
-    def last_error(self):
-        return "n/a"
-
     def add_subclass(self, typename, obj):
         self.subclasses.append((typename,obj))
 

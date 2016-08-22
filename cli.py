@@ -216,8 +216,7 @@ class SentinelShell(cmd.Cmd):
 
                 print "event queued successfully"
             else:
-                print "error:", newObj.last_error()
-
+                print "error: Could not save GovernanceObject"
                 # PeeWeeEvent._meta.database.rollback()
                 # abort mysql commit
 
@@ -344,8 +343,7 @@ class SentinelShell(cmd.Cmd):
 
                 print "event queued successfully"
             else:
-                print "error:", newObj.last_error()
-
+                print "error: Could not save GovernanceObject"
                 # PeeWeeEvent._meta.database.rollback()
                 # abort mysql commit
 
