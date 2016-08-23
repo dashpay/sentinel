@@ -6,6 +6,8 @@ import os
 import sys
 sys.path.append( os.path.join( os.path.dirname(__file__), '..' ) )
 import config
+import simplejson
+import binascii
 
 env = os.environ.get('SENTINEL_ENV') or 'production'
 db_cfg = config.db[env]
@@ -50,6 +52,24 @@ class PeeWeeGovernanceObject(BaseModel):
     def object_with_name_exists(self, name):
         count = self.select().where(self.object_name == name).count()
         return count > 0
+
+    def serialize_subclasses(self):
+        objects = []
+
+        for obj_type in self._meta.reverse_rel.keys():
+            res = getattr( self, obj_type )
+            if res:
+              # should only return one row, but for completeness...
+              for row in res:
+                objects.append((obj_type, row.get_dict()))
+
+        the_json = simplejson.dumps(objects, sort_keys = True)
+        # print "the_json = %s" % the_json
+
+        the_hex = binascii.hexlify( the_json )
+        # print "the_hex = %s" % the_hex
+
+        return the_hex
 
 class PeeWeeAction(BaseModel):
     #id = IntegerField(primary_key = True)
