@@ -150,7 +150,7 @@ class GovernanceObject:
             self.governance_object.object_revision,
             self.governance_object.object_creation_time,
             self.governance_object.object_name,
-            self.governance_object.object_data
+            self.governance_object.serialize_subclasses()
         )
 
         return cmd
