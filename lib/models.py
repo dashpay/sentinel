@@ -36,13 +36,12 @@ class BaseModel(Model):
 class PeeWeeGovernanceObject(BaseModel):
     #id = IntegerField(primary_key = True)
     parent_id = IntegerField()
-    object_creation_time = IntegerField()
+    object_creation_time = IntegerField(default=int(time()))
     object_hash = CharField()
-    object_parent_hash = CharField()
+    object_parent_hash = CharField(default='0')
     object_name = CharField()
     object_type = IntegerField()
-    object_revision = IntegerField()
-    object_data = TextField(default = '')
+    object_revision = IntegerField(default=1)
     object_fee_tx = CharField()
 
     class Meta:
@@ -52,6 +51,10 @@ class PeeWeeGovernanceObject(BaseModel):
     def object_with_name_exists(self, name):
         count = self.select().where(self.object_name == name).count()
         return count > 0
+
+    @property
+    def object_data(self):
+        return self.serialize_subclasses()
 
     def serialize_subclasses(self):
         objects = []
@@ -70,6 +73,38 @@ class PeeWeeGovernanceObject(BaseModel):
         # print "the_hex = %s" % the_hex
 
         return the_hex
+
+    def get_prepare_command(self):
+        cmd = "gobject prepare %s %s %s %s %s" % (
+            self.object_parent_hash,
+            self.object_revision,
+            self.object_creation_time,
+            self.object_name,
+            self.object_data
+        )
+        return cmd
+
+    def get_submit_command(self):
+        cmd = "gobject submit %s %s %s %s %s %s" % (
+            self.object_fee_tx,
+            self.object_parent_hash,
+            self.object_revision,
+            self.object_creation_time,
+            self.object_name,
+            self.object_data
+        )
+        return cmd
+
+    # NGM: TODO -- check w/Evan for the specific rules for validity
+    def is_valid(self):
+        """
+            - check tree position validity
+            - check signatures of owners
+            - check validity of revision (must be n+1)
+            - check validity of field data (address format, etc)
+        """
+        return True
+
 
 class PeeWeeAction(BaseModel):
     #id = IntegerField(primary_key = True)

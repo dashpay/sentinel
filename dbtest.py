@@ -146,7 +146,7 @@ pw_proposal = PeeWeeProposal(
 
 pw_proposal = PeeWeeProposal.get( PeeWeeProposal.id == 1 )
 gobj = pw_proposal.governance_object
-the_hex = gobj.serialize_subclasses()
+the_hex = gobj.object_data
 print "the_hex = %s" % the_hex
 
 ##try:

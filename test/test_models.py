@@ -54,7 +54,7 @@ def test_governance_object(governance_object):
 
   fields = [ 'parent_id', 'object_creation_time', 'object_hash',
       'object_parent_hash', 'object_name', 'object_type', 'object_revision',
-      'object_data', 'object_fee_tx' ]
+      'object_fee_tx' ]
 
   fields.sort()
   sorted_keys = d.keys()

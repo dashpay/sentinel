@@ -62,6 +62,9 @@ def reset():
 # TODO: description of what exactly this method does
 def prepare_events():
 
+    # NGM/TODO: probably want to loop thru all pending events at once... need
+    # to check w/Evan on this
+    #
     # select a single Event
     pw_event = PeeWeeEvent.get(
         (PeeWeeEvent.start_time < misc.get_epoch() ) &
@@ -70,8 +73,7 @@ def prepare_events():
     )
 
     if pw_event:
-        govobj = GovernanceObject()
-        govobj.load(pw_event.governance_object_id)
+        govobj = pw_event.governance_object
 
         pdb.set_trace()
         print "# PREPARING EVENTS FOR DASH NETWORK"
@@ -95,9 +97,6 @@ def prepare_events():
             pw_event.prepare_time = misc.get_epoch()
             pw_event.save()
 
-            # TODO: remove this or implement transactions
-            #libmysql.db.commit()
-
             return 1
 
         else:
@@ -106,9 +105,6 @@ def prepare_events():
             pw_event.error_time = misc.get_epoch()
             pw_event.error_message = result
             pw_event.save()
-
-            # TODO: remove this or implement transactions
-            #libmysql.db.commit()
 
     return 0
 
@@ -124,10 +120,8 @@ def submit_events():
     )
 
     if pw_event:
-        govobj = GovernanceObject()
-        print pw_event.governance_object_id
-        govobj.load(pw_event.governance_object_id)
-        hash = govobj.get_field("object_fee_tx")
+        govobj = pw_event.governance_object
+        hash = govobj.object_fee_tx
 
         print "# SUBMIT PREPARED EVENTS FOR DASH NETWORK"
 
@@ -149,12 +143,10 @@ def submit_events():
                     if misc.is_hash(result):
                         print " -- got result", result
 
-                        govobj.update_field("object_hash", result)
+                        govobj.object_hash = result
+                        # NGM/TODO: atomic?
                         pw_event.save()
                         govobj.save()
-
-                        # TODO: implement transactions or remove this
-                        #libmysql.db.commit()
 
                         return 1
                     else:

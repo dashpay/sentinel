@@ -11,15 +11,6 @@
     1. proposal --create --proposal_name="beer-reimbursement" --description_url="www.dashwhale.org/p/beer-reimbursement" --start-date="2017/1/1" --end-date="2017/6/1"
     2. cron process (will automatically submit the proposal to the network)
 
-    def get_prepare_command(self):
-        cmd = "gobject prepare %(object_parent_hash)s %(object_revision)s %(object_creation_time)s %(object_name)s %(object_data)s" % self.governance_object
-        return cmd
-
-    def get_submit_command(self):
-        cmd = "gobject submit %(object_fee_tx)s %(object_parent_hash)s %(object_revision)s %(object_creation_time)s %(object_name)s %(object_data)s" % self.governance_object
-        return cmd
-
-
 
 * dependency specification
   - http://python-packaging.readthedocs.io/en/latest/dependencies.html

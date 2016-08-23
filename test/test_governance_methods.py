@@ -1,10 +1,12 @@
 import pytest
-from pprint import pprint
 import os
-os.environ['SENTINEL_ENV'] = 'test'
 import sys
-sys.path.append( os.path.join( os.path.dirname(__file__), '..', 'lib' ) )
 import re
+
+from pprint import pprint
+
+os.environ['SENTINEL_ENV'] = 'test'
+sys.path.append( os.path.join( os.path.dirname(__file__), '..', 'lib' ) )
 
 # NGM/TODO: setup both Proposal and Superblock, and insert related rows,
 # including Events
@@ -42,11 +44,9 @@ def proposal():
 
 # GovernanceObject model
 @pytest.fixture
-def governance_object(**kwargs):
+def governance_object():
     from models import PeeWeeGovernanceObject
-    from governance import GovernanceObject
-    govobj = GovernanceObject()
-    govobj.init(**kwargs)
+    govobj = PeeWeeGovernanceObject()
     # NOTE: do not save, return an unsaved govobj
 
     return govobj
@@ -64,22 +64,22 @@ def governance_object(**kwargs):
 
 def test_prepare_command(governance_object):
     prop = proposal()
-    outer_go = governance_object
+    gobj = governance_object
 
     # governance_object_id
 
     # some small manipulations for our test cases
-    outer_go.governance_object.save()
-    outer_go.governance_object.id = 5
-    outer_go.governance_object.object_creation_time = 1471898632
-    outer_go.governance_object.save()
+    gobj.save()
+    gobj.id = 5
+    gobj.object_creation_time = 1471898632
+    gobj.save()
 
-    outer_go.governance_object.object_name = prop.proposal_name
-    prop.governance_object = outer_go.governance_object
+    gobj.object_name = prop.proposal_name
+    prop.governance_object = gobj
 
     try:
-        with outer_go.governance_object._meta.database.atomic():
-            outer_go.governance_object.save()
+        with gobj._meta.database.atomic():
+            gobj.save()
             prop.save()
     except:
         print "Pork Chop Sandwiches!!"
@@ -92,7 +92,8 @@ def test_prepare_command(governance_object):
 
     # ensure tight regex match
     prepare_command_regex = re.compile('^gobject prepare ([\da-f]+) ([\da-f]+) ([\d]+) ([\w-]+) ([\da-f]+)$')
-    cmd = outer_go.get_prepare_command()
+
+    cmd = gobj.get_prepare_command()
 
     match = prepare_command_regex.search(cmd)
     assert match != None
