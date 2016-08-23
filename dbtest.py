@@ -139,17 +139,16 @@ pw_proposal = Proposal(
 #pw_proposal = Proposal.get( Proposal.id == 1 )
 #gobj = pw_proposal.governance_object
 
-try:
-    with Event._meta.database.atomic():
-        #gobj.save()
-        pw_proposal.save()
-
+#try:
+#    with Event._meta.database.atomic():
+#        #gobj.save()
+#        pw_proposal.save()
 # except OperationalError as e:
 #     print "Pork Chop Sandwiches!! [%s]" % e[1]
 # except IntegrityError as e:
 #     print "Oh Shit! Get the fuck outta here! [%s]" % e[1]
-except PeeweeException as e:
-    print "Get the fuck out of here... you stupid idiot! [%s]" % e[1]
-    print "Fuck we're all dead! Get the fuck out!"
+#except PeeweeException as e:
+#    print "Get the fuck out of here... you stupid idiot! [%s]" % e[1]
+#    print "Fuck we're all dead! Get the fuck out!"
 
-#pprint(vars(pw_proposal))
+print pw_proposal.name
