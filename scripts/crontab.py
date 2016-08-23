@@ -10,7 +10,6 @@ import sys
 sys.path.append( os.path.join( os.path.dirname(__file__), '..', 'lib' ) )
 sys.path.append( os.path.join( os.path.dirname(__file__), '..') )
 
-from governance  import GovernanceObject
 import config
 import misc
 import dashd

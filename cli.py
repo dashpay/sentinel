@@ -22,15 +22,11 @@ import json
 from models import PeeWeeEvent, PeeWeeSuperblock, PeeWeeProposal, PeeWeeGovernanceObject
 
 from datetime import datetime, date, time
-
-from governance import GovernanceObject
 from dashd import CTransaction
 
 # Enable only for testing:
 crontab.CONFIRMATIONS_REQUIRED = 1
-
-parent = GovernanceObject()
-parent.init()
+parent = PeeWeeGovernanceObject.root()
 
 commands = {}
 

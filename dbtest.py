@@ -10,8 +10,6 @@ from models import PeeWeeEvent, PeeWeeSuperblock, PeeWeeProposal, PeeWeeGovernan
 from time import time
 
 import peewee
-
-from governance import GovernanceObject
 import govtypes
 
 # e = PeeWeeEvent()
