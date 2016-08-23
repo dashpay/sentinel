@@ -16,7 +16,7 @@ import dashd
 import random
 import govtypes
 
-from models import PeeWeeEvent, PeeWeeSuperblock, PeeWeeProposal, GovernanceObject
+from models import Event, Superblock, Proposal, GovernanceObject
 import pdb
 
 """
@@ -41,16 +41,16 @@ import pdb
 CONFIRMATIONS_REQUIRED = 7
 
 def clear_events():
-    return PeeWeeEvent.delete().execute()
+    return Event.delete().execute()
 
 def clear_governance_objects():
     return GovernanceObject.delete().execute()
 
 def clear_superblocks():
-    return PeeWeeSuperblock.delete().execute()
+    return Superblock.delete().execute()
 
 def clear_proposals():
-    return PeeWeeProposal.delete().execute()
+    return Proposal.delete().execute()
 
 def reset():
     clear_events()
@@ -65,10 +65,10 @@ def prepare_events():
     # to check w/Evan on this
     #
     # select a single Event
-    pw_event = PeeWeeEvent.get(
-        (PeeWeeEvent.start_time < misc.get_epoch() ) &
-        (PeeWeeEvent.error_time == 0) &
-        (PeeWeeEvent.prepare_time == 0)
+    pw_event = Event.get(
+        (Event.start_time < misc.get_epoch() ) &
+        (Event.error_time == 0) &
+        (Event.prepare_time == 0)
     )
 
     if pw_event:
@@ -111,11 +111,11 @@ def prepare_events():
 # TODO: description of what exactly this method does
 def submit_events():
     now = misc.get_epoch()
-    pw_event = PeeWeeEvent.get(
-        (PeeWeeEvent.start_time < now ) &
-        (PeeWeeEvent.prepare_time < now ) &
-        (PeeWeeEvent.prepare_time > 0 ) &
-        (PeeWeeEvent.submit_time == 0)
+    pw_event = Event.get(
+        (Event.start_time < now ) &
+        (Event.prepare_time < now ) &
+        (Event.prepare_time > 0 ) &
+        (Event.submit_time == 0)
     )
 
     if pw_event:

@@ -115,7 +115,7 @@ class GovernanceObject(BaseModel):
         return True
 
 
-class PeeWeeAction(BaseModel):
+class Action(BaseModel):
     #id = IntegerField(primary_key = True)
     #governance_object_id = IntegerField(unique=True)
     governance_object = ForeignKeyField(GovernanceObject, related_name = 'action')
@@ -126,7 +126,7 @@ class PeeWeeAction(BaseModel):
     class Meta:
       db_table = 'action'
 
-class PeeWeeEvent(BaseModel):
+class Event(BaseModel):
     #id = IntegerField(primary_key = True)
     #governance_object_id = IntegerField(unique=True)
     governance_object = ForeignKeyField(GovernanceObject, related_name = 'event')
@@ -156,7 +156,7 @@ class Setting(BaseModel):
     class Meta:
       db_table = 'setting'
 
-class PeeWeeProposal(BaseModel):
+class Proposal(BaseModel):
     #id = IntegerField(primary_key = True)
     #governance_object_id = IntegerField(unique=True)
     governance_object = ForeignKeyField(GovernanceObject, related_name = 'proposal')
@@ -168,7 +168,7 @@ class PeeWeeProposal(BaseModel):
     class Meta:
       db_table = 'proposal'
 
-class PeeWeeSuperblock(BaseModel):
+class Superblock(BaseModel):
     #id = IntegerField(primary_key = True)
     #governance_object_id = IntegerField(unique=True)
     governance_object = ForeignKeyField(GovernanceObject, related_name = 'superblock')

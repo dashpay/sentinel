@@ -9,8 +9,8 @@ sys.path.append( os.path.join( os.path.dirname(__file__), '..', 'lib' ) )
 
 @pytest.fixture
 def event():
-  from models import PeeWeeEvent
-  return PeeWeeEvent()
+  from models import Event
+  return Event()
 
 def test_event(event):
   d = event.get_dict()
@@ -27,8 +27,8 @@ def test_event(event):
 # Proposal model
 @pytest.fixture
 def proposal():
-  from models import PeeWeeProposal
-  return PeeWeeProposal()
+  from models import Proposal
+  return Proposal()
 
 def test_proposal(proposal):
   d = proposal.get_dict()

@@ -16,7 +16,7 @@ last_id = newObj.save()
 if last_id != None:
 
     # ADD OUR PROPOSAL AS A SUB-OBJECT WITHIN GOVERNANCE OBJECT
-    pw_proposal = PeeWeeProposal(
+    pw_proposal = Proposal(
         governance_object_id = last_id,
         proposal_name = args.proposal_name,
         description_url = args.description_url,
@@ -31,7 +31,7 @@ if last_id != None:
     newObj.save()
 
     # CREATE EVENT TO TALK TO DASHD / PREPARE / SUBMIT OBJECT
-    pwevent = PeeWeeEvent()
+    pwevent = Event()
     pwevent.governance_object_id = last_id
     pwevent.save()
 
@@ -39,13 +39,13 @@ if last_id != None:
     # disable for specific transaction sequences which have to be
     # atomic, and all at once and encapsulated so that it's easy to
     # see the logic.
-    # PeeWeeEvent._meta.database.commit()
+    # Event._meta.database.commit()
 
     print "event queued successfully"
 else:
     print "error: Could not save GovernanceObject"
 
-    # PeeWeeEvent._meta.database.rollback()
+    # Event._meta.database.rollback()
     # abort mysql commit
 
 return

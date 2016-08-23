@@ -12,11 +12,11 @@ sys.path.append( os.path.join( os.path.dirname(__file__), '..', 'lib' ) )
 # including Events
 
 def setup():
-    from models import GovernanceObject, PeeWeeProposal, PeeWeeEvent
+    from models import GovernanceObject, Proposal, Event
 
     # clear tables first...
-    PeeWeeEvent.delete().execute()
-    PeeWeeProposal.delete().execute()
+    Event.delete().execute()
+    Proposal.delete().execute()
     GovernanceObject.delete().execute()
 
 def teardown():
@@ -25,10 +25,10 @@ def teardown():
 
 @pytest.fixture
 def proposal():
-    from models import PeeWeeProposal
+    from models import Proposal
 
     # NOTE: no governance_object_id is set
-    pobj = PeeWeeProposal(
+    pobj = Proposal(
         start_epoch     = 1483250400,  # 2017-01-01
         end_epoch       = 1491022800,  # 2017-04-01
         proposal_name   = "chrono-trigger-party",

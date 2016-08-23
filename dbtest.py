@@ -6,13 +6,13 @@ import sys
 import io
 sys.path.append("lib")
 
-from models import PeeWeeEvent, PeeWeeSuperblock, PeeWeeProposal, GovernanceObject
+from models import Event, Superblock, Proposal, GovernanceObject
 from time import time
 
 import peewee
 import govtypes
 
-# e = PeeWeeEvent()
+# e = Event()
 # e.governance_object_id = 7
 # print e.get_dict()
 
@@ -30,23 +30,23 @@ import govtypes
 # select count(*) from governance_object
 # where governance_object.object_name = %s
 
-#print PeeWeeEvent.delete().execute()
-#print PeeWeeSuperblock.delete().execute()
-#print PeeWeeProposal.delete().execute()
+#print Event.delete().execute()
+#print Superblock.delete().execute()
+#print Proposal.delete().execute()
 #print GovernanceObject.delete().execute()
 
 
-#pw = PeeWeeEvent.get(PeeWeeEvent.id == 9)
+#pw = Event.get(Event.id == 9)
 #print pw.governance_object_id
 
 # epoch = int(time())
 
 # SELECT t1`.`id`, `t1`.`governance_object_id`, `t1`.`start_time`, `t1`.`prepare_time`, `t1`.`submit_time`, `t1`.`error_time`, `t1`.`error_message` FROM `event` AS t1 WHERE (((`t1`.`start_time` < %s) AND (`t1`.`error_time` = %s)) AND (`t1`.`prepare_time` = %s))', [1471728359, 0, 0])
 #
-#e = PeeWeeEvent.get(
-#    (PeeWeeEvent.start_time < epoch ) &
-#    (PeeWeeEvent.error_time == 0) &
-#    (PeeWeeEvent.prepare_time == 0)
+#e = Event.get(
+#    (Event.start_time < epoch ) &
+#    (Event.error_time == 0) &
+#    (Event.prepare_time == 0)
 #)
 #print(e.id)
 
@@ -58,13 +58,13 @@ import govtypes
 #print gobj.object_name
 
 
-#e = PeeWeeEvent.get()
+#e = Event.get()
 #print e.start_time
 
 #e.start_time = 1471751122
 #e.save()
 
-# PeeWeeEvent._meta.database.commit()
+# Event._meta.database.commit()
 
 #parent = GovernanceObject.root()
 #pprint(vars(parent.governance_object))
@@ -85,7 +85,7 @@ import govtypes
 #payment_address = "yYe8KwyaUu5YswSYmB3q3ryx8XTUu9y7Ui"
 #payment_amount = 7
 #
-#pw_proposal = PeeWeeProposal(
+#pw_proposal = Proposal(
 #    start_epoch = 1472706000,
 #    end_epoch = 1475298000,
 #    governance_object_id = goid,
@@ -101,7 +101,7 @@ import govtypes
 #pprint(vars(pw_proposal))
 
 #proposal_name = "chrono-trigger-party"
-#pw_event = PeeWeeEvent.get(PeeWeeEvent.id == 1)
+#pw_event = Event.get(Event.id == 1)
 #print pw_event.governance_object_id
 
 #gobj = GovernanceObject.get(GovernanceObject.id == 1)
@@ -124,7 +124,7 @@ import govtypes
 ###     object_revision = 1
 ### )
 ###
-### pw_proposal = PeeWeeProposal(
+### pw_proposal = Proposal(
 ###     governance_object = gobj,
 ###     proposal_name = "chrono-trigger-party",
 ###     description_url = "https://dashcentral.com/chrono-trigger-party",
@@ -134,13 +134,13 @@ import govtypes
 ###     payment_amount = 7
 ### )
 ###
-### pw_proposal = PeeWeeProposal.get( PeeWeeProposal.id == 1 )
+### pw_proposal = Proposal.get( Proposal.id == 1 )
 ### gobj = pw_proposal.governance_object
 ### the_hex = gobj.object_data
 ### print "the_hex = %s" % the_hex
 ###
 ### ##try:
-### ##    with PeeWeeEvent._meta.database.atomic():
+### ##    with Event._meta.database.atomic():
 ### ##        gobj.save()
 ### ##        pw_proposal.save()
 ### ##except peewee.OperationalError:

@@ -19,7 +19,7 @@ import random
 import json
 
 # PeeWee models -- to replace hand-coded versions
-from models import PeeWeeEvent, PeeWeeSuperblock, PeeWeeProposal, GovernanceObject
+from models import Event, Superblock, Proposal, GovernanceObject
 
 from datetime import datetime, date, time
 from dashd import CTransaction
@@ -184,7 +184,7 @@ class SentinelShell(cmd.Cmd):
             if last_id != None:
 
                 # ADD OUR PROPOSAL AS A SUB-OBJECT WITHIN GOVERNANCE OBJECT
-                pw_proposal = PeeWeeProposal(
+                pw_proposal = Proposal(
                     governance_object_id = last_id,
                     proposal_name = args.proposal_name,
                     description_url = args.description_url,
@@ -199,19 +199,19 @@ class SentinelShell(cmd.Cmd):
                 newObj.save()
 
                 # CREATE EVENT TO TALK TO DASHD / PREPARE / SUBMIT OBJECT
-                pwevent = PeeWeeEvent(governance_object_id = last_id)
+                pwevent = Event(governance_object_id = last_id)
                 pwevent.save()
 
                 # NGM/TODO:  I think it's easier to have autocommit on and only
                 # disable for specific transaction sequences which have to be
                 # atomic, and all at once and encapsulated so that it's easy to
                 # see the logic.
-                # PeeWeeEvent._meta.database.commit()
+                # Event._meta.database.commit()
 
                 print "event queued successfully"
             else:
                 print "error: Could not save GovernanceObject"
-                # PeeWeeEvent._meta.database.rollback()
+                # Event._meta.database.rollback()
                 # abort mysql commit
 
             return
@@ -308,7 +308,7 @@ class SentinelShell(cmd.Cmd):
             if last_id != None:
 
                 # ADD OUR PROPOSAL AS A SUB-OBJECT WITHIN GOVERNANCE OBJECT
-                pwsb = PeeWeeSuperblock(
+                pwsb = Superblock(
                     governance_object_id = last_id,
                     superblock_name = superblock_name,
                     event_block_height = event_block_height,
@@ -321,7 +321,7 @@ class SentinelShell(cmd.Cmd):
                 newObj.save()
 
                 # CREATE EVENT TO TALK TO DASHD / PREPARE / SUBMIT OBJECT
-                pwevent = PeeWeeEvent(governance_object_id = last_id)
+                pwevent = Event(governance_object_id = last_id)
                 pwevent.save()
 
                 # NGM/TODO:  I think it's easier to have autocommit on and only
@@ -329,12 +329,12 @@ class SentinelShell(cmd.Cmd):
                 # atomic, and all at once and encapsulated so that it's easy to
                 # see the logic.
                 #
-                # PeeWeeEvent._meta.database.commit()
+                # Event._meta.database.commit()
 
                 print "event queued successfully"
             else:
                 print "error: Could not save GovernanceObject"
-                # PeeWeeEvent._meta.database.rollback()
+                # Event._meta.database.rollback()
                 # abort mysql commit
 
             return
