@@ -35,17 +35,26 @@ class BaseModel(Model):
 
 class PeeWeeGovernanceObject(BaseModel):
     #id = IntegerField(primary_key = True)
-    parent_id = IntegerField()
+    parent_id = IntegerField(default=0)
     object_creation_time = IntegerField(default=int(time()))
-    object_hash = CharField()
+    object_hash = CharField(default='0')
     object_parent_hash = CharField(default='0')
-    object_name = CharField()
-    object_type = IntegerField()
+    object_name = CharField(default='0')
+    object_type = IntegerField(default=0)
     object_revision = IntegerField(default=1)
-    object_fee_tx = CharField()
+    object_fee_tx = CharField(default='')
 
     class Meta:
       db_table = 'governance_object'
+
+    @classmethod
+    def root(self):
+        root_properties = {
+            "object_name" : "root",
+            "object_type" : 0,
+            "object_creation_time" : 0,
+        }
+        return self(**root_properties)
 
     @classmethod
     def object_with_name_exists(self, name):
