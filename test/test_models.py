@@ -45,8 +45,8 @@ def test_proposal(proposal):
 # GovernanceObject model
 @pytest.fixture
 def governance_object():
-  from models import PeeWeeGovernanceObject
-  return PeeWeeGovernanceObject()
+  from models import GovernanceObject
+  return GovernanceObject()
 
 def test_governance_object(governance_object):
   d = governance_object.get_dict()

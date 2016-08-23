@@ -12,12 +12,12 @@ sys.path.append( os.path.join( os.path.dirname(__file__), '..', 'lib' ) )
 # including Events
 
 def setup():
-    from models import PeeWeeGovernanceObject, PeeWeeProposal, PeeWeeEvent
+    from models import GovernanceObject, PeeWeeProposal, PeeWeeEvent
 
     # clear tables first...
     PeeWeeEvent.delete().execute()
     PeeWeeProposal.delete().execute()
-    PeeWeeGovernanceObject.delete().execute()
+    GovernanceObject.delete().execute()
 
 def teardown():
     pass
@@ -45,8 +45,8 @@ def proposal():
 # GovernanceObject model
 @pytest.fixture
 def governance_object():
-    from models import PeeWeeGovernanceObject
-    govobj = PeeWeeGovernanceObject()
+    from models import GovernanceObject
+    govobj = GovernanceObject()
     # NOTE: do not save, return an unsaved govobj
 
     return govobj

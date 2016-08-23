@@ -19,14 +19,14 @@ import random
 import json
 
 # PeeWee models -- to replace hand-coded versions
-from models import PeeWeeEvent, PeeWeeSuperblock, PeeWeeProposal, PeeWeeGovernanceObject
+from models import PeeWeeEvent, PeeWeeSuperblock, PeeWeeProposal, GovernanceObject
 
 from datetime import datetime, date, time
 from dashd import CTransaction
 
 # Enable only for testing:
 crontab.CONFIRMATIONS_REQUIRED = 1
-parent = PeeWeeGovernanceObject.root()
+parent = GovernanceObject.root()
 
 commands = {}
 
@@ -172,7 +172,7 @@ class SentinelShell(cmd.Cmd):
             # == ngm /parser logic, begin Dash logic
 
             ### ---- CHECK NAME UNIQUENESS -----
-            if PeeWeeGovernanceObject.object_with_name_exists(args.proposal_name):
+            if GovernanceObject.object_with_name_exists(args.proposal_name):
                 print "governance object with that name already exists"
                 return
 
@@ -288,7 +288,7 @@ class SentinelShell(cmd.Cmd):
             superblock_name = "sb" + str(random.randint(1000000, 9999999))
 
             # DOES THIS ALREADY EXIST?
-            if PeeWeeGovernanceObject.object_with_name_exists(superblock_name):
+            if GovernanceObject.object_with_name_exists(superblock_name):
                 print "governance object with that name already exists"
                 return
 

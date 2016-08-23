@@ -6,7 +6,7 @@ import sys
 import io
 sys.path.append("lib")
 
-from models import PeeWeeEvent, PeeWeeSuperblock, PeeWeeProposal, PeeWeeGovernanceObject
+from models import PeeWeeEvent, PeeWeeSuperblock, PeeWeeProposal, GovernanceObject
 from time import time
 
 import peewee
@@ -18,14 +18,14 @@ import govtypes
 
 # check if object with name 'helloworld6' exists
 #
-#PeeWeeGovernanceObject
+#GovernanceObject
 #object_name: helloworld6
 
 #on = 'helloworld6'
-#count = PeeWeeGovernanceObject.select().where(PeeWeeGovernanceObject.object_name == on).count()
+#count = GovernanceObject.select().where(GovernanceObject.object_name == on).count()
 #print "count = %d" % count
 
-#print PeeWeeGovernanceObject.object_with_name_exists(on)
+#print GovernanceObject.object_with_name_exists(on)
 
 # select count(*) from governance_object
 # where governance_object.object_name = %s
@@ -33,7 +33,7 @@ import govtypes
 #print PeeWeeEvent.delete().execute()
 #print PeeWeeSuperblock.delete().execute()
 #print PeeWeeProposal.delete().execute()
-#print PeeWeeGovernanceObject.delete().execute()
+#print GovernanceObject.delete().execute()
 
 
 #pw = PeeWeeEvent.get(PeeWeeEvent.id == 9)
@@ -50,7 +50,7 @@ import govtypes
 #)
 #print(e.id)
 
-#gobj = PeeWeeGovernanceObject.get()
+#gobj = GovernanceObject.get()
 #print gobj.object_name
 
 #gobj.__setattr__( 'object_name' , '123456' )
@@ -104,7 +104,7 @@ import govtypes
 #pw_event = PeeWeeEvent.get(PeeWeeEvent.id == 1)
 #print pw_event.governance_object_id
 
-#gobj = PeeWeeGovernanceObject.get(PeeWeeGovernanceObject.id == 1)
+#gobj = GovernanceObject.get(GovernanceObject.id == 1)
 #for e in gobj.event:
 #  pprint(vars(e))
 
@@ -116,7 +116,7 @@ import govtypes
 ###
 ### proposal_name = "chrono-trigger-party"
 ###
-### gobj = PeeWeeGovernanceObject(
+### gobj = GovernanceObject(
 ###     parent_id = 0,
 ###     object_parent_hash = 0,
 ###     object_name = proposal_name,
@@ -153,6 +153,6 @@ import govtypes
 ###
 ### # pprint(vars(pw_proposal))
 
-parent = PeeWeeGovernanceObject.root()
+parent = GovernanceObject.root()
 
 pprint(vars(parent))

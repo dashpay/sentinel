@@ -1,5 +1,5 @@
 ### ---- CHECK NAME UNIQUENESS -----
-if PeeWeeGovernanceObject.object_with_name_exists(args.proposal_name):
+if GovernanceObject.object_with_name_exists(args.proposal_name):
     print "governance object with that name already exists"
     return
 

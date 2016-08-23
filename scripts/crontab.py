@@ -16,7 +16,7 @@ import dashd
 import random
 import govtypes
 
-from models import PeeWeeEvent, PeeWeeSuperblock, PeeWeeProposal, PeeWeeGovernanceObject
+from models import PeeWeeEvent, PeeWeeSuperblock, PeeWeeProposal, GovernanceObject
 import pdb
 
 """
@@ -44,7 +44,7 @@ def clear_events():
     return PeeWeeEvent.delete().execute()
 
 def clear_governance_objects():
-    return PeeWeeGovernanceObject.delete().execute()
+    return GovernanceObject.delete().execute()
 
 def clear_superblocks():
     return PeeWeeSuperblock.delete().execute()
