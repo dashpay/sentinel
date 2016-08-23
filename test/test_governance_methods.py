@@ -105,3 +105,16 @@ def test_prepare_command(governance_object):
 
     gobject_command = "gobject prepare 0 1 1471898632 chrono-trigger-party 5b5b2270726f706f73616c222c207b22656e645f65706f6368223a20313439313032323830302c2022676f7665726e616e63655f6f626a6563745f6964223a20352c20227061796d656e745f61646472657373223a2022795965384b77796155753559737753596d4233713372797838585455753979375569222c20227061796d656e745f616d6f756e74223a20372e30303030303030302c202270726f706f73616c5f6e616d65223a20226368726f6e6f2d747269676765722d7061727479222c202273746172745f65706f6368223a20313438333235303430307d5d5d"
     assert cmd == gobject_command
+
+# ensure all 3 rows get created -- govobj, proposal, and event.
+def test_proposal_creation(proposal):
+
+    # TODO: build a convenience method 'create_and_queue' which accepts an object and checks/builds related/queues it all
+    #
+    # Then test than method here.
+    #
+    # Implement that method in cli.py
+    #
+
+    pass
+
