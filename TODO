@@ -21,6 +21,8 @@
 
 
 
+* dependency specification
+  - http://python-packaging.readthedocs.io/en/latest/dependencies.html
 
 * a test suite which passes EVERY TIME with EVERY COMMIT -- testing DB, etc. Everything.
 
