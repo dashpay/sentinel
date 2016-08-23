@@ -24,7 +24,7 @@ class BaseModel(Model):
         if "id" == field_name:
             continue
 
-        dikt[ field_name ] = self.__getattribute__( field_name )
+        dikt[ field_name ] = getattr( self, field_name )
       return dikt
 
     class Meta:
@@ -40,7 +40,7 @@ class PeeWeeGovernanceObject(BaseModel):
     object_name = CharField()
     object_type = IntegerField()
     object_revision = IntegerField()
-    object_data = TextField()
+    object_data = TextField(default = '')
     object_fee_tx = CharField()
 
     class Meta:
