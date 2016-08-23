@@ -3,6 +3,7 @@ import os
 import sys
 import re
 
+from peewee import PeeweeException
 from pprint import pprint
 
 os.environ['SENTINEL_ENV'] = 'test'
@@ -81,14 +82,8 @@ def test_prepare_command(governance_object):
         with gobj._meta.database.atomic():
             gobj.save()
             prop.save()
-    except:
-        print "Pork Chop Sandwiches!!"
-
-
-    # TODO: ensure correct # of fields (without double-spaces, which indicate a
-    # missing field)
-    #
-    # gobject prepare 0 1 1471970731 chrono-trigger-party 5b5b2270726f706f73616c222c207b22656e645f65706f6368223a20313439313032323830302c2022676f7665726e616e63655f6f626a6563745f6964223a20342c20227061796d656e745f61646472657373223a2022795965384b77796155753559737753596d4233713372797838585455753979375569222c20227061796d656e745f616d6f756e74223a20372e30303030303030302c202270726f706f73616c5f6e616d65223a20226368726f6e6f2d747269676765722d7061727479222c202273746172745f65706f6368223a20313438333235303430307d5d5d
+    except PeeweeException as e:
+        print "error: %s" % e[1]
 
     # ensure tight regex match
     prepare_command_regex = re.compile('^gobject prepare ([\da-f]+) ([\da-f]+) ([\d]+) ([\w-]+) ([\da-f]+)$')
