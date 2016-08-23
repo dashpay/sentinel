@@ -12,20 +12,19 @@ sys.path.append("scripts")
 import cmd
 import misc
 import config
-import crontab
+#import crontab
 import cmd, sys
 import govtypes
 import random
 import json
 
-# PeeWee models -- to replace hand-coded versions
 from models import Event, Superblock, Proposal, GovernanceObject
 
 from datetime import datetime, date, time
 from dashd import CTransaction
 
 # Enable only for testing:
-crontab.CONFIRMATIONS_REQUIRED = 1
+#crontab.CONFIRMATIONS_REQUIRED = 1
 parent = GovernanceObject.root()
 
 commands = {}
@@ -167,52 +166,59 @@ class SentinelShell(cmd.Cmd):
                 print "start or end date has invalid format, YYYY/MM/DD or DD/MM/YY is required";
                 return
 
-
-
             # == ngm /parser logic, begin Dash logic
+            #
+            # == so, really don't like to see 'args' below this line... will
+            # try and extract, isolate the inputs and not mix with this
+            # creation logic (e.g. 'dependency injection' i believe this is
+            # called)
+            #
+            object_name = args.proposal_name
+
+            # unique to proposal
+            description_url = args.description_url
+            payment_address = args.payment_address
+            payment_amount = args.payment_amount
 
             ### ---- CHECK NAME UNIQUENESS -----
-            if GovernanceObject.object_with_name_exists(args.proposal_name):
+            if GovernanceObject.object_with_name_exists(object_name):
                 print "governance object with that name already exists"
                 return
 
-            newObj = GovernanceObject()
-            newObj.init(parent_id = 0, object_parent_hash = 0, object_name = proposal_name, object_type = govtypes.proposal, object_revision = govtypes.FIRST_REVISION)
-            last_id = newObj.save()
+            govobj = GovernanceObject(
+                parent_id = 0,
+                object_parent_hash = 0,
+                object_name = object_name,
+                object_type = govtypes.proposal,
+                object_revision = govtypes.FIRST_REVISION
+            )
 
+            # ADD OUR PROPOSAL AS A SUB-OBJECT WITHIN GOVERNANCE OBJECT
+            proposal = Proposal(
+                governance_object = govobj,
+                proposal_name = object_name,
+                description_url = description_url,
+                start_epoch = start_epoch,
+                end_epoch = end_epoch,
+                payment_address = payment_address,
+                payment_amount = payment_amount
+            )
 
-            if last_id != None:
+            # CREATE EVENT TO TALK TO DASHD / PREPARE / SUBMIT OBJECT
+            event = Event(governance_object = govobj)
 
-                # ADD OUR PROPOSAL AS A SUB-OBJECT WITHIN GOVERNANCE OBJECT
-                pw_proposal = Proposal(
-                    governance_object_id = last_id,
-                    proposal_name = args.proposal_name,
-                    description_url = args.description_url,
-                    start_epoch = start_epoch,
-                    end_epoch = end_epoch,
-                    payment_address = args.payment_address,
-                    payment_amount = args.payment_amount
-                )
+            # create_and_queue
+            # atomic write for all 3 objects, alles oder nichts
+            try:
+                with Event._meta.database.atomic():
+                    govobj.save()
+                    proposal.save()
+                    event.save()
+            except PeeweeException as e:
+                # will auto-rollback as a result of atomic()...
+                print "error: %s" % e[1]
 
-                # APPEND TO GOVERNANCE OBJECT
-                newObj.add_subclass("proposal", pw_proposal)
-                newObj.save()
-
-                # CREATE EVENT TO TALK TO DASHD / PREPARE / SUBMIT OBJECT
-                pwevent = Event(governance_object_id = last_id)
-                pwevent.save()
-
-                # NGM/TODO:  I think it's easier to have autocommit on and only
-                # disable for specific transaction sequences which have to be
-                # atomic, and all at once and encapsulated so that it's easy to
-                # see the logic.
-                # Event._meta.database.commit()
-
-                print "event queued successfully"
-            else:
-                print "error: Could not save GovernanceObject"
-                # Event._meta.database.rollback()
-                # abort mysql commit
+            print "event queued successfully"
 
             return
 
