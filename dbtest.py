@@ -103,14 +103,6 @@ import govtypes
 #pprint(vars(pw_proposal))
 
 #proposal_name = "chrono-trigger-party"
-#
-#from governance import GovernanceObject
-#govobj = GovernanceObject()
-#govobj.init(object_name = proposal_name)
-#govobj.save()
-#
-#pprint(vars(govobj.governance_object))
-
 #pw_event = PeeWeeEvent.get(PeeWeeEvent.id == 1)
 #print pw_event.governance_object_id
 
@@ -121,44 +113,48 @@ import govtypes
 # ========================================================================
 
 
-#proposal = 1
-#trigger = 2
+### #proposal = 1
+### #trigger = 2
+###
+### proposal_name = "chrono-trigger-party"
+###
+### gobj = PeeWeeGovernanceObject(
+###     parent_id = 0,
+###     object_parent_hash = 0,
+###     object_name = proposal_name,
+###     object_type = 1,
+###     object_revision = 1
+### )
+###
+### pw_proposal = PeeWeeProposal(
+###     governance_object = gobj,
+###     proposal_name = "chrono-trigger-party",
+###     description_url = "https://dashcentral.com/chrono-trigger-party",
+###     start_epoch = 1472706000,
+###     end_epoch = 1475298000,
+###     payment_address = "yYe8KwyaUu5YswSYmB3q3ryx8XTUu9y7Ui",
+###     payment_amount = 7
+### )
+###
+### pw_proposal = PeeWeeProposal.get( PeeWeeProposal.id == 1 )
+### gobj = pw_proposal.governance_object
+### the_hex = gobj.object_data
+### print "the_hex = %s" % the_hex
+###
+### ##try:
+### ##    with PeeWeeEvent._meta.database.atomic():
+### ##        gobj.save()
+### ##        pw_proposal.save()
+### ##except peewee.OperationalError:
+### ##    print "Pork Chop Sandwiches!!"
+### ##except peewee.IntegrityError:
+### ##    print "Oh Shit! Get the fuck outta here!"
+### ##except:
+### ##    print "Get the fuck out of here... you stupid idiot!"
+### ##    print "Fuck we're all dead! Get the fuck out!"
+###
+### # pprint(vars(pw_proposal))
 
-proposal_name = "chrono-trigger-party"
+parent = PeeWeeGovernanceObject.root()
 
-gobj = PeeWeeGovernanceObject(
-    parent_id = 0,
-    object_parent_hash = 0,
-    object_name = proposal_name,
-    object_type = 1,
-    object_revision = 1
-)
-
-pw_proposal = PeeWeeProposal(
-    governance_object = gobj,
-    proposal_name = "chrono-trigger-party",
-    description_url = "https://dashcentral.com/chrono-trigger-party",
-    start_epoch = 1472706000,
-    end_epoch = 1475298000,
-    payment_address = "yYe8KwyaUu5YswSYmB3q3ryx8XTUu9y7Ui",
-    payment_amount = 7
-)
-
-pw_proposal = PeeWeeProposal.get( PeeWeeProposal.id == 1 )
-gobj = pw_proposal.governance_object
-the_hex = gobj.object_data
-print "the_hex = %s" % the_hex
-
-##try:
-##    with PeeWeeEvent._meta.database.atomic():
-##        gobj.save()
-##        pw_proposal.save()
-##except peewee.OperationalError:
-##    print "Pork Chop Sandwiches!!"
-##except peewee.IntegrityError:
-##    print "Oh Shit! Get the fuck outta here!"
-##except:
-##    print "Get the fuck out of here... you stupid idiot!"
-##    print "Fuck we're all dead! Get the fuck out!"
-
-pprint(vars(pw_proposal))
+pprint(vars(parent))
