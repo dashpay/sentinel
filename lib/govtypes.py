@@ -1,12 +1,8 @@
-
 # Name the types of governance objects here, dash is agnostict
 
 # these should... probably be an ENUM or TABLE in the DB...
 proposal = 1
-trigger = 2
-
-
-trigger_type_superblock = 10
+superblock = 2
 
 """
 user = 1001

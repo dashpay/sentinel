@@ -60,7 +60,7 @@ commands["proposal"] = [
 ]
 
 # superblock --create [...]
-commands["trigger"] = [
+commands["superblock"] = [
     "--create",
     "--date",
     "--payments"
@@ -190,7 +190,7 @@ class SentinelShell(cmd.Cmd):
                 object_parent_hash = 0,
                 object_name = object_name,
                 object_type = govtypes.proposal,
-                object_revision = govtypes.FIRST_REVISION
+                object_revision = 1,
             )
 
             # ADD OUR PROPOSAL AS A SUB-OBJECT WITHIN GOVERNANCE OBJECT
@@ -307,8 +307,8 @@ class SentinelShell(cmd.Cmd):
                 parent_id = 0,
                 object_parent_hash = 0,
                 object_name = object_name,
-                object_type = govtypes.trigger,
-                object_revision = govtypes.FIRST_REVISION
+                object_type = govtypes.superblock,
+                object_revision = 1,
             )
 
             # ADD OUR PROPOSAL AS A SUB-OBJECT WITHIN GOVERNANCE OBJECT

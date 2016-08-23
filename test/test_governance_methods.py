@@ -9,19 +9,38 @@ from pprint import pprint
 os.environ['SENTINEL_ENV'] = 'test'
 sys.path.append( os.path.join( os.path.dirname(__file__), '..', 'lib' ) )
 
+import govtypes
+
 # NGM/TODO: setup both Proposal and Superblock, and insert related rows,
 # including Events
 
 def setup():
-    from models import GovernanceObject, Proposal, Event
+    from models import GovernanceObject, Proposal, Event, Superblock
 
     # clear tables first...
     Event.delete().execute()
     Proposal.delete().execute()
+    Superblock.delete().execute()
     GovernanceObject.delete().execute()
 
 def teardown():
     pass
+
+@pytest.fixture
+def superblock():
+    from models import Superblock
+
+    # NOTE: no governance_object_id is set
+    sbobj = Superblock(
+        superblock_name = "sb1803405",
+        event_block_height = 523000,
+        payment_address = "yYe8KwyaUu5YswSYmB3q3ryx8XTUu9y7Ui|yTC62huR4YQEPn9AJHjnQxxreHSbgAoatV",
+        payment_amount  = "5|3"
+    )
+
+    # NOTE: this object is (intentionally) not saved yet.
+    #       We want to return an built, but unsaved, object
+    return sbobj
 
 
 @pytest.fixture
@@ -107,14 +126,53 @@ def test_prepare_command(governance_object):
     assert cmd == gobject_command
 
 # ensure all 3 rows get created -- govobj, proposal, and event.
-def test_proposal_creation(proposal):
+def test_proposal_create_and_queue(proposal):
+    from models import GovernanceObject, Proposal, Event
 
-    # TODO: build a convenience method 'create_and_queue' which accepts an object and checks/builds related/queues it all
-    #
-    # Then test than method here.
-    #
-    # Implement that method in cli.py
-    #
+    proposal_count = Proposal.select().count()
+    event_count    = Event.select().count()
+    gov_obj_count  = GovernanceObject.select().count()
+    total_count = proposal_count + event_count + gov_obj_count
 
-    pass
+    assert total_count == 0
 
+    try:
+        proposal.create_and_queue(govtypes.proposal)
+    except PeeweeException as e:
+        print "Pork Chop Sandwiches (Fuck, We're All Dead!) [%s]" % e[1]
+
+    proposal_count = Proposal.select().count()
+    event_count    = Event.select().count()
+    gov_obj_count  = GovernanceObject.select().count()
+    total_count = proposal_count + event_count + gov_obj_count
+
+    assert proposal_count == 1
+    assert event_count    == 1
+    assert gov_obj_count  == 1
+    assert total_count == 3
+
+# ensure all 3 rows get created -- govobj, proposal, and event.
+def test_superblock_create_and_queue(superblock):
+    from models import GovernanceObject, Superblock, Event
+
+    superblock_count = Superblock.select().count()
+    event_count    = Event.select().count()
+    gov_obj_count  = GovernanceObject.select().count()
+    total_count = superblock_count + event_count + gov_obj_count
+
+    assert total_count == 0
+
+    try:
+        superblock.create_and_queue(govtypes.superblock)
+    except PeeweeException as e:
+        print "Pork Chop Sandwiches (Fuck, We're All Dead!) [%s]" % e[1]
+
+    superblock_count = Superblock.select().count()
+    event_count    = Event.select().count()
+    gov_obj_count  = GovernanceObject.select().count()
+    total_count = superblock_count + event_count + gov_obj_count
+
+    assert superblock_count == 1
+    assert event_count      == 1
+    assert gov_obj_count    == 1
+    assert total_count      == 3

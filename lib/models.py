@@ -2,9 +2,13 @@ from peewee import *
 from pprint import pprint
 from time import time
 
+# our mixin
+from queue_gov_object import QueueGovObject
+
 import os
 import sys
 sys.path.append( os.path.join( os.path.dirname(__file__), '..' ) )
+sys.path.append( os.path.join( os.path.dirname(__file__), '..' , 'lib' ) )
 import config
 import simplejson
 import binascii
@@ -156,7 +160,7 @@ class Setting(BaseModel):
     class Meta:
       db_table = 'setting'
 
-class Proposal(BaseModel):
+class Proposal(BaseModel, QueueGovObject):
     #id = IntegerField(primary_key = True)
     #governance_object_id = IntegerField(unique=True)
     governance_object = ForeignKeyField(GovernanceObject, related_name = 'proposal')
@@ -168,7 +172,12 @@ class Proposal(BaseModel):
     class Meta:
       db_table = 'proposal'
 
-class Superblock(BaseModel):
+    # TODO: rename column 'proposal_name' to 'name' and remove this
+    @property
+    def name(self):
+        return self.proposal_name
+
+class Superblock(BaseModel, QueueGovObject):
     #id = IntegerField(primary_key = True)
     #governance_object_id = IntegerField(unique=True)
     governance_object = ForeignKeyField(GovernanceObject, related_name = 'superblock')
@@ -178,6 +187,11 @@ class Superblock(BaseModel):
     payment_amounts      = TextField()
     class Meta:
       db_table = 'superblock'
+
+    # TODO: rename column 'superblock_name' to 'name' and remove this
+    @property
+    def name(self):
+        return self.superblock_name
 
 # === /models ===
 
