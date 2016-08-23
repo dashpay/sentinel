@@ -475,16 +475,16 @@ misc.startup()
 if __name__ == '__main__':
 
     if len(args) > 1:
-        if args[0] == "proposal":
-            SentinelShell().do_proposal(" ".join(args[1:]))
-        elif args[0] == "vote":
-            SentinelShell().do_vote(" ".join(args[1:]))
-        elif args[0] == "crontab":
-            SentinelShell().do_crontab(" ".join(args[1:]))
-        elif args[0] == "superblock":
-            SentinelShell().do_superblock(" ".join(args[1:]))
+        command = args[0]
+        subcmd_args = " ".join(args[1:])
+
+        try:
+            getattr( SentinelShell(), "do_" + args[0] )(subcmd_args)
+        except AttributeError as e:
+            print "command '%s' not implemented" % command
     else:
         SentinelShell().cmdloop()
+
 
 """
     Test Flow (to be moved into unit tests):
