@@ -286,62 +286,55 @@ class SentinelShell(cmd.Cmd):
                 list_addr.append(addr)
                 list_amount.append(amount)
 
-            print list_amount
-            print list_addr
+            # print list_amount
+            # print list_addr
 
             # CREATE NAME ACCORDING TO STARTING DATE (NON-UNIQUE IS NOT AN ATTACK)
             # NGM/TODO: why random? why not current epoch for this second?
             superblock_name = "sb" + str(random.randint(1000000, 9999999))
 
-            # DOES THIS ALREADY EXIST?
-            if GovernanceObject.object_with_name_exists(superblock_name):
-                print "governance object with that name already exists"
-                return
-
             # NGM: might be easier to perform sanitization further up and
             # separate from the actual logic...
             event_block_height = misc.normalize(args.event_block_height)
+            object_name  = superblock_name
 
-            # NGM: Let's add a little more output so that the random numbers make sense...
-            print "event_block_height: %s" % event_block_height
+            # DOES THIS ALREADY EXIST?
+            if GovernanceObject.object_with_name_exists(object_name):
+                print "governance object with that name already exists"
+                return
 
-            newObj = GovernanceObject()
-            newObj.init(parent_id = 0, object_parent_hash = 0, object_name = superblock_name, object_type = govtypes.trigger, object_revision = govtypes.FIRST_REVISION)
-            last_id = newObj.save()
+            govobj = GovernanceObject(
+                parent_id = 0,
+                object_parent_hash = 0,
+                object_name = object_name,
+                object_type = govtypes.trigger,
+                object_revision = govtypes.FIRST_REVISION
+            )
 
-            # print "new GovernanceObject id = %d" % last_id
+            # ADD OUR PROPOSAL AS A SUB-OBJECT WITHIN GOVERNANCE OBJECT
+            superblock = Superblock(
+                governance_object = govobj,
+                superblock_name = object_name,
+                event_block_height = event_block_height,
+                payment_addresses = ("|".join(list_addr)),
+                payment_amounts = ("|".join(list_amount))
+            )
 
-            if last_id != None:
+            # CREATE EVENT TO TALK TO DASHD / PREPARE / SUBMIT OBJECT
+            event = Event(governance_object = govobj)
 
-                # ADD OUR PROPOSAL AS A SUB-OBJECT WITHIN GOVERNANCE OBJECT
-                pwsb = Superblock(
-                    governance_object_id = last_id,
-                    superblock_name = superblock_name,
-                    event_block_height = event_block_height,
-                    payment_addresses = ("|".join(list_addr)),
-                    payment_amounts = ("|".join(list_amount))
-                )
+            # create_and_queue
+            # atomic write for all 3 objects, alles oder nichts
+            try:
+                with Event._meta.database.atomic():
+                    govobj.save()
+                    superblock.save()
+                    event.save()
+            except PeeweeException as e:
+                # will auto-rollback as a result of atomic()...
+                print "error: %s" % e[1]
 
-                # APPEND TO GOVERNANCE OBJECT
-                newObj.add_subclass("trigger", pwsb)
-                newObj.save()
-
-                # CREATE EVENT TO TALK TO DASHD / PREPARE / SUBMIT OBJECT
-                pwevent = Event(governance_object_id = last_id)
-                pwevent.save()
-
-                # NGM/TODO:  I think it's easier to have autocommit on and only
-                # disable for specific transaction sequences which have to be
-                # atomic, and all at once and encapsulated so that it's easy to
-                # see the logic.
-                #
-                # Event._meta.database.commit()
-
-                print "event queued successfully"
-            else:
-                print "error: Could not save GovernanceObject"
-                # Event._meta.database.rollback()
-                # abort mysql commit
+            print "event queued successfully"
 
             return
 
