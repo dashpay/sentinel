@@ -180,22 +180,13 @@ class SentinelShell(cmd.Cmd):
             payment_address = args.payment_address
             payment_amount = args.payment_amount
 
+            # TODO: remove check here (and redundancy), check elsewhere
             ### ---- CHECK NAME UNIQUENESS -----
             if GovernanceObject.object_with_name_exists(object_name):
                 print "governance object with that name already exists"
                 return
 
-            govobj = GovernanceObject(
-                parent_id = 0,
-                object_parent_hash = 0,
-                object_name = object_name,
-                object_type = govtypes.proposal,
-                object_revision = 1,
-            )
-
-            # ADD OUR PROPOSAL AS A SUB-OBJECT WITHIN GOVERNANCE OBJECT
             proposal = Proposal(
-                governance_object = govobj,
                 proposal_name = object_name,
                 description_url = description_url,
                 start_epoch = start_epoch,
@@ -204,16 +195,8 @@ class SentinelShell(cmd.Cmd):
                 payment_amount = payment_amount
             )
 
-            # CREATE EVENT TO TALK TO DASHD / PREPARE / SUBMIT OBJECT
-            event = Event(governance_object = govobj)
-
-            # create_and_queue
-            # atomic write for all 3 objects, alles oder nichts
             try:
-                with Event._meta.database.atomic():
-                    govobj.save()
-                    proposal.save()
-                    event.save()
+                proposal.create_and_queue(govtypes.proposal)
             except PeeweeException as e:
                 # will auto-rollback as a result of atomic()...
                 print "error: %s" % e[1]
@@ -303,33 +286,17 @@ class SentinelShell(cmd.Cmd):
                 print "governance object with that name already exists"
                 return
 
-            govobj = GovernanceObject(
-                parent_id = 0,
-                object_parent_hash = 0,
-                object_name = object_name,
-                object_type = govtypes.superblock,
-                object_revision = 1,
-            )
-
-            # ADD OUR PROPOSAL AS A SUB-OBJECT WITHIN GOVERNANCE OBJECT
             superblock = Superblock(
-                governance_object = govobj,
                 superblock_name = object_name,
                 event_block_height = event_block_height,
                 payment_addresses = ("|".join(list_addr)),
                 payment_amounts = ("|".join(list_amount))
             )
 
-            # CREATE EVENT TO TALK TO DASHD / PREPARE / SUBMIT OBJECT
-            event = Event(governance_object = govobj)
-
             # create_and_queue
             # atomic write for all 3 objects, alles oder nichts
             try:
-                with Event._meta.database.atomic():
-                    govobj.save()
-                    superblock.save()
-                    event.save()
+                superblock.create_and_queue(govtypes.superblock)
             except PeeweeException as e:
                 # will auto-rollback as a result of atomic()...
                 print "error: %s" % e[1]

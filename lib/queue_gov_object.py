@@ -11,7 +11,6 @@ class QueueGovObject(object):
         #
         # for now, will leave as-is 'til we can come up w/something
 
-
         # ( we really need to get this redundancy out of this DB schema )
         #
         # actually, since the enhanced DB schema enforces unique names on the
@@ -24,16 +23,6 @@ class QueueGovObject(object):
         #     return
 
         # requirements: mix'ed in object must have 'name' property
-
-        # proposal = Proposal(
-        #     governance_object = govobj,
-        #     proposal_name = object_name,
-        #     description_url = description_url,
-        #     start_epoch = start_epoch,
-        #     end_epoch = end_epoch,
-        #     payment_address = payment_address,
-        #     payment_amount = payment_amount
-        # )
 
         govobj = models.GovernanceObject(
             parent_id = 0,
