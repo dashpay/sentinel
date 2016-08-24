@@ -1,16 +1,58 @@
 from bitcoinrpc.authproxy import AuthServiceProxy, JSONRPCException
 from pprint import pprint
 import socket
+import io
+import sys
+import re
 
-rpc_user = 'dashrpc'
-rpc_password = 'ZZZZZZsdrtyujk3498y7dcpoi3ue49orfjfpQKmXjzto'
-rpc_port = 19998
+import config
 
-rpc_connection = AuthServiceProxy("http://%s:%s@127.0.0.1:%s"%(rpc_user, rpc_password, rpc_port))
+def get_rpc_creds(dash_conf):
+    # read dash.conf config but skip commented lines
+    f = io.open(dash_conf)
+    lines = []
+    for line in f:
+        if re.match('^\s*#', line):
+            continue
+        lines.append(line)
+    f.close()
+
+    # data is dash.conf without commented lines
+    data = ''.join(lines)
+
+    # get rpc info from dash.conf
+    match = re.findall('rpc(user|password|port)=(\w+)', data)
+
+    # python <= 2.6
+    #d = dict((key, value) for (key, value) in match)
+
+    # python >= 2.7
+    creds = { key: value for (key, value) in match }
+
+    # standard Dash defaults...
+    default_port = 9998 if ( config.network == 'mainnet' ) else 19998
+
+    # use default port for network if not specified in dash.conf
+    if not ( 'port' in creds ):
+        creds[u'port'] = default_port
+
+    # convert to an int if taken from dash.conf
+    creds[u'port'] = int(creds[u'port'])
+
+    # return a dictionary with RPC credential key, value pairs
+    return creds
+
+
+# get JSONRPC credentials from dash.conf
+rpc_config = get_rpc_creds( config.dash_conf )
+
+# convenience list for format string
+creds = [ rpc_config.get('user'), rpc_config.get('password'), rpc_config.get('port') ]
+rpc_connection = AuthServiceProxy("http://{0}:{1}@127.0.0.1:{2}".format(*creds))
 
 try:
     best_block_hash = rpc_connection.getbestblockhash()
-    print(rpc_connection.getblockz(best_block_hash))
+    print(rpc_connection.getblock(best_block_hash))
 except JSONRPCException as e:
     print "JSONRPC Exception: %s" % e.message
 except socket.error as e:
@@ -22,4 +64,3 @@ except socket.error as e:
 #blocks = rpc_connection.batch_([ [ "getblock", h ] for h in block_hashes ])
 #block_times = [ block["time"] for block in blocks ]
 #print(block_times)
-
