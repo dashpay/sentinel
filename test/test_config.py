@@ -24,14 +24,16 @@ def dash_conf(**kwargs):
     defaults = {
         "rpcuser" : "dashrpc",
         "rpcpassword" : "EwJeV3fZTyTVozdECF627BkBMnNDwQaVLakG3A4wXYyk",
+        "rpcport" : 29241,
     }
 
     config = """# basic settings
 testnet=1 # TESTNET
 server=1
-rpcuser=dashrpc
-rpcpassword=EwJeV3fZTyTVozdECF627BkBMnNDwQaVLakG3A4wXYyk
+rpcuser={rpcuser}
+rpcpassword={rpcpassword}
 rpcallowip=127.0.0.1
+rpcport={rpcport}
 """
 
 
