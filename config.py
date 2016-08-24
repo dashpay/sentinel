@@ -7,6 +7,8 @@
 # NGM/TODO: use actual JSONRPC interface
 # specify full path to dash.conf
 dash_conf = "/Users/nmarley/Library/Application Support/DashCore/dash.conf"
+
+# valid options are 'testnet', 'mainnet'
 network = 'testnet'
 
 db = {
