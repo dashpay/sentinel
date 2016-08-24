@@ -4,12 +4,11 @@ import socket
 import io
 import sys
 import re
-
 import config
 
-def get_rpc_creds(dash_conf):
+def slurp_config_file(filename):
     # read dash.conf config but skip commented lines
-    f = io.open(dash_conf)
+    f = io.open(filename)
     lines = []
     for line in f:
         if re.match('^\s*#', line):
@@ -19,6 +18,12 @@ def get_rpc_creds(dash_conf):
 
     # data is dash.conf without commented lines
     data = ''.join(lines)
+
+    return data
+
+
+def get_rpc_creds(dash_conf):
+    data = slurp_config_file(dash_conf)
 
     # get rpc info from dash.conf
     match = re.findall('rpc(user|password|port)=(\w+)', data)
