@@ -14,11 +14,6 @@ import sample
 import config
 
 
-# text="""{name}
-# was
-# {place}"""
-# print(text.format(name='Louis', place='here'))
-
 @pytest.fixture
 def dash_conf(**kwargs):
     defaults = {
@@ -27,6 +22,10 @@ def dash_conf(**kwargs):
         "rpcport" : 29241,
     }
 
+    # merge kwargs into defaults
+    for (key, value) in kwargs.iteritems():
+        defaults[ key ] = value
+
     config = """# basic settings
 testnet=1 # TESTNET
 server=1
@@ -34,11 +33,45 @@ rpcuser={rpcuser}
 rpcpassword={rpcpassword}
 rpcallowip=127.0.0.1
 rpcport={rpcport}
-"""
+""".format(**defaults)
 
+    return config
 
 # test for this method...
 def test_get_rpc_creds():
-    pass
+
+    config = dash_conf()
+    creds = sample.get_rpc_creds(config)
+
+    for key in ('user', 'password', 'port'):
+        assert key in creds
+    assert creds.get('user') == 'dashrpc'
+    assert creds.get('password') == 'EwJeV3fZTyTVozdECF627BkBMnNDwQaVLakG3A4wXYyk'
+    assert creds.get('port') == 29241
+
+
+    config = dash_conf(rpcpassword = 's00pers33kr1t', rpcport=8000)
+    creds = sample.get_rpc_creds(config)
+
+    for key in ('user', 'password', 'port'):
+        assert key in creds
+    assert creds.get('user') == 'dashrpc'
+    assert creds.get('password') == 's00pers33kr1t'
+    assert creds.get('port') == 8000
+
+
+    no_port_specified = re.sub('\nrpcport=.*?\n', "\n", dash_conf(), re.M)
+    creds = sample.get_rpc_creds(no_port_specified)
+
+    for key in ('user', 'password', 'port'):
+        assert key in creds
+    assert creds.get('user') == 'dashrpc'
+    assert creds.get('password') == 'EwJeV3fZTyTVozdECF627BkBMnNDwQaVLakG3A4wXYyk'
+    assert creds.get('port') == 19998
+
+
 
 # ensure dash network (mainnet, testnet) matches that specified in config
+# requires running dashd on whatever port specified...
+#
+# This is more of a dashd/jsonrpc test than a config test...
