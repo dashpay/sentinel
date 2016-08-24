@@ -8,7 +8,6 @@
 # specify full path to dash.conf
 dash_conf = "/Users/nmarley/Library/Application Support/DashCore/dash.conf"
 network = 'testnet'
-#rpcport = 48727
 
 db = {
   'production': {
