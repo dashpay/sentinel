@@ -6,6 +6,7 @@ import sys
 import re
 import config
 
+
 def slurp_config_file(filename):
     # read dash.conf config but skip commented lines
     f = io.open(filename)
@@ -22,9 +23,7 @@ def slurp_config_file(filename):
     return data
 
 
-def get_rpc_creds(dash_conf):
-    data = slurp_config_file(dash_conf)
-
+def get_rpc_creds(data):
     # get rpc info from dash.conf
     match = re.findall('rpc(user|password|port)=(\w+)', data)
 
@@ -47,9 +46,9 @@ def get_rpc_creds(dash_conf):
     # return a dictionary with RPC credential key, value pairs
     return creds
 
-
 # get JSONRPC credentials from dash.conf
-rpc_config = get_rpc_creds( config.dash_conf )
+data = slurp_config_file(config.dash_conf)
+rpc_config = get_rpc_creds(data)
 
 # convenience list for format string
 creds = [ rpc_config.get('user'), rpc_config.get('password'), rpc_config.get('port') ]
