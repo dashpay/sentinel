@@ -14,7 +14,7 @@ import simplejson
 import binascii
 
 env = os.environ.get('SENTINEL_ENV') or 'production'
-db_cfg = config.db[env]
+db_cfg = config.db[env].copy()
 dbname = db_cfg.pop('database')
 
 db = MySQLDatabase(dbname, **db_cfg)
