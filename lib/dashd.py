@@ -11,6 +11,8 @@ import config
 import subprocess
 import json
 import sys
+import io
+import re
 
 from bitcoinrpc.authproxy import AuthServiceProxy, JSONRPCException
 
@@ -29,6 +31,49 @@ class DashDaemon():
         # getattr and getattribute are over-ridden in the AuthServiceProxy
         # implementation... :/
         return self.rpc_connection.__getattr__(params[0])(*params[1:])
+
+class DashConfig():
+
+    @classmethod
+    def slurp_config_file(self, filename):
+        # read dash.conf config but skip commented lines
+        f = io.open(filename)
+        lines = []
+        for line in f:
+            if re.match('^\s*#', line):
+                continue
+            lines.append(line)
+        f.close()
+
+        # data is dash.conf without commented lines
+        data = ''.join(lines)
+
+        return data
+
+    @classmethod
+    def get_rpc_creds(self, data):
+        # get rpc info from dash.conf
+        match = re.findall('rpc(user|password|port)=(\w+)', data)
+
+        # python <= 2.6
+        #d = dict((key, value) for (key, value) in match)
+
+        # python >= 2.7
+        creds = { key: value for (key, value) in match }
+
+        # standard Dash defaults...
+        default_port = 9998 if ( config.network == 'mainnet' ) else 19998
+
+        # use default port for network if not specified in dash.conf
+        if not ( 'port' in creds ):
+            creds[u'port'] = default_port
+
+        # convert to an int if taken from dash.conf
+        creds[u'port'] = int(creds[u'port'])
+
+        # return a dictionary with RPC credential key, value pairs
+        return creds
+
 
 class CTransaction():
     tx = {}

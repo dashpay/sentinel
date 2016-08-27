@@ -2,57 +2,17 @@ import pdb
 from bitcoinrpc.authproxy import AuthServiceProxy, JSONRPCException
 from pprint import pprint
 import socket
-import io
 import sys
-import re
 import config
 sys.path.append("lib")
 
 from dashd import DashDaemon
+from dashd import DashConfig
 
-
-def slurp_config_file(filename):
-    # read dash.conf config but skip commented lines
-    f = io.open(filename)
-    lines = []
-    for line in f:
-        if re.match('^\s*#', line):
-            continue
-        lines.append(line)
-    f.close()
-
-    # data is dash.conf without commented lines
-    data = ''.join(lines)
-
-    return data
-
-
-def get_rpc_creds(data):
-    # get rpc info from dash.conf
-    match = re.findall('rpc(user|password|port)=(\w+)', data)
-
-    # python <= 2.6
-    #d = dict((key, value) for (key, value) in match)
-
-    # python >= 2.7
-    creds = { key: value for (key, value) in match }
-
-    # standard Dash defaults...
-    default_port = 9998 if ( config.network == 'mainnet' ) else 19998
-
-    # use default port for network if not specified in dash.conf
-    if not ( 'port' in creds ):
-        creds[u'port'] = default_port
-
-    # convert to an int if taken from dash.conf
-    creds[u'port'] = int(creds[u'port'])
-
-    # return a dictionary with RPC credential key, value pairs
-    return creds
 
 # get JSONRPC credentials from dash.conf
-data = slurp_config_file(config.dash_conf)
-creds = get_rpc_creds(data)
+data = DashConfig.slurp_config_file(config.dash_conf)
+creds = DashConfig.get_rpc_creds(data)
 
 try:
     dashd = DashDaemon(

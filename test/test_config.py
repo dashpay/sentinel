@@ -10,8 +10,9 @@ os.environ['SENTINEL_ENV'] = 'test'
 sys.path.append( os.path.join( os.path.dirname(__file__), '..', 'lib' ) )
 sys.path.append( os.path.join( os.path.dirname(__file__), '..' ) )
 
-import sample
 import config
+# from dashd import DashDaemon
+from dashd import DashConfig
 
 
 @pytest.fixture
@@ -37,11 +38,10 @@ rpcport={rpcport}
 
     return config
 
-# test for this method...
-def test_get_rpc_creds():
 
+def test_get_rpc_creds():
     config = dash_conf()
-    creds = sample.get_rpc_creds(config)
+    creds = DashConfig.get_rpc_creds(config)
 
     for key in ('user', 'password', 'port'):
         assert key in creds
@@ -51,7 +51,7 @@ def test_get_rpc_creds():
 
 
     config = dash_conf(rpcpassword = 's00pers33kr1t', rpcport=8000)
-    creds = sample.get_rpc_creds(config)
+    creds = DashConfig.get_rpc_creds(config)
 
     for key in ('user', 'password', 'port'):
         assert key in creds
@@ -61,14 +61,13 @@ def test_get_rpc_creds():
 
 
     no_port_specified = re.sub('\nrpcport=.*?\n', "\n", dash_conf(), re.M)
-    creds = sample.get_rpc_creds(no_port_specified)
+    creds = DashConfig.get_rpc_creds(no_port_specified)
 
     for key in ('user', 'password', 'port'):
         assert key in creds
     assert creds.get('user') == 'dashrpc'
     assert creds.get('password') == 'EwJeV3fZTyTVozdECF627BkBMnNDwQaVLakG3A4wXYyk'
     assert creds.get('port') == 19998
-
 
 
 # ensure dash network (mainnet, testnet) matches that specified in config

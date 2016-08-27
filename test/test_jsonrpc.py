@@ -10,9 +10,9 @@ os.environ['SENTINEL_ENV'] = 'test'
 sys.path.append( os.path.join( os.path.dirname(__file__), '..', 'lib' ) )
 sys.path.append( os.path.join( os.path.dirname(__file__), '..' ) )
 
-import sample
 import config
 from dashd import DashDaemon
+from dashd import DashConfig
 
 
 @pytest.fixture
@@ -38,11 +38,10 @@ rpcport={rpcport}
 
     return config
 
-# test for this method...
-def test_dashd():
 
+def test_dashd():
     config = dash_conf()
-    creds = sample.get_rpc_creds(config)
+    creds = DashConfig.get_rpc_creds(config)
 
     dashd = DashDaemon(
         user     = creds.get('user'),
@@ -50,3 +49,6 @@ def test_dashd():
         port     = creds.get('port')
     )
     assert dashd.rpc_command != None
+    # [ more tests here ]
+
+    # dashd = DashDaemon
