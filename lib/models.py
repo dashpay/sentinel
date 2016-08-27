@@ -51,6 +51,8 @@ class GovernanceObject(BaseModel):
     class Meta:
       db_table = 'governance_object'
 
+    subclasses = ['proposal', 'superblock']
+
     @classmethod
     def root(self):
         root_properties = {
@@ -73,11 +75,12 @@ class GovernanceObject(BaseModel):
         objects = []
 
         for obj_type in self._meta.reverse_rel.keys():
-            res = getattr( self, obj_type )
-            if res:
-              # should only return one row, but for completeness...
-              for row in res:
-                objects.append((obj_type, row.get_dict()))
+            if obj_type in self.subclasses:
+                res = getattr( self, obj_type )
+                if res:
+                  # should only return one row, but for completeness...
+                  for row in res:
+                    objects.append((obj_type, row.get_dict()))
 
         the_json = simplejson.dumps(objects, sort_keys = True)
         # print "the_json = %s" % the_json
