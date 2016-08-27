@@ -12,7 +12,10 @@ sys.path.append( os.path.join( os.path.dirname(__file__), '..') )
 
 import config
 import misc
-import dashd
+
+from dashd import DashDaemon
+from dashd import DashConfig
+
 import random
 import govtypes
 
