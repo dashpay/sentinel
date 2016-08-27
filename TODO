@@ -6,6 +6,7 @@
 
 * test do_proposal and do_superblock, etc. all the "do"'s.
 
+* done, 2016-08-27
 * talk to dashd via JSONRPC
   - using a shell-out to dash-cli is kludgey
   - dash-cli simply uses the JSON-RPC credentials/interface also
