@@ -1,5 +1,6 @@
 #!/usr/bin/env python
-
+import pdb
+from pprint import pprint
 """
 Dashd interface
 ----
@@ -27,9 +28,31 @@ class DashDaemon():
         self.rpc_connection = AuthServiceProxy("http://{0}:{1}@{2}:{3}".format(*creds))
 
     def rpc_command(self, *params):
+        # split space-delimited strings into a list
+        # use actual int values and not strings
+        first_param = params[0].split(' ')
+        method = first_param[0]
+
+        # separate arguments into a list and use int values if necessary
+        if ( method == params[0] ):
+            args = self.sanitize_rpc_args(*params[1:])
+        else:
+            args = self.sanitize_rpc_args(*first_param[1:])
+
         # getattr and getattribute are over-ridden in the AuthServiceProxy
         # implementation... :/
-        return self.rpc_connection.__getattr__(params[0])(*params[1:])
+        return self.rpc_connection.__getattr__(method)(*args)
+
+    def clean_var(self, obj):
+        val = None
+        try:
+            val = int(obj) if obj.isdigit() else obj
+        except AttributeError as e:
+            val = obj
+        return val
+
+    def sanitize_rpc_args(self, *args):
+        return [self.clean_var(arg) for arg in args]
 
 class DashConfig():
 

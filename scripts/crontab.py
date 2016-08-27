@@ -77,13 +77,12 @@ def prepare_events():
     if pw_event:
         govobj = pw_event.governance_object
 
-        pdb.set_trace()
         print "# PREPARING EVENTS FOR DASH NETWORK"
         print
         print " -- cmd : [%s]" % govobj.get_prepare_command()
         print
 
-        sys.exit(2)
+        pdb.set_trace()
 
         result = dashd.rpc_command(govobj.get_prepare_command())
         print " -- executing event ... getting fee_tx hash"

@@ -20,8 +20,14 @@ try:
         password = creds.get('password'),
         port     = creds.get('port')
     )
-    print dashd.rpc_command('getbestblockhash')
-    print dashd.rpc_command('getblock', '000000167d8064d2b6cdc62c46c989df7b5c623df6796b7bcb545a29f0a550b7')
+
+    # pprint(dashd.rpc_command('getinfo'))
+    pprint(dashd.rpc_command('getblockhash 0'))
+    pprint(dashd.rpc_command('getblockhash', 0))
+    # pprint(dashd.rpc_command('getinfo'))
+
+    # print dashd.rpc_command('getbestblockhash')
+    # print dashd.rpc_command('getblock', '000000167d8064d2b6cdc62c46c989df7b5c623df6796b7bcb545a29f0a550b7')
 except JSONRPCException as e:
     print "JSONRPC Exception: %s" % e.message
 except socket.error as e:
