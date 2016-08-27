@@ -12,25 +12,21 @@ import subprocess
 import json
 import sys
 
-# NGM/TODO: replace the guts of this with an actual JSON-RPC implementation
-def rpc_command(params):
-    dashcmd = [ config.dash_cli , "--datadir=%s" % config.datadir , params ]
+from bitcoinrpc.authproxy import AuthServiceProxy, JSONRPCException
 
-    # print "dashcmd = [%s]" % (' '.join(dashcmd))
+class DashDaemon():
+    def __init__(self, **kwargs):
+        host = kwargs.get('host', '127.0.0.1')
+        user = kwargs.get('user')
+        password = kwargs.get('password')
+        port = kwargs.get('port')
 
-    proc = subprocess.Popen(dashcmd, bufsize=1, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    output = ""
-    while (True):
-        # Read line from stdout, break if EOF reached, append line to output
-        line = proc.stdout.readline()
-        line = line.decode()
-        if (line == ""): break
-        output += line
+        creds = (user, password, host, port)
+        self.rpc_connection = AuthServiceProxy("http://{0}:{1}@{2}:{3}".format(*creds))
 
-    return output
+    def rpc_command(params):
+        return rpc_connection.getattr(params[0])(params[1:])
 
-# NGM: this really isn't implemented yet, will probably remove 'til JSON-RPC
-# interface is finished
 
 class CTransaction():
     tx = {}
@@ -49,12 +45,12 @@ class CTransaction():
             if obj:
                 self.tx = obj
                 return True
-            else: 
+            else:
                 print "error loading tx"
                 return False
         except:
             print "Unexpected error:", sys.exc_info()[0]
-            print 
+            print
             print "dashd result:", result
             print
             return False
