@@ -25,11 +25,8 @@ class QueueGovObject(object):
         # requirements: mix'ed in object must have 'name' property
 
         govobj = models.GovernanceObject(
-            parent_id = 0,
-            object_parent_hash = 0,
             object_name = self.name,
             object_type = the_type,
-            object_revision = 1,
         )
 
         self.governance_object = govobj

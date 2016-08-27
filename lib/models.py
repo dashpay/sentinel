@@ -43,7 +43,7 @@ class GovernanceObject(BaseModel):
     object_creation_time = IntegerField(default=int(time()))
     object_hash = CharField(default='0')
     object_parent_hash = CharField(default='0')
-    object_name = CharField(default='0')
+    object_name = CharField(default='')
     object_type = IntegerField(default=0)
     object_revision = IntegerField(default=1)
     object_fee_tx = CharField(default='')
