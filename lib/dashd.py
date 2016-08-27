@@ -14,6 +14,7 @@ import sys
 
 from bitcoinrpc.authproxy import AuthServiceProxy, JSONRPCException
 
+# -- might be better/easier to just subclass AuthServiceProxy
 class DashDaemon():
     def __init__(self, **kwargs):
         host = kwargs.get('host', '127.0.0.1')
@@ -24,9 +25,10 @@ class DashDaemon():
         creds = (user, password, host, port)
         self.rpc_connection = AuthServiceProxy("http://{0}:{1}@{2}:{3}".format(*creds))
 
-    def rpc_command(params):
-        return rpc_connection.getattr(params[0])(params[1:])
-
+    def rpc_command(self, *params):
+        # getattr and getattribute are over-ridden in the AuthServiceProxy
+        # implementation... :/
+        return self.rpc_connection.__getattr__(params[0])(*params[1:])
 
 class CTransaction():
     tx = {}
