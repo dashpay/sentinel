@@ -16,7 +16,6 @@ import re
 
 from bitcoinrpc.authproxy import AuthServiceProxy, JSONRPCException
 
-# -- might be better/easier to just subclass AuthServiceProxy
 class DashDaemon():
     def __init__(self, **kwargs):
         host = kwargs.get('host', '127.0.0.1')
