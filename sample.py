@@ -1,3 +1,4 @@
+import pdb
 from bitcoinrpc.authproxy import AuthServiceProxy, JSONRPCException
 from pprint import pprint
 import socket
@@ -5,6 +6,9 @@ import io
 import sys
 import re
 import config
+sys.path.append("lib")
+
+from dashd import DashDaemon
 
 
 def slurp_config_file(filename):
@@ -48,15 +52,16 @@ def get_rpc_creds(data):
 
 # get JSONRPC credentials from dash.conf
 data = slurp_config_file(config.dash_conf)
-rpc_config = get_rpc_creds(data)
-
-# convenience list for format string
-creds = [ rpc_config.get('user'), rpc_config.get('password'), rpc_config.get('port') ]
-rpc_connection = AuthServiceProxy("http://{0}:{1}@127.0.0.1:{2}".format(*creds))
+creds = get_rpc_creds(data)
 
 try:
-    best_block_hash = rpc_connection.getbestblockhash()
-    print(rpc_connection.getblock(best_block_hash))
+    dashd = DashDaemon(
+        user     = creds.get('user'),
+        password = creds.get('password'),
+        port     = creds.get('port')
+    )
+    print dashd.rpc_command('getbestblockhash')
+    print dashd.rpc_command('getblock', '000000167d8064d2b6cdc62c46c989df7b5c623df6796b7bcb545a29f0a550b7')
 except JSONRPCException as e:
     print "JSONRPC Exception: %s" % e.message
 except socket.error as e:
