@@ -49,6 +49,9 @@ def test_dashd():
         port     = creds.get('port')
     )
     assert dashd.rpc_command != None
+
+    assert hasattr(dashd, 'rpc_connection') == True
+
     # [ more tests here ]
 
     # dashd = DashDaemon
