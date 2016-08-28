@@ -61,28 +61,24 @@ def reset():
     clear_superblocks()
     clear_proposals()
 
-# TODO: description of what exactly this method does
+
 def prepare_events():
     try:
         dashd = DashDaemon.from_dash_conf(config.dash_conf)
     except Error as e:
         "error: %s" % e.message
 
-    # NGM/TODO: probably want to loop thru all pending events at once... need
-    # to check w/Evan on this
-    #
-    # select a single Event
-    pw_event = Event.get(
+    for event in Event.select().where(
         (Event.start_time < misc.get_epoch() ) &
         (Event.error_time == 0) &
         (Event.prepare_time == 0)
-    )
+        ):
 
-    if pw_event:
-        govobj = pw_event.governance_object
+        govobj = event.governance_object
 
         print "# PREPARING EVENTS FOR DASH NETWORK"
         print
+        pdb.set_trace()
         print " -- cmd : [%s]" % govobj.get_prepare_command()
         print
 
