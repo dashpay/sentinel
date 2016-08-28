@@ -151,4 +151,10 @@ pw_proposal = Proposal(
 #    print "Get the fuck out of here... you stupid idiot! [%s]" % e[1]
 #    print "Fuck we're all dead! Get the fuck out!"
 
-print pw_proposal.name
+# print pw_proposal.name
+
+for e in Event.select():
+    print "  event id = %d" % e.id
+    print "start_time = %d" % e.start_time
+    print "================================="
+    # pprint(vars(e))
