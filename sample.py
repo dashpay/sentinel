@@ -11,15 +11,17 @@ from dashd import DashConfig
 
 
 # get JSONRPC credentials from dash.conf
-data = DashConfig.slurp_config_file(config.dash_conf)
-creds = DashConfig.get_rpc_creds(data)
-
+# data = DashConfig.slurp_config_file(config.dash_conf)
+# creds = DashConfig.get_rpc_creds(data)
+#
 try:
-    dashd = DashDaemon(
-        user     = creds.get('user'),
-        password = creds.get('password'),
-        port     = creds.get('port')
-    )
+    # dashd = DashDaemon(
+    #     user     = creds.get('user'),
+    #     password = creds.get('password'),
+    #     port     = creds.get('port')
+    # )
+
+    dashd = DashDaemon.from_dash_conf(config.dash_conf)
 
     # pprint(dashd.rpc_command('getinfo'))
     pprint(dashd.rpc_command('getblockhash 0'))

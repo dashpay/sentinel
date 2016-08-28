@@ -63,6 +63,10 @@ def reset():
 
 # TODO: description of what exactly this method does
 def prepare_events():
+    try:
+        dashd = DashDaemon.from_dash_conf(config.dash_conf)
+    except Error as e:
+        "error: %s" % e.message
 
     # NGM/TODO: probably want to loop thru all pending events at once... need
     # to check w/Evan on this
@@ -81,8 +85,6 @@ def prepare_events():
         print
         print " -- cmd : [%s]" % govobj.get_prepare_command()
         print
-
-        pdb.set_trace()
 
         result = dashd.rpc_command(govobj.get_prepare_command())
         print " -- executing event ... getting fee_tx hash"
