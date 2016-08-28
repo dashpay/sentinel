@@ -63,10 +63,11 @@ def reset():
 
 
 def prepare_events():
-    try:
-        dashd = DashDaemon.from_dash_conf(config.dash_conf)
-    except Error as e:
-        "error: %s" % e.message
+    # dashd = None
+    # try:
+    dashd = DashDaemon.from_dash_conf(config.dash_conf)
+    # except Error as e:
+    #     "error: %s" % e.message
 
     for event in Event.select().where(
         (Event.start_time < misc.get_epoch() ) &
@@ -78,7 +79,7 @@ def prepare_events():
 
         print "# PREPARING EVENTS FOR DASH NETWORK"
         print
-        pdb.set_trace()
+        # pdb.set_trace()
         print " -- cmd : [%s]" % govobj.get_prepare_command()
         print
 
