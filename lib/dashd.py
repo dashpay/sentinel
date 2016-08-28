@@ -27,6 +27,17 @@ class DashDaemon():
         creds = (user, password, host, port)
         self.rpc_connection = AuthServiceProxy("http://{0}:{1}@{2}:{3}".format(*creds))
 
+    @classmethod
+    def from_dash_conf(self, dash_dot_conf):
+        config_text = DashConfig.slurp_config_file(dash_dot_conf)
+        creds = DashConfig.get_rpc_creds(config_text)
+
+        return self(
+            user     = creds.get('user'),
+            password = creds.get('password'),
+            port     = creds.get('port')
+        )
+
     def rpc_command(self, *params):
         # split space-delimited strings into a list
         # use actual int values and not strings
