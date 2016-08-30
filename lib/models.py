@@ -1,17 +1,19 @@
 from peewee import *
 from pprint import pprint
 from time import time
+import simplejson
+import binascii
+
+import sys, os
+sys.path.append( os.path.join( os.path.dirname(__file__), '..' ) )
+sys.path.append( os.path.join( os.path.dirname(__file__), '..' , 'lib' ) )
+
+import config
+import misc
 
 # our mixin
 from queue_gov_object import QueueGovObject
 
-import os
-import sys
-sys.path.append( os.path.join( os.path.dirname(__file__), '..' ) )
-sys.path.append( os.path.join( os.path.dirname(__file__), '..' , 'lib' ) )
-import config
-import simplejson
-import binascii
 
 env = os.environ.get('SENTINEL_ENV') or 'production'
 db_cfg = config.db[env].copy()

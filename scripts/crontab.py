@@ -5,8 +5,7 @@
     - can include building fee transactions, submitting govobjs to the network
 """
 
-import os
-import sys
+import sys, os
 sys.path.append( os.path.join( os.path.dirname(__file__), '..', 'lib' ) )
 sys.path.append( os.path.join( os.path.dirname(__file__), '..') )
 
@@ -17,7 +16,6 @@ from dashd import DashDaemon
 from dashd import DashConfig
 
 import random
-import govtypes
 
 from models import Event, Superblock, Proposal, GovernanceObject
 import pdb
