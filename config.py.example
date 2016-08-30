@@ -6,14 +6,26 @@
 
 # specify full path to dash.conf
 datadir = "/Users/evan/.dash/dash.conf"
+
+# valid options are 'testnet', 'mainnet'
 network = 'testnet'
 
-db_config = {
-  'hostname': '127.0.0.1',
-  'username': 'username',
-  'password': 'password',
-  'database': 'sentinel',
+# MySQL database credentials
+db = {
+  'production': {
+    'host'    : '127.0.0.1',
+    'user'    : 'username',
+    'passwd'  : 'password',
+    'database': 'sentinel',
+  },
+  'test': {
+    'host'    : '127.0.0.1',
+    'user'    : 'username',
+    'passwd'  : 'password',
+    'database': 'sentinel_test',
+  },
 }
+
 
 """
 
