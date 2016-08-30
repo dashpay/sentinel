@@ -4,27 +4,28 @@
     Setup your dash environment here and copy this file to config.py
 """
 
-# NGM/TODO: use actual JSONRPC interface
 # specify full path to dash.conf
 dash_conf = "/Users/nmarley/Library/Application Support/DashCore/dash.conf"
 
 # valid options are 'testnet', 'mainnet'
 network = 'testnet'
 
+# MySQL database credentials
 db = {
   'production': {
-    'host': '127.0.0.1',
-    'user': 'dashdrive',
-    'passwd': 'dashdrive',
+    'host'    : '127.0.0.1',
+    'user'    : 'dashdrive',
+    'passwd'  : 'dashdrive',
     'database': 'sentinel',
   },
   'test': {
-    'host': '127.0.0.1',
-    'user': 'dashdrive',
-    'passwd': 'dashdrive',
+    'host'    : '127.0.0.1',
+    'user'    : 'dashdrive',
+    'passwd'  : 'dashdrive',
     'database': 'sentinel_test',
   },
 }
+
 
 """
 
