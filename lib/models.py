@@ -111,7 +111,12 @@ class GovernanceObject(BaseModel):
         )
         return cmd
 
-    # NGM: TODO -- check w/Evan for the specific rules for validity
+    def vote(self):
+        # TODO
+        pass
+
+
+    # NGM: TODO -- specific rules for validity
     def is_valid(self):
         """
             - check tree position validity
