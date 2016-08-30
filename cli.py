@@ -446,7 +446,7 @@ if __name__ == '__main__':
         subcmd_args = " ".join(args[1:])
 
         try:
-            getattr( SentinelShell(), "do_" + args[0] )(subcmd_args)
+            getattr( SentinelShell(), "do_" + command )(subcmd_args)
         except AttributeError as e:
             print "command '%s' not implemented" % command
     else:
