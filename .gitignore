@@ -93,3 +93,6 @@ config.py
 
 .DS_Store
 docs/.DS_Store
+
+# ignore everything in ignore/
+ignore/
