@@ -177,6 +177,9 @@ class Proposal(BaseModel, QueueGovObject):
     end_epoch = IntegerField()
     payment_address = CharField()
     payment_amount = DecimalField(max_digits=16, decimal_places=8)
+
+    govobj_type = 1
+
     class Meta:
       db_table = 'proposal'
 
@@ -193,6 +196,9 @@ class Superblock(BaseModel, QueueGovObject):
     event_block_height   = IntegerField()
     payment_addresses    = TextField()
     payment_amounts      = TextField()
+
+    govobj_type = 2
+
     class Meta:
       db_table = 'superblock'
 

@@ -196,7 +196,7 @@ class SentinelShell(cmd.Cmd):
             )
 
             try:
-                proposal.create_and_queue(govtypes.proposal)
+                proposal.create_and_queue()
             except PeeweeException as e:
                 # will auto-rollback as a result of atomic()...
                 print "error: %s" % e[1]
@@ -296,7 +296,7 @@ class SentinelShell(cmd.Cmd):
             # create_and_queue
             # atomic write for all 3 objects, alles oder nichts
             try:
-                superblock.create_and_queue(govtypes.superblock)
+                superblock.create_and_queue()
             except PeeweeException as e:
                 # will auto-rollback as a result of atomic()...
                 print "error: %s" % e[1]

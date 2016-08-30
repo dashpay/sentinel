@@ -137,9 +137,9 @@ def test_proposal_create_and_queue(proposal):
     assert total_count == 0
 
     try:
-        proposal.create_and_queue(govtypes.proposal)
+        proposal.create_and_queue()
     except PeeweeException as e:
-        print "Pork Chop Sandwiches (Fuck, We're All Dead!) [%s]" % e[1]
+        print "error: %s" % e[1]
 
     proposal_count = Proposal.select().count()
     event_count    = Event.select().count()
@@ -163,9 +163,9 @@ def test_superblock_create_and_queue(superblock):
     assert total_count == 0
 
     try:
-        superblock.create_and_queue(govtypes.superblock)
+        superblock.create_and_queue()
     except PeeweeException as e:
-        print "Pork Chop Sandwiches (Fuck, We're All Dead!) [%s]" % e[1]
+        print "error: %s" % e[1]
 
     superblock_count = Superblock.select().count()
     event_count    = Event.select().count()
