@@ -36,7 +36,7 @@ class BaseModel(Model):
       return dikt
 
     class Meta:
-      database = db
+        database = db
 
 
 class GovernanceObject(BaseModel):
@@ -51,7 +51,7 @@ class GovernanceObject(BaseModel):
     object_fee_tx = CharField(default='')
 
     class Meta:
-      db_table = 'governance_object'
+        db_table = 'governance_object'
 
     subclasses = ['proposal', 'superblock']
 
@@ -80,9 +80,9 @@ class GovernanceObject(BaseModel):
             if obj_type in self.subclasses:
                 res = getattr( self, obj_type )
                 if res:
-                  # should only return one row, but for completeness...
-                  for row in res:
-                    objects.append((obj_type, row.get_dict()))
+                    # should only return one row, but for completeness...
+                    for row in res:
+                        objects.append((obj_type, row.get_dict()))
 
         the_json = simplejson.dumps(objects, sort_keys = True)
         # print "the_json = %s" % the_json
@@ -138,7 +138,7 @@ class Action(BaseModel):
     no_count = IntegerField()
     abstain_count = IntegerField()
     class Meta:
-      db_table = 'action'
+        db_table = 'action'
 
 class Event(BaseModel):
     #id = IntegerField(primary_key = True)
@@ -149,8 +149,9 @@ class Event(BaseModel):
     submit_time = IntegerField()
     error_time = IntegerField()
     error_message = CharField()
+
     class Meta:
-      db_table = 'event'
+        db_table = 'event'
 
 class User(BaseModel):
     username = CharField(primary_key = True)
@@ -159,7 +160,7 @@ class User(BaseModel):
     created_at = DateTimeField()
     updated_at = DateTimeField()
     class Meta:
-      db_table = 'users'
+        db_table = 'users'
 
 class Setting(BaseModel):
     #id = IntegerField(primary_key = True)
@@ -168,7 +169,7 @@ class Setting(BaseModel):
     name     = CharField()
     value    = CharField()
     class Meta:
-      db_table = 'setting'
+        db_table = 'setting'
 
 class Proposal(BaseModel, QueueGovObject):
     #id = IntegerField(primary_key = True)
@@ -183,7 +184,7 @@ class Proposal(BaseModel, QueueGovObject):
     govobj_type = 1
 
     class Meta:
-      db_table = 'proposal'
+        db_table = 'proposal'
 
     # TODO: rename column 'proposal_name' to 'name' and remove this
     @property
@@ -202,7 +203,7 @@ class Superblock(BaseModel, QueueGovObject):
     govobj_type = 2
 
     class Meta:
-      db_table = 'superblock'
+        db_table = 'superblock'
 
     # TODO: rename column 'superblock_name' to 'name' and remove this
     @property
