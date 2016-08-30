@@ -1,14 +1,12 @@
-from pprint import pprint
-import config
-import re
-import sys
-import io
-sys.path.append("lib")
 import binascii
+import sys
+sys.path.append("lib")
 
-hex = sys.argv[1]
+usage = "%s <hex>" % sys.argv[0]
 
-json = binascii.unhexlify( hex )
-
-print json
+if len(sys.argv) < 2:
+    print usage
+else:
+    json = binascii.unhexlify( sys.argv[1] )
+    print json
 
