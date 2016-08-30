@@ -1,6 +1,5 @@
 import binascii
 import sys
-sys.path.append("lib")
 
 usage = "%s <hex>" % sys.argv[0]
 
