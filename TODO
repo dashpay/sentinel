@@ -1,4 +1,6 @@
 
+* done, 2016-08-30 (requirements.txt file)
+  -- see also: https://caremad.io/2013/07/setup-vs-requirement/
 * dependency specification
   - http://python-packaging.readthedocs.io/en/latest/dependencies.html
 
