@@ -91,20 +91,20 @@ def prepare_events():
             hashtx = misc.clean_hash(result)
             print " -- got hash:", hashtx
 
-            govobj.update_field("object_fee_tx", hashtx)
+            govobj.object_fee_tx = hashtx
             govobj.save()
 
-            pw_event.prepare_time = misc.get_epoch()
-            pw_event.save()
+            event.prepare_time = misc.get_epoch()
+            event.save()
 
             return 1
 
         else:
             print " -- got error:", result
 
-            pw_event.error_time = misc.get_epoch()
-            pw_event.error_message = result
-            pw_event.save()
+            event.error_time = misc.get_epoch()
+            event.error_message = result
+            event.save()
 
     return 0
 
@@ -112,15 +112,15 @@ def prepare_events():
 # TODO: description of what exactly this method does
 def submit_events():
     now = misc.get_epoch()
-    pw_event = Event.get(
+
+    for event in Event.select().where(
         (Event.start_time < now ) &
         (Event.prepare_time < now ) &
         (Event.prepare_time > 0 ) &
         (Event.submit_time == 0)
-    )
+        ):
 
-    if pw_event:
-        govobj = pw_event.governance_object
+        govobj = event.governance_object
         hash = govobj.object_fee_tx
 
         print "# SUBMIT PREPARED EVENTS FOR DASH NETWORK"
@@ -136,7 +136,7 @@ def submit_events():
                 print " -- confirmations: ", tx.get_confirmations()
 
                 if tx.get_confirmations() >= CONFIRMATIONS_REQUIRED:
-                    pw_event.submit_time = misc.get_epoch()
+                    event.submit_time = misc.get_epoch()
                     print " -- executing event ... getting fee_tx hash"
 
                     result = dashd.rpc_command(govobj.get_submit_command())
@@ -145,7 +145,7 @@ def submit_events():
 
                         govobj.object_hash = result
                         # NGM/TODO: atomic?
-                        pw_event.save()
+                        event.save()
                         govobj.save()
 
                         return 1
@@ -156,4 +156,6 @@ def submit_events():
 
         return 0
 
-prepare_events()
+
+if __name__ == '__main__':
+    prepare_events()
