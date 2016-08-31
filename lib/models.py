@@ -223,6 +223,19 @@ class Proposal(BaseModel, QueueGovObject):
     def name(self):
         return self.proposal_name
 
+    def is_valid(self):
+        # max value < budget allocation
+        # end date > start date
+        # end date > current date
+        # payment addresss is valid base58 dash addr, non-multisig
+        # proposal name is normalized (something like "[a-zA-Z0-9-_]+")
+        pass
+
+    def is_deletable(self):
+        # end_date < (current_date - 30 days)
+        # TBD (item moved to external storage/DashDrive, etc.)
+        pass
+
 class Superblock(BaseModel, QueueGovObject):
     #id = IntegerField(primary_key = True)
     #governance_object_id = IntegerField(unique=True)
@@ -241,6 +254,17 @@ class Superblock(BaseModel, QueueGovObject):
     @property
     def name(self):
         return self.superblock_name
+
+    def is_valid(self):
+        # vout != generated vout
+        # blockheight != generated blockheight
+        pass
+
+    def is_deletable(self):
+        # end_date < (current_date - 30 days)
+        # TBD (item moved to external storage/DashDrive, etc.)
+        pass
+
 
 # === /models ===
 
