@@ -137,6 +137,10 @@ def submit_events():
                         return 1
                     else:
                         print " -- got error", result
+                        event.error_time = misc.get_epoch()
+                        event.error_message = result
+                        event.save()
+
                 else:
                     print " -- waiting for confirmation"
 
