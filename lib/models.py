@@ -38,6 +38,8 @@ class BaseModel(Model):
     class Meta:
         database = db
 
+    def is_valid(self):
+        raise NotImplementedError("Method be over-ridden in subclasses")
 
 class GovernanceObject(BaseModel):
     #id = IntegerField(primary_key = True)
@@ -117,16 +119,17 @@ class GovernanceObject(BaseModel):
         # TODO
         pass
 
-
-    # NGM: TODO -- specific rules for validity
     def is_valid(self):
+        raise NotImplementedError("Method be over-ridden in subclasses")
+        # -- might be possible to do base checks here and then ...
+        # govobj.is_valid() in sub-classes (as an alternative "super" since
+        # they're not true Python sub-classes)
         """
             - check tree position validity
             - check signatures of owners
             - check validity of revision (must be n+1)
             - check validity of field data (address format, etc)
         """
-        return True
 
 
 class Action(BaseModel):
