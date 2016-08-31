@@ -76,8 +76,8 @@ def test_prepared(superblock, proposal):
     now = misc.get_epoch()
     # print "now = %ld" % now
 
-    ev1 = proposal.governance_object.event[0]
-    ev2 = superblock.governance_object.event[0]
+    ev1 = proposal.governance_object.events[0]
+    ev2 = superblock.governance_object.events[0]
 
     # started yesterday
     ev1.start_time   = misc.get_epoch() - 86400
@@ -102,8 +102,8 @@ def test_submitted(superblock, proposal):
 
     now = misc.get_epoch()
 
-    ev1 = proposal.governance_object.event[0]
-    ev2 = superblock.governance_object.event[0]
+    ev1 = proposal.governance_object.events[0]
+    ev2 = superblock.governance_object.events[0]
 
     # started yesterday
     ev1.start_time   = now - 86400

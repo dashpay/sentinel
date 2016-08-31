@@ -4,15 +4,15 @@
 
 */
 
-DROP TABLE if exists `proposal` ;
-DROP TABLE if exists `superblock` ;
-DROP TABLE if exists `event` ;
-DROP TABLE if exists `action` ;
-DROP TABLE if exists `setting` ;
-DROP TABLE if exists `governance_object` ;
+DROP TABLE if exists `proposals` ;
+DROP TABLE if exists `superblocks` ;
+DROP TABLE if exists `events` ;
+DROP TABLE if exists `actions` ;
+DROP TABLE if exists `settings` ;
+DROP TABLE if exists `governance_objects` ;
 
 
-CREATE TABLE `governance_object` (
+CREATE TABLE `governance_objects` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `parent_id` int(11) unsigned NOT NULL DEFAULT '0',
   `object_creation_time` int(11) NOT NULL DEFAULT '0',
@@ -23,10 +23,10 @@ CREATE TABLE `governance_object` (
   `object_revision` int(20) NOT NULL DEFAULT '1',
   `object_fee_tx` varchar(255) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `index_governance_object_object_name` (`object_name`)
+  UNIQUE KEY `index_governance_objects_object_name` (`object_name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE `proposal` (
+CREATE TABLE `proposals` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `governance_object_id` int(11) unsigned NOT NULL,
   `proposal_name` varchar(255) NOT NULL,
@@ -35,11 +35,11 @@ CREATE TABLE `proposal` (
   `payment_address` varchar(255) DEFAULT NULL,
   `payment_amount` decimal(16,8) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  CONSTRAINT `fk_proposal_governance_object_id` FOREIGN KEY (`governance_object_id`) REFERENCES governance_object(`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  UNIQUE KEY `index_proposal_proposal_name` (`proposal_name`)
+  CONSTRAINT `fk_proposals_governance_object_id` FOREIGN KEY (`governance_object_id`) REFERENCES governance_objects(`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  UNIQUE KEY `index_proposals_proposal_name` (`proposal_name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE superblock (
+CREATE TABLE `superblocks` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `governance_object_id` int(11) unsigned NOT NULL,
   `superblock_name` varchar(255) DEFAULT NULL,
@@ -47,10 +47,10 @@ CREATE TABLE superblock (
   `payment_addresses` text,
   `payment_amounts` text,
   PRIMARY KEY (`id`),
-  CONSTRAINT `fk_superblock_governance_object_id` FOREIGN KEY (`governance_object_id`) REFERENCES governance_object(`id`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `fk_superblocks_governance_object_id` FOREIGN KEY (`governance_object_id`) REFERENCES governance_objects(`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE `event` (
+CREATE TABLE `events` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `governance_object_id` int(11) unsigned NOT NULL,
   `start_time` int(11) NOT NULL DEFAULT '0',
@@ -59,12 +59,11 @@ CREATE TABLE `event` (
   `error_time` int(11) NOT NULL DEFAULT '0',
   `error_message` varchar(255) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`),
-  CONSTRAINT `fk_event_governance_object_id` FOREIGN KEY (`governance_object_id`) REFERENCES governance_object(`id`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `fk_events_governance_object_id` FOREIGN KEY (`governance_object_id`) REFERENCES governance_objects(`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
-
-CREATE TABLE `action` (
+CREATE TABLE `actions` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `governance_object_id` int(11) unsigned NOT NULL,
   `absolute_yes_count` int DEFAULT NULL,
@@ -72,16 +71,16 @@ CREATE TABLE `action` (
   `no_count` int DEFAULT NULL,
   `abstain_count` int DEFAULT NULL,
   PRIMARY KEY (`id`),
-  CONSTRAINT `fk_action_governance_object_id` FOREIGN KEY (`governance_object_id`) REFERENCES governance_object(`id`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `fk_actions_governance_object_id` FOREIGN KEY (`governance_object_id`) REFERENCES governance_objects(`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
-CREATE TABLE `setting` (
+CREATE TABLE `settings` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
   `value` text,
   `created_at` DATETIME NOT NULL,
   `updated_at` DATETIME NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `index_setting_name` (`name`)
+  UNIQUE KEY `index_settings_name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

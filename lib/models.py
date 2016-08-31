@@ -53,9 +53,9 @@ class GovernanceObject(BaseModel):
     object_fee_tx = CharField(default='')
 
     class Meta:
-        db_table = 'governance_object'
+        db_table = 'governance_objects'
 
-    subclasses = ['proposal', 'superblock']
+    subclasses = ['proposals', 'superblocks']
 
     @classmethod
     def root(self):
@@ -135,18 +135,18 @@ class GovernanceObject(BaseModel):
 class Action(BaseModel):
     #id = IntegerField(primary_key = True)
     #governance_object_id = IntegerField(unique=True)
-    governance_object = ForeignKeyField(GovernanceObject, related_name = 'action')
+    governance_object = ForeignKeyField(GovernanceObject, related_name = 'actions')
     absolute_yes_count = IntegerField()
     yes_count = IntegerField()
     no_count = IntegerField()
     abstain_count = IntegerField()
     class Meta:
-        db_table = 'action'
+        db_table = 'actions'
 
 class Event(BaseModel):
     #id = IntegerField(primary_key = True)
     #governance_object_id = IntegerField(unique=True)
-    governance_object = ForeignKeyField(GovernanceObject, related_name = 'event')
+    governance_object = ForeignKeyField(GovernanceObject, related_name = 'events')
     start_time = IntegerField(default=int(time()))
     prepare_time = IntegerField()
     submit_time = IntegerField()
@@ -154,7 +154,7 @@ class Event(BaseModel):
     error_message = CharField()
 
     class Meta:
-        db_table = 'event'
+        db_table = 'events'
 
     @classmethod
     def new(self):
@@ -201,12 +201,12 @@ class Setting(BaseModel):
     name     = CharField()
     value    = CharField()
     class Meta:
-        db_table = 'setting'
+        db_table = 'settings'
 
 class Proposal(BaseModel, QueueGovObject):
     #id = IntegerField(primary_key = True)
     #governance_object_id = IntegerField(unique=True)
-    governance_object = ForeignKeyField(GovernanceObject, related_name = 'proposal')
+    governance_object = ForeignKeyField(GovernanceObject, related_name = 'proposals')
     proposal_name = CharField(unique=True)
     start_epoch = IntegerField()
     end_epoch = IntegerField()
@@ -216,7 +216,7 @@ class Proposal(BaseModel, QueueGovObject):
     govobj_type = 1
 
     class Meta:
-        db_table = 'proposal'
+        db_table = 'proposals'
 
     # TODO: rename column 'proposal_name' to 'name' and remove this
     @property
@@ -239,7 +239,7 @@ class Proposal(BaseModel, QueueGovObject):
 class Superblock(BaseModel, QueueGovObject):
     #id = IntegerField(primary_key = True)
     #governance_object_id = IntegerField(unique=True)
-    governance_object = ForeignKeyField(GovernanceObject, related_name = 'superblock')
+    governance_object = ForeignKeyField(GovernanceObject, related_name = 'superblocks')
     superblock_name      = CharField() # unique?
     event_block_height   = IntegerField()
     payment_addresses    = TextField()
@@ -248,7 +248,7 @@ class Superblock(BaseModel, QueueGovObject):
     govobj_type = 2
 
     class Meta:
-        db_table = 'superblock'
+        db_table = 'superblocks'
 
     # TODO: rename column 'superblock_name' to 'name' and remove this
     @property
