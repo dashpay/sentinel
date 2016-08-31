@@ -35,7 +35,7 @@ CREATE TABLE `proposal` (
   `payment_address` varchar(255) DEFAULT NULL,
   `payment_amount` decimal(16,8) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `index_proposal_governance_object_id` (`governance_object_id`),
+  CONSTRAINT `fk_proposal_governance_object_id` FOREIGN KEY (`governance_object_id`) REFERENCES governance_object(`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   UNIQUE KEY `index_proposal_proposal_name` (`proposal_name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -47,7 +47,7 @@ CREATE TABLE superblock (
   `payment_addresses` text,
   `payment_amounts` text,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `index_superblock_governance_object_id` (`governance_object_id`)
+  CONSTRAINT `fk_superblock_governance_object_id` FOREIGN KEY (`governance_object_id`) REFERENCES governance_object(`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `event` (
@@ -59,8 +59,10 @@ CREATE TABLE `event` (
   `error_time` int(11) NOT NULL DEFAULT '0',
   `error_message` varchar(255) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `index_event_governance_object_id` (`governance_object_id`)
+  CONSTRAINT `fk_event_governance_object_id` FOREIGN KEY (`governance_object_id`) REFERENCES governance_object(`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
 
 CREATE TABLE `action` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
@@ -69,7 +71,8 @@ CREATE TABLE `action` (
   `yes_count` int DEFAULT NULL,
   `no_count` int DEFAULT NULL,
   `abstain_count` int DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  CONSTRAINT `fk_action_governance_object_id` FOREIGN KEY (`governance_object_id`) REFERENCES governance_object(`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
