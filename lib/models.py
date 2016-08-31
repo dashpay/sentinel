@@ -153,6 +153,35 @@ class Event(BaseModel):
     class Meta:
         db_table = 'event'
 
+    @classmethod
+    def new(self):
+        return self.select().where(
+            (self.start_time <= misc.get_epoch() ) &
+            (self.error_time == 0) &
+            (self.prepare_time == 0)
+        )
+
+    @classmethod
+    def prepared(self):
+        now = misc.get_epoch()
+
+        return self.select().where(
+            (self.start_time <= now ) &
+            (self.prepare_time <= now ) &
+            (self.prepare_time > 0 ) &
+            (self.submit_time == 0)
+        )
+
+    @classmethod
+    def submitted(self):
+        now = misc.get_epoch()
+
+        return self.select().where(
+            (self.submit_time > 0 )
+        )
+
+
+
 class User(BaseModel):
     username = CharField(primary_key = True)
     userkey  = CharField()

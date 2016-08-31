@@ -67,12 +67,7 @@ def prepare_events():
     # except Error as e:
     #     "error: %s" % e.message
 
-    for event in Event.select().where(
-        (Event.start_time < misc.get_epoch() ) &
-        (Event.error_time == 0) &
-        (Event.prepare_time == 0)
-        ):
-
+    for event in Event.new():
         govobj = event.governance_object
 
         print "# PREPARING EVENTS FOR DASH NETWORK"
@@ -109,15 +104,8 @@ def prepare_events():
 
 # TODO: description of what exactly this method does
 def submit_events():
-    now = misc.get_epoch()
 
-    for event in Event.select().where(
-        (Event.start_time < now ) &
-        (Event.prepare_time < now ) &
-        (Event.prepare_time > 0 ) &
-        (Event.submit_time == 0)
-        ):
-
+    for event in Event.prepared():
         govobj = event.governance_object
         hash = govobj.object_fee_tx
 
