@@ -78,9 +78,10 @@ CREATE TABLE `action` (
 
 CREATE TABLE `setting` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `datetime` int(11) DEFAULT '0',
-  `setting` varchar(255) DEFAULT NULL,
-  `name` varchar(255) DEFAULT NULL,
-  `value` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  `name` varchar(255) NOT NULL,
+  `value` text,
+  `created_at` DATETIME NOT NULL,
+  `updated_at` DATETIME NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `index_setting_name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
