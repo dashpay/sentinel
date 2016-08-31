@@ -183,17 +183,6 @@ class Event(BaseModel):
             (self.submit_time > 0 )
         )
 
-
-
-class User(BaseModel):
-    username = CharField(primary_key = True)
-    userkey  = CharField()
-    email    = CharField()
-    created_at = DateTimeField()
-    updated_at = DateTimeField()
-    class Meta:
-        db_table = 'users'
-
 class Setting(BaseModel):
     #id = IntegerField(primary_key = True)
     datetime = IntegerField()
