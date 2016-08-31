@@ -10,8 +10,6 @@ os.environ['SENTINEL_ENV'] = 'test'
 sys.path.append( os.path.join( os.path.dirname(__file__), '..', 'lib' ) )
 from models import GovernanceObject, Proposal, Event, Superblock
 
-import govtypes
-
 # NGM/TODO: setup both Proposal and Superblock, and insert related rows,
 # including Events
 

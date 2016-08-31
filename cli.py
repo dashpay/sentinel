@@ -14,7 +14,6 @@ import misc
 import config
 #import crontab
 import cmd, sys
-import govtypes
 import random
 import json
 
