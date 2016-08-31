@@ -1,10 +1,19 @@
 # Dash Sentinel
+
 An all-powerful toolset for Dash
 
 ## Installation
+
+Requires Python 2.7 and a running MySQL database server
+
 Make sure dashd is running at least v12.1, with a correctly configured masternode.conf. The masternode names in masternode.conf should match the masternodes listed config.py's "masternodes"
 
+Install Python dependencies via:
+
+    pip install -r requirements.txt
+
 ## Documentation
+
 - [usage.md](docs/usage.md) - New system usage
 - [conversion.md](docs/conversion.md) - How we will convert from 12.0 to 12.1
 - [rules.md](docs/rules.md) - What the rules are for the new system
