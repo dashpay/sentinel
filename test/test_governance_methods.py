@@ -33,7 +33,7 @@ def superblock():
     # NOTE: no governance_object_id is set
     sbobj = Superblock(
         superblock_name = "sb1803405",
-        event_block_height = 523000,
+        event_block_height = 62500,
         payment_address = "yYe8KwyaUu5YswSYmB3q3ryx8XTUu9y7Ui|yTC62huR4YQEPn9AJHjnQxxreHSbgAoatV",
         payment_amount  = "5|3"
     )
@@ -74,7 +74,7 @@ def governance_object():
 # Starting with this info...
 #
 # proposal -c -p chrono-trigger-party -d https://dashcentral.com/chrono-trigger-party -s 2016/09/01 -e 2016/10/01 -x yYe8KwyaUu5YswSYmB3q3ryx8XTUu9y7Ui -a 100
-# superblock -c -p yYe8KwyaUu5YswSYmB3q3ryx8XTUu9y7Ui=5,yTC62huR4YQEPn9AJHjnQxxreHSbgAoatV=3 -b 523000
+# superblock -c -p yYe8KwyaUu5YswSYmB3q3ryx8XTUu9y7Ui=5,yTC62huR4YQEPn9AJHjnQxxreHSbgAoatV=3 -b 62500
 #
 # ... how do we get the actual "gobject" command used with dash-cli ?
 #
