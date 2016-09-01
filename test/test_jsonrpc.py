@@ -72,7 +72,6 @@ def test_dashd():
         'relayfee',
         'testnet',
         'timeoffset',
-        'unlocked_until',
         'version',
         'walletversion'
     ]
