@@ -29,15 +29,23 @@ db = MySQLDatabase(dbname, **db_cfg)
 
 class BaseModel(Model):
     def get_dict(self):
-      dikt = {}
-      for field_name in self._meta.columns.keys():
+        dikt = {}
+        for field_name in self._meta.columns.keys():
 
-        # don't include DB id
-        if "id" == field_name:
-            continue
+            # don't include DB id
+            if "id" == field_name:
+                continue
 
-        dikt[ field_name ] = getattr( self, field_name )
-      return dikt
+            dikt[ field_name ] = getattr( self, field_name )
+
+        # dashd shim (overall system needs design review)
+        try:
+            dashd_go_type = getattr( self, 'govobj_type' )
+            dikt[ 'type' ] = dashd_go_type
+        except:
+            pass
+
+        return dikt
 
     class Meta:
         database = db
@@ -80,6 +88,7 @@ class GovernanceObject(BaseModel):
         return self.serialize_subclasses()
 
     def serialize_subclasses(self):
+        import inflection
         objects = []
 
         for obj_type in self._meta.reverse_rel.keys():
@@ -88,7 +97,12 @@ class GovernanceObject(BaseModel):
                 if res:
                     # should only return one row, but for completeness...
                     for row in res:
-                        objects.append((obj_type, row.get_dict()))
+                        # dashd shim
+                        dashd_type = inflection.singularize(obj_type)
+                        if obj_type == 'superblock':
+                            dashd_type = 'trigger'
+
+                        objects.append((dashd_type, row.get_dict()))
 
         the_json = simplejson.dumps(objects, sort_keys = True)
         # print "the_json = %s" % the_json
