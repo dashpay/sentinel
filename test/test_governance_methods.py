@@ -32,8 +32,8 @@ def superblock():
     sbobj = Superblock(
         superblock_name = "sb1803405",
         event_block_height = 62500,
-        payment_address = "yYe8KwyaUu5YswSYmB3q3ryx8XTUu9y7Ui|yTC62huR4YQEPn9AJHjnQxxreHSbgAoatV",
-        payment_amount  = "5|3"
+        payment_addresses = "yYe8KwyaUu5YswSYmB3q3ryx8XTUu9y7Ui|yTC62huR4YQEPn9AJHjnQxxreHSbgAoatV",
+        payment_amounts  = "5|3"
     )
 
     # NOTE: this object is (intentionally) not saved yet.
