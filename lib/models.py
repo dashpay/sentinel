@@ -353,6 +353,32 @@ class Proposal(BaseModel, QueueGovObject):
         # TBD (item moved to external storage/DashDrive, etc.)
         return False
 
+
+    @classmethod
+    def approved_and_ranked(self, event_block_height, proposal_quorum):
+        pass
+        # -- see Tyler's implementation of proposal_quorum
+        # govinfo = dashd.rpc_command( 'getgovernanceinfo' )
+        # govinfo['governanceminquorum']
+        # Inject this parameter however it will be done...
+        # Minimum number of absolute yes votes to include a proposal in a superblock
+        #PROPOSAL_QUORUM = 10
+        # TODO: Should be calculated based on the number of masternodes
+        # with an absolute minimum of 10 (maybe 1 for testnet)
+        # ie. max( 10, (masternode count)/10 )
+        PROPOSAL_QUORUM = 0
+
+        # return all approved proposals, in order of descending vote count
+        # get rank for each from dashd... probably from regular sync
+
+        ranked = []
+        for proposal in Proposal.select():
+            if ( proposal.is_valid() ):
+                ranked.append( proposal )
+
+        # now order array by vote rank
+        return ranked
+
 class Superblock(BaseModel, QueueGovObject):
     #id = IntegerField(primary_key = True)
     #governance_object_id = IntegerField(unique=True)

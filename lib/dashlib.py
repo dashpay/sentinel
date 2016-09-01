@@ -77,3 +77,44 @@ def parse_masternode_status_vin(status_vin_string):
         vin = None
 
     return vin
+
+
+# create superblock logic -- probably need a join table for proposal, superblock linkage
+def create_superblock( proposals, event_block_height ):
+    from models import Superblock, GovernanceObject, Proposal
+
+    budget_allocated = Decimal(0)
+    budget_total     = misc.get_superblock_budget_allocation()
+
+    # TODO: probably use a sub-table to link proposals for RI
+    payments = []
+    for proposal in proposals:
+        budget_allocated += proposal.payment_amount
+        if budget_allocated > budget_total:
+            break
+
+        # TODO: probably use a sub-table to link proposals for RI
+        payment = { 'address': proposal.payment_address,
+                    'amount': proposal.payment_amount }
+        payments.append( payment )
+
+    # deterministic superblocks can't have random names
+    sbname = "sb" + event_block_height
+
+    # TODO: actually link this to Proposals in the DB and don't
+    # actually include this info. This will enforce RI in the DB schema
+    # also.
+    sb = Superblock(
+        superblock_name = sbname,
+        event_block_height = event_block_height,
+        payment_addresses = '|'.join( [pd['address'] for pd in payments] ),
+        payment_amounts   = '|'.join( [pd['amount' ] for pd in payments] ),
+    )
+
+    return sb
+
+def current_block_hash(dashd):
+    height = dashd.rpc_command('getblockcount')
+    block_hash = dashd.rpc_command('getblockhash', height)
+    return block_hash
+
