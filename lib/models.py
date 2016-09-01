@@ -16,7 +16,7 @@ import dashd
 
 # our mixin
 from queue_gov_object import QueueGovObject
-from dashd import is_valid_dash_address
+from dashlib import is_valid_dash_address
 
 
 env = os.environ.get('SENTINEL_ENV') or 'production'

@@ -5,7 +5,7 @@ import sys, os
 sys.path.append( os.path.join( os.path.dirname(__file__), '..' ) )
 sys.path.append( os.path.join( os.path.dirname(__file__), '..', 'lib' ) )
 
-from dashd import is_valid_dash_address
+from dashlib import is_valid_dash_address
 
 @pytest.fixture
 def valid_dash_address(network = 'mainnet'):

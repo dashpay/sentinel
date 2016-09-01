@@ -35,3 +35,7 @@ class Masternode():
 
         # status protocol pubkey IP lastseen activeseconds lastpaid'
         return (status, protocol, address, ip_port, lastseen, activeseconds, lastpaid)
+
+    @property
+    def vin(self):
+        return self.txid + '-' + str(self.vout_index)
