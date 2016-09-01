@@ -1,8 +1,10 @@
+import pdb
 from peewee import *
 from pprint import pprint
 from time import time
 import simplejson
 import binascii
+import re
 
 import sys, os
 sys.path.append( os.path.join( os.path.dirname(__file__), '..' ) )
@@ -10,9 +12,11 @@ sys.path.append( os.path.join( os.path.dirname(__file__), '..' , 'lib' ) )
 
 import config
 import misc
+import dashd
 
 # our mixin
 from queue_gov_object import QueueGovObject
+from dashd import is_valid_dash_address
 
 
 env = os.environ.get('SENTINEL_ENV') or 'production'
@@ -212,13 +216,41 @@ class Proposal(BaseModel, QueueGovObject):
     def name(self):
         return self.proposal_name
 
+    # TODO: unit tests for all these items, both individually and some grouped
+    # **This can be easily mocked.**
     def is_valid(self):
-        # max value < budget allocation
-        # end date > start date
-        # end date > current date
-        # payment addresss is valid base58 dash addr, non-multisig
+        now = misc.get_epoch()
+
         # proposal name is normalized (something like "[a-zA-Z0-9-_]+")
-        pass
+        if not re.match( '^[-_a-zA-Z0-9]+$', self.name ):
+            return False
+
+        # end date < start date
+        if ( self.end_epoch <= self.start_epoch ):
+            return False
+
+        # end date < current date
+        if ( self.end_epoch <= now ):
+            return False
+
+        # TODO: ask Tim about this, how to get block height
+        #
+        # TODO: consider a mixin for this class's dashd calls -- that or a
+        # global... need to find an elegant way to handle this...
+        #
+        # max_budget_allocation = dashd.rpccommand('getsuperblockbudget', block_height)
+        # block_height = 62000
+        # max value > budget allocation
+        max_budget_allocation = 2000
+        if ( self.payment_amount > max_budget_allocation ):
+            return False
+
+        # payment addresss is valid base58 dash addr, non-multisig
+        if not is_valid_dash_address( self.payment_address, config.network ):
+            return False
+
+        return True
+
 
     def is_deletable(self):
         # end_date < (current_date - 30 days)
