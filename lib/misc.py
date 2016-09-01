@@ -92,3 +92,7 @@ def startup():
     del os, histfile, readline, rlcompleter
 
     import readline
+
+def get_superblock_budget_allocation():
+    # TODO: this will need to be a call to dashd
+    return 7450

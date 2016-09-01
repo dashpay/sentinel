@@ -241,8 +241,11 @@ class Proposal(BaseModel, QueueGovObject):
         # max_budget_allocation = dashd.rpccommand('getsuperblockbudget', block_height)
         # block_height = 62000
         # max value > budget allocation
-        max_budget_allocation = 2000
+        max_budget_allocation = misc.get_superblock_budget_allocation()
         if ( self.payment_amount > max_budget_allocation ):
+            return False
+
+        if ( self.payment_amount <= 0 ):
             return False
 
         # payment addresss is valid base58 dash addr, non-multisig
