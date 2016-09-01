@@ -29,7 +29,7 @@ def is_hash(s):
     return False
 
 def normalize(s):
-    # args passes in enclosing quotations 
+    # args passes in enclosing quotations
     return s.replace("'", "").replace("\"", "")
 
 def get_epoch():
@@ -52,7 +52,7 @@ def convert_govobj_type_to_name(govtype):
 
 def is_valid_address(args):
     try:
-        if args.address1 or not args.address2 or not args.city or not args.state or not args.country: 
+        if args.address1 or not args.address2 or not args.city or not args.state or not args.country:
             return False
     except:
         pass
@@ -68,27 +68,27 @@ def completer(text, state):
         return None
 
 def startup():
-    # python startup file 
-    import readline 
-    import rlcompleter 
-    import atexit 
-    import os 
+    # python startup file
+    import readline
+    import rlcompleter
+    import atexit
+    import os
 
-    # tab completion 
-    readline.parse_and_bind('tab: complete') 
+    # tab completion
+    readline.parse_and_bind('tab: complete')
     readline.set_completer(completer)
 
     # do not use - as delimiter
     old_delims = readline.get_completer_delims() # <-
     readline.set_completer_delims(old_delims.replace('-', '')) # <-
 
-    # history file 
-    histfile = os.path.join(os.environ['HOME'], '.pythonhistory') 
-    try: 
-        readline.read_history_file(histfile) 
-    except IOError: 
-        pass 
-    atexit.register(readline.write_history_file, histfile) 
+    # history file
+    histfile = os.path.join(os.environ['HOME'], '.pythonhistory')
+    try:
+        readline.read_history_file(histfile)
+    except IOError:
+        pass
+    atexit.register(readline.write_history_file, histfile)
     del os, histfile, readline, rlcompleter
 
     import readline
