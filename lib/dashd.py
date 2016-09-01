@@ -64,6 +64,9 @@ class DashDaemon():
     def sanitize_rpc_args(self, *args):
         return [self.clean_var(arg) for arg in args]
 
+    def is_testnet(self):
+        return self.rpc_command('getinfo')['testnet']
+
 class DashConfig():
 
     @classmethod
