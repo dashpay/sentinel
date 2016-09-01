@@ -257,8 +257,12 @@ class Proposal(BaseModel, QueueGovObject):
 
     def is_deletable(self):
         # end_date < (current_date - 30 days)
+        thirty_days = (86400 * 30)
+        if ( self.end_epoch < (misc.get_epoch() - thirty_days) ):
+            return True
+
         # TBD (item moved to external storage/DashDrive, etc.)
-        pass
+        return False
 
 class Superblock(BaseModel, QueueGovObject):
     #id = IntegerField(primary_key = True)

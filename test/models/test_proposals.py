@@ -144,4 +144,13 @@ def test_proposal_is_valid(proposal):
     assert proposal.is_valid() == False
 
 
-pass
+def test_proposal_is_deletable(proposal):
+    now = misc.get_epoch()
+    assert proposal.is_deletable() == False
+
+    proposal.end_epoch = now - (86400 * 29)
+    assert proposal.is_deletable() == False
+
+    # add a couple seconds for time variance
+    proposal.end_epoch = now - ((86400 * 30) + 2)
+    assert proposal.is_deletable() == True
