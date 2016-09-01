@@ -75,7 +75,16 @@ class DashDaemon():
 
     def get_current_masternode_vin(self):
         from dashlib import parse_masternode_status_vin
-        return parse_masternode_status_vin( self.rpc_command( "masternode status" )['vin'] )
+
+        my_vin = None
+
+        try:
+            status = self.rpc_command( "masternode status" )
+            my_vin = parse_masternode_status_vin( status['vin'] )
+        except JSONRPCException as e:
+            pass
+
+        return my_vin
 
 class DashConfig():
 
