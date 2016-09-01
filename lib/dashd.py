@@ -73,6 +73,10 @@ class DashDaemon():
         mnlist = self.rpc_command( "masternodelist full" )
         return [ Masternode(k, v) for (k, v) in mnlist.items()]
 
+    def get_current_masternode_vin(self):
+        from dashlib import parse_masternode_status_vin
+        return parse_masternode_status_vin( self.rpc_command( "masternode status" )['vin'] )
+
 class DashConfig():
 
     @classmethod
