@@ -61,11 +61,7 @@ def reset():
 
 
 def prepare_events():
-    # dashd = None
-    # try:
     dashd = DashDaemon.from_dash_conf(config.dash_conf)
-    # except Error as e:
-    #     "error: %s" % e.message
 
     for event in Event.new():
         govobj = event.governance_object

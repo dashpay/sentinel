@@ -5,6 +5,7 @@ sys.path.append( os.path.join( os.path.dirname(__file__), '..' ) )
 sys.path.append( os.path.join( os.path.dirname(__file__), '..', 'lib' ) )
 import base58
 import hashlib
+import re
 
 def is_valid_dash_address( address, network = 'mainnet' ):
     # Only public key addresses are allowed
@@ -56,10 +57,23 @@ def elect_mn(**kwargs):
 
     candidates.sort( key = lambda k: k['diff'] )
 
-
     try:
         winner = candidates[0]['vin']
     except:
         winner = None
 
     return winner
+
+
+def parse_masternode_status_vin(status_vin_string):
+    status_vin_string_regex = re.compile( 'CTxIn\(COutPoint\(([0-9a-zA-Z]+),\\s*(\d+)\),' )
+
+    m = status_vin_string_regex.match( status_vin_string )
+    txid = m.group(1)
+    index = m.group(2)
+
+    vin = txid + '-' + index
+    if (txid == '0000000000000000000000000000000000000000000000000000000000000000'):
+        vin = None
+
+    return vin
