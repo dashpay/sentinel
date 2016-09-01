@@ -14,7 +14,7 @@ import json
 import io
 import re
 from bitcoinrpc.authproxy import AuthServiceProxy, JSONRPCException
-
+from masternode import Masternode
 
 class DashDaemon():
     def __init__(self, **kwargs):
@@ -64,8 +64,14 @@ class DashDaemon():
     def sanitize_rpc_args(self, *args):
         return [self.clean_var(arg) for arg in args]
 
+
+    # common RPC convenience methods
     def is_testnet(self):
         return self.rpc_command('getinfo')['testnet']
+
+    def get_masternodes(self):
+        mnlist = self.rpc_command( "masternodelist full" )
+        return [ Masternode(k, v) for (k, v) in mnlist.items()]
 
 class DashConfig():
 
