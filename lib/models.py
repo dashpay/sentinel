@@ -105,10 +105,7 @@ class GovernanceObject(BaseModel):
                         objects.append((dashd_type, row.get_dict()))
 
         the_json = simplejson.dumps(objects, sort_keys = True)
-        # print "the_json = %s" % the_json
-
         the_hex = binascii.hexlify( the_json )
-        # print "the_hex = %s" % the_hex
 
         return the_hex
 
@@ -149,6 +146,50 @@ class GovernanceObject(BaseModel):
             - check validity of field data (address format, etc)
         """
 
+    @classmethod
+    def load_from_dashd(self, rec):
+        import inflection
+        # http://docs.peewee-orm.com/en/latest/peewee/querying.html#create-or-get
+        # user, created = User.get_or_create(username=username)
+
+        # first pick out vars... then try and find/create? then return new obj?
+        subobject_hex = rec['DataHex']
+        object_name = rec['Name']
+        gobj_dict = {
+            'object_hash': rec['Hash'],
+            'object_fee_tx': rec['CollateralHash'],
+            'object_name': object_name,
+        }
+
+        objects = simplejson.loads( binascii.unhexlify( subobject_hex ) )
+        subobj = None
+
+        for obj in objects:
+            (dashd_type, dikt) = obj[0:2:1]
+            obj_type = dashd_type
+
+            # sigh. reverse-shim this back...
+            if dashd_type == 'trigger':
+                obj_type = 'superblock'
+
+            obj_type = inflection.pluralize(obj_type)
+            subclass = self._meta.reverse_rel[obj_type].model_class
+
+            # filter only column names...
+            valid_keys = subclass._meta.columns.keys()
+            if 'id' in valid_keys: valid_keys.remove('id') # minus 'id'...
+            subdikt = { k: dikt[k] for k in valid_keys if k in dikt }
+
+            # sigh. set name (even tho redundant in DB...)
+            subdikt['name'] = object_name
+
+            subobj = subclass(**subdikt)
+
+            govobj = self(**gobj_dict)
+            subobj.governance_object = govobj
+
+        # ATM, returns a tuple w/govobj and the subobject,
+        return (govobj, subobj)
 
 class Action(BaseModel):
     #id = IntegerField(primary_key = True)
@@ -230,6 +271,10 @@ class Proposal(BaseModel, QueueGovObject):
     def name(self):
         return self.proposal_name
 
+    @name.setter
+    def name(self, value):
+        self.proposal_name = value
+
     # TODO: unit tests for all these items, both individually and some grouped
     # **This can be easily mocked.**
     def is_valid(self):
@@ -296,6 +341,10 @@ class Superblock(BaseModel, QueueGovObject):
     @property
     def name(self):
         return self.superblock_name
+
+    @name.setter
+    def name(self, value):
+        self.superblock_name = value
 
     def is_valid(self):
         # vout != generated vout
