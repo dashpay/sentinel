@@ -4,21 +4,17 @@
     - look through events table, process what we're suppose to do
     - can include building fee transactions, submitting govobjs to the network
 """
-
+import pdb
+from pprint import pprint
+import random
 import sys, os
 sys.path.append( os.path.join( os.path.dirname(__file__), '..', 'lib' ) )
 sys.path.append( os.path.join( os.path.dirname(__file__), '..') )
-
 import config
 import misc
-
 from dashd import DashDaemon
 from dashd import DashConfig
-
-import random
-
 from models import Event, Superblock, Proposal, GovernanceObject
-import pdb
 
 """
 
