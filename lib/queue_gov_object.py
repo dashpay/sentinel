@@ -3,6 +3,9 @@ import sys
 sys.path.append( os.path.join( os.path.dirname(__file__), '..', 'lib' ) )
 import models
 
+
+
+
 # mixin for GovObj sub-objects like proposal and superblock, etc.
 class QueueGovObject(object):
     def create_and_queue(self):
@@ -39,3 +42,21 @@ class QueueGovObject(object):
             self.save()
 
         return
+
+
+    # TODO: maybe move this to top-level govobj...
+    def get_vote_command(self, signal, outcome):
+        cmd = "gobject vote-conf %s %s %s" % (
+            self.governance_object.object_hash,
+            signal,
+            outcome,
+        )
+        return cmd
+
+    def vote(self, dashd, signal, outcome):
+        vote_command = self.get_vote_command(signal, outcome)
+        output = dashd.rpc_command(vote_command)
+        # TODO: do we need to track our own votes?
+        # self.object_status = 'VOTED'
+        # self.save()
+
