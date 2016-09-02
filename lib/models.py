@@ -211,6 +211,11 @@ class GovernanceObject(BaseModel):
         # ATM, returns a tuple w/govobj and the subobject
         return (govobj, subobj)
 
+    # return an array of invalid GO's
+    @classmethod
+    def invalid(self):
+        return [go for go in self.select() if not go.is_valid()]
+
 class Action(BaseModel):
     #id = IntegerField(primary_key = True)
     #governance_object_id = IntegerField(unique=True)
@@ -385,6 +390,10 @@ class Superblock(BaseModel, QueueGovObject):
         # end_date < (current_date - 30 days)
         # TBD (item moved to external storage/DashDrive, etc.)
         pass
+
+    @classmethod
+    def valid(self):
+        return [sb for sb in self.select() if sb.is_valid()]
 
 
 # === /models ===
