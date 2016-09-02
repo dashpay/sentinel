@@ -80,11 +80,11 @@ def parse_masternode_status_vin(status_vin_string):
 
 
 # create superblock logic -- probably need a join table for proposal, superblock linkage
-def create_superblock( proposals, event_block_height ):
+def create_superblock( dashd, proposals, event_block_height ):
     from models import Superblock, GovernanceObject, Proposal
 
     budget_allocated = Decimal(0)
-    budget_total     = misc.get_superblock_budget_allocation()
+    budget_total     = dashlib.get_superblock_budget_allocation(dashd, event_block_height)
 
     # TODO: probably use a sub-table to link proposals for RI
     payments = []
@@ -117,4 +117,9 @@ def current_block_hash(dashd):
     height = dashd.rpc_command('getblockcount')
     block_hash = dashd.rpc_command('getblockhash', height)
     return block_hash
+
+def get_superblock_budget_allocation(dashd, height=None):
+    if height is None:
+        height = dashd.rpc_command('getblockcount')
+    return Decimal( dashd.rpc_command('getsuperblockbudget', height) )
 

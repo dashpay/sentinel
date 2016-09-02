@@ -171,7 +171,7 @@ def attempt_superblock_creation(dashd):
     # find the elected MN vin for superblock creation...
     winner = elect_mn(block_hash=current_block_hash(), mnlist=dashd.get_masternodes())
 
-    sb = dashlib.create_superblock( proposals, event_block_height )
+    sb = dashlib.create_superblock( dashd, proposals, event_block_height )
 
     # if we are the elected masternode...
     if ( winner == dashd.get_current_masternode_vin() )

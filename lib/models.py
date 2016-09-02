@@ -277,6 +277,7 @@ class Setting(BaseModel):
         db_table = 'settings'
 
 class Proposal(BaseModel, QueueGovObject):
+    import dashlib
     #id = IntegerField(primary_key = True)
     #governance_object_id = IntegerField(unique=True)
     governance_object = ForeignKeyField(GovernanceObject, related_name = 'proposals')
@@ -322,15 +323,16 @@ class Proposal(BaseModel, QueueGovObject):
         if ( self.end_epoch <= now ):
             return False
 
-        # TODO: ask Tim about this, how to get block height
-        #
         # TODO: consider a mixin for this class's dashd calls -- that or a
         # global... need to find an elegant way to handle this...
         #
-        # max_budget_allocation = dashd.rpccommand('getsuperblockbudget', block_height)
-        # block_height = 62000
-        # max value > budget allocation
-        max_budget_allocation = misc.get_superblock_budget_allocation()
+        # TODO: get a global dashd instance, or something... gotta query the
+        #       dashd for the budget allocation here...
+        #
+        # TODO: dashlib.get_superblock_budget_allocation should be memoized for
+        #       each run of this... no sense in calling it multiple times over
+        #       one or two seconds...
+        max_budget_allocation = dashlib.get_superblock_budget_allocation(TODOdashd)
         if ( self.payment_amount > max_budget_allocation ):
             return False
 
