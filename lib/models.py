@@ -161,34 +161,54 @@ class GovernanceObject(BaseModel):
             'object_name': object_name,
         }
 
-        objects = simplejson.loads( binascii.unhexlify( subobject_hex ) )
+        objects = simplejson.loads( binascii.unhexlify(subobject_hex), use_decimal=True )
         subobj = None
 
-        for obj in objects:
-            (dashd_type, dikt) = obj[0:2:1]
-            obj_type = dashd_type
 
-            # sigh. reverse-shim this back...
-            if dashd_type == 'trigger':
-                obj_type = 'superblock'
+        # for obj in objects:
+        # will there ever be multiple? -- just this for now
+        obj = objects[0]
 
-            obj_type = inflection.pluralize(obj_type)
-            subclass = self._meta.reverse_rel[obj_type].model_class
+        (dashd_type, dikt) = obj[0:2:1]
+        obj_type = dashd_type
 
-            # filter only column names...
-            valid_keys = subclass._meta.columns.keys()
-            if 'id' in valid_keys: valid_keys.remove('id') # minus 'id'...
-            subdikt = { k: dikt[k] for k in valid_keys if k in dikt }
+        # sigh. reverse-shim this back...
+        if dashd_type == 'trigger':
+            obj_type = 'superblock'
 
-            # sigh. set name (even tho redundant in DB...)
-            subdikt['name'] = object_name
+        obj_type = inflection.pluralize(obj_type)
+        subclass = self._meta.reverse_rel[obj_type].model_class
 
-            subobj = subclass(**subdikt)
+        # exclude any invalid model data from dashd...
+        valid_keys = subclass._meta.columns.keys()
+        if 'id' in valid_keys: valid_keys.remove('id') # minus 'id'...
+        subdikt = { k: dikt[k] for k in valid_keys if k in dikt }
 
-            govobj = self(**gobj_dict)
-            subobj.governance_object = govobj
+        # sigh. set name (even tho redundant in DB...)
+        subdikt['name'] = object_name
 
-        # ATM, returns a tuple w/govobj and the subobject,
+        # govobj = self(**gobj_dict)
+        # subobj = subclass(**subdikt)
+        # subobj.governance_object = govobj
+
+
+        govobj, created = self.get_or_create(object_hash=gobj_dict['object_hash'], defaults=gobj_dict)
+        # print "govobj hash = %s" % gobj_dict['object_hash']
+        # print "govobj created = %s" % created
+
+        subdikt['governance_object'] = govobj
+
+        # -- workaround 'til we can rename to just 'name' in proposal, subobject
+        goc_dikt = {
+          subclass.name_field: object_name,
+          'defaults': subdikt,
+        }
+        subobj, created = subclass.get_or_create(**goc_dikt)
+        # print "subobj name = %s" % object_name
+        # print "subobj created = %s" % created
+        # print "=" * 72
+
+        # ATM, returns a tuple w/govobj and the subobject
         return (govobj, subobj)
 
 class Action(BaseModel):
@@ -261,7 +281,12 @@ class Proposal(BaseModel, QueueGovObject):
     payment_address = CharField()
     payment_amount = DecimalField(max_digits=16, decimal_places=8)
 
+    # TODO: remove this redundancy if/when dashd can be fixed to use
+    # strings/types instead of ENUM types for type ID
     govobj_type = 1
+
+    # TODO: rename column 'proposal_name' to 'name' and remove this
+    name_field = 'proposal_name'
 
     class Meta:
         db_table = 'proposals'
@@ -332,7 +357,12 @@ class Superblock(BaseModel, QueueGovObject):
     payment_addresses    = TextField()
     payment_amounts      = TextField()
 
+    # TODO: remove this redundancy if/when dashd can be fixed to use
+    # strings/types instead of ENUM types for type ID
     govobj_type = 2
+
+    # TODO: rename column 'superblock_name' to 'name' and remove this
+    name_field = 'superblock_name'
 
     class Meta:
         db_table = 'superblocks'
