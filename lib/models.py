@@ -307,7 +307,7 @@ class Proposal(BaseModel, QueueGovObject):
         if ( self.payment_amount <= 0 ):
             return False
 
-        # payment addresss is valid base58 dash addr, non-multisig
+        # payment address is valid base58 dash addr, non-multisig
         if not is_valid_dash_address( self.payment_address, config.network ):
             return False
 
