@@ -56,8 +56,10 @@ def reset():
     clear_proposals()
 
 
-def prepare_events():
-    dashd = DashDaemon.from_dash_conf(config.dash_conf)
+
+# prepare queued local events for submission to the Dash network (includes
+# paying collateral TX fee)
+def prepare_events(dashd):
 
     for event in Event.new():
         govobj = event.governance_object
@@ -77,10 +79,11 @@ def prepare_events():
             print " -- got hash:", hashtx
 
             govobj.object_fee_tx = hashtx
-            govobj.save()
-
             event.prepare_time = misc.get_epoch()
-            event.save()
+
+            with govobj._meta.database.atomic():
+                govobj.save()
+                event.save()
 
             return 1
 
@@ -94,15 +97,14 @@ def prepare_events():
     return 0
 
 
-# TODO: description of what exactly this method does
-def submit_events():
+# submit pending local events to the Dash network
+def submit_events(dashd):
 
     for event in Event.prepared():
         govobj = event.governance_object
         hash = govobj.object_fee_tx
 
         print "# SUBMIT PREPARED EVENTS FOR DASH NETWORK"
-
         print
         print " -- cmd : ", govobj.get_submit_command()
         print
@@ -120,11 +122,10 @@ def submit_events():
                     result = dashd.rpc_command(govobj.get_submit_command())
                     if misc.is_hash(result):
                         print " -- got result", result
-
                         govobj.object_hash = result
-                        # NGM/TODO: atomic?
-                        event.save()
-                        govobj.save()
+                        with govobj._meta.database.atomic():
+                            govobj.save()
+                            event.save()
 
                         return 1
                     else:
@@ -139,5 +140,74 @@ def submit_events():
         return 0
 
 
+# sync dashd gobject list with our local relational DB backend
+def perform_dashd_object_sync(dashd):
+    golist = dashd.rpc_command('gobject list')
+    for item in golist.values():
+        (go, subobj) = GovernanceObject.load_from_dashd( item )
+
+
+
+def attempt_superblock_creation(dashd):
+    from dashlib import current_block_hash, create_superblock
+    height = dashd.rpc_command( 'getblockcount' )
+    govinfo = dashd.rpc_command( 'getgovernanceinfo' )
+    cycle = govinfo['superblockcycle']
+    cycle = 5 # TODO: remove this test value
+    diff = height % cycle
+    event_block_height = height + diff
+
+    # Number of blocks before a superblock to create superblock objects for auto vote
+    SUPERBLOCK_CREATION_DELTA = 1
+    if ( cycle - diff ) != SUPERBLOCK_CREATION_DELTA:
+        return
+
+    # return an array of proposals
+    proposals = Proposal.approved_and_ranked(event_block_height)
+    if len( proposals ) < 1:
+        # Don't create empty superblocks
+        return
+
+    # find the elected MN vin for superblock creation...
+    winner = elect_mn(block_hash=current_block_hash(), mnlist=dashd.get_masternodes())
+
+    sb = dashlib.create_superblock( proposals, event_block_height )
+
+    # if we are the elected masternode...
+    if ( winner == dashd.get_current_masternode_vin() )
+        # queue superblock submission
+        sb.create_and_queue()
+
+    # else if exists in network already, then upvote it?
+
+
+def auto_vote_objects(dashd):
+
+    # for all valid superblocks, vote yes for funding them
+    for sb in Superblock.valid():
+        sb.vote(dashd, 'funding', 'yes')
+
+    # vote invalid objects
+    for go in GovernanceObject.invalid():
+        go.vote(dashd, 'valid', 'no')
+
+
+
 if __name__ == '__main__':
-    prepare_events()
+    dashd = DashDaemon.from_dash_conf(config.dash_conf)
+
+    # ========================================================================
+    # general flow:
+    # ========================================================================
+    #
+    # load "gobject list" rpc command data & create new objects in local MySQL DB
+    perform_dashd_object_sync(dashd)
+
+    # create superblock & submit if elected & valid
+    attempt_superblock_creation(dashd)
+
+    auto_vote_objects(dashd)
+
+    # prepare/submit pending events
+    prepare_events(dashd)
+    submit_events(dashd)
