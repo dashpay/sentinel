@@ -332,10 +332,21 @@ class Proposal(BaseModel, QueueGovObject):
         # TODO: dashlib.get_superblock_budget_allocation should be memoized for
         #       each run of this... no sense in calling it multiple times over
         #       one or two seconds...
-        max_budget_allocation = dashlib.get_superblock_budget_allocation(TODOdashd)
-        if ( self.payment_amount > max_budget_allocation ):
+        # ======================================================================
+        # budget check
+        # ======================================================================
+        cycle = dashd.superblockcycle()
+        current_block_height = dashd.rpc_command('getblockcount')
+
+        last_superblock_height = ( current_block_height / cycle ) * cycle
+        next_superblock_height = last_superblock_height + cycle
+
+        last_allocation = dashlib.get_superblock_budget_allocation( last_superblock_height )
+        next_allocation = dashlib.get_superblock_budget_allocation( next_superblock_height )
+        if ( self.payment_amount > min( last_allocation, next_allocation ) ):
             return False
 
+        # amount can't be negative or 0
         if ( self.payment_amount <= 0 ):
             return False
 
