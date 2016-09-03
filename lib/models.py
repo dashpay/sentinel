@@ -92,22 +92,19 @@ class GovernanceObject(BaseModel):
         import inflection
         objects = []
 
-        for obj_type in self._meta.reverse_rel.keys():
-            if obj_type in self.subclasses:
-                res = getattr( self, obj_type )
-                if res:
-                    # should only return one row, but for completeness...
-                    for row in res:
-                        # dashd shim
-                        dashd_type = inflection.singularize(obj_type)
-                        if obj_type == 'superblock':
-                            dashd_type = 'trigger'
-                        objects.append((dashd_type, row.get_dict()))
+        for obj_type in self.subclasses:
+            res = getattr( self, obj_type )
+            if res:
+                # should only return one row
+                # (needs refactor/re-design, as this shouldn't be possible)
+                row = res[0]
+                # dashd shim
+                dashd_type = inflection.singularize(obj_type)
+                if obj_type == 'superblock':
+                    dashd_type = 'trigger'
+                objects.append((dashd_type, row.get_dict()))
 
-        the_json = simplejson.dumps(objects, sort_keys = True)
-        the_hex = binascii.hexlify( the_json )
-
-        return the_hex
+        return binascii.hexlify(simplejson.dumps(objects, sort_keys = True))
 
     def get_prepare_command(self):
         cmd = "gobject prepare %s %s %s %s %s" % (
