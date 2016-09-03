@@ -86,6 +86,15 @@ class DashDaemon():
 
         return my_vin
 
+    def governance_quorum(self):
+        total_masternodes = self.rpc_command('masternode count')
+        govinfo = self.rpc_command('getgovernanceinfo')
+        min_quorum = govinfo['governanceminquorum']
+
+        # the minimum quorum is calculated based on the number of masternodes
+        quorum = max( min_quorum, total_masternodes / min_quorum )
+        return quorum
+
 class DashConfig():
 
     @classmethod
