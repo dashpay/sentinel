@@ -133,9 +133,17 @@ class GovernanceObject(BaseModel):
         )
         return cmd
 
-    def vote(self):
-        # TODO
-        pass
+    # sync dashd gobject list with our local relational DB backend
+    @classmethod
+    def sync(self, dashd):
+        golist = dashd.rpc_command('gobject list')
+        for item in golist.values():
+            (go, subobj) = self.load_from_dashd( item )
+
+    # implemented in subclasses
+    # def vote(self):
+    #     # TODO
+    #     pass
 
     def is_valid(self):
         raise NotImplementedError("Method be over-ridden in subclasses")
