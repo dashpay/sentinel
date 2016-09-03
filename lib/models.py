@@ -63,6 +63,10 @@ class GovernanceObject(BaseModel):
     object_type = IntegerField(default=0)
     object_revision = IntegerField(default=1)
     object_fee_tx = CharField(default='')
+    yes_count = IntegerField(default=0)
+    no_count = IntegerField(default=0)
+    abstain_count = IntegerField(default=0)
+    absolute_yes_count = IntegerField(default=0)
 
     class Meta:
         db_table = 'governance_objects'
@@ -101,7 +105,6 @@ class GovernanceObject(BaseModel):
                         dashd_type = inflection.singularize(obj_type)
                         if obj_type == 'superblock':
                             dashd_type = 'trigger'
-
                         objects.append((dashd_type, row.get_dict()))
 
         the_json = simplejson.dumps(objects, sort_keys = True)
@@ -155,6 +158,15 @@ class GovernanceObject(BaseModel):
         # first pick out vars... then try and find/create? then return new obj?
         subobject_hex = rec['DataHex']
         object_name = rec['Name']
+
+        # update the counts every time, regardless
+        gobj_updates = {
+            'absolute_yes_count': rec['AbsoluteYesCount'],
+            'abstain_count': rec['AbstainCount'],
+            'yes_count': rec['YesCount'],
+            'no_count': rec['NoCount'],
+        }
+
         gobj_dict = {
             'object_hash': rec['Hash'],
             'object_fee_tx': rec['CollateralHash'],
@@ -193,6 +205,9 @@ class GovernanceObject(BaseModel):
 
 
         govobj, created = self.get_or_create(object_hash=gobj_dict['object_hash'], defaults=gobj_dict)
+
+        # sync vote counts from dashd, with every run
+        count = govobj.update(**gobj_updates).where(self.id == govobj.id).execute()
         # print "govobj hash = %s" % gobj_dict['object_hash']
         # print "govobj created = %s" % created
 

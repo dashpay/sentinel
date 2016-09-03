@@ -22,6 +22,10 @@ CREATE TABLE `governance_objects` (
   `object_type` int(20) NOT NULL DEFAULT '0',
   `object_revision` int(20) NOT NULL DEFAULT '1',
   `object_fee_tx` varchar(255) NOT NULL DEFAULT '',
+  `yes_count` smallint(5) unsigned NOT NULL DEFAULT 0,
+  `no_count` smallint(5) unsigned NOT NULL DEFAULT 0,
+  `abstain_count` smallint(5) unsigned NOT NULL DEFAULT 0,
+  `absolute_yes_count` smallint(6) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`),
   UNIQUE KEY `index_governance_objects_object_name` (`object_name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
