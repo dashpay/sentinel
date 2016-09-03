@@ -95,6 +95,17 @@ class DashDaemon():
         quorum = max( min_quorum, total_masternodes / min_quorum )
         return quorum
 
+    # TODO: if not long-running, we should memoize the call to 'getgovernanceinfo'
+    def superblockcycle(self):
+        govinfo = dashd.rpc_command( 'getgovernanceinfo' )
+        return self.govinfo['superblockcycle']
+
+    # TODO: if not long-running, we should memoize the call to 'getgovernanceinfo'
+    def governanceminquorum(self):
+        govinfo = dashd.rpc_command( 'getgovernanceinfo' )
+        return self.govinfo['governanceminquorum']
+
+
 class DashConfig():
 
     @classmethod
