@@ -26,6 +26,9 @@ class DashDaemon():
         creds = (user, password, host, port)
         self.rpc_connection = AuthServiceProxy("http://{0}:{1}@{2}:{3}".format(*creds))
 
+        # memoize calls to some dashd methods
+        self.governance_info = None
+
     @classmethod
     def from_dash_conf(self, dash_dot_conf):
         config_text = DashConfig.slurp_config_file(dash_dot_conf)
@@ -95,14 +98,16 @@ class DashDaemon():
         quorum = max( min_quorum, total_masternodes / min_quorum )
         return quorum
 
-    # TODO: if not long-running, we should memoize the call to 'getgovernanceinfo'
+    @property
+    def govinfo(self):
+        if ( not self.governance_info ):
+            self.governance_info = self.rpc_command( 'getgovernanceinfo' )
+        return self.governance_info
+
     def superblockcycle(self):
-        govinfo = dashd.rpc_command( 'getgovernanceinfo' )
         return self.govinfo['superblockcycle']
 
-    # TODO: if not long-running, we should memoize the call to 'getgovernanceinfo'
     def governanceminquorum(self):
-        govinfo = dashd.rpc_command( 'getgovernanceinfo' )
         return self.govinfo['governanceminquorum']
 
 
