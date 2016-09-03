@@ -82,6 +82,10 @@ class GovernanceObject(BaseModel):
 
     subclasses = ['proposals', 'superblocks']
 
+    @property
+    def subobject(self):
+        return [ (getattr( self, sc ))[0] for sc in self.subclasses if (getattr( self, sc )) ][0]
+
     @classmethod
     def root(self):
         root_properties = {
@@ -125,9 +129,14 @@ class GovernanceObject(BaseModel):
         return cmd
 
     def get_submit_command(self):
-        cmd = [ 'gobject', 'submit', self.object_fee_tx,
-                self.object_parent_hash, str(self.object_revision),
-                str(self.object_creation_time), self.object_name, self.object_data ]
+        cmd = [ 'gobject', 'submit', self.object_parent_hash,
+                str(self.object_revision), str(self.object_creation_time),
+                self.object_name, self.object_data, self.object_fee_tx ]
+
+        # TEMP: will be refactoring to use composition
+        if isinstance( self.subobject, Superblock ):
+            cmd.pop()
+
         return cmd
 
     # sync dashd gobject list with our local relational DB backend

@@ -79,11 +79,18 @@ class DashDaemon():
             self.governance_info = self.rpc_command('getgovernanceinfo')
         return self.governance_info
 
+    # governance info convenience methods
     def superblockcycle(self):
         return self.govinfo['superblockcycle']
 
     def governanceminquorum(self):
         return self.govinfo['governanceminquorum']
+
+    def proposalfee(self):
+        return self.govinfo['proposalfee']
+
+    def superblockfee(self):
+        return self.govinfo['superblockfee']
 
 
 class DashConfig():
