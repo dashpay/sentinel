@@ -391,16 +391,23 @@ class Proposal(BaseModel, QueueGovObject):
 
 
     @classmethod
-    def approved_and_ranked(self, event_block_height, proposal_quorum):
+    def approved_and_ranked(self, proposal_quorum):
         # return all approved proposals, in order of descending vote count
-        # get rank for each from dashd... probably from regular sync
+
+        # we need a secondary 'order by' in case of a tie on vote count, since
+        # superblocks must be deterministic
+        query = (self
+                 .select(self, GovernanceObject)  # Note that we are selecting both models.
+                 .join(GovernanceObject)
+                 .where(GovernanceObject.absolute_yes_count > proposal_quorum)
+                 .order_by(GovernanceObject.absolute_yes_count.desc(), GovernanceObject.object_hash)
+                 )
 
         ranked = []
-        for proposal in Proposal.select():
-            if ( proposal.is_valid() ):
+        for proposal in query:
+            if proposal.is_valid():
                 ranked.append( proposal )
 
-        # now order array by vote rank
         return ranked
 
 class Superblock(BaseModel, QueueGovObject):
