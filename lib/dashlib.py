@@ -127,3 +127,20 @@ def get_superblock_budget_allocation(dashd, height=None):
     if height is None:
         height = dashd.rpc_command('getblockcount')
     return Decimal( dashd.rpc_command('getsuperblockbudget', height) )
+
+def next_superblock_max_budget(dashd):
+    cycle = dashd.superblockcycle()
+    current_block_height = dashd.rpc_command('getblockcount')
+
+    last_superblock_height = ( current_block_height / cycle ) * cycle
+    next_superblock_height = last_superblock_height + cycle
+
+    last_allocation = get_superblock_budget_allocation( dashd, last_superblock_height )
+    next_allocation = get_superblock_budget_allocation( dashd, next_superblock_height )
+
+    # not really, but Tyler's algo:
+    next_superblock_max_budget = min( last_allocation, next_allocation )
+    # actual = ...
+    # next_superblock_max_budget = next_allocation
+
+    return next_superblock_max_budget

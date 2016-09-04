@@ -331,7 +331,8 @@ class Proposal(BaseModel, QueueGovObject):
 
     # TODO: unit tests for all these items, both individually and some grouped
     # **This can be easily mocked.**
-    def is_valid(self):
+    def is_valid(self, max_valid_budget):
+        import dashlib
         now = misc.get_epoch()
 
         # proposal name is normalized (something like "[a-zA-Z0-9-_]+")
@@ -346,27 +347,8 @@ class Proposal(BaseModel, QueueGovObject):
         if ( self.end_epoch <= now ):
             return False
 
-        # TODO: consider a mixin for this class's dashd calls -- that or a
-        # global... need to find an elegant way to handle this...
-        #
-        # TODO: get a global dashd instance, or something... gotta query the
-        #       dashd for the budget allocation here...
-        #
-        # TODO: dashlib.get_superblock_budget_allocation should be memoized for
-        #       each run of this... no sense in calling it multiple times over
-        #       one or two seconds...
-        # ======================================================================
         # budget check
-        # ======================================================================
-        cycle = dashd.superblockcycle()
-        current_block_height = dashd.rpc_command('getblockcount')
-
-        last_superblock_height = ( current_block_height / cycle ) * cycle
-        next_superblock_height = last_superblock_height + cycle
-
-        last_allocation = dashlib.get_superblock_budget_allocation( last_superblock_height )
-        next_allocation = dashlib.get_superblock_budget_allocation( next_superblock_height )
-        if ( self.payment_amount > min( last_allocation, next_allocation ) ):
+        if ( self.payment_amount > max_valid_budget ):
             return False
 
         # amount can't be negative or 0
@@ -391,7 +373,7 @@ class Proposal(BaseModel, QueueGovObject):
 
 
     @classmethod
-    def approved_and_ranked(self, proposal_quorum):
+    def approved_and_ranked(self, proposal_quorum, next_superblock_max_budget):
         # return all approved proposals, in order of descending vote count
 
         # we need a secondary 'order by' in case of a tie on vote count, since
@@ -405,7 +387,7 @@ class Proposal(BaseModel, QueueGovObject):
 
         ranked = []
         for proposal in query:
-            if proposal.is_valid():
+            if proposal.is_valid(next_superblock_max_budget):
                 ranked.append( proposal )
 
         return ranked

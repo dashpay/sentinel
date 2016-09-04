@@ -163,7 +163,10 @@ def attempt_superblock_creation(dashd):
         return
 
     # return an array of proposals
-    proposals = Proposal.approved_and_ranked( dashd.governance_quorum() )
+    proposal_quorum = dashd.governance_quorum()
+    max_budget = dashlib.next_superblock_max_budget( dashd )
+
+    proposals = Proposal.approved_and_ranked( proposal_quorum, max_budget )
 
     if len( proposals ) < 1:
         # Don't create empty superblocks
