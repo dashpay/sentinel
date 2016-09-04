@@ -1,5 +1,5 @@
 import pdb
-from peewee import *
+from peewee import Model, MySQLDatabase, IntegerField, CharField, TextField, ForeignKeyField, DecimalField
 from pprint import pprint
 from time import time
 import simplejson
