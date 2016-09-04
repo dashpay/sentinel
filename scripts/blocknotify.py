@@ -16,7 +16,7 @@ from governance  import GovernanceObject
 
 dashd = DashDaemon.from_dash_conf(config.dash_conf)
 
-difflist = json.loads(dashd.rpc_command("gobject diff"))
+difflist = json.loads(dashd.rpc_command('gobject', 'diff'))
 # this currently isn't being used anyway
 # for item in difflist:
     # NGM: TODO: ensure proper loading of these (need to test gobject diff output)

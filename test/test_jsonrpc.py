@@ -81,8 +81,6 @@ def test_dashd():
 
 
     # test commands with args
-    assert dashd.rpc_command('getblockhash 0')    == u'00000bafbc94add76cb75e2ec92894837288a481e5c005f6563d91623bf8bc2c'
-    assert dashd.rpc_command('getblockhash', '0') == u'00000bafbc94add76cb75e2ec92894837288a481e5c005f6563d91623bf8bc2c'
     assert dashd.rpc_command('getblockhash', 0)   == u'00000bafbc94add76cb75e2ec92894837288a481e5c005f6563d91623bf8bc2c'
 
 

@@ -41,39 +41,14 @@ class DashDaemon():
         )
 
     def rpc_command(self, *params):
-        # split space-delimited strings into a list
-        # use actual int values and not strings
-        first_param = params[0].split(' ')
-        method = first_param[0]
-
-        # separate arguments into a list and use int values if necessary
-        if ( method == params[0] ):
-            args = self.sanitize_rpc_args(*params[1:])
-        else:
-            args = self.sanitize_rpc_args(*first_param[1:])
-
-        # getattr and getattribute are over-ridden in the AuthServiceProxy
-        # implementation... :/
-        return self.rpc_connection.__getattr__(method)(*args)
-
-    def clean_var(self, obj):
-        val = None
-        try:
-            val = int(obj) if obj.isdigit() else obj
-        except AttributeError as e:
-            val = obj
-        return val
-
-    def sanitize_rpc_args(self, *args):
-        return [self.clean_var(arg) for arg in args]
-
+        return self.rpc_connection.__getattr__(params[0])(*params[1:])
 
     # common RPC convenience methods
     def is_testnet(self):
         return self.rpc_command('getinfo')['testnet']
 
     def get_masternodes(self):
-        mnlist = self.rpc_command( "masternodelist full" )
+        mnlist = self.rpc_command('masternodelist', 'full')
         return [ Masternode(k, v) for (k, v) in mnlist.items()]
 
     def get_current_masternode_vin(self):
@@ -82,15 +57,15 @@ class DashDaemon():
         my_vin = None
 
         try:
-            status = self.rpc_command( "masternode status" )
-            my_vin = parse_masternode_status_vin( status['vin'] )
+            status = self.rpc_command('masternode', 'status')
+            my_vin = parse_masternode_status_vin(status['vin'])
         except JSONRPCException as e:
             pass
 
         return my_vin
 
     def governance_quorum(self):
-        total_masternodes = self.rpc_command('masternode count')
+        total_masternodes = self.rpc_command('masternode', 'count')
         govinfo = self.rpc_command('getgovernanceinfo')
         min_quorum = govinfo['governanceminquorum']
 
@@ -101,7 +76,7 @@ class DashDaemon():
     @property
     def govinfo(self):
         if ( not self.governance_info ):
-            self.governance_info = self.rpc_command( 'getgovernanceinfo' )
+            self.governance_info = self.rpc_command('getgovernanceinfo')
         return self.governance_info
 
     def superblockcycle(self):

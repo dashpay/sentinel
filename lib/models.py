@@ -119,30 +119,21 @@ class GovernanceObject(BaseModel):
         return binascii.hexlify(simplejson.dumps(objects, sort_keys = True))
 
     def get_prepare_command(self):
-        cmd = "gobject prepare %s %s %s %s %s" % (
-            self.object_parent_hash,
-            self.object_revision,
-            self.object_creation_time,
-            self.object_name,
-            self.object_data
-        )
+        cmd = [ 'gobject', 'prepare', self.object_parent_hash,
+                self.object_revision, self.object_creation_time,
+                self.object_name, self.object_data ]
         return cmd
 
     def get_submit_command(self):
-        cmd = "gobject submit %s %s %s %s %s %s" % (
-            self.object_fee_tx,
-            self.object_parent_hash,
-            self.object_revision,
-            self.object_creation_time,
-            self.object_name,
-            self.object_data
-        )
+        cmd = [ 'gobject', 'submit', self.object_fee_tx,
+                self.object_parent_hash, self.object_revision,
+                self.object_creation_time, self.object_name, self.object_data ]
         return cmd
 
     # sync dashd gobject list with our local relational DB backend
     @classmethod
     def sync(self, dashd):
-        golist = dashd.rpc_command('gobject list')
+        golist = dashd.rpc_command('gobject', 'list')
         for item in golist.values():
             (go, subobj) = self.load_from_dashd( item )
 
