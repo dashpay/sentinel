@@ -392,6 +392,13 @@ class Proposal(BaseModel, QueueGovObject):
 
         return ranked
 
+    @property
+    def rank(self):
+        rank = 0
+        if self.governance_object:
+            rank = self.governance_object.absolute_yes_count
+            return rank
+
 class Superblock(BaseModel, QueueGovObject):
     #id = IntegerField(primary_key = True)
     #governance_object_id = IntegerField(unique=True)
