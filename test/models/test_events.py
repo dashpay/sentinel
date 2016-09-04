@@ -31,7 +31,7 @@ def proposal():
     pobj = Proposal(
         start_epoch     = 1483250400,  # 2017-01-01
         end_epoch       = 1491022800,  # 2017-04-01
-        proposal_name   = "wine-n-cheeze-party",
+        name   = "wine-n-cheeze-party",
         description_url = "https://dashcentral.com/wine-n-cheeze-party",
         payment_address = "yYe8KwyaUu5YswSYmB3q3ryx8XTUu9y7Ui",
         payment_amount  = 13
@@ -46,7 +46,7 @@ def proposal():
 def superblock():
     # NOTE: no governance_object_id is set
     sbobj = Superblock(
-        superblock_name = "sb1803405",
+        name = "sb1803405",
         event_block_height = 62500,
         payment_address = "yYe8KwyaUu5YswSYmB3q3ryx8XTUu9y7Ui|yTC62huR4YQEPn9AJHjnQxxreHSbgAoatV",
         payment_amount  = "5|3"

@@ -30,7 +30,7 @@ def superblock():
 
     # NOTE: no governance_object_id is set
     sbobj = Superblock(
-        superblock_name = "sb1803405",
+        name = "sb1803405",
         event_block_height = 62500,
         payment_addresses = "yYe8KwyaUu5YswSYmB3q3ryx8XTUu9y7Ui|yTC62huR4YQEPn9AJHjnQxxreHSbgAoatV",
         payment_amounts  = "5|3"
@@ -49,7 +49,7 @@ def proposal():
     pobj = Proposal(
         start_epoch     = 1483250400,  # 2017-01-01
         end_epoch       = 1491022800,  # 2017-04-01
-        proposal_name   = "chrono-trigger-party",
+        name   = "chrono-trigger-party",
         description_url = "https://dashcentral.com/chrono-trigger-party",
         payment_address = "yYe8KwyaUu5YswSYmB3q3ryx8XTUu9y7Ui",
         payment_amount  = 7

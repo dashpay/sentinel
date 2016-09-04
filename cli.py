@@ -282,7 +282,7 @@ class SentinelShell(cmd.Cmd):
                 return
 
             superblock = Superblock(
-                superblock_name = object_name,
+                name = object_name,
                 event_block_height = event_block_height,
                 payment_addresses = ("|".join(list_addr)),
                 payment_amounts = ("|".join(list_amount))

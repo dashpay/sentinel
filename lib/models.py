@@ -304,7 +304,7 @@ class Proposal(BaseModel, QueueGovObject):
     #id = IntegerField(primary_key = True)
     #governance_object_id = IntegerField(unique=True)
     governance_object = ForeignKeyField(GovernanceObject, related_name = 'proposals')
-    proposal_name = CharField(unique=True)
+    name = CharField(unique=True)
     start_epoch = IntegerField()
     end_epoch = IntegerField()
     payment_address = CharField()
@@ -314,20 +314,8 @@ class Proposal(BaseModel, QueueGovObject):
     # strings/types instead of ENUM types for type ID
     govobj_type = 1
 
-    # TODO: rename column 'proposal_name' to 'name' and remove this
-    name_field = 'proposal_name'
-
     class Meta:
         db_table = 'proposals'
-
-    # TODO: rename column 'proposal_name' to 'name' and remove this
-    @property
-    def name(self):
-        return self.proposal_name
-
-    @name.setter
-    def name(self, value):
-        self.proposal_name = value
 
     # TODO: unit tests for all these items, both individually and some grouped
     # **This can be easily mocked.**
@@ -403,7 +391,7 @@ class Superblock(BaseModel, QueueGovObject):
     #id = IntegerField(primary_key = True)
     #governance_object_id = IntegerField(unique=True)
     governance_object = ForeignKeyField(GovernanceObject, related_name = 'superblocks')
-    superblock_name      = CharField() # unique?
+    name      = CharField() # unique?
     event_block_height   = IntegerField()
     payment_addresses    = TextField()
     payment_amounts      = TextField()
@@ -412,20 +400,8 @@ class Superblock(BaseModel, QueueGovObject):
     # strings/types instead of ENUM types for type ID
     govobj_type = 2
 
-    # TODO: rename column 'superblock_name' to 'name' and remove this
-    name_field = 'superblock_name'
-
     class Meta:
         db_table = 'superblocks'
-
-    # TODO: rename column 'superblock_name' to 'name' and remove this
-    @property
-    def name(self):
-        return self.superblock_name
-
-    @name.setter
-    def name(self, value):
-        self.superblock_name = value
 
     def is_valid(self):
         # vout != generated vout

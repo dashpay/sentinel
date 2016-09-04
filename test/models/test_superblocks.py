@@ -32,7 +32,7 @@ def proposal():
     pobj = Proposal(
         start_epoch     = 1483250400,  # 2017-01-01
         end_epoch       = 1491022800,  # 2017-04-01
-        proposal_name   = "wine-n-cheeze-party",
+        name   = "wine-n-cheeze-party",
         description_url = "https://dashcentral.com/wine-n-cheeze-party",
         payment_address = "yYe8KwyaUu5YswSYmB3q3ryx8XTUu9y7Ui",
         payment_amount  = 13
@@ -48,7 +48,7 @@ def proposal():
 def superblock():
     # NOTE: no governance_object_id is set
     sbobj = Superblock(
-        superblock_name = "sb1803405",
+        name = "sb1803405",
         event_block_height = 62500,
         payment_address = "yYe8KwyaUu5YswSYmB3q3ryx8XTUu9y7Ui|yTC62huR4YQEPn9AJHjnQxxreHSbgAoatV",
         payment_amount  = "5|3"
@@ -67,28 +67,28 @@ def test_superblock_is_valid(superblock):
     # ============================================================
     # ensure valid name
     # ============================================================
-    # name = superblock.superblock_name
+    # name = superblock.name
     #
-    # superblock.superblock_name = '   heya!@209h '
+    # superblock.name = '   heya!@209h '
     # assert superblock.is_valid() == False
     #
-    # superblock.superblock_name = "anything' OR 'x'='x"
+    # superblock.name = "anything' OR 'x'='x"
     # assert superblock.is_valid() == False
     #
-    # superblock.superblock_name = ' '
+    # superblock.name = ' '
     # assert superblock.is_valid() == False
     #
-    # superblock.superblock_name = ''
+    # superblock.name = ''
     # assert superblock.is_valid() == False
     #
-    # superblock.superblock_name = '0'
+    # superblock.name = '0'
     # assert superblock.is_valid() == True
     #
-    # superblock.superblock_name = 'R66-Y'
+    # superblock.name = 'R66-Y'
     # assert superblock.is_valid() == True
     #
     # # reset
-    # superblock.superblock_name = name
+    # superblock.name = name
     pass
 
 def test_superblock_is_deletable(superblock):

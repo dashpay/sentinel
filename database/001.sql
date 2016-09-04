@@ -33,20 +33,20 @@ CREATE TABLE `governance_objects` (
 CREATE TABLE `proposals` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `governance_object_id` int(11) unsigned NOT NULL,
-  `proposal_name` varchar(255) NOT NULL,
+  `name` varchar(255) NOT NULL,
   `start_epoch` int(11) DEFAULT NULL,
   `end_epoch` int(11) DEFAULT NULL,
   `payment_address` varchar(255) DEFAULT NULL,
   `payment_amount` decimal(16,8) DEFAULT NULL,
   PRIMARY KEY (`id`),
   CONSTRAINT `fk_proposals_governance_object_id` FOREIGN KEY (`governance_object_id`) REFERENCES governance_objects(`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  UNIQUE KEY `index_proposals_proposal_name` (`proposal_name`)
+  UNIQUE KEY `index_proposals_name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `superblocks` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `governance_object_id` int(11) unsigned NOT NULL,
-  `superblock_name` varchar(255) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
   `event_block_height` int(11) DEFAULT NULL,
   `payment_addresses` text,
   `payment_amounts` text,

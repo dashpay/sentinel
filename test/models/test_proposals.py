@@ -32,7 +32,7 @@ def proposal():
     pobj = Proposal(
         start_epoch     = 1483250400,  # 2017-01-01
         end_epoch       = 1491022800,  # 2017-04-01
-        proposal_name   = "wine-n-cheeze-party",
+        name   = "wine-n-cheeze-party",
         description_url = "https://dashcentral.com/wine-n-cheeze-party",
         payment_address = "yYe8KwyaUu5YswSYmB3q3ryx8XTUu9y7Ui",
         payment_amount  = 13
@@ -69,28 +69,28 @@ def test_proposal_is_valid(proposal):
     # ============================================================
     # ensure valid proposal name
     # ============================================================
-    name = proposal.proposal_name
+    name = proposal.name
 
-    proposal.proposal_name = '   heya!@209h '
+    proposal.name = '   heya!@209h '
     assert proposal.is_valid() == False
 
-    proposal.proposal_name = "anything' OR 'x'='x"
+    proposal.name = "anything' OR 'x'='x"
     assert proposal.is_valid() == False
 
-    proposal.proposal_name = ' '
+    proposal.name = ' '
     assert proposal.is_valid() == False
 
-    proposal.proposal_name = ''
+    proposal.name = ''
     assert proposal.is_valid() == False
 
-    proposal.proposal_name = '0'
+    proposal.name = '0'
     assert proposal.is_valid() == True
 
-    proposal.proposal_name = 'R66-Y'
+    proposal.name = 'R66-Y'
     assert proposal.is_valid() == True
 
     # reset
-    proposal.proposal_name = name
+    proposal.name = name
 
     # ============================================================
     # ensure proposal not too late

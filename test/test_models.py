@@ -34,7 +34,7 @@ def test_proposal(proposal):
     d = proposal.get_dict()
     assert type(d) == type({})
 
-    fields = [ 'governance_object_id', 'proposal_name', 'start_epoch',
+    fields = [ 'governance_object_id', 'name', 'start_epoch',
              'end_epoch', 'payment_address', 'payment_amount', 'type' ]
     fields.sort()
     sorted_keys = d.keys()

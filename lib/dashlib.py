@@ -125,7 +125,7 @@ def create_superblock( dashd, proposals, event_block_height ):
     # actually include this info. This will enforce RI in the DB schema
     # also.
     sb = Superblock(
-        superblock_name = sbname,
+        name = sbname,
         event_block_height = event_block_height,
         payment_addresses = '|'.join( [str( pd['address'] ) for pd in payments] ),
         payment_amounts   = '|'.join( [str( pd['amount' ] ) for pd in payments] ),
