@@ -12,11 +12,11 @@ sys.path.append("scripts")
 import cmd
 import misc
 import config
-#import crontab
 import cmd, sys
 import random
 import json
 
+import peewee
 from models import Event, Superblock, Proposal, GovernanceObject
 
 from datetime import datetime, date, time
@@ -39,7 +39,7 @@ commands = {}
         mnbudget prepare beer-reimbursement2 www.dashwhale.org/p/beer-reimbursement2 1 481864 XfoGXXFJtobHvjwfszWnbMNZCBAHJWeN6G 50
         mnbudget submit beer-reimbursement2 www.dashwhale.org/p/beer-reimbursement2 1 481864 XfoGXXFJtobHvjwfszWnbMNZCBAHJWeN6G 50 REPLACE_WITH_COLLATERAL_HASH
 
-    1. proposal --create --proposal_name="beer-reimbursement" --description_url="www.dashwhale.org/p/beer-reimbursement" --start-date="2017/1/1" --end-date="2017/6/1"
+    1. proposal --create --name="beer-reimbursement" --description_url="www.dashwhale.org/p/beer-reimbursement" --start-date="2017/1/1" --end-date="2017/6/1"
     2. cron process (will automatically submit the proposal to the network)
 
 """
@@ -89,7 +89,7 @@ class SentinelShell(cmd.Cmd):
 
     """
     def do_proposal(self, arg):
-        'proposal --create --proposal_name="sb-test" --description_url="www.dashwhale.org/p/sb-test" --start_date="2016/8/1" --end_date="2017/1/1" --payment_address="ydE7B1A7htNwSTvvER6xBdgpKZqNDbbEhPydE7B1A7htNwSTvvER6xBdgpKZqNDbbEhP" --payment_amount="23"'
+        'proposal --create --name="sb-test" --description_url="www.dashwhale.org/p/sb-test" --start_date="2016/8/1" --end_date="2017/1/1" --payment_address="ydE7B1A7htNwSTvvER6xBdgpKZqNDbbEhPydE7B1A7htNwSTvvER6xBdgpKZqNDbbEhP" --payment_amount="23"'
 
         parser = argparse.ArgumentParser(description='Create a dash proposal')
 
@@ -100,7 +100,7 @@ class SentinelShell(cmd.Cmd):
         parser.add_argument('-k', '--pubkey', help='your public key for this username (only required for --create)')
 
         # meta data (create or amend)
-        parser.add_argument('-p', '--proposal_name', help='the proposal name (must be unique)')
+        parser.add_argument('-p', '--name', help='the proposal name (must be unique)')
         parser.add_argument('-d', '--description_url', help='your proposals url where a description of the project can be found')
         parser.add_argument('-s', '--start_date', help='starting data, must be the first of the month. Example : 2017/1/1')
         parser.add_argument('-e', '--end_date', help='ending data, must be the first of the month. Example : 2017/6/1')
@@ -122,8 +122,8 @@ class SentinelShell(cmd.Cmd):
 
         if args.create:
             #--create --revision=1 --pubkey=XPubkey --username="user-cid"
-            if not args.proposal_name:
-                print "proposal creation requires a proposal name, use --proposal_name"
+            if not args.name:
+                print "proposal creation requires a proposal name, use --name"
                 return
 
             if not args.description_url:
@@ -172,7 +172,7 @@ class SentinelShell(cmd.Cmd):
             # creation logic (e.g. 'dependency injection' i believe this is
             # called)
             #
-            object_name = args.proposal_name
+            object_name = args.name
 
             # unique to proposal
             description_url = args.description_url
@@ -186,7 +186,7 @@ class SentinelShell(cmd.Cmd):
                 return
 
             proposal = Proposal(
-                proposal_name = object_name,
+                name = object_name,
                 description_url = description_url,
                 start_epoch = start_epoch,
                 end_epoch = end_epoch,
@@ -196,11 +196,10 @@ class SentinelShell(cmd.Cmd):
 
             try:
                 proposal.create_and_queue()
-            except PeeweeException as e:
+                print "event queued successfully"
+            except peewee.PeeweeException as e:
                 # will auto-rollback as a result of atomic()...
                 print "error: %s" % e[1]
-
-            print "event queued successfully"
 
             return
 
@@ -214,7 +213,6 @@ class SentinelShell(cmd.Cmd):
 
     """
         Superblock
-
     """
     def do_superblock(self, arg):
         'superblock --create --event_block_height="28224" --payments="yLipDagwb1gM15RaUq3hpcaTxzDsFsSy9a=100"'
@@ -308,8 +306,8 @@ class SentinelShell(cmd.Cmd):
 
     """
         Crontab Tasks
-
     """
+
     def do_crontab(self, arg):
         ' crontab [--clear_events --prepare_events --submit_events]"'
 
@@ -452,7 +450,7 @@ if __name__ == '__main__':
     Test Flow (to be moved into unit tests):
 
     1.)  create an example proposal
-        proposal --create --proposal_name="beer-reimbursement" --description_url="www.dashwhale.org/p/beer-reimbursement" --start_date="2017/1/1" --end_date="2017/6/1"
+        proposal --create --name="beer-reimbursement" --description_url="www.dashwhale.org/p/beer-reimbursement" --start_date="2017/1/1" --end_date="2017/6/1"
 
     2.)  vote on the funding proposal
          vote --times=22 --type=funding --outcome=yes [--hash=governance-hash --name=obj-name]
