@@ -50,9 +50,6 @@ class BaseModel(Model):
     class Meta:
         database = db
 
-    def is_valid(self):
-        raise NotImplementedError("Method be over-ridden in subclasses")
-
 class GovernanceObject(BaseModel):
     #id = IntegerField(primary_key = True)
     parent_id = IntegerField(default=0)
@@ -140,16 +137,8 @@ class GovernanceObject(BaseModel):
         for item in golist.values():
             (go, subobj) = self.load_from_dashd( item )
 
-    # implemented in subclasses
-    # def vote(self):
-    #     # TODO
-    #     pass
-
     def is_valid(self):
-        raise NotImplementedError("Method be over-ridden in subclasses")
-        # -- might be possible to do base checks here and then ...
-        # govobj.is_valid() in sub-classes (as an alternative "super" since
-        # they're not true Python sub-classes)
+        raise NotImplementedError("Method be over-ridden in composed classes")
         """
             - check tree position validity
             - check signatures of owners
@@ -160,30 +149,21 @@ class GovernanceObject(BaseModel):
     @classmethod
     def load_from_dashd(self, rec):
         import inflection
-        # http://docs.peewee-orm.com/en/latest/peewee/querying.html#create-or-get
-        # user, created = User.get_or_create(username=username)
 
-        # first pick out vars... then try and find/create? then return new obj?
         subobject_hex = rec['DataHex']
         object_name = rec['Name']
-
-        # update the counts every time, regardless
-        gobj_updates = {
+        gobj_dict = {
+            'object_hash': rec['Hash'],
+            'object_fee_tx': rec['CollateralHash'],
+            'object_name': object_name,
             'absolute_yes_count': rec['AbsoluteYesCount'],
             'abstain_count': rec['AbstainCount'],
             'yes_count': rec['YesCount'],
             'no_count': rec['NoCount'],
         }
 
-        gobj_dict = {
-            'object_hash': rec['Hash'],
-            'object_fee_tx': rec['CollateralHash'],
-            'object_name': object_name,
-        }
-
         objects = simplejson.loads( binascii.unhexlify(subobject_hex), use_decimal=True )
         subobj = None
-
 
         # for obj in objects:
         # will there ever be multiple? -- just this for now
@@ -207,30 +187,19 @@ class GovernanceObject(BaseModel):
         # sigh. set name (even tho redundant in DB...)
         subdikt['name'] = object_name
 
-        # govobj = self(**gobj_dict)
-        # subobj = subclass(**subdikt)
-        # subobj.governance_object = govobj
 
-
+        # get/create, then sync vote counts from dashd, with every run
         govobj, created = self.get_or_create(object_hash=gobj_dict['object_hash'], defaults=gobj_dict)
-
-        # sync vote counts from dashd, with every run
-        count = govobj.update(**gobj_updates).where(self.id == govobj.id).execute()
-        # print "govobj hash = %s" % gobj_dict['object_hash']
-        # print "govobj created = %s" % created
-
+        print "govobj created = %s" % created
+        count = govobj.update(**gobj_dict).where(self.id == govobj.id).execute()
         subdikt['governance_object'] = govobj
 
-        # -- workaround 'til we can rename to just 'name' in proposal, subobject
-        goc_dikt = {
-          subclass.name_field: object_name,
-          'defaults': subdikt,
-        }
-        subobj, created = subclass.get_or_create(**goc_dikt)
-        # print "subobj name = %s" % object_name
-        # print "subobj created = %s" % created
-        # print "=" * 72
+        # get/create, then sync payment amounts, etc. from dashd - Dashd is the master
+        subobj, created = subclass.get_or_create(name=object_name, defaults=subdikt)
+        print "subobj created = %s" % created
+        count = subobj.update(**subdikt).where(subclass.id == subobj.id).execute()
 
+        print "="*78
         # ATM, returns a tuple w/govobj and the subobject
         return (govobj, subobj)
 
