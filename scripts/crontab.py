@@ -70,41 +70,23 @@ def prepare_events(dashd):
         print " -- cmd : [%s]" % govobj.get_prepare_command()
         print
 
-        hashtx = None
-
         try:
-            hashtx = dashd.rpc_command(govobj.get_prepare_command())
-            print " -- executing event ... getting fee_tx hash"
-            print " -- got hash: [%s]" % hashtx
-        except JSONRPCException as e:
-            print "error: %s" % e.message
-            raise e
+            collateral_tx = dashd.rpc_command(govobj.get_prepare_command())
+            print " -- executing prepare ... getting collateral_tx hash"
+            print " -- got hash: [%s]" % collateral_tx
 
-        pdb.set_trace()
-
-
-        # todo: what should it do incase of error?
-        if misc.is_hash(hashtx):
-            hashtx = misc.clean_hash(hashtx)
-            print " -- got hash:", hashtx
-
-            govobj.object_fee_tx = hashtx
+            govobj.object_fee_tx = collateral_tx
             event.prepare_time = misc.get_epoch()
 
             with govobj._meta.database.atomic():
                 govobj.save()
                 event.save()
 
-            return 1
-
-        else:
-            print " -- got error:", result
-
+        except JSONRPCException as e:
+            print "error: %s" % e.message
             event.error_time = misc.get_epoch()
-            event.error_message = result
+            event.error_message = e.message
             event.save()
-
-    return 0
 
 
 # submit pending local events to the Dash network
@@ -113,13 +95,10 @@ def submit_events(dashd):
     for event in Event.prepared():
         govobj = event.governance_object
 
-        pdb.set_trace()
-
         print "# SUBMIT PREPARED EVENTS FOR DASH NETWORK"
         print
-        print " -- cmd : ", govobj.get_submit_command()
+        print " -- submit cmd : ", govobj.get_submit_command()
         print
-        print " -- executing event ... getting fee_tx hash"
 
         tx = dashd.rpc_command('gettransaction', govobj.object_fee_tx)
         num_bc_confirmations = tx['bcconfirmations']
@@ -132,8 +111,9 @@ def submit_events(dashd):
             continue
 
         try:
-            print " -- executing event ... getting fee_tx hash"
+            print " -- executing submit ... getting object hash"
             object_hash = dashd.rpc_command(govobj.get_submit_command())
+            print " -- got hash: [%s]" % object_hash
 
             event.submit_time = misc.get_epoch()
             govobj.object_hash = object_hash
@@ -209,7 +189,7 @@ if __name__ == '__main__':
     # ========================================================================
     #
     # load "gobject list" rpc command data & create new objects in local MySQL DB
-    perform_dashd_object_sync(dashd)
+    # perform_dashd_object_sync(dashd)
 
     # create superblock & submit if elected & valid
     # attempt_superblock_creation(dashd)
