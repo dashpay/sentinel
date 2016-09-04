@@ -28,14 +28,26 @@ db = MySQLDatabase(dbname, **db_cfg)
 # === models ===
 
 class BaseModel(Model):
+
+    @classmethod
+    def serialisable_fields(self):
+        # Python is so not very elegant...
+        pk_column  = self._meta.primary_key.db_column
+        fk_columns = [ fk.db_column for fk in self._meta.rel.values() ]
+        do_not_use = [ pk_column ]
+        do_not_use.extend(fk_columns)
+        fields_to_serialise = self._meta.columns.keys()
+
+        for field in do_not_use:
+            if field in fields_to_serialise:
+                fields_to_serialise.remove(field)
+
+        return fields_to_serialise
+
     def get_dict(self):
         dikt = {}
-        for field_name in self._meta.columns.keys():
 
-            # don't include DB id
-            if "id" == field_name:
-                continue
-
+        for field_name in self.serialisable_fields():
             dikt[ field_name ] = getattr( self, field_name )
 
         # dashd shim (overall system needs design review)
@@ -177,8 +189,7 @@ class GovernanceObject(BaseModel):
         subclass = self._meta.reverse_rel[obj_type].model_class
 
         # exclude any invalid model data from dashd...
-        valid_keys = subclass._meta.columns.keys()
-        if 'id' in valid_keys: valid_keys.remove('id') # minus 'id'...
+        valid_keys = subclass.serialisable_fields()
         subdikt = { k: dikt[k] for k in valid_keys if k in dikt }
 
         # sigh. set name (even tho redundant in DB...)

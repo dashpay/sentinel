@@ -16,8 +16,13 @@ def test_event(event):
     d = event.get_dict()
     assert type(d) == type({})
 
-    fields = [ 'error_message', 'start_time', 'prepare_time', 'error_time',
-        'governance_object_id', 'submit_time' ]
+    fields = [
+        'start_time',
+        'prepare_time',
+        'submit_time',
+        'error_time',
+        'error_message',
+    ]
     fields.sort()
     sorted_keys = d.keys()
     sorted_keys.sort()
@@ -34,8 +39,14 @@ def test_proposal(proposal):
     d = proposal.get_dict()
     assert type(d) == type({})
 
-    fields = [ 'governance_object_id', 'name', 'start_epoch',
-             'end_epoch', 'payment_address', 'payment_amount', 'type' ]
+    fields = [
+        'name',
+        'start_epoch',
+        'end_epoch',
+        'payment_address',
+        'payment_amount',
+        'type',
+    ]
     fields.sort()
     sorted_keys = d.keys()
     sorted_keys.sort()
@@ -52,10 +63,20 @@ def test_governance_object(governance_object):
     d = governance_object.get_dict()
     assert type(d) == type({})
 
-    fields = [ 'parent_id', 'object_creation_time', 'object_hash',
-          'object_parent_hash', 'object_name', 'object_type', 'object_revision',
-          'object_fee_tx', 'yes_count', 'no_count', 'abstain_count',
-          'absolute_yes_count' ]
+    fields = [
+        'parent_id',
+        'object_creation_time',
+        'object_hash',
+        'object_parent_hash',
+        'object_name',
+        'object_type',
+        'object_revision',
+        'object_fee_tx',
+        'yes_count',
+        'no_count',
+        'abstain_count',
+        'absolute_yes_count',
+    ]
 
     fields.sort()
     sorted_keys = d.keys()
