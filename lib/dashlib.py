@@ -85,8 +85,17 @@ def create_superblock( dashd, proposals, event_block_height ):
     from models import Superblock, GovernanceObject, Proposal
     import dashlib
 
+    # don't create an empty superblock
+    if ( len(proposals) == 0 ):
+        return None
+
     budget_allocated = Decimal(0)
     budget_max       = dashlib.get_superblock_budget_allocation(dashd, event_block_height)
+
+    print "  IN create_superblock"
+    print "event_block_height: %d" % event_block_height
+    print "       budget_max : %d" % budget_max
+    print " "
 
     # TODO: probably use a sub-table to link proposals for RI
     payments = []
