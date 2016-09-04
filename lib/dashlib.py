@@ -6,6 +6,7 @@ sys.path.append( os.path.join( os.path.dirname(__file__), '..', 'lib' ) )
 import base58
 import hashlib
 import re
+from decimal import Decimal
 
 def is_valid_dash_address( address, network = 'mainnet' ):
     # Only public key addresses are allowed
@@ -82,16 +83,20 @@ def parse_masternode_status_vin(status_vin_string):
 # create superblock logic -- probably need a join table for proposal, superblock linkage
 def create_superblock( dashd, proposals, event_block_height ):
     from models import Superblock, GovernanceObject, Proposal
+    import dashlib
 
     budget_allocated = Decimal(0)
-    budget_total     = dashlib.get_superblock_budget_allocation(dashd, event_block_height)
+    budget_max       = dashlib.get_superblock_budget_allocation(dashd, event_block_height)
 
     # TODO: probably use a sub-table to link proposals for RI
     payments = []
     for proposal in proposals:
+        # skip proposals that are too expensive...
+        if (budget_allocated + proposal.payment_amount) > budget_max:
+            continue
+
+        # else add proposal and keep track of total budget allocation
         budget_allocated += proposal.payment_amount
-        if budget_allocated > budget_total:
-            break
 
         # TODO: probably use a sub-table to link proposals for RI
         payment = { 'address': proposal.payment_address,
@@ -99,7 +104,7 @@ def create_superblock( dashd, proposals, event_block_height ):
         payments.append( payment )
 
     # deterministic superblocks can't have random names
-    sbname = "sb" + event_block_height
+    sbname = "sb" + str(event_block_height)
 
     # TODO: actually link this to Proposals in the DB and don't
     # actually include this info. This will enforce RI in the DB schema
@@ -107,8 +112,8 @@ def create_superblock( dashd, proposals, event_block_height ):
     sb = Superblock(
         superblock_name = sbname,
         event_block_height = event_block_height,
-        payment_addresses = '|'.join( [pd['address'] for pd in payments] ),
-        payment_amounts   = '|'.join( [pd['amount' ] for pd in payments] ),
+        payment_addresses = '|'.join( [str( pd['address'] ) for pd in payments] ),
+        payment_amounts   = '|'.join( [str( pd['amount' ] ) for pd in payments] ),
     )
 
     return sb
@@ -122,4 +127,3 @@ def get_superblock_budget_allocation(dashd, height=None):
     if height is None:
         height = dashd.rpc_command('getblockcount')
     return Decimal( dashd.rpc_command('getsuperblockbudget', height) )
-
