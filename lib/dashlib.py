@@ -91,9 +91,24 @@ def create_superblock( dashd, proposals, event_block_height ):
     # TODO: probably use a sub-table to link proposals for RI
     payments = []
     for proposal in proposals:
+        fmt_string = "name: %s , rank: %4d , amount: %s <= %s"
+
         # skip proposals that are too expensive...
         if (budget_allocated + proposal.payment_amount) > budget_max:
+            print fmt_string % (
+                proposal.name,
+                proposal.rank,
+                proposal.payment_amount,
+                "skipped (blows the budget)",
+            )
             continue
+
+        print fmt_string % (
+            proposal.name,
+            proposal.rank,
+            proposal.payment_amount,
+            "adding",
+        )
 
         # else add proposal and keep track of total budget allocation
         budget_allocated += proposal.payment_amount
