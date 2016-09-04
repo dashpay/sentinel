@@ -152,37 +152,3 @@ class DashConfig():
 
         # return a dictionary with RPC credential key, value pairs
         return creds
-
-
-class CTransaction():
-    tx = {}
-
-    def __init__(self):
-        tx = {
-            "bcconfirmations" : 0
-        }
-        return None
-
-    def load(self, txid):
-        result = rpc_command("gettransaction " + txid)
-
-        try:
-            obj = json.loads(result)
-            if obj:
-                self.tx = obj
-                return True
-            else:
-                print "error loading tx"
-                return False
-        except:
-            print "Unexpected error:", sys.exc_info()[0]
-            print
-            print "dashd result:", result
-            print
-            return False
-
-    def get_hash(self):
-        return None
-
-    def get_confirmations(self):
-        return self.tx["bcconfirmations"]

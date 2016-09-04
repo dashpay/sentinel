@@ -15,6 +15,7 @@ import misc
 from dashd import DashDaemon
 from dashd import DashConfig
 from models import Event, Superblock, Proposal, GovernanceObject
+from bitcoinrpc.authproxy import AuthServiceProxy, JSONRPCException
 
 """
 
@@ -66,16 +67,25 @@ def prepare_events(dashd):
 
         print "# PREPARING EVENTS FOR DASH NETWORK"
         print
-        # pdb.set_trace()
         print " -- cmd : [%s]" % govobj.get_prepare_command()
         print
 
-        result = dashd.rpc_command(govobj.get_prepare_command())
-        print " -- executing event ... getting fee_tx hash"
+        hashtx = None
+
+        try:
+            hashtx = dashd.rpc_command(govobj.get_prepare_command())
+            print " -- executing event ... getting fee_tx hash"
+            print " -- got hash: [%s]" % hashtx
+        except JSONRPCException as e:
+            print "error: %s" % e.message
+            raise e
+
+        pdb.set_trace()
+
 
         # todo: what should it do incase of error?
-        if misc.is_hash(result):
-            hashtx = misc.clean_hash(result)
+        if misc.is_hash(hashtx):
+            hashtx = misc.clean_hash(hashtx)
             print " -- got hash:", hashtx
 
             govobj.object_fee_tx = hashtx
@@ -102,7 +112,8 @@ def submit_events(dashd):
 
     for event in Event.prepared():
         govobj = event.governance_object
-        hash = govobj.object_fee_tx
+
+        pdb.set_trace()
 
         print "# SUBMIT PREPARED EVENTS FOR DASH NETWORK"
         print
@@ -110,35 +121,33 @@ def submit_events(dashd):
         print
         print " -- executing event ... getting fee_tx hash"
 
-        if misc.is_hash(hash):
-            tx = dashd.CTransaction()
-            if tx.load(hash):
-                print " -- confirmations: ", tx.get_confirmations()
+        tx = dashd.rpc_command('gettransaction', govobj.object_fee_tx)
+        num_bc_confirmations = tx['bcconfirmations']
 
-                if tx.get_confirmations() >= CONFIRMATIONS_REQUIRED:
-                    event.submit_time = misc.get_epoch()
-                    print " -- executing event ... getting fee_tx hash"
+        print " -- confirmations: [%d]" % num_bc_confirmations
+        print " -- CONFIRMATIONS_REQUIRED: [%d]" % CONFIRMATIONS_REQUIRED
 
-                    result = dashd.rpc_command(govobj.get_submit_command())
-                    if misc.is_hash(result):
-                        print " -- got result", result
-                        govobj.object_hash = result
-                        with govobj._meta.database.atomic():
-                            govobj.save()
-                            event.save()
+        if num_bc_confirmations < CONFIRMATIONS_REQUIRED:
+            print " -- waiting for confirmations"
+            continue
 
-                        return 1
-                    else:
-                        print " -- got error", result
-                        event.error_time = misc.get_epoch()
-                        event.error_message = result
-                        event.save()
+        try:
+            print " -- executing event ... getting fee_tx hash"
+            object_hash = dashd.rpc_command(govobj.get_submit_command())
 
-                else:
-                    print " -- waiting for confirmation"
+            event.submit_time = misc.get_epoch()
+            govobj.object_hash = object_hash
 
-        return 0
+            # save all
+            with govobj._meta.database.atomic():
+                govobj.save()
+                event.save()
 
+        except JSONRPCException as e:
+            print "error: %s" % e.message
+            event.error_time = misc.get_epoch()
+            event.error_message = e.message
+            event.save()
 
 # sync dashd gobject list with our local relational DB backend
 def perform_dashd_object_sync(dashd):
@@ -173,7 +182,7 @@ def attempt_superblock_creation(dashd):
     sb = dashlib.create_superblock( dashd, proposals, event_block_height )
 
     # if we are the elected masternode...
-    if ( winner == dashd.get_current_masternode_vin() )
+    if ( winner == dashd.get_current_masternode_vin() ):
         # queue superblock submission
         sb.create_and_queue()
 
@@ -203,10 +212,9 @@ if __name__ == '__main__':
     perform_dashd_object_sync(dashd)
 
     # create superblock & submit if elected & valid
-    attempt_superblock_creation(dashd)
-
-    auto_vote_objects(dashd)
+    # attempt_superblock_creation(dashd)
+    # auto_vote_objects(dashd)
 
     # prepare/submit pending events
-    prepare_events(dashd)
+    # prepare_events(dashd)
     submit_events(dashd)
