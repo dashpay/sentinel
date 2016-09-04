@@ -49,8 +49,8 @@ def proposal():
     pobj = Proposal(
         start_epoch     = 1483250400,  # 2017-01-01
         end_epoch       = 1491022800,  # 2017-04-01
-        name   = "chrono-trigger-party",
-        description_url = "https://dashcentral.com/chrono-trigger-party",
+        name   = "beer-reimbursement-7",
+        description_url = "https://dashcentral.com/beer-reimbursement-7",
         payment_address = "yYe8KwyaUu5YswSYmB3q3ryx8XTUu9y7Ui",
         payment_amount  = 7
     )
@@ -68,17 +68,6 @@ def governance_object():
     # NOTE: do not save, return an unsaved govobj
 
     return govobj
-
-# Starting with this info...
-#
-# proposal -c -p chrono-trigger-party -d https://dashcentral.com/chrono-trigger-party -s 2016/09/01 -e 2016/10/01 -x yYe8KwyaUu5YswSYmB3q3ryx8XTUu9y7Ui -a 100
-# superblock -c -p yYe8KwyaUu5YswSYmB3q3ryx8XTUu9y7Ui=5,yTC62huR4YQEPn9AJHjnQxxreHSbgAoatV=3 -b 62500
-#
-# ... how do we get the actual "gobject" command used with dash-cli ?
-#
-# govobj = GovernanceObject()
-# govobj.load(pw_event.governance_object_id)
-
 
 def test_prepare_command(proposal):
     proposal.create_and_queue()
@@ -114,7 +103,7 @@ def test_prepare_command(proposal):
     # else:
     #     print "NO MATCH!"
 
-    gobject_command = "gobject prepare 0 1 1471898632 chrono-trigger-party 5b5b2270726f706f73616c222c207b22656e645f65706f6368223a20313439313032323830302c2022676f7665726e616e63655f6f626a6563745f6964223a20352c20227061796d656e745f61646472657373223a2022795965384b77796155753559737753596d4233713372797838585455753979375569222c20227061796d656e745f616d6f756e74223a20372e30303030303030302c202270726f706f73616c5f6e616d65223a20226368726f6e6f2d747269676765722d7061727479222c202273746172745f65706f6368223a20313438333235303430302c202274797065223a20317d5d5d"
+    gobject_command = "gobject prepare 0 1 1471898632 beer-reimbursement-7 5b5b2270726f706f73616c222c207b22656e645f65706f6368223a20313439313032323830302c2022676f7665726e616e63655f6f626a6563745f6964223a20352c20226e616d65223a2022626565722d7265696d62757273656d656e742d37222c20227061796d656e745f61646472657373223a2022795965384b77796155753559737753596d4233713372797838585455753979375569222c20227061796d656e745f616d6f756e74223a20372e30303030303030302c202273746172745f65706f6368223a20313438333235303430302c202274797065223a20317d5d5d"
     assert cmd == gobject_command
 
 # ensure all 3 rows get created -- govobj, proposal, and event.
