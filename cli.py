@@ -20,7 +20,6 @@ import peewee
 from models import Event, Superblock, Proposal, GovernanceObject
 
 from datetime import datetime, date, time
-from dashd import CTransaction
 
 # Enable only for testing:
 #crontab.CONFIRMATIONS_REQUIRED = 1
