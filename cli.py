@@ -268,11 +268,7 @@ class SentinelShell(cmd.Cmd):
                 list_addr.append(addr)
                 list_amount.append(amount)
 
-            # print list_amount
-            # print list_addr
-
-            # CREATE NAME ACCORDING TO STARTING DATE (NON-UNIQUE IS NOT AN ATTACK)
-            # NGM/TODO: why random? why not current epoch for this second?
+            # NGM/TODO: use event block height
             superblock_name = "sb" + str(random.randint(1000000, 9999999))
 
             # NGM: might be easier to perform sanitization further up and
