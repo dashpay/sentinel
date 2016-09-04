@@ -142,18 +142,13 @@ def submit_events(dashd):
 
 # sync dashd gobject list with our local relational DB backend
 def perform_dashd_object_sync(dashd):
-    golist = dashd.rpc_command('gobject list')
-    for item in golist.values():
-        (go, subobj) = GovernanceObject.load_from_dashd( item )
-
-
+    GovernanceObject.sync(dashd)
 
 def attempt_superblock_creation(dashd):
     from dashlib import current_block_hash, create_superblock
     height = dashd.rpc_command( 'getblockcount' )
     govinfo = dashd.rpc_command( 'getgovernanceinfo' )
     cycle = govinfo['superblockcycle']
-    cycle = 5 # TODO: remove this test value
     diff = height % cycle
     event_block_height = height + diff
 
