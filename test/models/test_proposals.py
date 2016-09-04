@@ -136,6 +136,8 @@ def test_proposal_is_valid(proposal):
     # ensure proposal can't request more than the budget
     # ============================================================
 
+    proposal.max_budget = 7000
+
     # it's over 9000!
     proposal.payment_amount = 9001
     assert proposal.is_valid() == False

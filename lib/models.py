@@ -279,13 +279,17 @@ class Proposal(BaseModel, QueueGovObject):
     # TODO: remove this redundancy if/when dashd can be fixed to use
     # strings/types instead of ENUM types for type ID
     govobj_type = 1
+    max_budget = None
 
     class Meta:
         db_table = 'proposals'
 
     # TODO: unit tests for all these items, both individually and some grouped
     # **This can be easily mocked.**
-    def is_valid(self, max_valid_budget):
+    #
+    # TODO: actually, i think proposal should have no knowledge of the budget,
+    # which is more of a concern for the superblocks...
+    def is_valid(self):
         import dashlib
         now = misc.get_epoch()
 
@@ -302,7 +306,7 @@ class Proposal(BaseModel, QueueGovObject):
             return False
 
         # budget check
-        if ( self.payment_amount > max_valid_budget ):
+        if ( self.max_budget and (self.payment_amount > self.max_budget) ):
             return False
 
         # amount can't be negative or 0
