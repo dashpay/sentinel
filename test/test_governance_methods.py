@@ -86,12 +86,20 @@ def test_prepare_command(proposal):
     gobj = GovernanceObject.get( GovernanceObject.id == 5 )
 
     # ensure tight regex match
-    prepare_command_regex = re.compile('^gobject prepare ([\da-f]+) ([\da-f]+) ([\d]+) ([\w-]+) ([\da-f]+)$')
+    #prepare_command_regex = re.compile('^gobject prepare ([\da-f]+) ([\da-f]+) ([\d]+) ([\w-]+) ([\da-f]+)$')
 
     cmd = gobj.get_prepare_command()
 
-    match = prepare_command_regex.search(cmd)
-    assert match != None
+    assert re.match(r'^gobject$', cmd[0]) != None
+    assert re.match(r'^prepare$', cmd[1]) != None
+    assert re.match(r'^[\da-f]+$', cmd[2]) != None
+    assert re.match(r'^[\da-f]+$', cmd[3]) != None
+    assert re.match(r'^[\d]+$', cmd[4]) != None
+    assert re.match(r'^[\w-]+$', cmd[5]) != None
+    assert re.match(r'^[\da-f]+$', cmd[6]) != None
+
+    # match = prepare_command_regex.search(cmd)
+    # assert match != None
 
     # if match:
     #     # print "matched!"
@@ -103,7 +111,7 @@ def test_prepare_command(proposal):
     # else:
     #     print "NO MATCH!"
 
-    gobject_command = "gobject prepare 0 1 1471898632 beer-reimbursement-7 5b5b2270726f706f73616c222c207b22656e645f65706f6368223a20313439313032323830302c20226e616d65223a2022626565722d7265696d62757273656d656e742d37222c20227061796d656e745f61646472657373223a2022795965384b77796155753559737753596d4233713372797838585455753979375569222c20227061796d656e745f616d6f756e74223a20372e30303030303030302c202273746172745f65706f6368223a20313438333235303430302c202274797065223a20317d5d5d"
+    gobject_command = ['gobject', 'prepare', '0', '1', '1471898632', 'beer-reimbursement-7', '5b5b2270726f706f73616c222c207b22656e645f65706f6368223a20313439313032323830302c20226e616d65223a2022626565722d7265696d62757273656d656e742d37222c20227061796d656e745f61646472657373223a2022795965384b77796155753559737753596d4233713372797838585455753979375569222c20227061796d656e745f616d6f756e74223a20372e30303030303030302c202273746172745f65706f6368223a20313438333235303430302c202274797065223a20317d5d5d']
     assert cmd == gobject_command
 
 # ensure all 3 rows get created -- govobj, proposal, and event.
