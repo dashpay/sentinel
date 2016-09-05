@@ -29,10 +29,10 @@ from datetime import datetime, date, time
      - this is an exact copy of our existing functionality, just reimplemented in python using sentinel
 
     old commands:
-        mnbudget prepare beer-reimbursement2 www.dashwhale.org/p/beer-reimbursement2 1 481864 XfoGXXFJtobHvjwfszWnbMNZCBAHJWeN6G 50
-        mnbudget submit beer-reimbursement2 www.dashwhale.org/p/beer-reimbursement2 1 481864 XfoGXXFJtobHvjwfszWnbMNZCBAHJWeN6G 50 REPLACE_WITH_COLLATERAL_HASH
+        mnbudget prepare beer-reimbursement2 https://www.dashwhale.org/p/beer-reimbursement2 1 481864 XfoGXXFJtobHvjwfszWnbMNZCBAHJWeN6G 50
+        mnbudget submit beer-reimbursement2 https://www.dashwhale.org/p/beer-reimbursement2 1 481864 XfoGXXFJtobHvjwfszWnbMNZCBAHJWeN6G 50 REPLACE_WITH_COLLATERAL_HASH
 
-    1. proposal --create --name="beer-reimbursement" --description_url="www.dashwhale.org/p/beer-reimbursement" --start-date="2017-01-01" --end-date="2017-06-01"
+    1. proposal --create --name="beer-reimbursement" --url="https://www.dashwhale.org/p/beer-reimbursement" --start-date="2017-01-01" --end-date="2017-06-01"
     2. cron process (will automatically submit the proposal to the network)
 
 """
@@ -47,7 +47,7 @@ commands = {}
 commands["proposal"] = [
     "--create",
     "--name",
-    "--description_url",
+    "--url",
     "--proposal_url",
     "--start_date",
     "--end_date"
@@ -77,7 +77,7 @@ class SentinelShell(cmd.Cmd):
 
     """
     def do_proposal(self, arg):
-        'proposal --create --name="sb-test" --description_url="https://www.dashcentral.org/p/sb-test" --start_date=2016-12-01 --end_date=2017-04-01 --payment_address=yYe8KwyaUu5YswSYmB3q3ryx8XTUu9y7Ui --payment_amount=23'
+        'proposal --create --name="sb-test" --url="https://www.dashcentral.org/p/sb-test" --start_date=2016-12-01 --end_date=2017-04-01 --payment_address=yYe8KwyaUu5YswSYmB3q3ryx8XTUu9y7Ui --payment_amount=23'
 
         parser = argparse.ArgumentParser(description='Create a dash proposal')
 
@@ -89,7 +89,7 @@ class SentinelShell(cmd.Cmd):
 
         # meta data (create or amend)
         parser.add_argument('-p', '--name', help='the proposal name (must be unique)')
-        parser.add_argument('-d', '--description_url', help='your proposals url where a description of the project can be found')
+        parser.add_argument('-u', '--url', help='your proposals url where a description of the project can be found')
         parser.add_argument('-s', '--start_date', help='start date, ISO8601 format. Must be the first of the month. Example : 2017-01-01')
         parser.add_argument('-e', '--end_date', help='end date, ISO8601 format. Must be the first of the month. Example : 2017-06-01')
         parser.add_argument('-x', '--payment_address', help='the payment address where you wish to receive the funds')
@@ -114,8 +114,8 @@ class SentinelShell(cmd.Cmd):
                 print "proposal creation requires a proposal name, use --name"
                 return
 
-            if not args.description_url:
-                print "proposal creation requires a description url, use --description_url"
+            if not args.url:
+                print "proposal creation requires a description url, use --url"
                 return
 
             if not args.start_date:
@@ -159,7 +159,7 @@ class SentinelShell(cmd.Cmd):
             object_name = args.name
 
             # unique to proposal
-            description_url = args.description_url
+            url = args.url
             payment_address = args.payment_address
             payment_amount = args.payment_amount
 
@@ -171,7 +171,7 @@ class SentinelShell(cmd.Cmd):
 
             proposal = Proposal(
                 name = object_name,
-                description_url = description_url,
+                url = url,
                 start_epoch = start_epoch,
                 end_epoch = end_epoch,
                 payment_address = payment_address,
@@ -358,7 +358,7 @@ if __name__ == '__main__':
     Test Flow (to be moved into unit tests):
 
     1.)  create an example proposal
-        proposal --create --name="beer-reimbursement" --description_url="www.dashwhale.org/p/beer-reimbursement" --start_date="2017-01-01" --end_date="2017-06-01"
+        proposal --create --name="beer-reimbursement" --url="https://www.dashwhale.org/p/beer-reimbursement" --start_date="2017-01-01" --end_date="2017-06-01"
 
     2.)  vote on the funding proposal
          vote --times=22 --type=funding --outcome=yes [--hash=governance-hash --name=obj-name]

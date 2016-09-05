@@ -25,7 +25,7 @@ def create_fake_proposal_data():
 
     dikt = {
         'name': name,
-        'description_url': "http://dashcentral.org/%s" % name,
+        'url': "http://dashcentral.org/%s" % name,
         'payment_address': 'yYe8KwyaUu5YswSYmB3q3ryx8XTUu9y7Ui',
         'payment_amount': Decimal(5.75),
         'start_epoch': 1483250400,
@@ -34,12 +34,10 @@ def create_fake_proposal_data():
 
     return dikt
 
-    
+
 
 num = 2
 for i in range(num):
     data = create_fake_proposal_data()
     proposal = Proposal(**data)
     proposal.create_and_queue()
-
-

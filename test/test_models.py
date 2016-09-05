@@ -41,6 +41,7 @@ def test_proposal(proposal):
 
     fields = [
         'name',
+        'url',
         'start_epoch',
         'end_epoch',
         'payment_address',
