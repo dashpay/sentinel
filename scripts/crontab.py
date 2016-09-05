@@ -71,7 +71,7 @@ def prepare_events(dashd):
         print
 
         try:
-            collateral_tx = dashd.rpc_command(govobj.get_prepare_command())
+            collateral_tx = dashd.rpc_command(*govobj.get_prepare_command())
             print " -- executing prepare ... getting collateral_tx hash"
             print " -- got hash: [%s]" % collateral_tx
 
@@ -112,7 +112,7 @@ def submit_events(dashd):
 
         try:
             print " -- executing submit ... getting object hash"
-            object_hash = dashd.rpc_command(govobj.get_submit_command())
+            object_hash = dashd.rpc_command(*govobj.get_submit_command())
             print " -- got hash: [%s]" % object_hash
 
             event.submit_time = misc.get_epoch()
@@ -196,5 +196,5 @@ if __name__ == '__main__':
     # auto_vote_objects(dashd)
 
     # prepare/submit pending events
-    # prepare_events(dashd)
+    prepare_events(dashd)
     submit_events(dashd)

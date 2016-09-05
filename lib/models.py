@@ -120,14 +120,14 @@ class GovernanceObject(BaseModel):
 
     def get_prepare_command(self):
         cmd = [ 'gobject', 'prepare', self.object_parent_hash,
-                self.object_revision, self.object_creation_time,
+                str(self.object_revision), str(self.object_creation_time),
                 self.object_name, self.object_data ]
         return cmd
 
     def get_submit_command(self):
         cmd = [ 'gobject', 'submit', self.object_fee_tx,
-                self.object_parent_hash, self.object_revision,
-                self.object_creation_time, self.object_name, self.object_data ]
+                self.object_parent_hash, str(self.object_revision),
+                str(self.object_creation_time), self.object_name, self.object_data ]
         return cmd
 
     # sync dashd gobject list with our local relational DB backend
@@ -191,12 +191,14 @@ class GovernanceObject(BaseModel):
         govobj, created = self.get_or_create(object_hash=gobj_dict['object_hash'], defaults=gobj_dict)
         print "govobj created = %s" % created
         count = govobj.update(**gobj_dict).where(self.id == govobj.id).execute()
+        print "govobj updated = %d" % count
         subdikt['governance_object'] = govobj
 
         # get/create, then sync payment amounts, etc. from dashd - Dashd is the master
         subobj, created = subclass.get_or_create(name=object_name, defaults=subdikt)
         print "subobj created = %s" % created
         count = subobj.update(**subdikt).where(subclass.id == subobj.id).execute()
+        print "subobj updated = %d" % count
 
         print "="*78
         # ATM, returns a tuple w/govobj and the subobject
