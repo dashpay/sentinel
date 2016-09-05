@@ -15,7 +15,7 @@ import misc
 import dashd
 
 # our mixin
-from queue_gov_object import QueueGovObject
+from queue_gov_object import GovernanceClass
 from dashlib import is_valid_dash_address
 
 
@@ -290,7 +290,7 @@ class Setting(BaseModel):
     class Meta:
         db_table = 'settings'
 
-class Proposal(BaseModel, QueueGovObject):
+class Proposal(BaseModel, GovernanceClass):
     import dashlib
     #id = IntegerField(primary_key = True)
     #governance_object_id = IntegerField(unique=True)
@@ -382,7 +382,7 @@ class Proposal(BaseModel, QueueGovObject):
             rank = self.governance_object.absolute_yes_count
             return rank
 
-class Superblock(BaseModel, QueueGovObject):
+class Superblock(BaseModel, GovernanceClass):
     #id = IntegerField(primary_key = True)
     #governance_object_id = IntegerField(unique=True)
     governance_object = ForeignKeyField(GovernanceObject, related_name = 'superblocks')

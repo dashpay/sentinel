@@ -4,10 +4,8 @@ sys.path.append( os.path.join( os.path.dirname(__file__), '..', 'lib' ) )
 import models
 
 
-
-
-# mixin for GovObj sub-objects like proposal and superblock, etc.
-class QueueGovObject(object):
+# mixin for GovObj composed classes like proposal and superblock, etc.
+class GovernanceClass(object):
     def create_and_queue(self):
         # ensure unique name in govobj table...
         # ( we really need to get this redundancy out of this DB schema )
@@ -43,14 +41,9 @@ class QueueGovObject(object):
 
         return
 
-
-    # TODO: maybe move this to top-level govobj...
     def get_vote_command(self, signal, outcome):
-        cmd = "gobject vote-conf %s %s %s" % (
-            self.governance_object.object_hash,
-            signal,
-            outcome,
-        )
+        cmd = [ 'gobject', 'vote-conf', self.governance_object.object_hash,
+                signal, outcome ]
         return cmd
 
     def vote(self, dashd, signal, outcome):
@@ -59,4 +52,3 @@ class QueueGovObject(object):
         # TODO: do we need to track our own votes?
         # self.object_status = 'VOTED'
         # self.save()
-
