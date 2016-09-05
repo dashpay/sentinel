@@ -244,7 +244,6 @@ class Event(BaseModel):
     @classmethod
     def prepared(self):
         now = misc.get_epoch()
-
         return self.select().where(
             (self.start_time <= now ) &
             (self.prepare_time <= now ) &
@@ -255,10 +254,32 @@ class Event(BaseModel):
     @classmethod
     def submitted(self):
         now = misc.get_epoch()
+        return self.select().where(self.submit_time > 0)
 
-        return self.select().where(
-            (self.submit_time > 0 )
-        )
+    # TODO: test for this scope
+    @classmethod
+    def complete(self):
+        return self.submitted().where(self.error_time == 0)
+
+    # TODO: test for this scope
+    @classmethod
+    def errored(self):
+        return self.select().where(self.error_time != 0)
+
+    # TODO: test for this scope
+    # Events are transient... need to be rolled off eventually
+    @classmethod
+    def is_deletable(self):
+        now = misc.get_epoch()
+
+        success_persist_time = (86400 * 15) # 15 days for successful
+        error_persist_time   = (86400 * 30) # 30 days for unsuccessful
+
+        successes = self.complete().where(self.submit_time + success_persist_time < now)
+        errors    = self.errored().where(self.error_time + error_persist_time < now)
+
+        return (successes | errors)
+
 
 class Setting(BaseModel):
     #id = IntegerField(primary_key = True)
