@@ -21,12 +21,6 @@ from models import Event, Superblock, Proposal, GovernanceObject
 
 from datetime import datetime, date, time
 
-# Enable only for testing:
-#crontab.CONFIRMATIONS_REQUIRED = 1
-parent = GovernanceObject.root()
-
-commands = {}
-
 """
 
     Sentinel - v1
@@ -38,7 +32,7 @@ commands = {}
         mnbudget prepare beer-reimbursement2 www.dashwhale.org/p/beer-reimbursement2 1 481864 XfoGXXFJtobHvjwfszWnbMNZCBAHJWeN6G 50
         mnbudget submit beer-reimbursement2 www.dashwhale.org/p/beer-reimbursement2 1 481864 XfoGXXFJtobHvjwfszWnbMNZCBAHJWeN6G 50 REPLACE_WITH_COLLATERAL_HASH
 
-    1. proposal --create --name="beer-reimbursement" --description_url="www.dashwhale.org/p/beer-reimbursement" --start-date="2017/1/1" --end-date="2017/6/1"
+    1. proposal --create --name="beer-reimbursement" --description_url="www.dashwhale.org/p/beer-reimbursement" --start-date="2017-01-01" --end-date="2017-06-01"
     2. cron process (will automatically submit the proposal to the network)
 
 """
@@ -46,6 +40,8 @@ commands = {}
 # ---------------------------------------------------------------------
 
 """ SENTINEL AUTOCOMPLETE FOR CLI """
+
+commands = {}
 
 # proposal --create [...]
 commands["proposal"] = [
@@ -62,13 +58,6 @@ commands["superblock"] = [
     "--create",
     "--date",
     "--payments"
-]
-
-# crontab --task="(prepare_events|submit_events)"
-commands["crontab"] = [
-    "--clear_events",
-    "--prepare_events",
-    "--submit_events"
 ]
 
 # ---------------------------------------------------------------------
@@ -88,7 +77,7 @@ class SentinelShell(cmd.Cmd):
 
     """
     def do_proposal(self, arg):
-        'proposal --create --name="sb-test" --description_url="www.dashwhale.org/p/sb-test" --start_date="2016/8/1" --end_date="2017/1/1" --payment_address="ydE7B1A7htNwSTvvER6xBdgpKZqNDbbEhPydE7B1A7htNwSTvvER6xBdgpKZqNDbbEhP" --payment_amount="23"'
+        'proposal --create --name="sb-test" --description_url="https://www.dashcentral.org/p/sb-test" --start_date=2016-12-01 --end_date=2017-04-01 --payment_address=yYe8KwyaUu5YswSYmB3q3ryx8XTUu9y7Ui --payment_amount=23'
 
         parser = argparse.ArgumentParser(description='Create a dash proposal')
 
@@ -101,8 +90,8 @@ class SentinelShell(cmd.Cmd):
         # meta data (create or amend)
         parser.add_argument('-p', '--name', help='the proposal name (must be unique)')
         parser.add_argument('-d', '--description_url', help='your proposals url where a description of the project can be found')
-        parser.add_argument('-s', '--start_date', help='starting data, must be the first of the month. Example : 2017/1/1')
-        parser.add_argument('-e', '--end_date', help='ending data, must be the first of the month. Example : 2017/6/1')
+        parser.add_argument('-s', '--start_date', help='start date, ISO8601 format. Must be the first of the month. Example : 2017-01-01')
+        parser.add_argument('-e', '--end_date', help='end date, ISO8601 format. Must be the first of the month. Example : 2017-06-01')
         parser.add_argument('-x', '--payment_address', help='the payment address where you wish to receive the funds')
         parser.add_argument('-a', '--payment_amount', help='how much to send in each payment to the payment address')
 
@@ -147,21 +136,17 @@ class SentinelShell(cmd.Cmd):
 
             ### ---- CONVERT AND CHECK EPOCHS -----
 
+            # sentinel values...
             start_epoch = 0
-            end_epoch = 0
+            end_epoch   = 0
 
-            try:
-                start_epoch = datetime.strptime(args.start_date, '%d/%m/%y').strftime('%s')
-                end_epoch = datetime.strptime(args.end_date, '%d/%m/%y').strftime('%s')
-            except:
-                try:
-                    start_epoch = datetime.strptime(args.start_date, '%Y/%m/%d').strftime('%s')
-                    end_epoch = datetime.strptime(args.end_date, '%Y/%m/%d').strftime('%s')
-                except:
-                    pass
+            # using standard ISO8601 date format to prevent ambiguity
+            # also: https://xkcd.com/1179/
+            start_epoch = datetime.strptime(args.start_date, '%Y-%m-%d').strftime('%s')
+            end_epoch   = datetime.strptime(args.end_date  , '%Y-%m-%d').strftime('%s')
 
             if start_epoch == 0 or end_epoch == 0:
-                print "start or end date has invalid format, YYYY/MM/DD or DD/MM/YY is required";
+                print "start or end date has invalid format, ISO8601 date format (YYYY-MM-DD) required";
                 return
 
             # == ngm /parser logic, begin Dash logic
@@ -215,7 +200,7 @@ class SentinelShell(cmd.Cmd):
     """
     def do_superblock(self, arg):
         'superblock --create --event_block_height="28224" --payments="yLipDagwb1gM15RaUq3hpcaTxzDsFsSy9a=100"'
-        'superblock --create --event_date="2017/1/1" --payments="Addr1=amount,Addr2=amount,Addr3=amount"'
+        'superblock --create --event_date="2017-01-01" --payments="Addr1=amount,Addr2=amount,Addr3=amount"'
 
         parser = argparse.ArgumentParser(description='Create a dash proposal')
 
@@ -301,82 +286,6 @@ class SentinelShell(cmd.Cmd):
 
         parser.print_help()
 
-        ### ------ CREATE METHOD -------- ####
-
-    """
-        Crontab Tasks
-    """
-
-    def do_crontab(self, arg):
-        ' crontab [--clear_events --prepare_events --submit_events]"'
-
-        parser = argparse.ArgumentParser(description='Do a crontab task')
-
-        # meta data (create or amend)
-        parser.add_argument('-p', '--prepare_events', help="Submit any queued governance objects pending submission (stage 2: submission of colateral tx and governance object)", action="store_true")
-        parser.add_argument('-s', '--submit_events', help="Process any queued events pending creation (stage 1: prepare colateral tx)", action="store_true")
-        parser.add_argument('-b', '--process_budget', help="Process superblock for monthly budget")
-        parser.add_argument('-c', '--clear_events', help="Clear event queue (for testing only)", action="store_true")
-        parser.add_argument('-r', '--reset', help="Hard reset (for testing only)", action="store_true")
-
-        args = None
-        try:
-            args = parser.parse_args(parse(arg))
-        except:
-            pass
-
-        if not args:
-            return
-
-        ### ------ NAME METHOD -------- ####
-
-        if args.clear_events:
-            count = crontab.clear_events()
-            print count, "events cleared"
-            return
-
-        if args.reset:
-            print "Hard Reset:"
-            count = crontab.clear_events()
-            print count, "events cleared"
-            count = crontab.clear_governance_objects()
-            print count, "governance objects cleared"
-            count = crontab.clear_superblocks()
-            print count, "superblocks cleared"
-            count = crontab.clear_proposals()
-            print count, "proposals cleared"
-            return
-
-        ### --- EXECUTED DESIRED CRONTAB FOR USER --- ####
-
-        if args.process_budget:
-            print crontab.process_budget()
-            return
-
-        if args.prepare_events:
-            count = crontab.prepare_events()
-            print count, "events successfully prepared (stage 1)"
-            return
-
-        elif args.submit_events:
-            count = crontab.submit_events()
-            print count, "events successfully submitted (stage 2)"
-            return
-        else:
-            print "unknown command"
-            return
-
-        ### ------- ELSE PRINT HELP --------------- ###
-
-        parser.print_help()
-
-    def complete_crontab(self, text, line, start_index, end_index):
-        if text:
-            return [command for command in commands["crontab"]
-                    if command.startswith(text)]
-        else:
-            return commands
-
     """
 
         Vote on a specific proposal
@@ -449,7 +358,7 @@ if __name__ == '__main__':
     Test Flow (to be moved into unit tests):
 
     1.)  create an example proposal
-        proposal --create --name="beer-reimbursement" --description_url="www.dashwhale.org/p/beer-reimbursement" --start_date="2017/1/1" --end_date="2017/6/1"
+        proposal --create --name="beer-reimbursement" --description_url="www.dashwhale.org/p/beer-reimbursement" --start_date="2017-01-01" --end_date="2017-06-01"
 
     2.)  vote on the funding proposal
          vote --times=22 --type=funding --outcome=yes [--hash=governance-hash --name=obj-name]
