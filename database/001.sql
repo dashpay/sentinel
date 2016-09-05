@@ -34,6 +34,7 @@ CREATE TABLE `proposals` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `governance_object_id` int(11) unsigned NOT NULL,
   `name` varchar(255) NOT NULL,
+  `url` varchar(255) NOT NULL DEFAULT '',
   `start_epoch` int(11) DEFAULT NULL,
   `end_epoch` int(11) DEFAULT NULL,
   `payment_address` varchar(255) DEFAULT NULL,
@@ -61,7 +62,7 @@ CREATE TABLE `events` (
   `prepare_time` int(11) NOT NULL DEFAULT '0',
   `submit_time` int(11) NOT NULL DEFAULT '0',
   `error_time` int(11) NOT NULL DEFAULT '0',
-  `error_message` varchar(255) NOT NULL DEFAULT '',
+  `error_message` text NOT NULL,
   PRIMARY KEY (`id`),
   CONSTRAINT `fk_events_governance_object_id` FOREIGN KEY (`governance_object_id`) REFERENCES governance_objects(`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

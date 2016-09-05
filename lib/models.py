@@ -234,10 +234,10 @@ class Event(BaseModel):
     #governance_object_id = IntegerField(unique=True)
     governance_object = ForeignKeyField(GovernanceObject, related_name = 'events')
     start_time = IntegerField(default=int(time()))
-    prepare_time = IntegerField()
-    submit_time = IntegerField()
-    error_time = IntegerField()
-    error_message = CharField()
+    prepare_time = IntegerField(default=0)
+    submit_time = IntegerField(default=0)
+    error_time = IntegerField(default=0)
+    error_message = TextField(default='')
 
     class Meta:
         db_table = 'events'
@@ -305,6 +305,7 @@ class Proposal(BaseModel, GovernanceClass):
     #governance_object_id = IntegerField(unique=True)
     governance_object = ForeignKeyField(GovernanceObject, related_name = 'proposals')
     name = CharField(unique=True)
+    url = CharField(default='')
     start_epoch = IntegerField()
     end_epoch = IntegerField()
     payment_address = CharField()
