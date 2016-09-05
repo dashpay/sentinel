@@ -82,6 +82,8 @@ class GovernanceObject(BaseModel):
 
     subclasses = ['proposals', 'superblocks']
 
+    # TODO: refactor, use composition and govobjects should have no knowledge of
+    # the compasing class (data-agnosticism)
     @property
     def subobject(self):
         return [ (getattr( self, sc ))[0] for sc in self.subclasses if (getattr( self, sc )) ][0]
@@ -171,7 +173,7 @@ class GovernanceObject(BaseModel):
             'no_count': rec['NoCount'],
         }
 
-        objects = simplejson.loads( binascii.unhexlify(subobject_hex), use_decimal=True )
+        objects = simplejson.loads(binascii.unhexlify(subobject_hex), use_decimal=True)
         subobj = None
 
         # for obj in objects:
@@ -198,18 +200,21 @@ class GovernanceObject(BaseModel):
 
         # get/create, then sync vote counts from dashd, with every run
         govobj, created = self.get_or_create(object_hash=gobj_dict['object_hash'], defaults=gobj_dict)
-        print "govobj created = %s" % created
+        if created:
+            print "govobj created = %s" % created
         count = govobj.update(**gobj_dict).where(self.id == govobj.id).execute()
-        print "govobj updated = %d" % count
+        if count:
+            print "govobj updated = %d" % count
         subdikt['governance_object'] = govobj
 
         # get/create, then sync payment amounts, etc. from dashd - Dashd is the master
         subobj, created = subclass.get_or_create(name=object_name, defaults=subdikt)
-        print "subobj created = %s" % created
+        if created:
+            print "subobj created = %s" % created
         count = subobj.update(**subdikt).where(subclass.id == subobj.id).execute()
-        print "subobj updated = %d" % count
+        if count:
+            print "subobj updated = %d" % count
 
-        print "="*78
         # ATM, returns a tuple w/govobj and the subobject
         return (govobj, subobj)
 

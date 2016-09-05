@@ -123,6 +123,11 @@ def attempt_superblock_creation(dashd):
 
     # Number of blocks before a superblock to create superblock objects for auto vote
     # TODO: where is this value defined?
+    #
+    # TODO: should probably move this closer to the winner/submission check --
+    # we're not assured that blocks won't be found back-to-back within a second
+    # or so
+    #
     SUPERBLOCK_CREATION_DELTA = 1
     if ( cycle - diff ) != SUPERBLOCK_CREATION_DELTA:
         return
@@ -152,6 +157,9 @@ def auto_vote_objects(dashd):
     for sb in Superblock.valid():
         sb.vote(dashd, 'funding', 'yes')
 
+    # TODO: refactor this to start from composed objects, not GOs (which should
+    # theoretically not have knowledge of the composing objects, as it's
+    # data-agnostic)
     # vote invalid objects
     for go in GovernanceObject.invalid():
         go.vote(dashd, 'valid', 'no')
@@ -175,4 +183,3 @@ if __name__ == '__main__':
     # prepare/submit pending events
     prepare_events(dashd)
     submit_events(dashd)
-
