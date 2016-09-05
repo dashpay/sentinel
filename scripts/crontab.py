@@ -36,27 +36,8 @@ from bitcoinrpc.authproxy import AuthServiceProxy, JSONRPCException
 
 """
 
-CONFIRMATIONS_REQUIRED = 7
-
-def clear_events():
-    return Event.delete().execute()
-
-def clear_governance_objects():
-    return GovernanceObject.delete().execute()
-
-def clear_superblocks():
-    return Superblock.delete().execute()
-
-def clear_proposals():
-    return Proposal.delete().execute()
-
-def reset():
-    clear_events()
-    clear_governance_objects()
-    clear_superblocks()
-    clear_proposals()
-
-
+# from dash/src/governance.hL43 -- GOVERNANCE_FEE_CONFIRMATIONS
+CONFIRMATIONS_REQUIRED = 6
 
 # prepare queued local events for submission to the Dash network (includes
 # paying collateral TX fee)
