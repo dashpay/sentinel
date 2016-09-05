@@ -136,37 +136,33 @@ def perform_dashd_object_sync(dashd):
 def attempt_superblock_creation(dashd):
     from dashlib import current_block_hash, create_superblock
     height = dashd.rpc_command('getblockcount')
-    govinfo = dashd.rpc_command('getgovernanceinfo')
-    cycle = govinfo['superblockcycle']
+    cycle = dashd.superblockcycle()
     diff = height % cycle
     event_block_height = height + diff
 
     # Number of blocks before a superblock to create superblock objects for auto vote
+    # TODO: where is this value defined?
     SUPERBLOCK_CREATION_DELTA = 1
     if ( cycle - diff ) != SUPERBLOCK_CREATION_DELTA:
         return
 
-    # return an array of proposals
     proposal_quorum = dashd.governance_quorum()
     max_budget = dashlib.next_superblock_max_budget(dashd)
-
     proposals = Proposal.approved_and_ranked(proposal_quorum, max_budget)
 
-    if len( proposals ) < 1:
-        # Don't create empty superblocks
-        return
+    sb = dashlib.create_superblock(dashd, proposals, event_block_height)
 
     # find the elected MN vin for superblock creation...
     winner = elect_mn(block_hash=current_block_hash(), mnlist=dashd.get_masternodes())
-
-    sb = dashlib.create_superblock(dashd, proposals, event_block_height)
 
     # if we are the elected masternode...
     if ( winner == dashd.get_current_masternode_vin() ):
         # queue superblock submission
         sb.create_and_queue()
-
-    # else if exists in network already, then upvote it?
+    else:
+        # if the exact same deterministic Superblock exists on the network
+        # already, then vote it up
+        pass
 
 
 def auto_vote_objects(dashd):
@@ -189,7 +185,7 @@ if __name__ == '__main__':
     # ========================================================================
     #
     # load "gobject list" rpc command data & create new objects in local MySQL DB
-    # perform_dashd_object_sync(dashd)
+    perform_dashd_object_sync(dashd)
 
     # create superblock & submit if elected & valid
     # attempt_superblock_creation(dashd)
@@ -198,3 +194,4 @@ if __name__ == '__main__':
     # prepare/submit pending events
     prepare_events(dashd)
     submit_events(dashd)
+
