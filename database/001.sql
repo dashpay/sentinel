@@ -7,7 +7,6 @@
 DROP TABLE if exists `proposals` ;
 DROP TABLE if exists `superblocks` ;
 DROP TABLE if exists `events` ;
-DROP TABLE if exists `actions` ;
 DROP TABLE if exists `settings` ;
 DROP TABLE if exists `governance_objects` ;
 
@@ -66,19 +65,6 @@ CREATE TABLE `events` (
   PRIMARY KEY (`id`),
   CONSTRAINT `fk_events_governance_object_id` FOREIGN KEY (`governance_object_id`) REFERENCES governance_objects(`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-
-CREATE TABLE `actions` (
-  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `governance_object_id` int(11) unsigned NOT NULL,
-  `absolute_yes_count` int DEFAULT NULL,
-  `yes_count` int DEFAULT NULL,
-  `no_count` int DEFAULT NULL,
-  `abstain_count` int DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  CONSTRAINT `fk_actions_governance_object_id` FOREIGN KEY (`governance_object_id`) REFERENCES governance_objects(`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
 
 CREATE TABLE `settings` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
