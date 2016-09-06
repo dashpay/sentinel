@@ -89,9 +89,6 @@ class DashDaemon():
     def proposalfee(self):
         return self.govinfo['proposalfee']
 
-    def superblockfee(self):
-        return self.govinfo['superblockfee']
-
 
 class DashConfig():
 
