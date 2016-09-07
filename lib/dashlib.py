@@ -87,6 +87,7 @@ def create_superblock( dashd, proposals, event_block_height ):
 
     # don't create an empty superblock
     if ( len(proposals) == 0 ):
+        print "No proposals!"
         return None
 
     budget_allocated = Decimal(0)
@@ -100,13 +101,15 @@ def create_superblock( dashd, proposals, event_block_height ):
     # TODO: probably use a sub-table to link proposals for RI
     payments = []
     for proposal in proposals:
-        fmt_string = "name: %s , rank: %4d , amount: %s <= %s"
+        # fmt_string = "name: %s , rank: %4d , amount: %s <= %s"
+        fmt_string = "name: %s, rank: %4d, hash: %s, amount: %s <= %s"
 
         # skip proposals that are too expensive...
         if (budget_allocated + proposal.payment_amount) > budget_max:
             print fmt_string % (
                 proposal.name,
                 proposal.rank,
+                proposal.governance_object.object_hash,
                 proposal.payment_amount,
                 "skipped (blows the budget)",
             )
@@ -115,6 +118,7 @@ def create_superblock( dashd, proposals, event_block_height ):
         print fmt_string % (
             proposal.name,
             proposal.rank,
+            proposal.governance_object.object_hash,
             proposal.payment_amount,
             "adding",
         )
@@ -126,6 +130,11 @@ def create_superblock( dashd, proposals, event_block_height ):
         payment = { 'address': proposal.payment_address,
                     'amount': proposal.payment_amount }
         payments.append( payment )
+
+    # don't create an empty superblock
+    if not payments:
+        print "No proposals made the cut!"
+        return None
 
     # deterministic superblocks can't have random names
     sbname = "sb" + str(event_block_height)
