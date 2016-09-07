@@ -145,6 +145,8 @@ class GovernanceObject(BaseModel):
         golist = dashd.rpc_command('gobject', 'list')
         for item in golist.values():
             (go, subobj) = self.load_from_dashd( item )
+        # import datetime
+        # Setting.last_dashd_sync = datetime.datetime.utcnow()
 
     def is_valid(self):
         raise NotImplementedError("Method be over-ridden in composed classes")
