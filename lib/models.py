@@ -174,10 +174,9 @@ class GovernanceObject(BaseModel):
         objects = simplejson.loads(binascii.unhexlify(subobject_hex), use_decimal=True)
         subobj = None
 
-        # for obj in objects:
-        # will there ever be multiple? -- just this for now
+        # this should only ever hold one element and should probably be
+        # re-designed
         obj = objects[0]
-
         (dashd_type, dikt) = obj[0:2:1]
         obj_type = dashd_type
 
