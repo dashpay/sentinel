@@ -367,7 +367,8 @@ class Proposal(BaseModel, GovernanceClass):
 
         ranked = []
         for proposal in query:
-            if proposal.is_valid(next_superblock_max_budget):
+            proposal.max_budget = next_superblock_max_budget
+            if proposal.is_valid():
                 ranked.append( proposal )
 
         return ranked
