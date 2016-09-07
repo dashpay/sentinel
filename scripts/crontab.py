@@ -115,7 +115,7 @@ def perform_dashd_object_sync(dashd):
     GovernanceObject.sync(dashd)
 
 def attempt_superblock_creation(dashd):
-    from dashlib import current_block_hash, create_superblock
+    import dashlib
     height = dashd.rpc_command('getblockcount')
     cycle = dashd.superblockcycle()
     diff = height % cycle
@@ -128,18 +128,21 @@ def attempt_superblock_creation(dashd):
     # we're not assured that blocks won't be found back-to-back within a second
     # or so
     #
-    SUPERBLOCK_CREATION_DELTA = 1
-    if ( cycle - diff ) != SUPERBLOCK_CREATION_DELTA:
-        return
+    # SUPERBLOCK_CREATION_DELTA = 1
+    # if ( cycle - diff ) != SUPERBLOCK_CREATION_DELTA:
+    #     return
 
     proposal_quorum = dashd.governance_quorum()
     max_budget = dashlib.next_superblock_max_budget(dashd)
     proposals = Proposal.approved_and_ranked(proposal_quorum, max_budget)
 
     sb = dashlib.create_superblock(dashd, proposals, event_block_height)
+    pprint(sb)
 
     # find the elected MN vin for superblock creation...
-    winner = elect_mn(block_hash=current_block_hash(), mnlist=dashd.get_masternodes())
+    current_block_hash = dashlib.current_block_hash(dashd)
+    mn_list = dashd.get_masternodes()
+    winner = dashlib.elect_mn(block_hash=current_block_hash, mnlist=mn_list)
 
     # if we are the elected masternode...
     if ( winner == dashd.get_current_masternode_vin() ):
@@ -177,7 +180,7 @@ if __name__ == '__main__':
     perform_dashd_object_sync(dashd)
 
     # create superblock & submit if elected & valid
-    # attempt_superblock_creation(dashd)
+    attempt_superblock_creation(dashd)
     # auto_vote_objects(dashd)
 
     # prepare/submit pending events
