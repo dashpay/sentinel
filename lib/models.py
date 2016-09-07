@@ -1,5 +1,5 @@
 import pdb
-from peewee import Model, MySQLDatabase, IntegerField, CharField, TextField, ForeignKeyField, DecimalField
+from peewee import Model, MySQLDatabase, IntegerField, CharField, TextField, ForeignKeyField, DecimalField, DateTimeField, TimestampField
 from pprint import pprint
 from time import time
 import simplejson
@@ -63,7 +63,6 @@ class BaseModel(Model):
         database = db
 
 class GovernanceObject(BaseModel):
-    #id = IntegerField(primary_key = True)
     parent_id = IntegerField(default=0)
     object_creation_time = IntegerField(default=int(time()))
     object_hash = CharField(default='0')
@@ -223,20 +222,7 @@ class GovernanceObject(BaseModel):
     def invalid(self):
         return [go for go in self.select() if not go.is_valid()]
 
-class Action(BaseModel):
-    #id = IntegerField(primary_key = True)
-    #governance_object_id = IntegerField(unique=True)
-    governance_object = ForeignKeyField(GovernanceObject, related_name = 'actions')
-    absolute_yes_count = IntegerField()
-    yes_count = IntegerField()
-    no_count = IntegerField()
-    abstain_count = IntegerField()
-    class Meta:
-        db_table = 'actions'
-
 class Event(BaseModel):
-    #id = IntegerField(primary_key = True)
-    #governance_object_id = IntegerField(unique=True)
     governance_object = ForeignKeyField(GovernanceObject, related_name = 'events')
     start_time = IntegerField(default=int(time()))
     prepare_time = IntegerField(default=0)
@@ -294,20 +280,17 @@ class Event(BaseModel):
 
         return (successes | errors)
 
-
 class Setting(BaseModel):
-    #id = IntegerField(primary_key = True)
-    datetime = IntegerField()
-    setting  = CharField()
-    name     = CharField()
-    value    = CharField()
+    name     = CharField(default='')
+    value    = CharField(default='')
+    created_at = TimestampField(utc=True)
+    updated_at = TimestampField(utc=True)
+
     class Meta:
         db_table = 'settings'
 
 class Proposal(BaseModel, GovernanceClass):
     import dashlib
-    #id = IntegerField(primary_key = True)
-    #governance_object_id = IntegerField(unique=True)
     governance_object = ForeignKeyField(GovernanceObject, related_name = 'proposals')
     name = CharField(unique=True)
     url = CharField(default='')
