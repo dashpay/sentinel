@@ -137,20 +137,29 @@ def attempt_superblock_creation(dashd):
     proposals = Proposal.approved_and_ranked(proposal_quorum, max_budget)
 
     sb = dashlib.create_superblock(dashd, proposals, event_block_height)
-    pprint(sb)
+    # pprint(sb.__dict__)
+    print "sb: %s" % sb.serialize()
+    print "sb hash: %x" % sb.hash()
+
 
     # find the elected MN vin for superblock creation...
     current_block_hash = dashlib.current_block_hash(dashd)
     mn_list = dashd.get_masternodes()
     winner = dashlib.elect_mn(block_hash=current_block_hash, mnlist=mn_list)
 
+    print "current_block_hash: [%s]" % current_block_hash
+    print "MN election winner: [%s]" % winner
+    print "current masternode VIN: [%s]" % dashd.get_current_masternode_vin()
+
     # if we are the elected masternode...
     if ( winner == dashd.get_current_masternode_vin() ):
         # queue superblock submission
+        print "we are the winner! Create and queue SB"
         sb.create_and_queue()
     else:
         # if the exact same deterministic Superblock exists on the network
         # already, then vote it up
+        print "We did NOT the election... search and upvote SB if found on network"
         pass
 
 
@@ -177,12 +186,14 @@ if __name__ == '__main__':
     # ========================================================================
     #
     # load "gobject list" rpc command data & create new objects in local MySQL DB
-    perform_dashd_object_sync(dashd)
+
+    # don't wanna sync votes, b/c testing superblocks right now...
+    # perform_dashd_object_sync(dashd)
 
     # create superblock & submit if elected & valid
     attempt_superblock_creation(dashd)
     # auto_vote_objects(dashd)
 
     # prepare/submit pending events
-    prepare_events(dashd)
-    submit_events(dashd)
+    # prepare_events(dashd)
+    # submit_events(dashd)
