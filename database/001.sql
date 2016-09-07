@@ -79,3 +79,22 @@ CREATE TABLE `settings` (
   UNIQUE KEY `index_settings_name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+
+-- views
+
+create view vproposals as
+select p.name
+     , p.url
+     , p.start_epoch
+     , p.end_epoch
+     , p.payment_address
+     , p.payment_amount
+     , go.object_hash
+     , go.object_fee_tx
+     , go.yes_count
+     , go.no_count
+     , go.abstain_count
+     , go.absolute_yes_count
+  from proposals p
+  join governance_objects go on go.id = p.governance_object_id
+;
