@@ -52,3 +52,18 @@ class GovernanceClass(object):
         # TODO: do we need to track our own votes?
         # self.object_status = 'VOTED'
         # self.save()
+
+    def list(self):
+        dikt = {
+            "Name": self.name,
+            "DataHex": self.governance_object.object_data,
+            "Hash": self.governance_object.object_hash,
+            "CollateralHash": self.governance_object.object_fee_tx,
+            "AbsoluteYesCount": self.governance_object.absolute_yes_count,
+            "YesCount": self.governance_object.yes_count,
+            "NoCount": self.governance_object.no_count,
+            "AbstainCount": self.governance_object.abstain_count,
+        }
+
+        # return a dict similar to dashd "gobject list" output
+        return { self.name: dikt }
