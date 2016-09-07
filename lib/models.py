@@ -410,6 +410,9 @@ class Superblock(BaseModel, GovernanceClass):
     def valid(self):
         return [sb for sb in self.select() if sb.is_valid()]
 
+    def hash(self):
+        import dashlib
+        return dashlib.hashit(self.serialize())
 
 # === /models ===
 
