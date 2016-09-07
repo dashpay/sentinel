@@ -119,7 +119,7 @@ def attempt_superblock_creation(dashd):
     height = dashd.rpc_command('getblockcount')
     cycle = dashd.superblockcycle()
     diff = height % cycle
-    event_block_height = height + diff
+    event_block_height = (height + (cycle - (height % cycle)))
 
     # Number of blocks before a superblock to create superblock objects for auto vote
     # TODO: where is this value defined?
