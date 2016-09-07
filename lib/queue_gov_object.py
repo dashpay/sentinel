@@ -67,3 +67,14 @@ class GovernanceClass(object):
 
         # return a dict similar to dashd "gobject list" output
         return { self.name: dikt }
+
+
+    def serialize(self):
+        import inflection
+        import binascii
+        import simplejson
+        dashd_type = inflection.singularize(self._meta.name)
+        if dashd_type == 'superblock':
+            dashd_type = 'trigger'
+
+        return binascii.hexlify(simplejson.dumps( (dashd_type, self.get_dict()) , sort_keys = True))

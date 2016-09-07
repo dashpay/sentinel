@@ -79,13 +79,13 @@ class GovernanceObject(BaseModel):
     class Meta:
         db_table = 'governance_objects'
 
-    subclasses = ['proposals', 'superblocks']
+    composed_classes = ['proposals', 'superblocks']
 
     # TODO: refactor, use composition and govobjects should have no knowledge of
     # the compasing class (data-agnosticism)
     @property
     def subobject(self):
-        return [ (getattr( self, sc ))[0] for sc in self.subclasses if (getattr( self, sc )) ][0]
+        return [ (getattr( self, sc ))[0] for sc in self.composed_classes if (getattr( self, sc )) ][0]
 
     @classmethod
     def root(self):
@@ -106,21 +106,20 @@ class GovernanceObject(BaseModel):
         return self.serialize_subclasses()
 
     def serialize_subclasses(self):
-        import inflection
         objects = []
-
-        for obj_type in self.subclasses:
+        for obj_type in self.composed_classes:
             res = getattr( self, obj_type )
             if res:
                 # should only return one row
                 # (needs refactor/re-design, as this shouldn't be possible)
                 row = res[0]
-                # dashd shim
-                dashd_type = inflection.singularize(obj_type)
-                if obj_type == 'superblock':
-                    dashd_type = 'trigger'
-                objects.append((dashd_type, row.get_dict()))
-
+                objects.append(
+                    simplejson.loads(
+                        binascii.unhexlify(
+                            row.serialize()
+                        ), use_decimal=True
+                    )
+                )
         return binascii.hexlify(simplejson.dumps(objects, sort_keys = True))
 
     def get_prepare_command(self):
