@@ -4,6 +4,10 @@
 
 */
 
+
+DROP VIEW if exists vsuperblocks ;
+DROP VIEW if exists vproposals ;
+
 DROP TABLE if exists `proposals` ;
 DROP TABLE if exists `superblocks` ;
 DROP TABLE if exists `events` ;
@@ -98,3 +102,21 @@ select p.name
   from proposals p
   join governance_objects go on go.id = p.governance_object_id
 ;
+
+
+create view vsuperblocks as
+select sb.name
+     , sb.event_block_height
+     , sb.payment_addresses
+     , sb.payment_amounts
+     , go.object_hash
+     , go.object_fee_tx
+     , go.yes_count
+     , go.no_count
+     , go.abstain_count
+     , go.absolute_yes_count
+  from superblocks sb
+  join governance_objects go on go.id = sb.governance_object_id
+;
+
+
