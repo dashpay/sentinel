@@ -137,6 +137,9 @@ def attempt_superblock_creation(dashd):
     proposals = Proposal.approved_and_ranked(proposal_quorum, max_budget)
 
     sb = dashlib.create_superblock(dashd, proposals, event_block_height)
+    if not sb:
+        print "No superblock created, sorry. Returning."
+        return
     # pprint(sb.__dict__)
     print "sb: %s" % sb.serialize()
     print "sb hash: %x" % sb.hash()
@@ -195,5 +198,5 @@ if __name__ == '__main__':
     # auto_vote_objects(dashd)
 
     # prepare/submit pending events
-    # prepare_events(dashd)
-    # submit_events(dashd)
+    prepare_events(dashd)
+    submit_events(dashd)
