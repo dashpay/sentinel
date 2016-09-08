@@ -50,24 +50,6 @@ class BaseModel(Model):
         for field_name in self.serialisable_fields():
             dikt[ field_name ] = getattr( self, field_name )
 
-        # dashd shim (overall system needs design review)
-        try:
-            dashd_go_type = getattr( self, 'govobj_type' )
-            dikt[ 'type' ] = dashd_go_type
-        except:
-            pass
-
-        # another dashd shim (overall system needs design review)
-        try:
-            # 'proposal', 'superblock', etc.
-            name = self._meta.name
-            objname = "%s_name" % name
-            dikt[ objname ] = self.name
-            if 'name' in dikt:
-                del( dikt['name'] )
-        except:
-            pass
-
         return dikt
 
     class Meta:
@@ -114,24 +96,19 @@ class GovernanceObject(BaseModel):
 
     @property
     def object_data(self):
-        return self.serialize_subclasses()
+        import dashlib
+        return dashlib.SHIM_serialise_for_dashd(self.serialise_gov_class())
 
-    def serialize_subclasses(self):
-        objects = []
+    def serialise_gov_class(self):
+        gov_class_hex = ''
         for obj_type in self.composed_classes:
             res = getattr( self, obj_type )
             if res:
                 # should only return one row
                 # (needs refactor/re-design, as this shouldn't be possible)
                 row = res[0]
-                objects.append(
-                    simplejson.loads(
-                        binascii.unhexlify(
-                            row.serialize()
-                        ), use_decimal=True
-                    )
-                )
-        return binascii.hexlify(simplejson.dumps(objects, sort_keys = True))
+                gov_class_hex = row.serialise()
+        return gov_class_hex
 
     def get_prepare_command(self):
         cmd = [ 'gobject', 'prepare', self.object_parent_hash,
@@ -170,6 +147,7 @@ class GovernanceObject(BaseModel):
 
     @classmethod
     def load_from_dashd(self, rec):
+        import dashlib
         import inflection
 
         subobject_hex = rec['DataHex']
@@ -184,19 +162,12 @@ class GovernanceObject(BaseModel):
             'no_count': rec['NoCount'],
         }
 
-        objects = simplejson.loads(binascii.unhexlify(subobject_hex), use_decimal=True)
+        # shim/dashd conversion
+        subobject_hex = dashlib.SHIM_deserialise_from_dashd(subobject_hex)
+        objects = dashlib.deserialise(subobject_hex)
         subobj = None
 
-        # this should only ever hold one element and should probably be
-        # re-designed
-        obj = objects[0]
-        (dashd_type, dikt) = obj[0:2:1]
-        obj_type = dashd_type
-
-        # sigh. reverse-shim this back...
-        if dashd_type == 'trigger':
-            obj_type = 'superblock'
-
+        obj_type, dikt = objects[0:2:1]
         obj_type = inflection.pluralize(obj_type)
         subclass = self._meta.reverse_rel[obj_type].model_class
 
@@ -206,7 +177,6 @@ class GovernanceObject(BaseModel):
 
         # sigh. set name (even tho redundant in DB...)
         subdikt['name'] = object_name
-
 
         # get/create, then sync vote counts from dashd, with every run
         govobj, created = self.get_or_create(object_hash=gobj_dict['object_hash'], defaults=gobj_dict)
@@ -424,7 +394,7 @@ class Superblock(BaseModel, GovernanceClass):
 
     def hash(self):
         import dashlib
-        return dashlib.hashit(self.serialize())
+        return dashlib.hashit(self.serialise())
 
 # === /models ===
 

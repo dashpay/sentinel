@@ -7,6 +7,9 @@ import base58
 import hashlib
 import re
 from decimal import Decimal
+import simplejson
+import binascii
+
 
 def is_valid_dash_address( address, network = 'mainnet' ):
     # Only public key addresses are allowed
@@ -177,3 +180,77 @@ def next_superblock_max_budget(dashd):
     # next_superblock_max_budget = next_allocation
 
     return next_superblock_max_budget
+
+
+DASHD_GOVOBJ_TYPES = {
+    'proposal': 1,
+    'superblock': 2,
+}
+
+# shims 'til we can fix the dashd side
+def SHIM_serialise_for_dashd(sentinel_hex):
+    # unpack
+    obj = deserialise(sentinel_hex)
+
+    # shim for dashd
+    govtype = obj[0]
+
+    # add 'type' attribute
+    obj[1]['type'] = DASHD_GOVOBJ_TYPES[govtype]
+
+    # change 'name' attribute
+    dashd_preferred_object_name = "%s_name" % govtype
+    obj[1][dashd_preferred_object_name] = obj[1]['name']
+    del obj[1]['name']
+
+    # superblock => "trigger" in dashd
+    if govtype == 'superblock':
+        obj[0] = 'trigger'
+
+    # dashd expects an array (even though there is only a 1:1 relationship between govobj->class)
+    obj = [obj]
+
+    # re-pack
+    dashd_hex = serialise(obj)
+    return dashd_hex
+
+# shims 'til we can fix the dashd side
+def SHIM_deserialise_from_dashd(dashd_hex):
+    # unpack
+    obj = deserialise(dashd_hex)
+
+    # shim from dashd
+    # only one element in the array...
+    obj = obj[0]
+
+    # extract the govobj type
+    govtype = obj[0]
+
+    # superblock => "trigger" in dashd
+    if govtype == 'trigger':
+        obj[0] = govtype = 'superblock'
+
+    # fix name
+    dashd_preferred_object_name = "%s_name" % govtype
+    if dashd_preferred_object_name in obj[1]:
+        obj[1]['name'] = obj[1][dashd_preferred_object_name]
+        del obj[1][dashd_preferred_object_name]
+
+    # remove redundant 'type' attribute
+    if 'type' in obj[1]:
+        del obj[1]['type']
+
+    # re-pack
+    sentinel_hex = serialise(obj)
+    return sentinel_hex
+
+# convenience
+def deserialise(hexdata):
+    json = binascii.unhexlify(hexdata)
+    obj  = simplejson.loads(json, use_decimal=True)
+    return obj
+
+def serialise(dikt):
+    json = simplejson.dumps(dikt, sort_keys=True, use_decimal=True)
+    hexdata = binascii.hexlify(json)
+    return hexdata

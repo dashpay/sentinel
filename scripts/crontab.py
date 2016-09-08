@@ -141,7 +141,7 @@ def attempt_superblock_creation(dashd):
         print "No superblock created, sorry. Returning."
         return
     # pprint(sb.__dict__)
-    print "sb: %s" % sb.serialize()
+    print "sb: %s" % sb.serialise()
     print "sb hash: %x" % sb.hash()
 
 

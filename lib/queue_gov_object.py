@@ -69,17 +69,13 @@ class GovernanceClass(object):
         return { self.name: dikt }
 
 
-    def serialize(self):
+    def serialise(self):
         import inflection
         import binascii
         import simplejson
 
         # 'proposal', 'superblock', etc.
         name = self._meta.name
+        obj_type = inflection.singularize(name)
 
-        # dashd shim
-        dashd_type = inflection.singularize(name)
-        if dashd_type == 'superblock':
-            dashd_type = 'trigger'
-
-        return binascii.hexlify(simplejson.dumps( (dashd_type, self.get_dict()) , sort_keys = True))
+        return binascii.hexlify(simplejson.dumps( (obj_type, self.get_dict()) , sort_keys = True))

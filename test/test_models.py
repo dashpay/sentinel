@@ -46,7 +46,6 @@ def test_proposal(proposal):
         'end_epoch',
         'payment_address',
         'payment_amount',
-        'type',
     ]
     fields.sort()
     sorted_keys = d.keys()
