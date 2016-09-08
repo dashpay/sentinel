@@ -57,6 +57,17 @@ class BaseModel(Model):
         except:
             pass
 
+        # another dashd shim (overall system needs design review)
+        try:
+            # 'proposal', 'superblock', etc.
+            name = self._meta.name
+            objname = "%s_name" % name
+            dikt[ objname ] = self.name
+            if 'name' in dikt:
+                del( dikt['name'] )
+        except:
+            pass
+
         return dikt
 
     class Meta:

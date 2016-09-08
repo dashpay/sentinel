@@ -73,7 +73,12 @@ class GovernanceClass(object):
         import inflection
         import binascii
         import simplejson
-        dashd_type = inflection.singularize(self._meta.name)
+
+        # 'proposal', 'superblock', etc.
+        name = self._meta.name
+
+        # dashd shim
+        dashd_type = inflection.singularize(name)
         if dashd_type == 'superblock':
             dashd_type = 'trigger'
 
