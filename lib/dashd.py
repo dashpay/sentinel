@@ -89,6 +89,14 @@ class DashDaemon():
     def proposalfee(self):
         return self.govinfo['proposalfee']
 
+    def last_superblock_height(self):
+        height = self.rpc_command('getblockcount')
+        cycle  = self.superblockcycle()
+        return cycle * (height / cycle)
+
+    def next_superblock_height(self):
+        return self.last_superblock_height() + self.superblockcycle()
+
 
 class DashConfig():
 
