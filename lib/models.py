@@ -377,9 +377,17 @@ class Superblock(BaseModel, GovernanceClass):
         db_table = 'superblocks'
 
     def is_valid(self):
+        # current version of sentinel is not generating this info
+        #
         # vout != generated vout
         # blockheight != generated blockheight
-        pass
+
+        # ensure EBH is on-cycle
+        cycle = dashd.superblockcycle()
+        if (self.event_block_height % cycle) != 0:
+            return False
+
+        return True
 
     def is_deletable(self):
         # end_date < (current_date - 30 days)

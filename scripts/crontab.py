@@ -116,10 +116,7 @@ def perform_dashd_object_sync(dashd):
 
 def attempt_superblock_creation(dashd):
     import dashlib
-    height = dashd.rpc_command('getblockcount')
-    cycle = dashd.superblockcycle()
-    diff = height % cycle
-    event_block_height = (height + (cycle - (height % cycle)))
+    event_block_height = dashd.next_superblock_height()
 
     # Number of blocks before a superblock to create superblock objects for auto vote
     # TODO: where is this value defined?
