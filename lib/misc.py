@@ -1,22 +1,12 @@
-#!/usr/bin/env python
-
-import json
-import calendar
 import time
 import re
 import datetime
-import random
-from time import sleep
 
 """
     take any non-meta attributes and serialize them into a register
 """
 
 sentinel_options = []
-
-def first_day_of_next_month():
-    d = datetime.datetime.now() # today
-    return date(d.year, d.month + 1, 1) # get first day of next month
 
 def clean_hash(s):
     m = re.match('^([a-f0-9]+)$', s)
@@ -33,30 +23,12 @@ def normalize(s):
     return s.replace("'", "").replace("\"", "")
 
 def get_epoch():
-    return calendar.timegm(time.gmtime())
+    return int(time.time())
 
 def add_sentinel_option(param):
     sentinel_options.append(param)
 
-def convert_govobj_name_to_type(govname):
-    if govname == "user": return 2
-
-    return -1
-
-def convert_govobj_type_to_name(govtype):
-    if govtype == 2: return "user"
-
-    return "error"
-
 ## check parameters from the user
-
-def is_valid_address(args):
-    try:
-        if args.address1 or not args.address2 or not args.city or not args.state or not args.country:
-            return False
-    except:
-        pass
-    return True
 
 def completer(text, state):
     options = [i for i in commands if i.startswith(text)]
