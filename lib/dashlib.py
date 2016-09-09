@@ -97,6 +97,7 @@ def create_superblock( dashd, proposals, event_block_height ):
     budget_max       = dashlib.get_superblock_budget_allocation(dashd, event_block_height)
 
     print "  IN create_superblock"
+    print "    current height: %d" % dashd.rpc_command('getblockcount')
     print "event_block_height: %d" % event_block_height
     print "       budget_max : %d" % budget_max
     print " "

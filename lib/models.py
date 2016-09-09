@@ -363,8 +363,6 @@ class Proposal(BaseModel, GovernanceClass):
             return rank
 
 class Superblock(BaseModel, GovernanceClass):
-    #id = IntegerField(primary_key = True)
-    #governance_object_id = IntegerField(unique=True)
     governance_object = ForeignKeyField(GovernanceObject, related_name = 'superblocks')
     name      = CharField() # unique?
     event_block_height   = IntegerField()

@@ -141,7 +141,9 @@ def attempt_superblock_creation(dashd):
         print "No superblock created, sorry. Returning."
         return
     # pprint(sb.__dict__)
-    print "sb: %s" % sb.serialise()
+
+    print "sb  (orig): %s" % sb.serialise()
+    print "sb (dashd): %s" % dashlib.SHIM_serialise_for_dashd( sb.serialise() )
     print "sb hash: %x" % sb.hash()
 
 
@@ -191,12 +193,12 @@ if __name__ == '__main__':
     # load "gobject list" rpc command data & create new objects in local MySQL DB
 
     # don't wanna sync votes, b/c testing superblocks right now...
-    # perform_dashd_object_sync(dashd)
+    #perform_dashd_object_sync(dashd)
 
     # create superblock & submit if elected & valid
     attempt_superblock_creation(dashd)
-    # auto_vote_objects(dashd)
+    #auto_vote_objects(dashd)
 
     # prepare/submit pending events
-    prepare_events(dashd)
-    submit_events(dashd)
+    #prepare_events(dashd)
+    #submit_events(dashd)
