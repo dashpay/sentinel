@@ -169,9 +169,9 @@ def auto_vote_objects(dashd):
     print "IN auto_vote_objects"
 
     # for all valid superblocks, vote yes for funding them
-    for sb in Superblock.valid():
-        print "found valid Superblock, voting funding 'yes'"
-        sb.vote(dashd, 'funding', 'yes')
+    #for sb in Superblock.valid():
+    #    print "found valid Superblock, voting funding 'yes'"
+    #    sb.vote(dashd, 'funding', 'yes')
 
     # vote invalid objects
     for gov_class in [Proposal, Superblock]:
