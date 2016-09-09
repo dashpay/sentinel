@@ -1,3 +1,5 @@
+import pdb
+from pprint import pprint
 import os
 import sys
 sys.path.append( os.path.join( os.path.dirname(__file__), '..', 'lib' ) )
@@ -41,6 +43,10 @@ class GovernanceClass(object):
 
         return
 
+    @classmethod
+    def invalid(self):
+        return [obj for obj in self.select() if not obj.is_valid()]
+
     def get_vote_command(self, signal, outcome):
         cmd = [ 'gobject', 'vote-conf', self.governance_object.object_hash,
                 signal, outcome ]
@@ -48,7 +54,8 @@ class GovernanceClass(object):
 
     def vote(self, dashd, signal, outcome):
         vote_command = self.get_vote_command(signal, outcome)
-        output = dashd.rpc_command(vote_command)
+        pdb.set_trace()
+        output = dashd.rpc_command(*vote_command)
         # TODO: do we need to track our own votes?
         # self.object_status = 'VOTED'
         # self.save()

@@ -175,10 +175,11 @@ def auto_vote_objects(dashd):
     # theoretically not have knowledge of the composing objects, as it's
     # data-agnostic)
     # vote invalid objects
-    for go in GovernanceObject.invalid():
-        go.vote(dashd, 'valid', 'no')
-
-
+    # for go in GovernanceObject.invalid():
+    #     go.vote(dashd, 'valid', 'no')
+    for gov_class in [Proposal, Superblock]:
+        for invalid in gov_class.invalid():
+            invalid.vote(dashd, 'valid', 'no')
 
 if __name__ == '__main__':
     dashd = DashDaemon.from_dash_conf(config.dash_conf)
@@ -193,8 +194,8 @@ if __name__ == '__main__':
     #perform_dashd_object_sync(dashd)
 
     # create superblock & submit if elected & valid
-    attempt_superblock_creation(dashd)
-    #auto_vote_objects(dashd)
+    # attempt_superblock_creation(dashd)
+    auto_vote_objects(dashd)
 
     # prepare/submit pending events
     #prepare_events(dashd)

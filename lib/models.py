@@ -199,9 +199,9 @@ class GovernanceObject(BaseModel):
         return (govobj, subobj)
 
     # return an array of invalid GO's
-    @classmethod
-    def invalid(self):
-        return [go for go in self.select() if not go.is_valid()]
+    # @classmethod
+    # def invalid(self):
+    #     return [go for go in self.select() if not go.is_valid()]
 
 class Event(BaseModel):
     governance_object = ForeignKeyField(GovernanceObject, related_name = 'events')
