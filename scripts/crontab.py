@@ -177,6 +177,7 @@ def auto_vote_objects(dashd):
     for gov_class in [Proposal, Superblock]:
         for invalid in gov_class.invalid():
             print "found invalid %s, voting invalid..." % gov_class
+            #pdb.set_trace()
             invalid.vote(dashd, 'valid', 'no')
 
     print "LEAVING auto_vote_objects"

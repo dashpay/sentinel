@@ -48,9 +48,10 @@ class GovernanceClass(object):
     # TODO: ensure an object-hash exists before trying to vote
     def vote(self, dashd, signal, outcome):
         vote_command = self.get_vote_command(signal, outcome)
-        #pdb.set_trace()
         output = dashd.rpc_command(*vote_command)
-        print "output = [%s]" % output
+        # print "output = [%s]" % output
+        print "detail = [%s]" % output.get('detail')
+
         # TODO: do we need to track our own votes?
         # self.object_status = 'VOTED'
         # self.save()
