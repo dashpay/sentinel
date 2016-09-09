@@ -12,14 +12,6 @@ class GovernanceClass(object):
         # ensure unique name in govobj table...
         # ( we really need to get this redundancy out of this DB schema )
         #
-        # actually, since the enhanced DB schema enforces unique names on the
-        # individual subobj tables, this shouldn't be necessary. no defensive
-        # coding, just try/except and pass error thru
-        #
-        # if GovernanceObject.object_with_name_exists(object_name):
-        #     print "governance object with that name already exists"
-        #     return
-
         # requirements: mix'ed in object must have 'name' and 'govobj_type'
         # properties
 
