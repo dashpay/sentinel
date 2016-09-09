@@ -166,20 +166,20 @@ def attempt_superblock_creation(dashd):
 
 
 def auto_vote_objects(dashd):
+    print "IN auto_vote_objects"
 
     # for all valid superblocks, vote yes for funding them
     for sb in Superblock.valid():
+        print "found valid Superblock, voting funding 'yes'"
         sb.vote(dashd, 'funding', 'yes')
 
-    # TODO: refactor this to start from composed objects, not GOs (which should
-    # theoretically not have knowledge of the composing objects, as it's
-    # data-agnostic)
     # vote invalid objects
-    # for go in GovernanceObject.invalid():
-    #     go.vote(dashd, 'valid', 'no')
     for gov_class in [Proposal, Superblock]:
         for invalid in gov_class.invalid():
+            print "found invalid %s, voting invalid..." % gov_class
             invalid.vote(dashd, 'valid', 'no')
+
+    print "LEAVING auto_vote_objects"
 
 if __name__ == '__main__':
     dashd = DashDaemon.from_dash_conf(config.dash_conf)
