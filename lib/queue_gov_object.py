@@ -71,6 +71,12 @@ class GovernanceClass(object):
         if err_msg:
             print "err_msg = [%s]" % err_msg
 
+        # TODO: ensure signal, outcome exist in lookup table or raise exception
+        v = Vote(governance_object=self.governance_object,
+                 signal=Signal.get(Signal.name == signal),
+                 outcome=Outcome.get(Outcome.name == outcome))
+        v.save()
+
     def list(self):
         dikt = {
             "Name": self.name,

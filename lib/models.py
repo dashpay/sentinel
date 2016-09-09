@@ -1,5 +1,5 @@
 import pdb
-from peewee import Model, MySQLDatabase, IntegerField, CharField, TextField, ForeignKeyField, DecimalField, DateTimeField, TimestampField
+from peewee import Model, MySQLDatabase, IntegerField, CharField, TextField, ForeignKeyField, DecimalField, DateTimeField
 import playhouse.signals
 from pprint import pprint
 import time
@@ -114,8 +114,6 @@ class GovernanceObject(BaseModel):
         golist = dashd.rpc_command('gobject', 'list')
         for item in golist.values():
             (go, subobj) = self.load_from_dashd( item )
-        # import datetime
-        # Setting.last_dashd_sync = datetime.datetime.utcnow()
 
     def is_valid(self):
         raise NotImplementedError("Method be over-ridden in composed classes")
@@ -245,8 +243,8 @@ class Event(BaseModel):
 class Setting(BaseModel):
     name     = CharField(default='')
     value    = CharField(default='')
-    created_at = TimestampField(utc=True)
-    updated_at = TimestampField(utc=True)
+    created_at = DateTimeField(default=datetime.datetime.utcnow())
+    updated_at = DateTimeField(default=datetime.datetime.utcnow())
 
     class Meta:
         db_table = 'settings'
@@ -409,7 +407,8 @@ class Superblock(BaseModel, GovernanceClass):
     def hex_hash(self):
         return "%x" % self.hash()
 
-    # workaround for now, b/c we must uniquely ID a superblock with the hash, in case of differing superblocks
+    # workaround for now, b/c we must uniquely ID a superblock with the hash,
+    # in case of differing superblocks
     @classmethod
     def serialisable_fields(self):
         return ['name', 'event_block_height', 'payment_addresses', 'payment_amounts' ]
@@ -420,6 +419,30 @@ from playhouse.signals import pre_save
 @pre_save(sender=Superblock)
 def on_save_handler(model_class, instance, created):
     instance.sb_hash = instance.hex_hash()
+
+class Signal(BaseModel):
+    name = CharField(unique=True)
+    created_at = DateTimeField(default=datetime.datetime.utcnow())
+    updated_at = DateTimeField(default=datetime.datetime.utcnow())
+    class Meta:
+        db_table = 'signals'
+
+class Outcome(BaseModel):
+    name = CharField(unique=True)
+    created_at = DateTimeField(default=datetime.datetime.utcnow())
+    updated_at = DateTimeField(default=datetime.datetime.utcnow())
+    class Meta:
+        db_table = 'outcomes'
+
+class Vote(BaseModel):
+    governance_object = ForeignKeyField(GovernanceObject, related_name = 'votes')
+    signal = ForeignKeyField(Signal, related_name = 'votes')
+    outcome = ForeignKeyField(Outcome, related_name = 'votes')
+    voted_at = DateTimeField(default=datetime.datetime.utcnow())
+    created_at = DateTimeField(default=datetime.datetime.utcnow())
+    updated_at = DateTimeField(default=datetime.datetime.utcnow())
+    class Meta:
+        db_table = 'votes'
 
 # === /models ===
 

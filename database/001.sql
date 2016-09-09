@@ -8,6 +8,10 @@
 DROP VIEW if exists vsuperblocks ;
 DROP VIEW if exists vproposals ;
 
+DROP TABLE if exists `votes` ;
+DROP TABLE if exists `signals` ;
+DROP TABLE if exists `outcomes` ;
+
 DROP TABLE if exists `proposals` ;
 DROP TABLE if exists `superblocks` ;
 DROP TABLE if exists `events` ;
@@ -83,6 +87,56 @@ CREATE TABLE `settings` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `index_settings_name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+-- votes
+
+CREATE TABLE `signals` (
+    `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+    `name` varchar(255) NOT NULL,
+    `created_at` DATETIME NOT NULL,
+    `updated_at` DATETIME NOT NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `index_signals_name` (`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE `outcomes` (
+    `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+    `name` varchar(255) NOT NULL,
+    `created_at` DATETIME NOT NULL,
+    `updated_at` DATETIME NOT NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `index_outcomes_name` (`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE `votes` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `governance_object_id` int(10) unsigned NOT NULL,
+  `signal_id` int(10) unsigned NOT NULL,
+  `outcome_id` int(10) unsigned NOT NULL,
+  `voted_at` DATETIME NOT NULL,
+  `created_at` DATETIME NOT NULL,
+  `updated_at` DATETIME NOT NULL,
+  PRIMARY KEY (`id`),
+  CONSTRAINT `fk_votes_governance_object_id` FOREIGN KEY (`governance_object_id`) REFERENCES governance_objects(`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_votes_signal_id` FOREIGN KEY (`signal_id`) REFERENCES signals(`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_votes_outcome_id` FOREIGN KEY (`outcome_id`) REFERENCES outcomes(`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+INSERT INTO SIGNALS ( name, created_at, updated_at )
+VALUES ( 'funding', UTC_TIMESTAMP(), UTC_TIMESTAMP() )
+     , ( 'valid', UTC_TIMESTAMP(), UTC_TIMESTAMP() )
+     , ( 'delete', UTC_TIMESTAMP(), UTC_TIMESTAMP() )
+     ;
+
+INSERT INTO OUTCOMES ( name, created_at, updated_at )
+VALUES ( 'yes', UTC_TIMESTAMP(), UTC_TIMESTAMP() )
+     , ( 'no', UTC_TIMESTAMP(), UTC_TIMESTAMP() )
+     , ( 'abstain', UTC_TIMESTAMP(), UTC_TIMESTAMP() )
+     ;
+
+-- /votes
 
 
 -- views
