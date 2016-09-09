@@ -3,9 +3,11 @@
 """
     Setup your dash environment here and copy this file to config.py
 """
+import sys, os
 
-# specify full path to dash.conf
-dash_conf = "/Users/nmarley/Library/Application Support/DashCore/dash.conf"
+# specify path to dash.conf
+dash_conf = os.path.join( os.environ['HOME'], "Library/Application Support/DashCore/dash.conf" )
+#dash_conf = os.path.join( os.environ['HOME'], ".dashcore/dash.conf" )
 
 # valid options are 'testnet', 'mainnet'
 network = 'testnet'
