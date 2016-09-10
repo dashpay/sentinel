@@ -86,6 +86,95 @@ class GovernanceClass(object):
         return { self.name: dikt }
 
 
+    def get_prepare_command(self):
+        go = self.governance_object
+        cmd = [ 'gobject', 'prepare', go.object_parent_hash,
+                str(go.object_revision), str(go.object_creation_time),
+                go.object_name, go.object_data ]
+        return cmd
+
+    def get_submit_command(self):
+        go = self.governance_object
+        cmd = [ 'gobject', 'submit', go.object_parent_hash,
+                str(go.object_revision), str(go.object_creation_time),
+                go.object_name, go.object_data, go.object_fee_tx ]
+        return cmd
+
+    def prepare(self, dashd):
+        go = self.governance_object
+        event = go.events[0]
+
+        print "# PREPARING EVENTS FOR DASH NETWORK"
+        print
+        print " -- cmd : [%s]" % ' '.join(self.get_prepare_command())
+        print
+
+        try:
+            collateral_tx = dashd.rpc_command(*self.get_prepare_command())
+            print " -- executing prepare ... getting collateral_tx hash"
+            print " -- got hash: [%s]" % collateral_tx
+
+            go.object_fee_tx = collateral_tx
+            event.prepare_time = misc.get_epoch()
+
+            with go._meta.database.atomic():
+                go.save()
+                event.save()
+
+        except JSONRPCException as e:
+            event.error_time = misc.get_epoch()
+            event.error_message = e.message
+            event.save()
+            #re-raise after capturing error message
+            raise e
+
+    # boolean -- does the object meet collateral confirmations?
+    def has_collateral_confirmations(self, dashd):
+        tx = dashd.rpc_command('gettransaction', govobj.object_fee_tx)
+        num_bc_confirmations = tx['bcconfirmations']
+
+        # from dash/src/governance.hL43 -- GOVERNANCE_FEE_CONFIRMATIONS
+        CONFIRMATIONS_REQUIRED = 6
+        print " -- confirmations: [%d]" % num_bc_confirmations
+        print " -- CONFIRMATIONS_REQUIRED: [%d]" % CONFIRMATIONS_REQUIRED
+
+        return num_bc_confirmations >= CONFIRMATIONS_REQUIRED
+
+    def submit(self, dashd):
+        go = self.governance_object
+        event = go.events[0]
+
+        print "# SUBMIT PREPARED EVENTS FOR DASH NETWORK"
+        print
+        print " -- submit cmd : ", ' '.join(self.get_submit_command())
+        print
+
+        if not self.has_collateral_confirmations(dashd):
+            print " -- waiting for confirmations"
+            return
+
+        try:
+            print " -- executing submit ... getting object hash"
+            object_hash = dashd.rpc_command(*self.get_submit_command())
+            print " -- got hash: [%s]" % object_hash
+
+            event.submit_time = misc.get_epoch()
+            go.object_hash = object_hash
+
+            # save all
+            with go._meta.database.atomic():
+                go.save()
+                event.save()
+
+        except JSONRPCException as e:
+            event.error_time = misc.get_epoch()
+            event.error_message = e.message
+            event.save()
+
+            #re-raise after capturing error message
+            raise e
+
+
     def serialise(self):
         import inflection
         import binascii

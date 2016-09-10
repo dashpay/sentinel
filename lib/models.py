@@ -1,7 +1,7 @@
 import pdb
 from peewee import Model, MySQLDatabase, IntegerField, CharField, TextField, ForeignKeyField, DecimalField, DateTimeField, TimestampField
 from pprint import pprint
-from time import time
+import time
 import simplejson
 import binascii
 import re
@@ -57,7 +57,7 @@ class BaseModel(Model):
 
 class GovernanceObject(BaseModel):
     parent_id = IntegerField(default=0)
-    object_creation_time = IntegerField(default=int(time()))
+    object_creation_time = IntegerField(default=int(time.time()))
     object_hash = CharField(default='0')
     object_parent_hash = CharField(default='0')
     object_name = CharField(default='')
@@ -109,23 +109,6 @@ class GovernanceObject(BaseModel):
                 row = res[0]
                 gov_class_hex = row.serialise()
         return gov_class_hex
-
-    def get_prepare_command(self):
-        cmd = [ 'gobject', 'prepare', self.object_parent_hash,
-                str(self.object_revision), str(self.object_creation_time),
-                self.object_name, self.object_data ]
-        return cmd
-
-    def get_submit_command(self):
-        cmd = [ 'gobject', 'submit', self.object_parent_hash,
-                str(self.object_revision), str(self.object_creation_time),
-                self.object_name, self.object_data, self.object_fee_tx ]
-
-        # TEMP: will be refactoring to use composition
-        if isinstance( self.subobject, Superblock ):
-            cmd.pop()
-
-        return cmd
 
     # sync dashd gobject list with our local relational DB backend
     @classmethod
@@ -205,7 +188,7 @@ class GovernanceObject(BaseModel):
 
 class Event(BaseModel):
     governance_object = ForeignKeyField(GovernanceObject, related_name = 'events')
-    start_time = IntegerField(default=int(time()))
+    start_time = IntegerField(default=int(time.time()))
     prepare_time = IntegerField(default=0)
     submit_time = IntegerField(default=0)
     error_time = IntegerField(default=0)
@@ -375,6 +358,27 @@ class Superblock(BaseModel, GovernanceClass):
 
     class Meta:
         db_table = 'superblocks'
+
+    # prepare is just a 'passthru' for superblocks -- just set the prepared time &
+    # move on
+    def prepare(self, dashd):
+        go = self.governance_object
+        e = go.events[0]
+        e.prepare_time = misc.get_epoch()
+        e.save()
+
+    # superblocks don't have a collateral tx to submit
+    def get_submit_command(self):
+        go = self.governance_object
+        cmd = [ 'gobject', 'submit', go.object_parent_hash,
+                str(go.object_revision), str(go.object_creation_time),
+                go.object_name, go.object_data ]
+        return cmd
+
+    # boolean -- does the object meet collateral confirmations?
+    # superblocks don't require any, so True
+    def has_collateral_confirmations(self, dashd):
+        return True
 
     def is_valid(self):
         # current version of sentinel is not generating this info

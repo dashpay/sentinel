@@ -88,7 +88,7 @@ def test_prepare_command(proposal):
     # ensure tight regex match
     #prepare_command_regex = re.compile('^gobject prepare ([\da-f]+) ([\da-f]+) ([\d]+) ([\w-]+) ([\da-f]+)$')
 
-    cmd = gobj.get_prepare_command()
+    cmd = proposal.get_prepare_command()
 
     assert re.match(r'^gobject$', cmd[0]) != None
     assert re.match(r'^prepare$', cmd[1]) != None

@@ -27,88 +27,46 @@ from bitcoinrpc.authproxy import AuthServiceProxy, JSONRPCException
 
  - prepare_events
 
-    This process creates the collateral/burned transaction which allows the governance object to propagate
 
  - submit_events
 
-    Upon maturation of the collateral tranasction, the system will submit an rpc command,
-    propagating the object thoughout the network
+
 
 """
 
-# from dash/src/governance.hL43 -- GOVERNANCE_FEE_CONFIRMATIONS
-CONFIRMATIONS_REQUIRED = 6
+"""
+prepare queued local events for submission to the Dash network (includes
+paying collateral TX fee)
 
-# prepare queued local events for submission to the Dash network (includes
-# paying collateral TX fee)
+This process creates the collateral/burned transaction which allows the
+governance object to propagate
+"""
 def prepare_events(dashd):
-
     for event in Event.new():
         govobj = event.governance_object
-
-        print "# PREPARING EVENTS FOR DASH NETWORK"
-        print
-        print " -- cmd : [%s]" % govobj.get_prepare_command()
-        print
+        gov_class_object = govobj.subobject
 
         try:
-            collateral_tx = dashd.rpc_command(*govobj.get_prepare_command())
-            print " -- executing prepare ... getting collateral_tx hash"
-            print " -- got hash: [%s]" % collateral_tx
-
-            govobj.object_fee_tx = collateral_tx
-            event.prepare_time = misc.get_epoch()
-
-            with govobj._meta.database.atomic():
-                govobj.save()
-                event.save()
-
+            gov_class_object.prepare(dashd)
         except JSONRPCException as e:
             print "error: %s" % e.message
-            event.error_time = misc.get_epoch()
-            event.error_message = e.message
-            event.save()
 
+"""
+submit prepared local events to the Dash network
 
-# submit pending local events to the Dash network
+Upon maturation of the collateral tranasction, the system will submit an rpc command,
+propagating the object thoughout the network
+"""
 def submit_events(dashd):
 
     for event in Event.prepared():
         govobj = event.governance_object
-
-        print "# SUBMIT PREPARED EVENTS FOR DASH NETWORK"
-        print
-        print " -- submit cmd : ", govobj.get_submit_command()
-        print
-
-        tx = dashd.rpc_command('gettransaction', govobj.object_fee_tx)
-        num_bc_confirmations = tx['bcconfirmations']
-
-        print " -- confirmations: [%d]" % num_bc_confirmations
-        print " -- CONFIRMATIONS_REQUIRED: [%d]" % CONFIRMATIONS_REQUIRED
-
-        if num_bc_confirmations < CONFIRMATIONS_REQUIRED:
-            print " -- waiting for confirmations"
-            continue
+        gov_class_object = govobj.subobject
 
         try:
-            print " -- executing submit ... getting object hash"
-            object_hash = dashd.rpc_command(*govobj.get_submit_command())
-            print " -- got hash: [%s]" % object_hash
-
-            event.submit_time = misc.get_epoch()
-            govobj.object_hash = object_hash
-
-            # save all
-            with govobj._meta.database.atomic():
-                govobj.save()
-                event.save()
-
+            gov_class_object.submit(dashd)
         except JSONRPCException as e:
             print "error: %s" % e.message
-            event.error_time = misc.get_epoch()
-            event.error_message = e.message
-            event.save()
 
 # sync dashd gobject list with our local relational DB backend
 def perform_dashd_object_sync(dashd):
