@@ -76,6 +76,8 @@ def attempt_superblock_creation(dashd):
     import dashlib
     event_block_height = dashd.next_superblock_height()
 
+    print "IN attempt_superblock_creation"
+
     # Number of blocks before a superblock to create superblock objects for auto vote
     # TODO: where is this value defined?
     #
@@ -90,6 +92,10 @@ def attempt_superblock_creation(dashd):
     proposal_quorum = dashd.governance_quorum()
     max_budget = dashlib.next_superblock_max_budget(dashd)
     proposals = Proposal.approved_and_ranked(proposal_quorum, max_budget)
+
+    print "\t%s = %s" % ('proposal_quorum', proposal_quorum)
+    print "\t%s = %s" % ('max_budget', max_budget)
+    print "\t%s = %s" % ('proposals', proposals)
 
     sb = dashlib.create_superblock(dashd, proposals, event_block_height)
     if not sb:
@@ -122,6 +128,7 @@ def attempt_superblock_creation(dashd):
         print "We did NOT the election... search and upvote SB if found on network"
         pass
 
+    print "LEAVING attempt_superblock_creation"
 
 def auto_vote_objects(dashd):
     print "IN auto_vote_objects"
@@ -132,7 +139,7 @@ def auto_vote_objects(dashd):
     #    sb.vote(dashd, 'funding', 'yes')
 
     # vote invalid objects
-    for gov_class in [Proposal, Superblock]:
+    for gov_class in [Proposal]: #, Superblock]:
         for invalid in gov_class.invalid():
             print "found invalid %s, voting invalid..." % gov_class
             #pdb.set_trace()
@@ -148,8 +155,6 @@ if __name__ == '__main__':
     # ========================================================================
     #
     # load "gobject list" rpc command data & create new objects in local MySQL DB
-
-    # don't wanna sync votes, b/c testing superblocks right now...
     perform_dashd_object_sync(dashd)
 
     # create superblock & submit if elected & valid
