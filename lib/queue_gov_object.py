@@ -5,6 +5,7 @@ import sys
 sys.path.append( os.path.join( os.path.dirname(__file__), '..', 'lib' ) )
 import models
 from bitcoinrpc.authproxy import JSONRPCException
+import misc
 
 
 # mixin for GovObj composed classes like proposal and superblock, etc.
