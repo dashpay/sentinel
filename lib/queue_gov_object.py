@@ -4,6 +4,7 @@ import os
 import sys
 sys.path.append( os.path.join( os.path.dirname(__file__), '..', 'lib' ) )
 import models
+from bitcoinrpc.authproxy import JSONRPCException
 
 
 # mixin for GovObj composed classes like proposal and superblock, etc.
@@ -47,14 +48,27 @@ class GovernanceClass(object):
 
     # TODO: ensure an object-hash exists before trying to vote
     def vote(self, dashd, signal, outcome):
+        if ( not self.governance_object or not self.governance_object.object_hash ):
+            print "No governance_object hash, nothing to vote on."
+            return
+
         vote_command = self.get_vote_command(signal, outcome)
         output = dashd.rpc_command(*vote_command)
-        # print "output = [%s]" % output
-        print "detail = [%s]" % output.get('detail')
 
-        # TODO: do we need to track our own votes?
-        # self.object_status = 'VOTED'
-        # self.save()
+        err_msg = ''
+        try:
+            detail = output.get('detail').get('dash.conf')
+            result = detail.get('result')
+            if 'errorMessage' in detail:
+                err_msg = detail.get('errorMessage')
+        except JSONRPCException as e:
+            result = 'failed'
+            err_msg = e.message
+
+        # success, failed
+        print "result  = [%s]" % result
+        if err_msg:
+            print "err_msg = [%s]" % err_msg
 
     def list(self):
         dikt = {
