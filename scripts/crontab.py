@@ -112,13 +112,18 @@ def attempt_superblock_creation(dashd):
     current_block_hash = dashlib.current_block_hash(dashd)
     mn_list = dashd.get_masternodes()
     winner = dashlib.elect_mn(block_hash=current_block_hash, mnlist=mn_list)
+    my_vin = dashd.get_current_masternode_vin()
 
     print "current_block_hash: [%s]" % current_block_hash
     print "MN election winner: [%s]" % winner
-    print "current masternode VIN: [%s]" % dashd.get_current_masternode_vin()
+    print "current masternode VIN: [%s]" % my_vin
+
+    if ( winner != my_vin ):
+        print "we lost the election... FAKING IT!"
+        my_vin = winner
 
     # if we are the elected masternode...
-    if ( winner == dashd.get_current_masternode_vin() ):
+    if ( winner == my_vin ):
         # queue superblock submission
         print "we are the winner! Create and queue SB"
         sb.create_and_queue()
