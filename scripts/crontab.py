@@ -192,12 +192,12 @@ if __name__ == '__main__':
     # load "gobject list" rpc command data & create new objects in local MySQL DB
 
     # don't wanna sync votes, b/c testing superblocks right now...
-    #perform_dashd_object_sync(dashd)
+    perform_dashd_object_sync(dashd)
 
     # create superblock & submit if elected & valid
-    # attempt_superblock_creation(dashd)
+    attempt_superblock_creation(dashd)
     auto_vote_objects(dashd)
 
     # prepare/submit pending events
-    #prepare_events(dashd)
-    #submit_events(dashd)
+    prepare_events(dashd)
+    submit_events(dashd)
