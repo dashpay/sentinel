@@ -18,20 +18,15 @@ from models import Event, Superblock, Proposal, GovernanceObject
 from bitcoinrpc.authproxy import AuthServiceProxy, JSONRPCException
 
 """
-
  scripts/crontab.py
  -------------------------------
-
-
  FLAT MODULE FOR PROCESSING SENTINEL EVENTS
 
+ - perform_dashd_object_sync
+ - attempt_superblock_creation
+ - auto_vote_objects
  - prepare_events
-
-
  - submit_events
-
-
-
 """
 
 """
@@ -146,7 +141,9 @@ def auto_vote_objects(dashd):
     # vote invalid objects
     for gov_class in [Proposal]: #, Superblock]:
         for invalid in gov_class.invalid():
-            print "found invalid %s, voting invalid..." % gov_class
+            print "found invalid %s!" % gov_class.__name__
+            pprint(invalid.get_dict())
+            print "voting invalid..."
             #pdb.set_trace()
             invalid.vote(dashd, 'valid', 'no')
 
