@@ -351,6 +351,7 @@ class Superblock(BaseModel, GovernanceClass):
     event_block_height   = IntegerField()
     payment_addresses    = TextField()
     payment_amounts      = TextField()
+    sb_hash      = CharField()
 
     # TODO: remove this redundancy if/when dashd can be fixed to use
     # strings/types instead of ENUM types for type ID
@@ -405,6 +406,11 @@ class Superblock(BaseModel, GovernanceClass):
     def hash(self):
         import dashlib
         return dashlib.hashit(self.serialise())
+
+    # workaround for now, b/c we must uniquely ID a superblock with the hash, in case of differing superblocks
+    @classmethod
+    def serialisable_fields(self):
+        return ['name', 'event_block_height', 'payment_addresses', 'payment_amounts' ]
 
 # === /models ===
 

@@ -103,6 +103,14 @@ def test_superblock_is_deletable(superblock):
     # assert superblock.is_deletable() == True
     pass
 
+def test_serialisable_fields():
+    s1 = ['name', 'event_block_height', 'payment_addresses', 'payment_amounts']
+    s2 = Superblock.serialisable_fields()
+
+    s1.sort()
+    s2.sort()
+
+    assert s2 == s1
 
 def test_deterministic_superblock_creation():
     # ensure payment ordering is correct

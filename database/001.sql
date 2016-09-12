@@ -55,10 +55,11 @@ CREATE TABLE `superblocks` (
   `event_block_height` int(10) unsigned NOT NULL,
   `payment_addresses` text,
   `payment_amounts` text,
+  `sb_hash` char(64) not null default '',
   PRIMARY KEY (`id`),
   CONSTRAINT `fk_superblocks_governance_object_id` FOREIGN KEY (`governance_object_id`) REFERENCES governance_objects(`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   UNIQUE KEY `index_superblocks_governance_object_id` (`governance_object_id`),
-  UNIQUE KEY `index_superblocks_event_block_height` (`event_block_height`)
+  UNIQUE KEY `index_superblocks_sb_hash` (`sb_hash`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `events` (
@@ -118,5 +119,3 @@ select sb.name
   from superblocks sb
   join governance_objects go on go.id = sb.governance_object_id
 ;
-
-
