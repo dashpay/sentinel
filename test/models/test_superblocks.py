@@ -48,7 +48,7 @@ def proposal():
 def superblock():
     # NOTE: no governance_object_id is set
     sbobj = Superblock(
-        name = "sb1803405",
+        name = "sb62500",
         event_block_height = 62500,
         payment_address = "yYe8KwyaUu5YswSYmB3q3ryx8XTUu9y7Ui|yTC62huR4YQEPn9AJHjnQxxreHSbgAoatV",
         payment_amount  = "5|3"
