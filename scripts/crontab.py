@@ -68,10 +68,15 @@ def perform_dashd_object_sync(dashd):
     GovernanceObject.sync(dashd)
 
 def attempt_superblock_creation(dashd):
-    import dashlib
-    event_block_height = dashd.next_superblock_height()
-
     print "IN attempt_superblock_creation"
+    import dashlib
+
+    event_block_height = dashd.next_superblock_height()
+    current_height = dashd.rpc_command('getblockcount')
+
+    # have we done this before? Only do this once...
+    # Superblock
+
 
     # Number of blocks before a superblock to create superblock objects for auto vote
     # TODO: where is this value defined?
@@ -80,9 +85,21 @@ def attempt_superblock_creation(dashd):
     # we're not assured that blocks won't be found back-to-back within a second
     # or so
     #
-    # SUPERBLOCK_CREATION_DELTA = 1
-    # if ( cycle - diff ) != SUPERBLOCK_CREATION_DELTA:
-    #     return
+    # about 3 days' period for govobj maturity
+    # only continue once we've entered the maturity phase...
+
+    maturity_phase_delta = 1662 #  ~(60*24*3)/2.6
+    if config.network == 'testnet':
+        maturity_phase_delta = 8    # testnet
+
+    maturity_phase_start_block = event_block_height - maturity_phase_delta
+    print "current_height = %d" % current_height
+    print "maturity_phase_delta = %d" % maturity_phase_delta
+    print "maturity_phase_start_block = %d" % maturity_phase_start_block
+
+    if (current_height < maturity_phase_start_block):
+        print "Not in maturity phase yet -- will not attempt Superblock"
+        return
 
     proposal_quorum = dashd.governance_quorum()
     max_budget = dashlib.next_superblock_max_budget(dashd)
@@ -100,7 +117,8 @@ def attempt_superblock_creation(dashd):
 
     print "sb  (orig): %s" % sb.serialise()
     print "sb (dashd): %s" % dashlib.SHIM_serialise_for_dashd( sb.serialise() )
-    print "sb hash: %x" % sb.hash()
+    print "sb hash: %s" % sb.hex_hash()
+
 
 
     # find the elected MN vin for superblock creation...
@@ -120,13 +138,12 @@ def attempt_superblock_creation(dashd):
     # if we are the elected masternode...
     if ( winner == my_vin ):
         # queue superblock submission
-        print "we are the winner! Create and queue SB"
-        sb.create_and_queue()
-    else:
-        # if the exact same deterministic Superblock exists on the network
-        # already, then vote it up
-        print "We did NOT the election... search and upvote SB if found on network"
-        pass
+        print "we are the winner! Submit SB directly to network"
+        # sb.create_and_queue()
+        sb.submit(dashd)
+
+    # TODO: what vote signal should be sent for superblocks, valid, funding, something else?
+    sb.vote('funding', 'yes')
 
     print "LEAVING attempt_superblock_creation"
 
