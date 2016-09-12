@@ -164,5 +164,5 @@ if __name__ == '__main__':
     auto_vote_objects(dashd)
 
     # prepare/submit pending events
-    prepare_events(dashd)
+    # prepare_events(dashd)
     submit_events(dashd)
