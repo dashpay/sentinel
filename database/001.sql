@@ -1,9 +1,8 @@
-
 /*
   DATABASE TABLES
 
+  TODO: drop a comment w/schema conventions in here
 */
-
 
 DROP VIEW if exists vsuperblocks ;
 DROP VIEW if exists vproposals ;
