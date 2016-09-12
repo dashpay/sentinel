@@ -101,9 +101,30 @@ class GovernanceClass(object):
                 go.object_name, go.object_data, go.object_fee_tx ]
         return cmd
 
+
+    # null object pattern
+    class EventDummy(object):
+        def save():
+            pass
+
+        @property
+        def prepare_time():
+            pass
+
+        @property
+        def error_time():
+            pass
+
+        @property
+        def error_message():
+            pass
+
     def prepare(self, dashd):
         go = self.governance_object
-        event = go.events[0]
+        try:
+            event = go.events[0]
+        except IndexError as e:
+            event = EventDummy()
 
         print "# PREPARING EVENTS FOR DASH NETWORK"
         print
@@ -143,7 +164,10 @@ class GovernanceClass(object):
 
     def submit(self, dashd):
         go = self.governance_object
-        event = go.events[0]
+        try:
+            event = go.events[0]
+        except IndexError as e:
+            event = EventDummy()
 
         print "# SUBMIT PREPARED EVENTS FOR DASH NETWORK"
         print
@@ -159,8 +183,8 @@ class GovernanceClass(object):
             object_hash = dashd.rpc_command(*self.get_submit_command())
             print " -- got hash: [%s]" % object_hash
 
-            event.submit_time = misc.get_epoch()
             go.object_hash = object_hash
+            event.submit_time = misc.get_epoch()
 
             # save all
             with go._meta.database.atomic():
@@ -171,10 +195,8 @@ class GovernanceClass(object):
             event.error_time = misc.get_epoch()
             event.error_message = e.message
             event.save()
-
             #re-raise after capturing error message
             raise e
-
 
     def serialise(self):
         import inflection
