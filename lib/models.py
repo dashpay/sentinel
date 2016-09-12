@@ -413,6 +413,10 @@ class Superblock(BaseModel, GovernanceClass):
     def serialisable_fields(self):
         return ['name', 'event_block_height', 'payment_addresses', 'payment_amounts' ]
 
+    @classmethod
+    def is_voted_on(self, ebh):
+        self.select().where(self.event_block_height == ebh).join(GovernanceObject).join(Vote).count()
+
 # ok, this is an awkward way to implement these...
 # "hook" into the Superblock model and run this code just before any save()
 from playhouse.signals import pre_save

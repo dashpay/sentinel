@@ -74,20 +74,23 @@ def attempt_superblock_creation(dashd):
     event_block_height = dashd.next_superblock_height()
     current_height = dashd.rpc_command('getblockcount')
 
-    # have we done this before? Only do this once...
-    # Superblock
+    # have we voted on a superblock for this specific event_block_height?
+    if Superblock.is_voted_on(event_block_height):
+        print "ALREADY VOTED! NEXT!"
+        return
 
+    # ok, now we're here, we've clearly not yet voted for a Superblock at this
+    # particular EBH... so vote time!
+    #
+    # first we must create a SB deterministically
+    #
+    # then see if it already exists on the network (will be in the DB b/c of the sync)
+    #
+    # then see if we win. If yes, submit it, if no, then... wait 'til next time I guess, then try and upvote/ -OR- submit again (b/c we might win the next election if one's not yet been submitted).
+    #
 
-    # Number of blocks before a superblock to create superblock objects for auto vote
-    # TODO: where is this value defined?
-    #
-    # TODO: should probably move this closer to the winner/submission check --
-    # we're not assured that blocks won't be found back-to-back within a second
-    # or so
-    #
-    # about 3 days' period for govobj maturity
+    # 3-day period for govobj maturity
     # only continue once we've entered the maturity phase...
-
     maturity_phase_delta = 1662 #  ~(60*24*3)/2.6
     if config.network == 'testnet':
         maturity_phase_delta = 8    # testnet

@@ -53,6 +53,7 @@ class GovernanceClass(object):
             print "No governance_object hash, nothing to vote on."
             return
 
+        # TODO: ensure Signal, Outcome are valid options for dashd
         vote_command = self.get_vote_command(signal, outcome)
         output = dashd.rpc_command(*vote_command)
 
@@ -71,11 +72,12 @@ class GovernanceClass(object):
         if err_msg:
             print "err_msg = [%s]" % err_msg
 
-        # TODO: ensure signal, outcome exist in lookup table or raise exception
-        v = Vote(governance_object=self.governance_object,
-                 signal=Signal.get(Signal.name == signal),
-                 outcome=Outcome.get(Outcome.name == outcome))
-        v.save()
+        if result == 'success':
+            # TODO: ensure signal, outcome exist in lookup table or raise exception
+            v = models.Vote(governance_object=self.governance_object,
+                            signal=models.Signal.get(models.Signal.name == signal),
+                            outcome=models.Outcome.get(models.Outcome.name == outcome))
+            v.save()
 
     def list(self):
         dikt = {
