@@ -18,6 +18,7 @@ import json
 
 import peewee
 from models import Event, Superblock, Proposal, GovernanceObject
+import dashlib
 
 from datetime import datetime, date, time
 
@@ -135,6 +136,11 @@ class SentinelShell(cmd.Cmd):
                 return
 
             ### ---- CONVERT AND CHECK EPOCHS -----
+
+            # check valid payment address
+            if not dashlib.is_valid_dash_address( args.payment_address, config.network ):
+                print "%s is not a valid %s payment address" % (args.payment_address, config.network)
+                return
 
             # sentinel values...
             start_epoch = 0
