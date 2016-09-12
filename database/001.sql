@@ -123,13 +123,13 @@ CREATE TABLE `votes` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
-INSERT INTO SIGNALS ( name, created_at, updated_at )
+INSERT INTO signals ( name, created_at, updated_at )
 VALUES ( 'funding', UTC_TIMESTAMP(), UTC_TIMESTAMP() )
      , ( 'valid', UTC_TIMESTAMP(), UTC_TIMESTAMP() )
      , ( 'delete', UTC_TIMESTAMP(), UTC_TIMESTAMP() )
      ;
 
-INSERT INTO OUTCOMES ( name, created_at, updated_at )
+INSERT INTO outcomes ( name, created_at, updated_at )
 VALUES ( 'yes', UTC_TIMESTAMP(), UTC_TIMESTAMP() )
      , ( 'no', UTC_TIMESTAMP(), UTC_TIMESTAMP() )
      , ( 'abstain', UTC_TIMESTAMP(), UTC_TIMESTAMP() )
