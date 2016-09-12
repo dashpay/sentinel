@@ -93,7 +93,7 @@ def attempt_superblock_creation(dashd):
     # only continue once we've entered the maturity phase...
     maturity_phase_delta = 1662 #  ~(60*24*3)/2.6
     if config.network == 'testnet':
-        maturity_phase_delta = 8    # testnet
+        maturity_phase_delta = 24    # testnet
 
     maturity_phase_start_block = event_block_height - maturity_phase_delta
     print "current_height = %d" % current_height
@@ -121,7 +121,6 @@ def attempt_superblock_creation(dashd):
     print "sb  (orig): %s" % sb.serialise()
     print "sb (dashd): %s" % dashlib.SHIM_serialise_for_dashd( sb.serialise() )
     print "sb hash: %s" % sb.hex_hash()
-
 
 
     # find the elected MN vin for superblock creation...
