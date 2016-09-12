@@ -5,9 +5,12 @@
 """
 import sys, os
 
-# specify path to dash.conf
-dash_conf = os.path.join( os.environ['HOME'], "Library/Application Support/DashCore/dash.conf" )
-#dash_conf = os.path.join( os.environ['HOME'], ".dashcore/dash.conf" )
+home = os.environ['HOME']
+dash_conf = os.path.join(home, ".dashcore/dash.conf")
+if sys.platform == 'darwin':
+    dash_conf = os.path.join(home, "Library/Application Support/DashCore/dash.conf")
+# ... or specify path to dash.conf
+# dash_conf = "custom_path"
 
 # valid options are 'testnet', 'mainnet'
 network = 'testnet'
