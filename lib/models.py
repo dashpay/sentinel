@@ -409,16 +409,20 @@ class Superblock(BaseModel, GovernanceClass):
         import dashlib
         return dashlib.hashit(self.serialise())
 
+    def hex_hash(self):
+        return "%x" % self.hash()
+
     # workaround for now, b/c we must uniquely ID a superblock with the hash, in case of differing superblocks
     @classmethod
     def serialisable_fields(self):
         return ['name', 'event_block_height', 'payment_addresses', 'payment_amounts' ]
 
 # ok, this is an awkward way to implement these...
+# "hook" into the Superblock model and run this code just before any save()
 from playhouse.signals import pre_save
 @pre_save(sender=Superblock)
 def on_save_handler(model_class, instance, created):
-    instance.sb_hash = "%x" % instance.hash()
+    instance.sb_hash = instance.hex_hash()
 
 # === /models ===
 
