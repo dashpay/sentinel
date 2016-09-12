@@ -7,7 +7,6 @@ import models
 from bitcoinrpc.authproxy import JSONRPCException
 import misc
 
-
 # mixin for GovObj composed classes like proposal and superblock, etc.
 class GovernanceClass(object):
     def create_and_queue(self):
@@ -21,7 +20,6 @@ class GovernanceClass(object):
             object_name = self.name,
             object_type = self.govobj_type,
         )
-
         self.governance_object = govobj
 
         # CREATE EVENT TO TALK TO DASHD / PREPARE / SUBMIT OBJECT
@@ -37,6 +35,22 @@ class GovernanceClass(object):
 
         return
 
+    def create_with_govobj(self):
+        govobj = models.GovernanceObject(
+            object_name = self.name,
+            object_type = self.govobj_type,
+        )
+        self.governance_object = govobj
+
+        # atomic write for both objects, 1:1 relationship
+        with models.Event._meta.database.atomic():
+            govobj.save()
+            self.save()
+
+    @classmethod
+    def create(self, *args, **kwargs):
+        self.super(self, self).create(*args, **kwargs)
+
     # TODO: ensure an object-hash exists before trying to vote
     @classmethod
     def invalid(self):
@@ -49,12 +63,13 @@ class GovernanceClass(object):
 
     # TODO: ensure an object-hash exists before trying to vote
     def vote(self, dashd, signal, outcome):
-        if ( not self.governance_object or not self.governance_object.object_hash ):
+        if ( not self.governance_object or self.governance_object.object_hash == '0' or self.governance_object.object_hash == '' ):
             print "No governance_object hash, nothing to vote on."
             return
 
         # TODO: ensure Signal, Outcome are valid options for dashd
         vote_command = self.get_vote_command(signal, outcome)
+        print ' '.join(vote_command)
         output = dashd.rpc_command(*vote_command)
 
         err_msg = ''
@@ -109,30 +124,12 @@ class GovernanceClass(object):
                 go.object_name, go.object_data, go.object_fee_tx ]
         return cmd
 
-
-    # null object pattern
-    class EventDummy(object):
-        def save():
-            pass
-
-        @property
-        def prepare_time():
-            pass
-
-        @property
-        def error_time():
-            pass
-
-        @property
-        def error_message():
-            pass
-
     def prepare(self, dashd):
         go = self.governance_object
         try:
             event = go.events[0]
         except IndexError as e:
-            event = EventDummy()
+            event = self.EventDummy()
 
         print "# PREPARING EVENTS FOR DASH NETWORK"
         print
@@ -175,7 +172,7 @@ class GovernanceClass(object):
         try:
             event = go.events[0]
         except IndexError as e:
-            event = EventDummy()
+            event = self.EventDummy()
 
         print "# SUBMIT PREPARED EVENTS FOR DASH NETWORK"
         print
@@ -216,3 +213,32 @@ class GovernanceClass(object):
         obj_type = inflection.singularize(name)
 
         return binascii.hexlify(simplejson.dumps( (obj_type, self.get_dict()) , sort_keys = True))
+
+    # null object pattern
+    class EventDummy(object):
+        def save(self):
+            pass
+
+        @property
+        def prepare_time(self):
+            pass
+
+        @prepare_time.setter
+        def prepare_time(self, value):
+            pass
+
+        @property
+        def error_time(self):
+            pass
+
+        @error_time.setter
+        def error_time(self, value):
+            pass
+
+        @property
+        def error_message(self):
+            pass
+
+        @error_message.setter
+        def error_message(self, value):
+            pass

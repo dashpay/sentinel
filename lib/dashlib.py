@@ -9,7 +9,7 @@ import re
 from decimal import Decimal
 import simplejson
 import binascii
-
+from peewee import DoesNotExist
 
 def is_valid_dash_address( address, network = 'mainnet' ):
     # Only public key addresses are allowed
@@ -143,9 +143,8 @@ def create_superblock( dashd, proposals, event_block_height ):
     # deterministic superblocks can't have random names
     sbname = "sb" + str(event_block_height)
 
-    # TODO: actually link this to Proposals in the DB and don't
-    # actually include this info. This will enforce RI in the DB schema
-    # also.
+    # TODO: separate table for payments, in a specified order. Will enforce RI
+    # in the DB schema.
     sb = Superblock(
         name = sbname,
         event_block_height = event_block_height,
@@ -153,7 +152,18 @@ def create_superblock( dashd, proposals, event_block_height ):
         payment_amounts   = '|'.join( [str( pd['amount' ] ) for pd in payments] ),
     )
 
-    return sb
+    print "sb hash = %s" % sb.hex_hash()
+
+    try:
+        dbrec = Superblock.get(Superblock.sb_hash == sb.hex_hash())
+        created = False
+    except DoesNotExist as e:
+        dbrec = sb.create_with_govobj()
+        created = True
+
+    print "created SB in DB?: %s" % created
+
+    return dbrec
 
 def current_block_hash(dashd):
     height = dashd.rpc_command('getblockcount')

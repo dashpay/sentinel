@@ -22,7 +22,7 @@ CREATE TABLE `governance_objects` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `parent_id` int(10) unsigned NOT NULL DEFAULT '0',
   `object_creation_time` int(11) NOT NULL DEFAULT '0',
-  `object_hash` varchar(255) NOT NULL DEFAULT '0',
+  `object_hash` varchar(255) NOT NULL DEFAULT '',
   `object_parent_hash` varchar(255) NOT NULL DEFAULT '0',
   `object_name` varchar(64) NOT NULL DEFAULT '',
   `object_type` int(20) NOT NULL DEFAULT '0',

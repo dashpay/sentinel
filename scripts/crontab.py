@@ -87,7 +87,6 @@ def attempt_superblock_creation(dashd):
     # then see if it already exists on the network (will be in the DB b/c of the sync)
     #
     # then see if we win. If yes, submit it, if no, then... wait 'til next time I guess, then try and upvote/ -OR- submit again (b/c we might win the next election if one's not yet been submitted).
-    #
 
     # 3-day period for govobj maturity
     # only continue once we've entered the maturity phase...
@@ -116,12 +115,8 @@ def attempt_superblock_creation(dashd):
     if not sb:
         print "No superblock created, sorry. Returning."
         return
-    # pprint(sb.__dict__)
 
-    print "sb  (orig): %s" % sb.serialise()
-    print "sb (dashd): %s" % dashlib.SHIM_serialise_for_dashd( sb.serialise() )
     print "sb hash: %s" % sb.hex_hash()
-
 
     # find the elected MN vin for superblock creation...
     current_block_hash = dashlib.current_block_hash(dashd)
@@ -141,11 +136,13 @@ def attempt_superblock_creation(dashd):
     if ( winner == my_vin ):
         # queue superblock submission
         print "we are the winner! Submit SB directly to network"
-        # sb.create_and_queue()
+        # sb.save()
         sb.submit(dashd)
 
     # TODO: what vote signal should be sent for superblocks, valid, funding, something else?
-    sb.vote('funding', 'yes')
+    print "voting on sb..."
+    # if (sb.id):
+    sb.vote(dashd, 'funding', 'yes')
 
     print "LEAVING attempt_superblock_creation"
 

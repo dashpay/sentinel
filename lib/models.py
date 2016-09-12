@@ -56,7 +56,7 @@ class BaseModel(playhouse.signals.Model):
 class GovernanceObject(BaseModel):
     parent_id = IntegerField(default=0)
     object_creation_time = IntegerField(default=int(time.time()))
-    object_hash = CharField(default='0')
+    object_hash = CharField(default='')
     object_parent_hash = CharField(default='0')
     object_name = CharField(default='')
     object_type = IntegerField(default=0)
@@ -422,6 +422,8 @@ class Superblock(BaseModel, GovernanceClass):
 from playhouse.signals import pre_save
 @pre_save(sender=Superblock)
 def on_save_handler(model_class, instance, created):
+    if created:
+        go = GovernanceObject(object_name=instance.name, object_type=2)
     instance.sb_hash = instance.hex_hash()
 
 class Signal(BaseModel):
