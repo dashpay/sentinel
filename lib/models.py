@@ -1,5 +1,6 @@
 import pdb
 from peewee import Model, MySQLDatabase, IntegerField, CharField, TextField, ForeignKeyField, DecimalField, DateTimeField, TimestampField
+import playhouse.signals
 from pprint import pprint
 import time
 import simplejson
@@ -27,7 +28,7 @@ db = MySQLDatabase(dbname, **db_cfg)
 
 # === models ===
 
-class BaseModel(Model):
+class BaseModel(playhouse.signals.Model):
 
     @classmethod
     def serialisable_fields(self):
@@ -353,6 +354,7 @@ class Superblock(BaseModel, GovernanceClass):
     payment_amounts      = TextField()
     sb_hash      = CharField()
 
+
     # TODO: remove this redundancy if/when dashd can be fixed to use
     # strings/types instead of ENUM types for type ID
     govobj_type = 2
@@ -411,6 +413,12 @@ class Superblock(BaseModel, GovernanceClass):
     @classmethod
     def serialisable_fields(self):
         return ['name', 'event_block_height', 'payment_addresses', 'payment_amounts' ]
+
+# ok, this is an awkward way to implement these...
+from playhouse.signals import pre_save
+@pre_save(sender=Superblock)
+def on_save_handler(model_class, instance, created):
+    instance.sb_hash = "%x" % instance.hash()
 
 # === /models ===
 
