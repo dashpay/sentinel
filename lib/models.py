@@ -5,20 +5,17 @@ from pprint import pprint
 import time
 import simplejson
 import binascii
+import datetime
 import re
-
 import sys, os
 sys.path.append( os.path.join( os.path.dirname(__file__), '..' ) )
 sys.path.append( os.path.join( os.path.dirname(__file__), '..' , 'lib' ) )
-
 import config
 import misc
 import dashd
 
 # our mixin
 from queue_gov_object import GovernanceClass
-from dashlib import is_valid_dash_address
-
 
 env = os.environ.get('SENTINEL_ENV') or 'production'
 db_cfg = config.db[env].copy()
@@ -302,7 +299,7 @@ class Proposal(BaseModel, GovernanceClass):
             return False
 
         # payment address is valid base58 dash addr, non-multisig
-        if not is_valid_dash_address( self.payment_address, config.network ):
+        if not dashlib.is_valid_dash_address( self.payment_address, config.network ):
             return False
 
         return True
