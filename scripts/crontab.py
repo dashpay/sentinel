@@ -179,6 +179,10 @@ def is_dashd_port_open(dashd):
 
     return port_open
 
+def delete_orphaned_records():
+    for go in GovernanceObject.orphans():
+        go.delete_instance()
+
 if __name__ == '__main__':
     dashd = DashDaemon.from_dash_conf(config.dash_conf)
 
@@ -199,6 +203,9 @@ if __name__ == '__main__':
     #
     # load "gobject list" rpc command data & create new objects in local MySQL DB
     # perform_dashd_object_sync(dashd)
+
+    # due to non-optimal DB design, it's currently possible to have orphan'ed govobj records:
+    delete_orphaned_records()
 
     # create superblock & submit if elected & valid
     attempt_superblock_creation(dashd)

@@ -120,6 +120,11 @@ class GovernanceObject(BaseModel):
         for item in golist.values():
             (go, subobj) = self.load_from_dashd( item )
 
+    @classmethod
+    def orphans(self):
+        return self.select().where(~(self.id << (Proposal.select(Proposal.governance_object_id) | Superblock.select(Superblock.governance_object_id))))
+        # select * from governance_objects where id not in ( select governance_object_id from proposals UNION select governance_object_id from superblocks )\G
+
     def is_valid(self):
         raise NotImplementedError("Method be over-ridden in composed classes")
         """
