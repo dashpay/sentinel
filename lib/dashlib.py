@@ -158,10 +158,12 @@ def create_superblock( dashd, proposals, event_block_height ):
         dbrec = Superblock.get(Superblock.sb_hash == sb.hex_hash())
         created = False
     except DoesNotExist as e:
-        dbrec = sb.create_with_govobj()
+        sb.create_with_govobj()
+        dbrec = sb
         created = True
 
     print "created SB in DB?: %s" % created
+    print "dbrec = %s" % dbrec.__dict__
 
     return dbrec
 
