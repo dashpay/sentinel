@@ -157,23 +157,32 @@ def auto_vote_objects(dashd):
     print "IN auto_vote_objects"
 
     for sb in Superblock.valid(dashd):
-        if misc.is_hash(sb.governance_object.object_hash):
+        if not sb.voted_on():
+            print "voting! SB: %d" % sb.id
             sb.vote(dashd, 'valid', 'yes')
+        else:
+            print "Already voted!"
 
     max_budget = dashlib.next_superblock_max_budget(dashd)
     for prop in Proposal.valid(max_budget):
-        if misc.is_hash(prop.governance_object.object_hash):
+        if not prop.voted_on():
+            print "voting! prop: %d" % prop.id
             prop.vote(dashd, 'valid', 'yes')
-
+        else:
+            print "Already voted!"
 
     # vote invalid objects
     for gov_class in [Proposal]: #, Superblock]:
         for invalid in gov_class.invalid():
             print "found invalid %s!" % gov_class.__name__
             pprint(invalid.get_dict())
-            print "voting invalid..."
             #pdb.set_trace()
-            invalid.vote(dashd, 'valid', 'no')
+            if not invalid.voted_on():
+                go = invalid.governance_object
+                print "voting invalid id: %s, type: %s" % (invalid.id, go.object_type)
+                invalid.vote(dashd, 'valid', 'no')
+            else:
+                print "Already voted!"
 
     print "LEAVING auto_vote_objects"
 

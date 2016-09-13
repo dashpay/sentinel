@@ -61,9 +61,17 @@ class GovernanceClass(object):
                 signal, outcome ]
         return cmd
 
+    def voted_on(self):
+        if self.select().join(models.GovernanceObject).join(models.Vote).count():
+            return True
+
+        return False
+        # return t/f
+
     # TODO: ensure an object-hash exists before trying to vote
     def vote(self, dashd, signal, outcome):
-        if ( not self.governance_object or self.governance_object.object_hash == '0' or self.governance_object.object_hash == '' ):
+        go = self.governance_object
+        if ( not go or go.object_hash == '0' or go.object_hash == '' or not misc.is_hash(go.object_hash)):
             print "No governance_object hash, nothing to vote on."
             return
 
