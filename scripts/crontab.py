@@ -141,19 +141,25 @@ def attempt_superblock_creation(dashd):
         sb.submit(dashd)
 
     # TODO: what vote signal should be sent for superblocks, valid, funding, something else?
-    print "voting on sb..."
+    # print "voting on sb..."
     # if (sb.id):
-    sb.vote(dashd, 'funding', 'yes')
+    # sb.vote(dashd, 'funding', 'yes')
 
     print "LEAVING attempt_superblock_creation"
 
 def auto_vote_objects(dashd):
+    import dashlib
     print "IN auto_vote_objects"
 
-    # for all valid superblocks, vote yes for funding them
-    #for sb in Superblock.valid():
-    #    print "found valid Superblock, voting funding 'yes'"
-    #    sb.vote(dashd, 'funding', 'yes')
+    for sb in Superblock.valid(dashd):
+        if misc.is_hash(sb.governance_object.object_hash):
+            sb.vote(dashd, 'valid', 'yes')
+
+    max_budget = dashlib.next_superblock_max_budget(dashd)
+    for prop in Proposal.valid(max_budget):
+        if misc.is_hash(prop.governance_object.object_hash):
+            prop.vote(dashd, 'valid', 'yes')
+
 
     # vote invalid objects
     for gov_class in [Proposal]: #, Superblock]:

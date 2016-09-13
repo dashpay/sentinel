@@ -272,17 +272,17 @@ class Proposal(BaseModel, GovernanceClass):
     # TODO: remove this redundancy if/when dashd can be fixed to use
     # strings/types instead of ENUM types for type ID
     govobj_type = 1
-    max_budget = None
 
     class Meta:
         db_table = 'proposals'
 
+    @classmethod
+    def valid(self, max_budget):
+        return [pr for pr in self.select() if pr.is_valid(max_budget)]
+
     # TODO: unit tests for all these items, both individually and some grouped
     # **This can be easily mocked.**
-    #
-    # TODO: actually, i think proposal should have no knowledge of the budget,
-    # which is more of a concern for the superblocks...
-    def is_valid(self):
+    def is_valid(self, max_budget=None):
         import dashlib
         now = misc.get_epoch()
 
@@ -299,7 +299,7 @@ class Proposal(BaseModel, GovernanceClass):
             return False
 
         # budget check
-        if ( self.max_budget and (self.payment_amount > self.max_budget) ):
+        if ( max_budget and (self.payment_amount > max_budget) ):
             return False
 
         # amount can't be negative or 0
@@ -388,15 +388,14 @@ class Superblock(BaseModel, GovernanceClass):
     def has_collateral_confirmations(self, dashd):
         return True
 
-    def is_valid(self):
+    def is_valid(self, dashd):
         # current version of sentinel is not generating this info
         #
         # vout != generated vout
         # blockheight != generated blockheight
 
         # ensure EBH is on-cycle
-        cycle = dashd.superblockcycle()
-        if (self.event_block_height % cycle) != 0:
+        if (self.event_block_height == dashd.next_superblock_height()):
             return False
 
         return True
@@ -407,8 +406,8 @@ class Superblock(BaseModel, GovernanceClass):
         pass
 
     @classmethod
-    def valid(self):
-        return [sb for sb in self.select() if sb.is_valid()]
+    def valid(self, dashd):
+        return [sb for sb in self.select() if sb.is_valid(dashd)]
 
     def hash(self):
         import dashlib
