@@ -33,7 +33,7 @@ CREATE TABLE `governance_objects` (
   `abstain_count` smallint(5) unsigned NOT NULL DEFAULT 0,
   `absolute_yes_count` smallint(6) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `index_governance_objects_object_name` (`object_name`)
+  UNIQUE KEY `index_governance_objects_object_hash` (`object_hash`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `proposals` (
