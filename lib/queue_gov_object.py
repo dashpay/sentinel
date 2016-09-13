@@ -157,7 +157,8 @@ class GovernanceClass(object):
 
     # boolean -- does the object meet collateral confirmations?
     def has_collateral_confirmations(self, dashd):
-        tx = dashd.rpc_command('gettransaction', govobj.object_fee_tx)
+        go = self.governance_object
+        tx = dashd.rpc_command('gettransaction', go.object_fee_tx)
         num_bc_confirmations = tx['bcconfirmations']
 
         # from dash/src/governance.hL43 -- GOVERNANCE_FEE_CONFIRMATIONS
