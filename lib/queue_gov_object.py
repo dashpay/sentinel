@@ -175,6 +175,13 @@ class GovernanceClass(object):
         except IndexError as e:
             event = self.EventDummy()
 
+        # don't attempt to submit a superblock unless a masternode
+        # note: will probably re-factor this, this has code smell
+        my_vin = dashd.get_current_masternode_vin()
+        if (isinstance(self, models.Superblock) and (my_vin == None)):
+            print "Not a masternode. Only masternodes may submit superblocks."
+            return
+
         print "# SUBMIT PREPARED EVENTS FOR DASH NETWORK"
         print
         print " -- submit cmd : ", ' '.join(self.get_submit_command())
