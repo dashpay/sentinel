@@ -16,6 +16,7 @@ from dashd import DashDaemon
 from dashd import DashConfig
 from models import Event, Superblock, Proposal, GovernanceObject
 from bitcoinrpc.authproxy import AuthServiceProxy, JSONRPCException
+import socket
 
 """
  scripts/crontab.py
@@ -165,8 +166,32 @@ def auto_vote_objects(dashd):
 
     print "LEAVING auto_vote_objects"
 
+def is_dashd_port_open(dashd):
+    # test socket open before beginning, display instructive message to MN
+    # operators if it's not
+    port_open = False
+    try:
+        info = dashd.rpc_command('getinfo')
+        port_open = True
+    except socket.error as e:
+        print "%s" % e
+        # sys.exit(2)
+
+    return port_open
+
 if __name__ == '__main__':
     dashd = DashDaemon.from_dash_conf(config.dash_conf)
+
+    # check dashd connectivity
+    if not is_dashd_port_open(dashd):
+        print "Cannot connect to dashd. Please ensure dashd is running and the JSONRPC port is open to Sentinel."
+        sys.exit(2)
+
+    # check database engine connectivity
+    import models
+    if not models.BaseModel.is_database_connected():
+        print "Cannot connect to database. Please ensure MySQL database service is running and the JSONRPC port is open to Sentinel."
+        sys.exit(2)
 
     # ========================================================================
     # general flow:

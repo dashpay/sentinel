@@ -1,5 +1,6 @@
 import pdb
 from peewee import Model, MySQLDatabase, IntegerField, CharField, TextField, ForeignKeyField, DecimalField, DateTimeField
+import peewee
 import playhouse.signals
 from pprint import pprint
 import time
@@ -52,6 +53,10 @@ class BaseModel(playhouse.signals.Model):
 
     class Meta:
         database = db
+
+    @classmethod
+    def is_database_connected(self):
+        return not db.is_closed()
 
 class GovernanceObject(BaseModel):
     parent_id = IntegerField(default=0)
@@ -452,4 +457,9 @@ class Vote(BaseModel):
 
 # === /models ===
 
-db.connect()
+try:
+    db.connect()
+except peewee.OperationalError as e:
+    print "%s" % e
+    print "Please ensure MySQL database service is running and user access is properly configured in 'config.py'"
+    sys.exit(2)
