@@ -422,9 +422,20 @@ class Superblock(BaseModel, GovernanceClass):
     def serialisable_fields(self):
         return ['name', 'event_block_height', 'payment_addresses', 'payment_amounts' ]
 
+    # has this masternode voted on *any* superblocks at the given event_block_height?
     @classmethod
-    def is_voted_on(self, ebh):
-        self.select().where(self.event_block_height == ebh).join(GovernanceObject).join(Vote).count()
+    def is_voted_funding(self, ebh):
+        funding = Signal.get( Signal.name == 'funding' )
+        yes     = Outcome.get( Outcome.name == 'yes' )
+        return (self.select()
+                    .where(self.event_block_height == ebh)
+                    .join(GovernanceObject)
+                    .join(Vote)
+                    .join(Signal)
+                    .switch(Vote) # switch join query context back to Vote
+                    .join(Outcome)
+                    .where(Vote.signal == funding & Vote.outcome == yes)
+                    .count())
 
 # ok, this is an awkward way to implement these...
 # "hook" into the Superblock model and run this code just before any save()

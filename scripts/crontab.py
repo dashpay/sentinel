@@ -75,13 +75,18 @@ def attempt_superblock_creation(dashd):
     event_block_height = dashd.next_superblock_height()
     current_height = dashd.rpc_command('getblockcount')
 
-    # have we voted on a superblock for this specific event_block_height?
-    if Superblock.is_voted_on(event_block_height):
-        print "ALREADY VOTED! NEXT!"
-        return
+    # query votes for this specific ebh... if we have voted for this specific
+    # ebh, then it's voted on. since we track votes this is all done using joins
+    # against the votes table
+    #
+    # has this masternode voted on *any* superblocks at the given event_block_height?
+    # have we voted FUNDING=YES for a superblock for this specific event_block_height?
+    if Superblock.is_voted_funding(event_block_height):
+           print "ALREADY VOTED! 'til next time!"
+           return
 
     # ok, now we're here, we've clearly not yet voted for a Superblock at this
-    # particular EBH... so vote time!
+    # particular EBH... so it's vote time!
     #
     # first we must create a SB deterministically
     #
