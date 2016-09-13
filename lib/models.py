@@ -427,7 +427,7 @@ class Superblock(BaseModel, GovernanceClass):
     def is_voted_funding(self, ebh):
         funding = Signal.get( Signal.name == 'funding' )
         yes     = Outcome.get( Outcome.name == 'yes' )
-        return (self.select()
+        count = (self.select()
                     .where(self.event_block_height == ebh)
                     .join(GovernanceObject)
                     .join(Vote)
@@ -436,6 +436,8 @@ class Superblock(BaseModel, GovernanceClass):
                     .join(Outcome)
                     .where(Vote.signal == funding & Vote.outcome == yes)
                     .count())
+
+        return count
 
 # ok, this is an awkward way to implement these...
 # "hook" into the Superblock model and run this code just before any save()

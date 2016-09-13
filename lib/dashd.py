@@ -97,6 +97,8 @@ class DashDaemon():
     def next_superblock_height(self):
         return self.last_superblock_height() + self.superblockcycle()
 
+    def is_masternode(self):
+        return not (self.get_current_masternode_vin() == None)
 
 class DashConfig():
 

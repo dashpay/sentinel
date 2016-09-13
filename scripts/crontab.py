@@ -72,6 +72,11 @@ def attempt_superblock_creation(dashd):
     print "IN attempt_superblock_creation"
     import dashlib
 
+    # extra check @ top, can be commented for testing
+    if not dashd.is_masternode():
+        print "We are not a Masternode... can't submit superblocks!"
+        return
+
     event_block_height = dashd.next_superblock_height()
     current_height = dashd.rpc_command('getblockcount')
 
@@ -81,9 +86,13 @@ def attempt_superblock_creation(dashd):
     #
     # has this masternode voted on *any* superblocks at the given event_block_height?
     # have we voted FUNDING=YES for a superblock for this specific event_block_height?
+
     if Superblock.is_voted_funding(event_block_height):
-           print "ALREADY VOTED! 'til next time!"
-           return
+       print "ALREADY VOTED! 'til next time!"
+       return
+    else:
+       print "not yet voted! will continue."
+
 
     # ok, now we're here, we've clearly not yet voted for a Superblock at this
     # particular EBH... so it's vote time!
@@ -102,6 +111,7 @@ def attempt_superblock_creation(dashd):
 
     maturity_phase_start_block = event_block_height - maturity_phase_delta
     print "current_height = %d" % current_height
+    print "event_block_height = %d" % event_block_height
     print "maturity_phase_delta = %d" % maturity_phase_delta
     print "maturity_phase_start_block = %d" % maturity_phase_start_block
 
@@ -124,6 +134,12 @@ def attempt_superblock_creation(dashd):
 
     print "sb hash: %s" % sb.hex_hash()
 
+    # vote here if found on network...
+    if misc.is_hash(sb.governance_object.object_hash):
+        sb.vote(dashd, 'funding', 'yes')
+        print "VOTED FUNDING FOR SB! We're done here 'til next month."
+        return
+
     # find the elected MN vin for superblock creation...
     current_block_hash = dashlib.current_block_hash(dashd)
     mn_list = dashd.get_masternodes()
@@ -140,15 +156,10 @@ def attempt_superblock_creation(dashd):
 
     # if we are the elected masternode...
     if ( winner == my_vin ):
-        # queue superblock submission
-        print "we are the winner! Submit SB directly to network"
-        # sb.save()
-        sb.submit(dashd)
-
-    # TODO: what vote signal should be sent for superblocks, valid, funding, something else?
-    # print "voting on sb..."
-    # if (sb.id):
-    # sb.vote(dashd, 'funding', 'yes')
+        print "we are the winner! Submit SB to network"
+        # if we already submitted it, DO NOT submit it again
+        if not misc.is_hash(sb.governance_object.object_hash):
+            sb.submit(dashd)
 
     print "LEAVING attempt_superblock_creation"
 
@@ -176,7 +187,6 @@ def auto_vote_objects(dashd):
         for invalid in gov_class.invalid():
             print "found invalid %s!" % gov_class.__name__
             pprint(invalid.get_dict())
-            #pdb.set_trace()
             if not invalid.voted_on():
                 go = invalid.governance_object
                 print "voting invalid id: %s, type: %s" % (invalid.id, go.object_type)
@@ -203,6 +213,15 @@ def delete_orphaned_records():
     for go in GovernanceObject.orphans():
         go.delete_instance()
 
+def fake_upvote_proposals(dashd):
+    import dashlib
+    max_budget = dashlib.next_superblock_max_budget(dashd)
+    for prop in Proposal.valid(max_budget):
+        go = prop.governance_object
+        go.yes_count += 1000
+        go.absolute_yes_count += 1000
+        go.save()
+
 if __name__ == '__main__':
     dashd = DashDaemon.from_dash_conf(config.dash_conf)
 
@@ -222,15 +241,20 @@ if __name__ == '__main__':
     # ========================================================================
     #
     # load "gobject list" rpc command data & create new objects in local MySQL DB
-    # perform_dashd_object_sync(dashd)
+    perform_dashd_object_sync(dashd)
 
     # due to non-optimal DB design, it's currently possible to have orphan'ed govobj records:
     delete_orphaned_records()
 
-    # create superblock & submit if elected & valid
-    attempt_superblock_creation(dashd)
+    # TODO: fake upvote some proposals here...
+    fake_upvote_proposals(dashd)
+
+    # auto vote network objects as valid/invalid
     auto_vote_objects(dashd)
 
+    # create a Superblock if necessary
+    attempt_superblock_creation(dashd)
+
     # prepare/submit pending events
-    # prepare_events(dashd)
+    prepare_events(dashd) # masternodes won't be able to do this...
     submit_events(dashd)

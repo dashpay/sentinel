@@ -107,6 +107,7 @@ CREATE TABLE `outcomes` (
     UNIQUE KEY `index_outcomes_name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+-- would rather use govobj hash here... since votes must be done on hash anyway...
 CREATE TABLE `votes` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `governance_object_id` int(10) unsigned NOT NULL,
@@ -152,6 +153,8 @@ select p.name
      , go.no_count
      , go.abstain_count
      , go.absolute_yes_count
+     , go.id as `governance_object_id`
+     , p.id as `proposal_id`
   from proposals p
   join governance_objects go on go.id = p.governance_object_id
 ;
@@ -168,6 +171,8 @@ select sb.name
      , go.no_count
      , go.abstain_count
      , go.absolute_yes_count
+     , go.id as `governance_object_id`
+     , sb.id as `superblock_id`
   from superblocks sb
   join governance_objects go on go.id = sb.governance_object_id
 ;
