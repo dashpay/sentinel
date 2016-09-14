@@ -6,6 +6,7 @@ sys.path.append( os.path.join( os.path.dirname(__file__), '..', 'lib' ) )
 import models
 from bitcoinrpc.authproxy import JSONRPCException
 import misc
+import re
 
 # mixin for GovObj composed classes like proposal and superblock, etc.
 class GovernanceClass(object):
@@ -91,7 +92,20 @@ class GovernanceClass(object):
         if err_msg:
             print "err_msg = [%s]" % err_msg
 
+
+        voted = False
+
         if result == 'success':
+            voted = True
+
+        # in case we spin up a new instance or server, but have already voted
+        # on the network and network has recorded those votes
+        m = re.match(r'^time between votes is too soon', err_msg)
+        if result == 'failed' and m:
+            print "DEBUG: failed, but marking as voted..."
+            voted = True
+
+        if voted:
             # TODO: ensure signal, outcome exist in lookup table or raise exception
             v = models.Vote(governance_object=self.governance_object,
                             signal=models.Signal.get(models.Signal.name == signal),
