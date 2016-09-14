@@ -252,7 +252,7 @@ if __name__ == '__main__':
     delete_orphaned_records()
 
     # TODO: fake upvote some proposals here...
-    fake_upvote_proposals(dashd)
+    #fake_upvote_proposals(dashd)
 
     # auto vote network objects as valid/invalid
     auto_vote_objects(dashd)
