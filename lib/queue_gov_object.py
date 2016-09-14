@@ -62,11 +62,7 @@ class GovernanceClass(object):
         return cmd
 
     def voted_on(self):
-        if self.select().join(models.GovernanceObject).join(models.Vote).count():
-            return True
-
-        return False
-        # return t/f
+        return self.governance_object.votes.count()
 
     # TODO: ensure an object-hash exists before trying to vote
     def vote(self, dashd, signal, outcome):
