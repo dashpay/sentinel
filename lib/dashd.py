@@ -100,6 +100,15 @@ class DashDaemon():
     def is_masternode(self):
         return not (self.get_current_masternode_vin() == None)
 
+    def is_synced(self):
+        mnsync_status = self.rpc_command('mnsync', 'status')
+        synced = (mnsync_status['IsBlockchainSynced']
+                    and mnsync_status['IsMasternodeListSynced']
+                    and mnsync_status['IsWinnersListSynced']
+                    and mnsync_status['IsSynced']
+                    and not(mnsync_status['IsFailed']))
+        return synced
+
 class DashConfig():
 
     @classmethod

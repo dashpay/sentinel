@@ -236,6 +236,11 @@ if __name__ == '__main__':
         print "Cannot connect to database. Please ensure MySQL database service is running and the JSONRPC port is open to Sentinel."
         sys.exit(2)
 
+    # check dashd sync
+    if not dashd.is_synced():
+        print "dashd not synced with network! Awaiting full sync before running Sentinel."
+        sys.exit(2)
+
     # ========================================================================
     # general flow:
     # ========================================================================
