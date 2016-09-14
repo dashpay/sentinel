@@ -6,7 +6,7 @@ An all-powerful toolset for Dash
 
 Requires Python 2.7 and a running MySQL database server
 
-Make sure dashd is running at least v12.1, with a correctly configured masternode.conf. The masternode names in masternode.conf should match the masternodes listed config.py's "masternodes"
+Make sure dashd is running at least v12.1.
 
 Install Python dependencies via:
 
@@ -28,4 +28,3 @@ The py.test framework is used for testing. Please ensure the test database confi
 Individual test files can be specified:
 
     py.test test/test_governance_methods.py
-
