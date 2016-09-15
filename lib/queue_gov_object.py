@@ -102,13 +102,6 @@ class GovernanceClass(object):
         return { self.name: dikt }
 
 
-    def get_prepare_command(self):
-        go = self.governance_object
-        cmd = [ 'gobject', 'prepare', go.object_parent_hash,
-                str(go.object_revision), str(go.object_creation_time),
-                go.object_name, go.object_data ]
-        return cmd
-
     def get_submit_command(self):
         go = self.governance_object
         cmd = [ 'gobject', 'submit', go.object_parent_hash,
@@ -116,34 +109,7 @@ class GovernanceClass(object):
                 go.object_name, go.object_data, go.object_fee_tx ]
         return cmd
 
-    def prepare(self, dashd):
-        go = self.governance_object
-
-        print "# PREPARING EVENTS FOR DASH NETWORK"
-        print
-        print " -- cmd : [%s]" % ' '.join(self.get_prepare_command())
-        print
-
-        collateral_tx = dashd.rpc_command(*self.get_prepare_command())
-        print " -- executing prepare ... getting collateral_tx hash"
-        print " -- got hash: [%s]" % collateral_tx
-
-        go.object_fee_tx = collateral_tx
-        go.save()
-
     # boolean -- does the object meet collateral confirmations?
-    def has_collateral_confirmations(self, dashd):
-        go = self.governance_object
-        tx = dashd.rpc_command('gettransaction', go.object_fee_tx)
-        num_bc_confirmations = tx['bcconfirmations']
-
-        # from dash/src/governance.hL43 -- GOVERNANCE_FEE_CONFIRMATIONS
-        CONFIRMATIONS_REQUIRED = 6
-        print " -- confirmations: [%d]" % num_bc_confirmations
-        print " -- CONFIRMATIONS_REQUIRED: [%d]" % CONFIRMATIONS_REQUIRED
-
-        return num_bc_confirmations >= CONFIRMATIONS_REQUIRED
-
     def submit(self, dashd):
         go = self.governance_object
 
@@ -154,15 +120,8 @@ class GovernanceClass(object):
             print "Not a masternode. Only masternodes may submit superblocks."
             return
 
-        print "# SUBMIT PREPARED EVENTS FOR DASH NETWORK"
-        print
         print " -- submit cmd : ", ' '.join(self.get_submit_command())
         print
-
-        if not self.has_collateral_confirmations(dashd):
-            print " -- waiting for confirmations"
-            return
-
         print " -- executing submit ... getting object hash"
         object_hash = dashd.rpc_command(*self.get_submit_command())
         print " -- got hash: [%s]" % object_hash

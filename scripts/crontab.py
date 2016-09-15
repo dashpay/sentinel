@@ -169,7 +169,6 @@ def is_dashd_port_open(dashd):
         port_open = True
     except socket.error as e:
         print "%s" % e
-        # sys.exit(2)
 
     return port_open
 
