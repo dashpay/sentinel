@@ -374,12 +374,20 @@ class Signal(BaseModel):
     class Meta:
         db_table = 'signals'
 
+# convenience accessors
+VoteSignals = misc.Bunch(**{ sig.name: sig for sig in Signal.select() })
+# print "VoteSignals.funding = %s" % VoteSignals.funding
+
 class Outcome(BaseModel):
     name = CharField(unique=True)
     created_at = DateTimeField(default=datetime.datetime.utcnow())
     updated_at = DateTimeField(default=datetime.datetime.utcnow())
     class Meta:
         db_table = 'outcomes'
+
+# convenience accessors
+VoteOutcomes = misc.Bunch(**{ out.name: out for out in Outcome.select() })
+# print "VoteOutcomes.abstain = %s" % VoteOutcomes.abstain
 
 class Vote(BaseModel):
     governance_object = ForeignKeyField(GovernanceObject, related_name = 'votes')
