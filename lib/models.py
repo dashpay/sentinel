@@ -187,11 +187,6 @@ class GovernanceObject(BaseModel):
         # ATM, returns a tuple w/govobj and the subobject
         return (govobj, subobj)
 
-    # return an array of invalid GO's
-    # @classmethod
-    # def invalid(self):
-    #     return [go for go in self.select() if not go.is_valid()]
-
 class Event(BaseModel):
     governance_object = ForeignKeyField(GovernanceObject, related_name = 'events')
     start_time = IntegerField(default=int(time.time()))
