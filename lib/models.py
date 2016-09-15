@@ -308,13 +308,8 @@ class Superblock(BaseModel, GovernanceClass):
         return True
 
     def is_valid(self, dashd):
-        # current version of sentinel is not generating this info
-        #
-        # vout != generated vout
-        # blockheight != generated blockheight
-
         # ensure EBH is on-cycle
-        if (self.event_block_height == dashd.next_superblock_height()):
+        if (self.event_block_height != dashd.next_superblock_height()):
             return False
 
         return True
