@@ -187,8 +187,7 @@ class Setting(BaseModel):
     class Meta:
         db_table = 'settings'
 
-class Proposal(BaseModel, GovernanceClass):
-    import dashlib
+class Proposal(GovernanceClass, BaseModel):
     governance_object = ForeignKeyField(GovernanceObject, related_name = 'proposals')
     name = CharField(max_length=20)
     url = CharField(default='')

@@ -22,9 +22,50 @@ class GovernanceClass(object):
             govobj.save()
             self.save()
 
-    @classmethod
-    def create(self, *args, **kwargs):
-        self.super(self, self).create(*args, **kwargs)
+    # @classmethod
+    # def create(self, *args, **kwargs):
+    #     # pdb.set_trace()
+    #
+    #     print "hi!!!! HEERRR"
+    #     # TODO: Loop thru the kwargs & find a governance_object.
+    #     # if one doesn't exist, create a default one with correct name, type.
+    #     # then loop thru the KWARGS looking at govobj-specific keywords and set those in the new govobj first.
+    #     # kwargs
+    #
+    #     # for k, v in kwargs.iteritems():
+    #     #     print "kwargs[%s] = %s" % (k, v)
+    #
+    #     goid = None
+    #
+    #
+    #     # if an un-saved governance_object is passed in, then
+    #     try:
+    #         go = kwargs['governance_object']
+    #         if not go.id:
+    #             go.save()
+    #         goid = go.id
+    #     except KeyError as e:
+    #         pass
+    #
+    #     goid = kwargs.get('governance_object_id', None)
+    #
+    #     try:
+    #         goid = goid or kwargs['governance_object_id']
+    #     except KeyError as e:
+    #         pass
+    #
+    #     if not goid:
+    #         try:
+    #             go = models.GovernanceObject(object_name=kwargs['name'], object_type=self.govobj_type)
+    #             go.save()
+    #             kwargs['governance_object_id'] = go.id
+    #         except Exception as e:
+    #             print "error: %s" % e
+    #             pass
+    #
+    #     # pdb.set_trace()
+    #     super(GovernanceClass, self).create(*args, **kwargs)
+    #     print "hi!!!! LEEEEEVVVINGGG!!!!"
 
     # TODO: ensure an object-hash exists before trying to vote
     @classmethod
