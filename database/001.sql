@@ -13,7 +13,6 @@ DROP TABLE if exists `outcomes` ;
 
 DROP TABLE if exists `proposals` ;
 DROP TABLE if exists `superblocks` ;
-DROP TABLE if exists `events` ;
 DROP TABLE if exists `settings` ;
 DROP TABLE if exists `governance_objects` ;
 
@@ -61,18 +60,6 @@ CREATE TABLE `superblocks` (
   CONSTRAINT `fk_superblocks_governance_object_id` FOREIGN KEY (`governance_object_id`) REFERENCES governance_objects(`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   UNIQUE KEY `index_superblocks_governance_object_id` (`governance_object_id`),
   UNIQUE KEY `index_superblocks_sb_hash` (`sb_hash`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE `events` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `governance_object_id` int(10) unsigned NOT NULL,
-  `start_time` int(10) unsigned NOT NULL DEFAULT '0',
-  `prepare_time` int(10) unsigned NOT NULL DEFAULT '0',
-  `submit_time` int(10) unsigned NOT NULL DEFAULT '0',
-  `error_time` int(10) unsigned NOT NULL DEFAULT '0',
-  `error_message` text NOT NULL,
-  PRIMARY KEY (`id`),
-  CONSTRAINT `fk_events_governance_object_id` FOREIGN KEY (`governance_object_id`) REFERENCES governance_objects(`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `settings` (

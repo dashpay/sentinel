@@ -17,7 +17,7 @@ import random
 import json
 
 import peewee
-from models import Event, Superblock, Proposal, GovernanceObject
+from models import Proposal, GovernanceObject
 import dashlib
 
 from datetime import datetime, date, time
@@ -54,13 +54,6 @@ commands["proposal"] = [
     "--end_date"
 ]
 
-# superblock --create [...]
-commands["superblock"] = [
-    "--create",
-    "--date",
-    "--payments"
-]
-
 # ---------------------------------------------------------------------
 
 """
@@ -84,9 +77,6 @@ class SentinelShell(cmd.Cmd):
 
         # desired action
         parser.add_argument('-c', '--create', help="create", action='store_true')
-
-        # object identity (existentially... what does it mean to be a pubkey?)
-        parser.add_argument('-k', '--pubkey', help='your public key for this username (only required for --create)')
 
         # meta data (create or amend)
         parser.add_argument('-p', '--name', help='the proposal name (must be unique)')
@@ -169,12 +159,6 @@ class SentinelShell(cmd.Cmd):
             payment_address = args.payment_address
             payment_amount = args.payment_amount
 
-            # TODO: remove check here (and redundancy), check elsewhere
-            ### ---- CHECK NAME UNIQUENESS -----
-            if GovernanceObject.object_with_name_exists(object_name):
-                print "governance object with that name already exists"
-                return
-
             proposal = Proposal(
                 name = object_name,
                 url = url,
@@ -186,7 +170,7 @@ class SentinelShell(cmd.Cmd):
 
             try:
                 proposal.create_and_queue()
-                print "event queued successfully"
+                print "FIXME!! There is no 'queue', so print a message with instructions."
             except peewee.PeeweeException as e:
                 # will auto-rollback as a result of atomic()...
                 print "error: %s" % e[1]
@@ -200,105 +184,9 @@ class SentinelShell(cmd.Cmd):
         ### ------ CREATE METHOD -------- ####
 
 
-
     """
-        Superblock
-    """
-    def do_superblock(self, arg):
-        'superblock --create --event_block_height="28224" --payments="yLipDagwb1gM15RaUq3hpcaTxzDsFsSy9a=100"'
-        'superblock --create --event_date="2017-01-01" --payments="Addr1=amount,Addr2=amount,Addr3=amount"'
-
-        parser = argparse.ArgumentParser(description='Create a dash proposal')
-
-        # desired action
-        parser.add_argument('-c', '--create', help="create", action='store_true')
-
-        # meta data (create or amend)
-        parser.add_argument('-p', '--payments', help='the payments desired in the superblock, serialized as a list. example: {"Addr1": amount,"Addr2": amount}')
-        parser.add_argument('-b', '--event_block_height', help='block height to issue superblock')
-
-        # process
-
-        args = None
-        try:
-            args = parser.parse_args(parse(arg))
-        except:
-            pass
-
-        if not args:
-            return
-
-        ### ------ CREATE METHOD -------- ####
-
-        if args.create:
-            #--create --revision=1 --pubkey=XPubkey --username="user-cid"
-            if not args.payments:
-                print "superblock creation requires a payment descriptions, use --payments"
-                return
-
-            if not args.event_block_height:
-                print "superblock creation requires a event_block_height, use --event_block_height"
-                return
-
-            ### ---- CONVERT AND CHECK EPOCHS -----
-
-            payments = misc.normalize(args.payments).split(",")
-            if len(payments) > 0:
-                pass
-
-            # COMPILE LIST OF ADDRESSES AND AMOUNTS
-
-            list_addr = []
-            list_amount = []
-            for payment in payments:
-                print payment
-                addr,amount = payment.split("=")
-                list_addr.append(addr)
-                list_amount.append(amount)
-
-            # NGM/TODO: use event block height
-            superblock_name = "sb" + str(random.randint(1000000, 9999999))
-
-            # NGM: might be easier to perform sanitization further up and
-            # separate from the actual logic...
-            event_block_height = misc.normalize(args.event_block_height)
-            object_name  = superblock_name
-
-            # DOES THIS ALREADY EXIST?
-            if GovernanceObject.object_with_name_exists(object_name):
-                print "governance object with that name already exists"
-                return
-
-            superblock = Superblock(
-                name = object_name,
-                event_block_height = event_block_height,
-                payment_addresses = ("|".join(list_addr)),
-                payment_amounts = ("|".join(list_amount))
-            )
-
-            # create_and_queue
-            # atomic write for all 3 objects, alles oder nichts
-            try:
-                superblock.create_and_queue()
-            except PeeweeException as e:
-                # will auto-rollback as a result of atomic()...
-                print "error: %s" % e[1]
-
-            print "event queued successfully"
-
-            return
-
-        ### ------- ELSE PRINT HELP --------------- ###
-
-        parser.print_help()
-
-    """
-
         Vote on a specific proposal
-
     """
-
-
     # ----- (internal) vote on something -----
     def do_vote(self, arg):
         'Command action on the dash network'
@@ -326,23 +214,20 @@ class SentinelShell(cmd.Cmd):
         return
 
     def emptyline(self):
-             pass
+        pass
 
 def parse(arg):
     'Convert a series of zero or more numbers to an argument tuple'
     return tuple(map(str, arg.split()))
-
-
 """
-
     Run the main cli
 """
 
 import sys
 args = sys.argv[1:]
 
+# might just rip this out entirely, as there are no events
 misc.add_sentinel_option("clear_events")
-misc.add_sentinel_option("prepare_events")
 misc.add_sentinel_option("submit_events")
 misc.startup()
 
@@ -366,6 +251,7 @@ if __name__ == '__main__':
     1.)  create an example proposal
         proposal --create --name="beer-reimbursement" --url="https://www.dashwhale.org/p/beer-reimbursement" --start_date="2017-01-01" --end_date="2017-06-01"
 
+        #TODO: change 'type' here to funding
     2.)  vote on the funding proposal
          vote --times=22 --type=funding --outcome=yes [--hash=governance-hash --name=obj-name]
 

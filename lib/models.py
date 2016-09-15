@@ -187,63 +187,6 @@ class GovernanceObject(BaseModel):
         # ATM, returns a tuple w/govobj and the subobject
         return (govobj, subobj)
 
-class Event(BaseModel):
-    governance_object = ForeignKeyField(GovernanceObject, related_name = 'events')
-    start_time = IntegerField(default=int(time.time()))
-    prepare_time = IntegerField(default=0)
-    submit_time = IntegerField(default=0)
-    error_time = IntegerField(default=0)
-    error_message = TextField(default='')
-
-    class Meta:
-        db_table = 'events'
-
-    @classmethod
-    def new(self):
-        return self.select().where(
-            (self.start_time <= misc.get_epoch() ) &
-            (self.error_time == 0) &
-            (self.prepare_time == 0)
-        )
-
-    @classmethod
-    def prepared(self):
-        now = misc.get_epoch()
-        return self.select().where(
-            (self.start_time <= now ) &
-            (self.prepare_time <= now ) &
-            (self.prepare_time > 0 ) &
-            (self.submit_time == 0)
-        )
-
-    @classmethod
-    def submitted(self):
-        now = misc.get_epoch()
-        return self.select().where(self.submit_time > 0)
-
-    # TODO: test for this scope
-    @classmethod
-    def complete(self):
-        return self.submitted().where(self.error_time == 0)
-
-    # TODO: test for this scope
-    @classmethod
-    def errored(self):
-        return self.select().where(self.error_time != 0)
-
-    # TODO: test for this scope
-    # Events are transient... need to be rolled off eventually
-    @classmethod
-    def is_deletable(self):
-        now = misc.get_epoch()
-
-        success_persist_time = (86400 * 15) # 15 days for successful
-        error_persist_time   = (86400 * 30) # 30 days for unsuccessful
-
-        successes = self.complete().where(self.submit_time + success_persist_time < now)
-        errors    = self.errored().where(self.error_time + error_persist_time < now)
-
-        return (successes | errors)
 
 class Setting(BaseModel):
     name     = CharField(default='')
@@ -361,14 +304,6 @@ class Superblock(BaseModel, GovernanceClass):
 
     class Meta:
         db_table = 'superblocks'
-
-    # prepare is just a 'passthru' for superblocks -- just set the prepared time &
-    # move on
-    def prepare(self, dashd):
-        go = self.governance_object
-        e = go.events[0]
-        e.prepare_time = misc.get_epoch()
-        e.save()
 
     # superblocks don't have a collateral tx to submit
     def get_submit_command(self):

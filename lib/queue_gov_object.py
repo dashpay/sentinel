@@ -10,32 +10,6 @@ import re
 
 # mixin for GovObj composed classes like proposal and superblock, etc.
 class GovernanceClass(object):
-    def create_and_queue(self):
-        # ensure unique name in govobj table...
-        # ( we really need to get this redundancy out of this DB schema )
-        #
-        # requirements: mix'ed in object must have 'name' and 'govobj_type'
-        # properties
-
-        govobj = models.GovernanceObject(
-            object_name = self.name,
-            object_type = self.govobj_type,
-        )
-        self.governance_object = govobj
-
-        # CREATE EVENT TO TALK TO DASHD / PREPARE / SUBMIT OBJECT
-        event = models.Event(governance_object = govobj)
-
-        # do not try/catch here, let it bubble thru...
-
-        # atomic write for all 3 objects, alles oder nichts
-        with models.Event._meta.database.atomic():
-            govobj.save()
-            event.save()
-            self.save()
-
-        return
-
     def create_with_govobj(self):
         govobj = models.GovernanceObject(
             object_name = self.name,
@@ -44,7 +18,7 @@ class GovernanceClass(object):
         self.governance_object = govobj
 
         # atomic write for both objects, 1:1 relationship
-        with models.Event._meta.database.atomic():
+        with models.BaseModel._meta.database.atomic():
             govobj.save()
             self.save()
 
@@ -144,34 +118,18 @@ class GovernanceClass(object):
 
     def prepare(self, dashd):
         go = self.governance_object
-        try:
-            event = go.events[0]
-        except IndexError as e:
-            event = self.EventDummy()
 
         print "# PREPARING EVENTS FOR DASH NETWORK"
         print
         print " -- cmd : [%s]" % ' '.join(self.get_prepare_command())
         print
 
-        try:
-            collateral_tx = dashd.rpc_command(*self.get_prepare_command())
-            print " -- executing prepare ... getting collateral_tx hash"
-            print " -- got hash: [%s]" % collateral_tx
+        collateral_tx = dashd.rpc_command(*self.get_prepare_command())
+        print " -- executing prepare ... getting collateral_tx hash"
+        print " -- got hash: [%s]" % collateral_tx
 
-            go.object_fee_tx = collateral_tx
-            event.prepare_time = misc.get_epoch()
-
-            with go._meta.database.atomic():
-                go.save()
-                event.save()
-
-        except JSONRPCException as e:
-            event.error_time = misc.get_epoch()
-            event.error_message = e.message
-            event.save()
-            #re-raise after capturing error message
-            raise e
+        go.object_fee_tx = collateral_tx
+        go.save()
 
     # boolean -- does the object meet collateral confirmations?
     def has_collateral_confirmations(self, dashd):
@@ -188,10 +146,6 @@ class GovernanceClass(object):
 
     def submit(self, dashd):
         go = self.governance_object
-        try:
-            event = go.events[0]
-        except IndexError as e:
-            event = self.EventDummy()
 
         # don't attempt to submit a superblock unless a masternode
         # note: will probably re-factor this, this has code smell
@@ -209,25 +163,12 @@ class GovernanceClass(object):
             print " -- waiting for confirmations"
             return
 
-        try:
-            print " -- executing submit ... getting object hash"
-            object_hash = dashd.rpc_command(*self.get_submit_command())
-            print " -- got hash: [%s]" % object_hash
+        print " -- executing submit ... getting object hash"
+        object_hash = dashd.rpc_command(*self.get_submit_command())
+        print " -- got hash: [%s]" % object_hash
 
-            go.object_hash = object_hash
-            event.submit_time = misc.get_epoch()
-
-            # save all
-            with go._meta.database.atomic():
-                go.save()
-                event.save()
-
-        except JSONRPCException as e:
-            event.error_time = misc.get_epoch()
-            event.error_message = e.message
-            event.save()
-            #re-raise after capturing error message
-            raise e
+        go.object_hash = object_hash
+        go.save()
 
     def serialise(self):
         import inflection
@@ -239,32 +180,3 @@ class GovernanceClass(object):
         obj_type = inflection.singularize(name)
 
         return binascii.hexlify(simplejson.dumps( (obj_type, self.get_dict()) , sort_keys = True))
-
-    # null object pattern
-    class EventDummy(object):
-        def save(self):
-            pass
-
-        @property
-        def prepare_time(self):
-            pass
-
-        @prepare_time.setter
-        def prepare_time(self, value):
-            pass
-
-        @property
-        def error_time(self):
-            pass
-
-        @error_time.setter
-        def error_time(self, value):
-            pass
-
-        @property
-        def error_message(self):
-            pass
-
-        @error_message.setter
-        def error_message(self, value):
-            pass

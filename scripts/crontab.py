@@ -14,7 +14,7 @@ import config
 import misc
 from dashd import DashDaemon
 from dashd import DashConfig
-from models import Event, Superblock, Proposal, GovernanceObject
+from models import Superblock, Proposal, GovernanceObject
 from bitcoinrpc.authproxy import AuthServiceProxy, JSONRPCException
 import socket
 
@@ -26,43 +26,7 @@ import socket
  - perform_dashd_object_sync
  - attempt_superblock_creation
  - auto_vote_objects
- - prepare_events
- - submit_events
 """
-
-"""
-prepare queued local events for submission to the Dash network (includes
-paying collateral TX fee)
-
-This process creates the collateral/burned transaction which allows the
-governance object to propagate
-"""
-def prepare_events(dashd):
-    for event in Event.new():
-        govobj = event.governance_object
-        gov_class_object = govobj.subobject
-
-        try:
-            gov_class_object.prepare(dashd)
-        except JSONRPCException as e:
-            print "error: %s" % e.message
-
-"""
-submit prepared local events to the Dash network
-
-Upon maturation of the collateral tranasction, the system will submit an rpc command,
-propagating the object thoughout the network
-"""
-def submit_events(dashd):
-
-    for event in Event.prepared():
-        govobj = event.governance_object
-        gov_class_object = govobj.subobject
-
-        try:
-            gov_class_object.submit(dashd)
-        except JSONRPCException as e:
-            print "error: %s" % e.message
 
 # sync dashd gobject list with our local relational DB backend
 def perform_dashd_object_sync(dashd):
@@ -259,7 +223,3 @@ if __name__ == '__main__':
 
     # create a Superblock if necessary
     attempt_superblock_creation(dashd)
-
-    # prepare/submit pending events
-    prepare_events(dashd) # masternodes won't be able to do this...
-    submit_events(dashd)
