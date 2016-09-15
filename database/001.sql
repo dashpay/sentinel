@@ -16,7 +16,6 @@ DROP TABLE if exists `superblocks` ;
 DROP TABLE if exists `settings` ;
 DROP TABLE if exists `governance_objects` ;
 
-
 CREATE TABLE `governance_objects` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `parent_id` int(10) unsigned NOT NULL DEFAULT '0',
@@ -31,7 +30,8 @@ CREATE TABLE `governance_objects` (
   `no_count` smallint(5) unsigned NOT NULL DEFAULT 0,
   `abstain_count` smallint(5) unsigned NOT NULL DEFAULT 0,
   `absolute_yes_count` smallint(6) NOT NULL DEFAULT 0,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `index_governance_objects_object_hash` (`object_hash`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `proposals` (
@@ -45,7 +45,7 @@ CREATE TABLE `proposals` (
   `payment_amount` decimal(16,8) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`),
   CONSTRAINT `fk_proposals_governance_object_id` FOREIGN KEY (`governance_object_id`) REFERENCES governance_objects(`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  UNIQUE KEY `index_proposals_governance_object_id` (`governance_object_id`),
+  UNIQUE KEY `index_proposals_governance_object_id` (`governance_object_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `superblocks` (
@@ -58,8 +58,7 @@ CREATE TABLE `superblocks` (
   `sb_hash` char(64) not null default '',
   PRIMARY KEY (`id`),
   CONSTRAINT `fk_superblocks_governance_object_id` FOREIGN KEY (`governance_object_id`) REFERENCES governance_objects(`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  UNIQUE KEY `index_superblocks_governance_object_id` (`governance_object_id`),
-  UNIQUE KEY `index_superblocks_sb_hash` (`sb_hash`)
+  UNIQUE KEY `index_superblocks_governance_object_id` (`governance_object_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `settings` (
