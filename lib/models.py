@@ -319,10 +319,6 @@ class Superblock(BaseModel, GovernanceClass):
         # TBD (item moved to external storage/DashDrive, etc.)
         pass
 
-    @classmethod
-    def valid(self, dashd):
-        return [sb for sb in self.select() if sb.is_valid(dashd)]
-
     def hash(self):
         import dashlib
         return dashlib.hashit(self.serialise())
@@ -350,8 +346,11 @@ class Superblock(BaseModel, GovernanceClass):
                     .join(Outcome)
                     .where(Vote.signal == funding & Vote.outcome == yes)
                     .count())
-
         return count
+
+    @classmethod
+    def latest(self):
+        return self.select().order_by(self.event_block_height).desc().limit(1)[0]
 
 # ok, this is an awkward way to implement these...
 # "hook" into the Superblock model and run this code just before any save()
