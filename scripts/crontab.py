@@ -15,6 +15,7 @@ import misc
 from dashd import DashDaemon
 from dashd import DashConfig
 from models import Superblock, Proposal, GovernanceObject
+from models import VoteSignals, VoteOutcomes
 from bitcoinrpc.authproxy import AuthServiceProxy, JSONRPCException
 import socket
 
@@ -127,38 +128,55 @@ def attempt_superblock_creation(dashd):
 
     print "LEAVING attempt_superblock_creation"
 
+
+# TODO: rename this method to something more straightforward and
+# "valid"/"validity" or sth...
 def auto_vote_objects(dashd):
     import dashlib
     print "IN auto_vote_objects"
 
-    for sb in Superblock.valid(dashd):
-        if not sb.voted_on():
-            print "voting! SB: %d" % sb.id
-            sb.vote(dashd, 'valid', 'yes')
-        else:
-            print "1. Already voted!"
-
-    max_budget = dashlib.next_superblock_max_budget(dashd)
-    for prop in Proposal.valid(max_budget):
-        if not prop.voted_on():
-            print "voting! prop: %d" % prop.id
-            prop.vote(dashd, 'valid', 'yes')
-        else:
-            print "2. Already voted!"
-
-    # vote invalid objects
-    for gov_class in [Proposal]: #, Superblock]:
-        for invalid in gov_class.invalid():
-            print "found invalid %s!" % gov_class.__name__
-            pprint(invalid.get_dict())
-            if not invalid.voted_on():
-                go = invalid.governance_object
-                print "voting invalid id: %s, type: %s" % (invalid.id, go.object_type)
-                invalid.vote(dashd, 'valid', 'no')
+    # TODO: this can be more elegant... e.g. do_validity_vote()
+    # would like to remove all the confusing if/else's here & below.
+    for sb in Superblock.select():
+        if not sb.voted_on(signal=VoteSignals.valid):
+            if sb.is_valid(dashd):
+                print "Voting valid! SB: %d" % sb.id
+                sb.vote(dashd, 'valid', 'yes')
             else:
-                print "3. Already voted!"
+                print "Voting INVALID! SB: %d" % prop.id
+                prop.vote(dashd, 'valid', 'no')
+        else:
+            print "1. Already voted Superblock as (In)Valid!"
 
+    # max_budget = dashlib.next_superblock_max_budget()
+    for prop in Proposal.select():
+        if not prop.voted_on(signal=VoteSignals.valid):
+            if prop.is_valid(dashd)):
+                print "Voting valid! Prop: %d" % prop.id
+                prop.vote(dashd, 'valid', 'yes')
+            else:
+                print "Voting INVALID! Prop: %d" % prop.id
+                prop.vote(dashd, 'valid', 'no')
+        else:
+            print "2. Already voted Proposal as (In)Valid!"
+
+    # this is taken care of above, but using the meta as a template for further
+    # consolidation, the gov_class stuff
+    #
+    #
+    # # vote invalid objects
+    # # for gov_class in [Proposal, Superblock]:
+    # #     for invalid in gov_class.invalid():
+    # #         print "found invalid %s!" % gov_class.__name__
+    # #         pprint(invalid.get_dict())
+    # #         if not invalid.voted_on():
+    # #             go = invalid.governance_object
+    # #             print "voting invalid id: %s, type: %s" % (invalid.id, go.object_type)
+    # #             invalid.vote(dashd, 'valid', 'no')
+    # #         else:
+    # #             print "3. Already voted!"
     print "LEAVING auto_vote_objects"
+
 
 def is_dashd_port_open(dashd):
     # test socket open before beginning, display instructive message to MN

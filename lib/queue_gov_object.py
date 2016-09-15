@@ -36,8 +36,20 @@ class GovernanceClass(object):
                 signal, outcome ]
         return cmd
 
-    def voted_on(self):
-        return self.governance_object.votes.count()
+    def voted_on(self, **kwargs):
+        signal  = kwargs.get('signal', None)
+        outcome = kwargs.get('outcome', None)
+
+        query = self.governance_object.votes
+
+        if signal:
+            query = query.where(models.Vote.signal == signal)
+
+        if outcome:
+            query = query.where(models.Vote.outcome == outcome)
+
+        count = query.count()
+        return count
 
     # TODO: ensure an object-hash exists before trying to vote
     def vote(self, dashd, signal, outcome):
