@@ -24,7 +24,7 @@ CREATE TABLE `governance_objects` (
   `object_creation_time` int(11) NOT NULL DEFAULT '0',
   `object_hash` varchar(255) NOT NULL DEFAULT '',
   `object_parent_hash` varchar(255) NOT NULL DEFAULT '0',
-  `object_name` varchar(64) NOT NULL DEFAULT '',
+  `object_name` varchar(20) NOT NULL DEFAULT '',
   `object_type` int(20) NOT NULL DEFAULT '0',
   `object_revision` int(20) NOT NULL DEFAULT '1',
   `object_fee_tx` varchar(255) NOT NULL DEFAULT '',
@@ -38,7 +38,7 @@ CREATE TABLE `governance_objects` (
 CREATE TABLE `proposals` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `governance_object_id` int(10) unsigned NOT NULL,
-  `name` varchar(255) NOT NULL,
+  `name` varchar(20) NOT NULL,
   `url` varchar(255) NOT NULL DEFAULT '',
   `start_epoch` int(11) NOT NULL DEFAULT 0,
   `end_epoch` int(11) NOT NULL DEFAULT 0,
@@ -47,13 +47,12 @@ CREATE TABLE `proposals` (
   PRIMARY KEY (`id`),
   CONSTRAINT `fk_proposals_governance_object_id` FOREIGN KEY (`governance_object_id`) REFERENCES governance_objects(`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   UNIQUE KEY `index_proposals_governance_object_id` (`governance_object_id`),
-  UNIQUE KEY `index_proposals_name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `superblocks` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `governance_object_id` int(10) unsigned NOT NULL,
-  `name` varchar(255) NOT NULL DEFAULT '',
+  `name` varchar(20) NOT NULL DEFAULT '',
   `event_block_height` int(10) unsigned NOT NULL,
   `payment_addresses` text,
   `payment_amounts` text,

@@ -63,7 +63,7 @@ class GovernanceObject(BaseModel):
     object_creation_time = IntegerField(default=int(time.time()))
     object_hash = CharField(default='')
     object_parent_hash = CharField(default='0')
-    object_name = CharField(default='')
+    object_name = CharField(default='', max_length=20)
     object_type = IntegerField(default=0)
     object_revision = IntegerField(default=1)
     object_fee_tx = CharField(default='')
@@ -262,7 +262,7 @@ class Setting(BaseModel):
 class Proposal(BaseModel, GovernanceClass):
     import dashlib
     governance_object = ForeignKeyField(GovernanceObject, related_name = 'proposals')
-    name = CharField(unique=True)
+    name = CharField(max_length=20)
     url = CharField(default='')
     start_epoch = IntegerField()
     end_epoch = IntegerField()
@@ -353,7 +353,7 @@ class Proposal(BaseModel, GovernanceClass):
 
 class Superblock(BaseModel, GovernanceClass):
     governance_object = ForeignKeyField(GovernanceObject, related_name = 'superblocks')
-    name      = CharField() # unique?
+    name      = CharField(max_length=20)
     event_block_height   = IntegerField()
     payment_addresses    = TextField()
     payment_amounts      = TextField()
