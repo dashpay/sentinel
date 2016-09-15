@@ -109,6 +109,17 @@ class DashDaemon():
                     and not(mnsync_status['IsFailed']))
         return synced
 
+    def current_block_hash(self):
+        height = self.rpc_command('getblockcount')
+        block_hash = self.rpc_command('getblockhash', height)
+        return block_hash
+
+    def get_superblock_budget_allocation(self, height=None):
+        if height is None:
+            height = self.rpc_command('getblockcount')
+        return Decimal(self.rpc_command('getsuperblockbudget', height))
+
+
 class DashConfig():
 
     @classmethod

@@ -106,7 +106,7 @@ def attempt_superblock_creation(dashd):
         return
 
     # find the elected MN vin for superblock creation...
-    current_block_hash = dashlib.current_block_hash(dashd)
+    current_block_hash = dashd.current_block_hash()
     mn_list = dashd.get_masternodes()
     winner = dashlib.elect_mn(block_hash=current_block_hash, mnlist=mn_list)
     my_vin = dashd.get_current_masternode_vin()

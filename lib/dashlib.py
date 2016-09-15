@@ -50,7 +50,9 @@ def elect_mn(**kwargs):
 
     # filter only enabled MNs
     enabled = [mn for mn in mn_list if mn.status == 'ENABLED']
-    block_hash_hash = hashit( current_block_hash )
+
+    # TODO: need to use an offset, e.g. 10 blocks or something -- discuss w/Evan.
+    block_hash_hash = hashit(current_block_hash)
 
     candidates = []
     for mn in enabled:
@@ -94,7 +96,7 @@ def create_superblock( dashd, proposals, event_block_height ):
         return None
 
     budget_allocated = Decimal(0)
-    budget_max       = dashlib.get_superblock_budget_allocation(dashd, event_block_height)
+    budget_max       = dashd.get_superblock_budget_allocation(event_block_height)
 
     print "  IN create_superblock"
     print "    current height: %d" % dashd.rpc_command('getblockcount')
@@ -154,6 +156,9 @@ def create_superblock( dashd, proposals, event_block_height ):
 
     print "sb hash = %s" % sb.hex_hash()
 
+    """
+    TODO: THIS WILL BREAK NOW, w/DB schema re-factor
+    """
     try:
         dbrec = Superblock.get(Superblock.sb_hash == sb.hex_hash())
         created = False
@@ -167,30 +172,17 @@ def create_superblock( dashd, proposals, event_block_height ):
 
     return dbrec
 
-def current_block_hash(dashd):
-    height = dashd.rpc_command('getblockcount')
-    block_hash = dashd.rpc_command('getblockhash', height)
-    return block_hash
-
-def get_superblock_budget_allocation(dashd, height=None):
-    if height is None:
-        height = dashd.rpc_command('getblockcount')
-    return Decimal( dashd.rpc_command('getsuperblockbudget', height) )
-
 def next_superblock_max_budget(dashd):
     cycle = dashd.superblockcycle()
     current_block_height = dashd.rpc_command('getblockcount')
 
-    last_superblock_height = ( current_block_height / cycle ) * cycle
+    last_superblock_height = (current_block_height / cycle) * cycle
     next_superblock_height = last_superblock_height + cycle
 
-    last_allocation = get_superblock_budget_allocation( dashd, last_superblock_height )
-    next_allocation = get_superblock_budget_allocation( dashd, next_superblock_height )
+    last_allocation = dashd.get_superblock_budget_allocation(last_superblock_height)
+    next_allocation = dashd.get_superblock_budget_allocation(next_superblock_height)
 
-    # not really, but Tyler's algo:
-    next_superblock_max_budget = min( last_allocation, next_allocation )
-    # actual = ...
-    # next_superblock_max_budget = next_allocation
+    next_superblock_max_budget = next_allocation
 
     return next_superblock_max_budget
 
