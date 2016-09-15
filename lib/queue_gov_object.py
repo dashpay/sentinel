@@ -54,6 +54,10 @@ class GovernanceClass(object):
     # TODO: ensure an object-hash exists before trying to vote
     def vote(self, dashd, signal, outcome):
         go = self.governance_object
+
+        # At this point, will probably never reach here. But doesn't hurt to
+        # have an extra check just in case objects get out of sync or ppl start
+        # messing with the DB.
         if ( not go or go.object_hash == '0' or go.object_hash == '' or not misc.is_hash(go.object_hash)):
             print "No governance_object hash, nothing to vote on."
             return
