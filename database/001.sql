@@ -20,12 +20,12 @@ CREATE TABLE `governance_objects` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `parent_id` int(10) unsigned NOT NULL DEFAULT '0',
   `object_creation_time` int(11) NOT NULL DEFAULT '0',
-  `object_hash` varchar(255) NOT NULL DEFAULT '',
-  `object_parent_hash` varchar(255) NOT NULL DEFAULT '0',
+  `object_hash` char(64) NOT NULL,
+  `object_parent_hash` char(64) NOT NULL DEFAULT '0',
   `object_name` varchar(20) NOT NULL DEFAULT '',
   `object_type` int(20) NOT NULL DEFAULT '0',
   `object_revision` int(20) NOT NULL DEFAULT '1',
-  `object_fee_tx` varchar(255) NOT NULL DEFAULT '',
+  `object_fee_tx` char(64) NOT NULL DEFAULT '',
   `yes_count` smallint(5) unsigned NOT NULL DEFAULT 0,
   `no_count` smallint(5) unsigned NOT NULL DEFAULT 0,
   `abstain_count` smallint(5) unsigned NOT NULL DEFAULT 0,
@@ -41,11 +41,14 @@ CREATE TABLE `proposals` (
   `url` varchar(255) NOT NULL DEFAULT '',
   `start_epoch` int(11) NOT NULL DEFAULT 0,
   `end_epoch` int(11) NOT NULL DEFAULT 0,
-  `payment_address` varchar(255) NOT NULL DEFAULT '',
+  `payment_address` varchar(36) NOT NULL DEFAULT '',
   `payment_amount` decimal(16,8) NOT NULL DEFAULT 0,
+  `object_hash` char(64) NOT NULL,
   PRIMARY KEY (`id`),
   CONSTRAINT `fk_proposals_governance_object_id` FOREIGN KEY (`governance_object_id`) REFERENCES governance_objects(`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  UNIQUE KEY `index_proposals_governance_object_id` (`governance_object_id`)
+  CONSTRAINT `fk_proposals_object_hash` FOREIGN KEY(`object_hash`) REFERENCES governance_objects(`object_hash`) ON DELETE CASCADE ON UPDATE CASCADE,
+  UNIQUE KEY `index_proposals_governance_object_id` (`governance_object_id`),
+  UNIQUE KEY `index_proposals_object_hash` (`object_hash`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `superblocks` (
@@ -56,9 +59,12 @@ CREATE TABLE `superblocks` (
   `payment_addresses` text,
   `payment_amounts` text,
   `sb_hash` char(64) not null default '',
+  `object_hash` char(64) NOT NULL,
   PRIMARY KEY (`id`),
   CONSTRAINT `fk_superblocks_governance_object_id` FOREIGN KEY (`governance_object_id`) REFERENCES governance_objects(`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  UNIQUE KEY `index_superblocks_governance_object_id` (`governance_object_id`)
+  CONSTRAINT `fk_superblocks_object_hash` FOREIGN KEY(`object_hash`) REFERENCES governance_objects(`object_hash`) ON DELETE CASCADE ON UPDATE CASCADE,
+  UNIQUE KEY `index_superblocks_governance_object_id` (`governance_object_id`),
+  UNIQUE KEY `index_superblocks_object_hash` (`object_hash`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `settings` (
@@ -101,10 +107,13 @@ CREATE TABLE `votes` (
   `voted_at` DATETIME NOT NULL,
   `created_at` DATETIME NOT NULL,
   `updated_at` DATETIME NOT NULL,
+  `object_hash` char(64) NOT NULL,
   PRIMARY KEY (`id`),
   CONSTRAINT `fk_votes_governance_object_id` FOREIGN KEY (`governance_object_id`) REFERENCES governance_objects(`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_votes_signal_id` FOREIGN KEY (`signal_id`) REFERENCES signals(`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_votes_outcome_id` FOREIGN KEY (`outcome_id`) REFERENCES outcomes(`id`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `fk_votes_outcome_id` FOREIGN KEY (`outcome_id`) REFERENCES outcomes(`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_votes_object_hash` FOREIGN KEY(`object_hash`) REFERENCES governance_objects(`object_hash`) ON DELETE CASCADE ON UPDATE CASCADE,
+  UNIQUE KEY `index_votes_object_hash` (`object_hash`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
