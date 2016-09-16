@@ -28,29 +28,6 @@ db = MySQLDatabase(dbname, **db_cfg)
 
 class BaseModel(playhouse.signals.Model):
 
-    @classmethod
-    def serialisable_fields(self):
-        # Python is so not very elegant...
-        pk_column  = self._meta.primary_key.db_column
-        fk_columns = [ fk.db_column for fk in self._meta.rel.values() ]
-        do_not_use = [ pk_column ]
-        do_not_use.extend(fk_columns)
-        fields_to_serialise = self._meta.columns.keys()
-
-        for field in do_not_use:
-            if field in fields_to_serialise:
-                fields_to_serialise.remove(field)
-
-        return fields_to_serialise
-
-    def get_dict(self):
-        dikt = {}
-
-        for field_name in self.serialisable_fields():
-            dikt[ field_name ] = getattr( self, field_name )
-
-        return dikt
-
     class Meta:
         database = db
 
