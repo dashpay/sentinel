@@ -61,8 +61,12 @@ class GovernanceObject(BaseModel):
 
     @classmethod
     def orphans(self):
-        # TODO: do not hard-code the class names here, use reflaction. probably not much of an issue w/proper Pks anymore
-        return self.select().where(~(self.id << (Proposal.select(Proposal.governance_object_id) | Superblock.select(Superblock.governance_object_id))))
+        union = (
+            Proposal.select(Proposal.object_hash) |
+            Superblock.select(Superblock.object_hash)
+        )
+        query = self.select().where(~(self.object_hash << union ))
+        return query
 
     @classmethod
     def load_from_dashd(self, rec):
