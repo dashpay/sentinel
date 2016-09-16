@@ -22,6 +22,14 @@ class GovernanceClass(object):
             govobj.save()
             self.save()
 
+    def vote_validity(self, dashd):
+        if self.is_valid(dashd):
+            print "Voting valid! %s: %d" % (self.__class__.__name__, self.id)
+            self.vote(dashd, 'valid', 'yes')
+        else:
+            print "Voting INVALID! %s: %d" % (self.__class__.__name__, self.id)
+            self.vote(dashd, 'valid', 'no')
+
     # @classmethod
     # def create(self, *args, **kwargs):
     #     # pdb.set_trace()

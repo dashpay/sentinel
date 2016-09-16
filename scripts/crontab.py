@@ -26,7 +26,7 @@ import socket
 
  - perform_dashd_object_sync
  - attempt_superblock_creation
- - auto_vote_objects
+ - check_object_validity
 """
 
 # sync dashd gobject list with our local relational DB backend
@@ -129,53 +129,12 @@ def attempt_superblock_creation(dashd):
     print "LEAVING attempt_superblock_creation"
 
 
-# TODO: rename this method to something more straightforward and
-# "valid"/"validity" or sth...
-def auto_vote_objects(dashd):
-    import dashlib
-    print "IN auto_vote_objects"
-
-    # TODO: this can be more elegant... e.g. do_validity_vote()
-    # would like to remove all the confusing if/else's here & below.
-    for sb in Superblock.select():
-        if not sb.voted_on(signal=VoteSignals.valid):
-            if sb.is_valid(dashd):
-                print "Voting valid! SB: %d" % sb.id
-                sb.vote(dashd, 'valid', 'yes')
-            else:
-                print "Voting INVALID! SB: %d" % prop.id
-                prop.vote(dashd, 'valid', 'no')
-        else:
-            print "1. Already voted Superblock as (In)Valid!"
-
-    # max_budget = dashlib.next_superblock_max_budget()
-    for prop in Proposal.select():
-        if not prop.voted_on(signal=VoteSignals.valid):
-            if prop.is_valid(dashd)):
-                print "Voting valid! Prop: %d" % prop.id
-                prop.vote(dashd, 'valid', 'yes')
-            else:
-                print "Voting INVALID! Prop: %d" % prop.id
-                prop.vote(dashd, 'valid', 'no')
-        else:
-            print "2. Already voted Proposal as (In)Valid!"
-
-    # this is taken care of above, but using the meta as a template for further
-    # consolidation, the gov_class stuff
-    #
-    #
-    # # vote invalid objects
-    # # for gov_class in [Proposal, Superblock]:
-    # #     for invalid in gov_class.invalid():
-    # #         print "found invalid %s!" % gov_class.__name__
-    # #         pprint(invalid.get_dict())
-    # #         if not invalid.voted_on():
-    # #             go = invalid.governance_object
-    # #             print "voting invalid id: %s, type: %s" % (invalid.id, go.object_type)
-    # #             invalid.vote(dashd, 'valid', 'no')
-    # #         else:
-    # #             print "3. Already voted!"
-    print "LEAVING auto_vote_objects"
+def check_object_validity(dashd):
+    # vote invalid objects
+    for gov_class in [Proposal, Superblock]:
+        for obj in gov_class.select():
+            if not obj.voted_on(signal=VoteSignals.valid):
+                obj.vote_validity(dashd)
 
 
 def is_dashd_port_open(dashd):
@@ -236,7 +195,7 @@ if __name__ == '__main__':
     #fake_upvote_proposals(dashd)
 
     # auto vote network objects as valid/invalid
-    auto_vote_objects(dashd)
+    check_object_validity(dashd)
 
     # create a Superblock if necessary
     attempt_superblock_creation(dashd)
