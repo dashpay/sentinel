@@ -98,7 +98,6 @@ CREATE TABLE `outcomes` (
     UNIQUE KEY `index_outcomes_name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
--- would rather use govobj hash here... since votes must be done on hash anyway...
 CREATE TABLE `votes` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `governance_object_id` int(10) unsigned NOT NULL,
@@ -112,8 +111,7 @@ CREATE TABLE `votes` (
   CONSTRAINT `fk_votes_governance_object_id` FOREIGN KEY (`governance_object_id`) REFERENCES governance_objects(`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_votes_signal_id` FOREIGN KEY (`signal_id`) REFERENCES signals(`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_votes_outcome_id` FOREIGN KEY (`outcome_id`) REFERENCES outcomes(`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_votes_object_hash` FOREIGN KEY(`object_hash`) REFERENCES governance_objects(`object_hash`) ON DELETE CASCADE ON UPDATE CASCADE,
-  UNIQUE KEY `index_votes_object_hash` (`object_hash`)
+  CONSTRAINT `fk_votes_object_hash` FOREIGN KEY(`object_hash`) REFERENCES governance_objects(`object_hash`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
@@ -150,7 +148,7 @@ select p.name
      , go.id as `governance_object_id`
      , p.id as `proposal_id`
   from proposals p
-  join governance_objects go on go.id = p.governance_object_id
+  join governance_objects go on go.object_hash = p.object_hash
 ;
 
 
@@ -168,5 +166,5 @@ select sb.name
      , go.id as `governance_object_id`
      , sb.id as `superblock_id`
   from superblocks sb
-  join governance_objects go on go.id = sb.governance_object_id
+  join governance_objects go on go.object_hash = sb.object_hash
 ;
