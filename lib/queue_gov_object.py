@@ -30,56 +30,6 @@ class GovernanceClass(object):
             print "Voting INVALID! %s: %d" % (self.__class__.__name__, self.id)
             self.vote(dashd, 'valid', 'no')
 
-    # @classmethod
-    # def create(self, *args, **kwargs):
-    #     # pdb.set_trace()
-    #
-    #     print "hi!!!! HEERRR"
-    #     # TODO: Loop thru the kwargs & find a governance_object.
-    #     # if one doesn't exist, create a default one with correct name, type.
-    #     # then loop thru the KWARGS looking at govobj-specific keywords and set those in the new govobj first.
-    #     # kwargs
-    #
-    #     # for k, v in kwargs.iteritems():
-    #     #     print "kwargs[%s] = %s" % (k, v)
-    #
-    #     goid = None
-    #
-    #
-    #     # if an un-saved governance_object is passed in, then
-    #     try:
-    #         go = kwargs['governance_object']
-    #         if not go.id:
-    #             go.save()
-    #         goid = go.id
-    #     except KeyError as e:
-    #         pass
-    #
-    #     goid = kwargs.get('governance_object_id', None)
-    #
-    #     try:
-    #         goid = goid or kwargs['governance_object_id']
-    #     except KeyError as e:
-    #         pass
-    #
-    #     if not goid:
-    #         try:
-    #             go = models.GovernanceObject(object_name=kwargs['name'], object_type=self.govobj_type)
-    #             go.save()
-    #             kwargs['governance_object_id'] = go.id
-    #         except Exception as e:
-    #             print "error: %s" % e
-    #             pass
-    #
-    #     # pdb.set_trace()
-    #     super(GovernanceClass, self).create(*args, **kwargs)
-    #     print "hi!!!! LEEEEEVVVINGGG!!!!"
-
-    # TODO: ensure an object-hash exists before trying to vote
-    @classmethod
-    def invalid(self):
-        return [obj for obj in self.select() if not obj.is_valid()]
-
     def get_vote_command(self, signal, outcome):
         cmd = [ 'gobject', 'vote-conf', self.governance_object.object_hash,
                 signal, outcome ]
@@ -100,13 +50,12 @@ class GovernanceClass(object):
         count = query.count()
         return count
 
-    # TODO: ensure an object-hash exists before trying to vote
     def vote(self, dashd, signal, outcome):
         go = self.governance_object
 
         # At this point, will probably never reach here. But doesn't hurt to
-        # have an extra check just in case objects get out of sync or ppl start
-        # messing with the DB.
+        # have an extra check just in case objects get out of sync (people will
+        # muck with the DB).
         if ( not go or go.object_hash == '0' or not misc.is_hash(go.object_hash)):
             print "No governance_object hash, nothing to vote on."
             return
