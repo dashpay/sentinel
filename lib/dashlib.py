@@ -172,20 +172,6 @@ def create_superblock( dashd, proposals, event_block_height ):
 
     return dbrec
 
-def next_superblock_max_budget(dashd):
-    cycle = dashd.superblockcycle()
-    current_block_height = dashd.rpc_command('getblockcount')
-
-    last_superblock_height = (current_block_height / cycle) * cycle
-    next_superblock_height = last_superblock_height + cycle
-
-    last_allocation = dashd.get_superblock_budget_allocation(last_superblock_height)
-    next_allocation = dashd.get_superblock_budget_allocation(next_superblock_height)
-
-    next_superblock_max_budget = next_allocation
-
-    return next_superblock_max_budget
-
 
 DASHD_GOVOBJ_TYPES = {
     'proposal': 1,

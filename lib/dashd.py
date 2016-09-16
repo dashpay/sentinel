@@ -15,6 +15,7 @@ import io
 import re
 from bitcoinrpc.authproxy import AuthServiceProxy, JSONRPCException
 from masternode import Masternode
+from decimal import Decimal
 
 class DashDaemon():
     def __init__(self, **kwargs):
@@ -119,6 +120,19 @@ class DashDaemon():
             height = self.rpc_command('getblockcount')
         return Decimal(self.rpc_command('getsuperblockbudget', height))
 
+    def next_superblock_max_budget(self):
+        cycle = self.superblockcycle()
+        current_block_height = self.rpc_command('getblockcount')
+
+        last_superblock_height = (current_block_height / cycle) * cycle
+        next_superblock_height = last_superblock_height + cycle
+
+        last_allocation = self.get_superblock_budget_allocation(last_superblock_height)
+        next_allocation = self.get_superblock_budget_allocation(next_superblock_height)
+
+        next_superblock_max_budget = next_allocation
+
+        return next_superblock_max_budget
 
 class DashConfig():
 
