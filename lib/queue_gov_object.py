@@ -93,9 +93,12 @@ class GovernanceClass(object):
 
         if voted:
             # TODO: ensure signal, outcome exist in lookup table or raise exception
-            v = models.Vote(governance_object=self.governance_object,
-                            signal=models.Signal.get(models.Signal.name == signal),
-                            outcome=models.Outcome.get(models.Outcome.name == outcome))
+            v = models.Vote(
+                governance_object=self.governance_object,
+                signal=models.Signal.get(models.Signal.name == signal),
+                outcome=models.Outcome.get(models.Outcome.name == outcome),
+                object_hash=go.object_hash,
+            )
             v.save()
 
     def list(self):
