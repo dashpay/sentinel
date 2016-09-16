@@ -203,13 +203,9 @@ class Proposal(GovernanceClass, BaseModel):
     class Meta:
         db_table = 'proposals'
 
-    @classmethod
-    def valid(self, max_budget):
-        return [pr for pr in self.select() if pr.is_valid(max_budget)]
-
     # TODO: unit tests for all these items, both individually and some grouped
     # **This can be easily mocked.**
-    def is_valid(self, max_budget=None):
+    def is_valid(self, dashd):
         import dashlib
         now = misc.get_epoch()
 
@@ -226,6 +222,7 @@ class Proposal(GovernanceClass, BaseModel):
             return False
 
         # budget check
+        max_budget = dashd.next_superblock_max_budget()
         if ( max_budget and (self.payment_amount > max_budget) ):
             return False
 
