@@ -67,9 +67,9 @@ def governance_object():
 
     return govobj
 
-def test_prepare_command(proposal):
-    proposal.create_and_queue()
-    gobj = proposal.governance_object
+def test_submit_command(superblock):
+    superblock.create_with_govobj()
+    gobj = superblock.governance_object
 
     # some small manipulations for our test cases
     gobj.object_creation_time = 1471898632
@@ -80,38 +80,21 @@ def test_prepare_command(proposal):
     uq.execute()
 
     # reload stale objects
-    proposal = Proposal.get( Proposal.id == proposal.id )
+    superblock = Superblock.get( Superblock.id == superblock.id )
     gobj = GovernanceObject.get( GovernanceObject.id == 5 )
 
-    # ensure tight regex match
-    #prepare_command_regex = re.compile('^gobject prepare ([\da-f]+) ([\da-f]+) ([\d]+) ([\w-]+) ([\da-f]+)$')
-
-    cmd = proposal.get_prepare_command()
+    cmd = superblock.get_submit_command()
 
     assert re.match(r'^gobject$', cmd[0]) != None
-    assert re.match(r'^prepare$', cmd[1]) != None
+    assert re.match(r'^submit$', cmd[1]) != None
     assert re.match(r'^[\da-f]+$', cmd[2]) != None
     assert re.match(r'^[\da-f]+$', cmd[3]) != None
     assert re.match(r'^[\d]+$', cmd[4]) != None
     assert re.match(r'^[\w-]+$', cmd[5]) != None
-    assert re.match(r'^[\da-f]+$', cmd[6]) != None
 
-    # match = prepare_command_regex.search(cmd)
-    # assert match != None
-
-    # if match:
-    #     # print "matched!"
-    #     print(match.group(1))
-    #     print(match.group(2))
-    #     print(match.group(3))
-    #     print(match.group(4))
-    #     print(match.group(5))
-    # else:
-    #     print "NO MATCH!"
-
-    # gobject_command = ['gobject', 'prepare', '0', '1', '1471898632', 'beer-reimbursement-7', '5b5b2270726f706f73616c222c207b22656e645f65706f6368223a20313439313032323830302c20226e616d65223a2022626565722d7265696d62757273656d656e742d37222c20227061796d656e745f61646472657373223a2022795965384b77796155753559737753596d4233713372797838585455753979375569222c20227061796d656e745f616d6f756e74223a20372e30303030303030302c202273746172745f65706f6368223a20313438333235303430302c202274797065223a20312c202275726c223a202268747470733a2f2f6461736863656e7472616c2e636f6d2f626565722d7265696d62757273656d656e742d37227d5d5d']
-    gobject_command = ['gobject', 'prepare', '0', '1', '1471898632', 'beer-reimbursement-7', '5b5b2270726f706f73616c222c207b22656e645f65706f6368223a20313439313032323830302c20227061796d656e745f61646472657373223a2022795965384b77796155753559737753596d4233713372797838585455753979375569222c20227061796d656e745f616d6f756e74223a20372e30303030303030302c202270726f706f73616c5f6e616d65223a2022626565722d7265696d62757273656d656e742d37222c202273746172745f65706f6368223a20313438333235303430302c202274797065223a20312c202275726c223a202268747470733a2f2f6461736863656e7472616c2e636f6d2f626565722d7265696d62757273656d656e742d37227d5d5d']
+    gobject_command = ['gobject', 'submit', '0', '1', '1471898632', 'sb62500', '5b5b2274726967676572222c207b226576656e745f626c6f636b5f686569676874223a2036323530302c20227061796d656e745f616464726573736573223a2022795965384b77796155753559737753596d42337133727978385854557539793755697c795443363268755234595145506e39414a486a6e517878726548536267416f617456222c20227061796d656e745f616d6f756e7473223a2022357c33222c20227375706572626c6f636b5f6e616d65223a202273623632353030222c202274797065223a20327d5d5d']
     assert cmd == gobject_command
+
 
 # ensure both rows get created -- govobj & proposal
 def test_proposal_create_with_govobj(proposal):
