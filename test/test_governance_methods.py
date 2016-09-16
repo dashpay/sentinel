@@ -8,15 +8,13 @@ from pprint import pprint
 
 os.environ['SENTINEL_ENV'] = 'test'
 sys.path.append( os.path.join( os.path.dirname(__file__), '..', 'lib' ) )
-from models import GovernanceObject, Proposal, Event, Superblock
+from models import GovernanceObject, Proposal, Superblock
 
-# NGM/TODO: setup both Proposal and Superblock, and insert related rows,
-# including Events
+# NGM/TODO: setup both Proposal and Superblock, and insert related rows
 
 def setup():
 
     # clear tables first...
-    Event.delete().execute()
     Proposal.delete().execute()
     Superblock.delete().execute()
     GovernanceObject.delete().execute()
@@ -30,7 +28,7 @@ def superblock():
 
     # NOTE: no governance_object_id is set
     sbobj = Superblock(
-        name = "sb1803405",
+        name = "sb62500",
         event_block_height = 62500,
         payment_addresses = "yYe8KwyaUu5YswSYmB3q3ryx8XTUu9y7Ui|yTC62huR4YQEPn9AJHjnQxxreHSbgAoatV",
         payment_amounts  = "5|3"
@@ -115,54 +113,48 @@ def test_prepare_command(proposal):
     gobject_command = ['gobject', 'prepare', '0', '1', '1471898632', 'beer-reimbursement-7', '5b5b2270726f706f73616c222c207b22656e645f65706f6368223a20313439313032323830302c20227061796d656e745f61646472657373223a2022795965384b77796155753559737753596d4233713372797838585455753979375569222c20227061796d656e745f616d6f756e74223a20372e30303030303030302c202270726f706f73616c5f6e616d65223a2022626565722d7265696d62757273656d656e742d37222c202273746172745f65706f6368223a20313438333235303430302c202274797065223a20312c202275726c223a202268747470733a2f2f6461736863656e7472616c2e636f6d2f626565722d7265696d62757273656d656e742d37227d5d5d']
     assert cmd == gobject_command
 
-# ensure all 3 rows get created -- govobj, proposal, and event.
-def test_proposal_create_and_queue(proposal):
-    from models import GovernanceObject, Proposal, Event
+# ensure both rows get created -- govobj & proposal
+def test_proposal_create_with_govobj(proposal):
+    from models import GovernanceObject, Proposal
 
     proposal_count = Proposal.select().count()
-    event_count    = Event.select().count()
     gov_obj_count  = GovernanceObject.select().count()
-    total_count = proposal_count + event_count + gov_obj_count
+    total_count = proposal_count + gov_obj_count
 
     assert total_count == 0
 
     try:
-        proposal.create_and_queue()
+        proposal.create_with_govobj()
     except PeeweeException as e:
         print "error: %s" % e[1]
 
     proposal_count = Proposal.select().count()
-    event_count    = Event.select().count()
     gov_obj_count  = GovernanceObject.select().count()
-    total_count = proposal_count + event_count + gov_obj_count
+    total_count = proposal_count + gov_obj_count
 
     assert proposal_count == 1
-    assert event_count    == 1
     assert gov_obj_count  == 1
-    assert total_count == 3
+    assert total_count == 2
 
-# ensure all 3 rows get created -- govobj, proposal, and event.
-def test_superblock_create_and_queue(superblock):
-    from models import GovernanceObject, Superblock, Event
+# ensure both rows get created -- govobj & superblock
+def test_superblock_create_with_govobj(superblock):
+    from models import GovernanceObject, Superblock
 
     superblock_count = Superblock.select().count()
-    event_count    = Event.select().count()
     gov_obj_count  = GovernanceObject.select().count()
-    total_count = superblock_count + event_count + gov_obj_count
+    total_count = superblock_count + gov_obj_count
 
     assert total_count == 0
 
     try:
-        superblock.create_and_queue()
+        superblock.create_with_govobj()
     except PeeweeException as e:
         print "error: %s" % e[1]
 
     superblock_count = Superblock.select().count()
-    event_count    = Event.select().count()
     gov_obj_count  = GovernanceObject.select().count()
-    total_count = superblock_count + event_count + gov_obj_count
+    total_count = superblock_count + gov_obj_count
 
     assert superblock_count == 1
-    assert event_count      == 1
     assert gov_obj_count    == 1
-    assert total_count      == 3
+    assert total_count      == 2

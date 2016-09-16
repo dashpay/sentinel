@@ -9,14 +9,13 @@ sys.path.append( os.path.join( os.path.dirname(__file__), '..', 'lib' ) )
 sys.path.append( os.path.join( os.path.dirname(__file__), '..', '..', 'lib' ) )
 
 import misc
-from models import GovernanceObject, Proposal, Event, Superblock
+from models import GovernanceObject, Proposal, Superblock
 
 
 # clear DB tables before each execution
 def setup():
     pass
     # clear tables first...
-    # Event.delete().execute()
     # Proposal.delete().execute()
     # Superblock.delete().execute()
     # GovernanceObject.delete().execute()

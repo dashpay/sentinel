@@ -5,30 +5,6 @@ sys.path.append( os.path.join( os.path.dirname(__file__), '..', 'lib' ) )
 
 # setup/teardown?
 
-# Event model
-
-@pytest.fixture
-def event():
-    from models import Event
-    return Event()
-
-def test_event(event):
-    d = event.get_dict()
-    assert type(d) == type({})
-
-    fields = [
-        'start_time',
-        'prepare_time',
-        'submit_time',
-        'error_time',
-        'error_message',
-    ]
-    fields.sort()
-    sorted_keys = d.keys()
-    sorted_keys.sort()
-    assert sorted_keys == fields
-
-
 # Proposal model
 @pytest.fixture
 def proposal():
