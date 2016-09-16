@@ -320,7 +320,11 @@ class Superblock(BaseModel, GovernanceClass):
 
     @classmethod
     def latest(self):
-        return self.select().order_by(self.event_block_height).desc().limit(1)[0]
+        try:
+            obj = self.select().order_by(self.event_block_height).desc().limit(1)[0]
+        except IndexError as e:
+            obj = None
+        return obj
 
 # ok, this is an awkward way to implement these...
 # "hook" into the Superblock model and run this code just before any save()
