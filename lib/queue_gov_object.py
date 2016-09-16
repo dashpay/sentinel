@@ -147,6 +147,10 @@ class GovernanceClass(object):
 
         return binascii.hexlify(simplejson.dumps( (obj_type, self.get_dict()) , sort_keys = True))
 
+    def dashd_serialise(self):
+        import dashlib
+        return dashlib.SHIM_serialise_for_dashd(self.serialise())
+
     @classmethod
     def serialisable_fields(self):
         # Python is so not very elegant...
