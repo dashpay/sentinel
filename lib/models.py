@@ -61,7 +61,7 @@ class BaseModel(playhouse.signals.Model):
 class GovernanceObject(BaseModel):
     parent_id = IntegerField(default=0)
     object_creation_time = IntegerField(default=int(time.time()))
-    object_hash = CharField(default='')
+    object_hash = CharField(max_length=64)
     object_parent_hash = CharField(default='0')
     object_name = CharField(default='', max_length=20)
     object_type = IntegerField(default=0)
@@ -75,44 +75,6 @@ class GovernanceObject(BaseModel):
     class Meta:
         db_table = 'governance_objects'
 
-    composed_classes = ['proposals', 'superblocks']
-
-    # TODO: refactor, use composition and govobjects should have no knowledge of
-    # the compasing class (data-agnosticism)
-    @property
-    def subobject(self):
-        return [ (getattr( self, sc ))[0] for sc in self.composed_classes if (getattr( self, sc )) ][0]
-
-    @classmethod
-    def root(self):
-        root_properties = {
-            "object_name" : "root",
-            "object_type" : 0,
-            "object_creation_time" : 0,
-        }
-        return self(**root_properties)
-
-    @classmethod
-    def object_with_name_exists(self, name):
-        count = self.select().where(self.object_name == name).count()
-        return count > 0
-
-    @property
-    def object_data(self):
-        import dashlib
-        return dashlib.SHIM_serialise_for_dashd(self.serialise_gov_class())
-
-    def serialise_gov_class(self):
-        gov_class_hex = ''
-        for obj_type in self.composed_classes:
-            res = getattr( self, obj_type )
-            if res:
-                # should only return one row
-                # (needs refactor/re-design, as this shouldn't be possible)
-                row = res[0]
-                gov_class_hex = row.serialise()
-        return gov_class_hex
-
     # sync dashd gobject list with our local relational DB backend
     @classmethod
     def sync(self, dashd):
@@ -122,6 +84,7 @@ class GovernanceObject(BaseModel):
 
     @classmethod
     def orphans(self):
+        # TODO: do not hard-code the class names here, use reflaction. probably not much of an issue w/proper Pks anymore
         return self.select().where(~(self.id << (Proposal.select(Proposal.governance_object_id) | Superblock.select(Superblock.governance_object_id))))
 
     @classmethod
@@ -129,10 +92,14 @@ class GovernanceObject(BaseModel):
         import dashlib
         import inflection
 
-        subobject_hex = rec['DataHex']
+        object_hex = rec['DataHex']
         object_name = rec['Name']
+        object_hash = rec['Hash']
+
+        # TODO: remove name from here & put into gov class table instead (since serialised w/it)
+        #  -- this would remove data duplication/redundancy
         gobj_dict = {
-            'object_hash': rec['Hash'],
+            'object_hash': object_hash,
             'object_fee_tx': rec['CollateralHash'],
             'object_name': object_name,
             'absolute_yes_count': rec['AbsoluteYesCount'],
@@ -142,8 +109,8 @@ class GovernanceObject(BaseModel):
         }
 
         # shim/dashd conversion
-        subobject_hex = dashlib.SHIM_deserialise_from_dashd(subobject_hex)
-        objects = dashlib.deserialise(subobject_hex)
+        object_hex = dashlib.SHIM_deserialise_from_dashd(object_hex)
+        objects = dashlib.deserialise(object_hex)
         subobj = None
 
         obj_type, dikt = objects[0:2:1]
@@ -158,7 +125,7 @@ class GovernanceObject(BaseModel):
         subdikt['name'] = object_name
 
         # get/create, then sync vote counts from dashd, with every run
-        govobj, created = self.get_or_create(object_hash=gobj_dict['object_hash'], defaults=gobj_dict)
+        govobj, created = self.get_or_create(object_hash=object_hash, defaults=gobj_dict)
         if created:
             print "govobj created = %s" % created
         count = govobj.update(**gobj_dict).where(self.id == govobj.id).execute()
@@ -167,7 +134,7 @@ class GovernanceObject(BaseModel):
         subdikt['governance_object'] = govobj
 
         # get/create, then sync payment amounts, etc. from dashd - Dashd is the master
-        subobj, created = subclass.get_or_create(name=object_name, defaults=subdikt)
+        subobj, created = subclass.get_or_create(object_hash=object_hash, defaults=subdikt)
         if created:
             print "subobj created = %s" % created
         count = subobj.update(**subdikt).where(subclass.id == subobj.id).execute()
@@ -193,8 +160,9 @@ class Proposal(GovernanceClass, BaseModel):
     url = CharField(default='')
     start_epoch = IntegerField()
     end_epoch = IntegerField()
-    payment_address = CharField()
+    payment_address = CharField(max_length=36)
     payment_amount = DecimalField(max_digits=16, decimal_places=8)
+    object_hash = CharField(max_length=64)
 
     # TODO: remove this redundancy if/when dashd can be fixed to use
     # strings/types instead of ENUM types for type ID
@@ -282,6 +250,7 @@ class Superblock(BaseModel, GovernanceClass):
     payment_addresses    = TextField()
     payment_amounts      = TextField()
     sb_hash      = CharField()
+    object_hash = CharField(max_length=64)
 
     # TODO: remove this redundancy if/when dashd can be fixed to use
     # strings/types instead of ENUM types for type ID
@@ -292,10 +261,15 @@ class Superblock(BaseModel, GovernanceClass):
 
     # superblocks don't have a collateral tx to submit
     def get_submit_command(self):
+        import dashlib
+        obj_data = dashlib.SHIM_serialise_for_dashd(self.serialise())
+
         go = self.governance_object
+
         cmd = [ 'gobject', 'submit', go.object_parent_hash,
                 str(go.object_revision), str(go.object_creation_time),
-                go.object_name, go.object_data ]
+                go.object_name, obj_data ]
+
         return cmd
 
     # boolean -- does the object meet collateral confirmations?
@@ -386,6 +360,8 @@ class Vote(BaseModel):
     voted_at = DateTimeField(default=datetime.datetime.utcnow())
     created_at = DateTimeField(default=datetime.datetime.utcnow())
     updated_at = DateTimeField(default=datetime.datetime.utcnow())
+    object_hash = CharField(max_length=64)
+
     class Meta:
         db_table = 'votes'
 
