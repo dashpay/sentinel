@@ -20,8 +20,6 @@ def create_fake_proposal_data():
     fake = Faker()
 
     name = fake_proposal_name(fake)
-    while GovernanceObject.object_with_name_exists(name):
-        name = fake_proposal_name(fake)
 
     dikt = {
         'name': name,

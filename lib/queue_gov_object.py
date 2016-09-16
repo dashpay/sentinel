@@ -107,7 +107,7 @@ class GovernanceClass(object):
         # At this point, will probably never reach here. But doesn't hurt to
         # have an extra check just in case objects get out of sync or ppl start
         # messing with the DB.
-        if ( not go or go.object_hash == '0' or go.object_hash == '' or not misc.is_hash(go.object_hash)):
+        if ( not go or go.object_hash == '0' or not misc.is_hash(go.object_hash)):
             print "No governance_object hash, nothing to vote on."
             return
 
@@ -131,9 +131,7 @@ class GovernanceClass(object):
         if err_msg:
             print "err_msg = [%s]" % err_msg
 
-
         voted = False
-
         if result == 'success':
             voted = True
 
@@ -165,14 +163,6 @@ class GovernanceClass(object):
 
         # return a dict similar to dashd "gobject list" output
         return { self.name: dikt }
-
-
-    def get_submit_command(self):
-        go = self.governance_object
-        cmd = [ 'gobject', 'submit', go.object_parent_hash,
-                str(go.object_revision), str(go.object_creation_time),
-                go.object_name, go.object_data, go.object_fee_tx ]
-        return cmd
 
     # boolean -- does the object meet collateral confirmations?
     def submit(self, dashd):

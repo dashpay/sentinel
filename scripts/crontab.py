@@ -85,7 +85,7 @@ def attempt_superblock_creation(dashd):
         return
 
     proposal_quorum = dashd.governance_quorum()
-    max_budget = dashlib.next_superblock_max_budget(dashd)
+    max_budget = dashd.next_superblock_max_budget()
     proposals = Proposal.approved_and_ranked(proposal_quorum, max_budget)
 
     print "\t%s = %s" % ('proposal_quorum', proposal_quorum)
@@ -155,7 +155,7 @@ def delete_orphaned_records():
 
 def fake_upvote_proposals(dashd):
     import dashlib
-    max_budget = dashlib.next_superblock_max_budget(dashd)
+    max_budget = dashd.next_superblock_max_budget()
     for prop in Proposal.valid(max_budget):
         go = prop.governance_object
         go.yes_count += 1000
