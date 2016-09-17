@@ -42,9 +42,6 @@ def attempt_superblock_creation(dashd):
         print "We are not a Masternode... can't submit superblocks!"
         return
 
-    event_block_height = dashd.next_superblock_height()
-    current_height = dashd.rpc_command('getblockcount')
-
     # query votes for this specific ebh... if we have voted for this specific
     # ebh, then it's voted on. since we track votes this is all done using joins
     # against the votes table
@@ -52,12 +49,13 @@ def attempt_superblock_creation(dashd):
     # has this masternode voted on *any* superblocks at the given event_block_height?
     # have we voted FUNDING=YES for a superblock for this specific event_block_height?
 
+    event_block_height = dashd.next_superblock_height()
+
     if Superblock.is_voted_funding(event_block_height):
        print "ALREADY VOTED! 'til next time!"
        return
     else:
        print "not yet voted! will continue."
-
 
     # ok, now we're here, we've clearly not yet voted for a Superblock at this
     # particular EBH... so it's vote time!
@@ -68,30 +66,13 @@ def attempt_superblock_creation(dashd):
     #
     # then see if we win. If yes, submit it, if no, then... wait 'til next time I guess, then try and upvote/ -OR- submit again (b/c we might win the next election if one's not yet been submitted).
 
-    # 3-day period for govobj maturity
     # only continue once we've entered the maturity phase...
-    maturity_phase_delta = 1662 #  ~(60*24*3)/2.6
-    if config.network == 'testnet':
-        maturity_phase_delta = 24    # testnet
-
-    maturity_phase_start_block = event_block_height - maturity_phase_delta
-    print "current_height = %d" % current_height
-    print "event_block_height = %d" % event_block_height
-    print "maturity_phase_delta = %d" % maturity_phase_delta
-    print "maturity_phase_start_block = %d" % maturity_phase_start_block
-
-    if (current_height < maturity_phase_start_block):
+    # if (current_height < maturity_phase_start_block):
+    if not dashd.is_govobj_maturity_phase():
         print "Not in maturity phase yet -- will not attempt Superblock"
         return
 
-    proposal_quorum = dashd.governance_quorum()
-    max_budget = dashd.next_superblock_max_budget()
-    proposals = Proposal.approved_and_ranked(proposal_quorum, max_budget)
-
-    print "\t%s = %s" % ('proposal_quorum', proposal_quorum)
-    print "\t%s = %s" % ('max_budget', max_budget)
-    print "\t%s = %s" % ('proposals', proposals)
-
+    proposals = Proposal.approved_and_ranked(dashd)
     sb = dashlib.create_superblock(dashd, proposals, event_block_height)
     if not sb:
         print "No superblock created, sorry. Returning."
@@ -99,32 +80,35 @@ def attempt_superblock_creation(dashd):
 
     print "sb hash: %s" % sb.hex_hash()
 
-    # vote here if found on network...
-    if misc.is_hash(sb.object_hash):
-        sb.vote(dashd, 'funding', 'yes')
-        print "VOTED FUNDING FOR SB! We're done here 'til next month."
-        return
+    try:
+        # if this is found in the DB, then it is the valid one (because we're #
+        # searchign by the deterministic hash) and it's on the network (b/c in the
+        # DB -- otherwise it would not have been synced.)
+        dbrec = Superblock.get(Superblock.sb_hash == sb.hex_hash())
+        dbrec.vote(dashd, 'funding', 'yes')
 
-    # find the elected MN vin for superblock creation...
-    current_block_hash = dashd.current_block_hash()
-    mn_list = dashd.get_masternodes()
-    winner = dashlib.elect_mn(block_hash=current_block_hash, mnlist=mn_list)
-    my_vin = dashd.get_current_masternode_vin()
+        # TODO: then vote any other Superblocks for the same event_block_height as 'no'
+        # maybe not necessary, but for completeness...
+        #
+        # this can be done simply via a DB query for all Superblocks for this
+        # EBH which have not been voted on for 'funding', e.g. the opposite of
+        # event.voted_on(signal=VoteSignals.funding)
+        #
+        # maybe a custom method/query for this specific case
 
-    print "current_block_hash: [%s]" % current_block_hash
-    print "MN election winner: [%s]" % winner
-    print "current masternode VIN: [%s]" % my_vin
-
-    if ( winner != my_vin ):
-        print "we lost the election... FAKING IT!"
-        my_vin = winner
+    except Superblock.DoesNotExist as e:
+        print "The correct superblock wasn't found on the network..."
 
     # if we are the elected masternode...
-    if ( winner == my_vin ):
+    if (dashd.we_are_the_winner()):
         print "we are the winner! Submit SB to network"
-        # if we already submitted it, DO NOT submit it again
-        if not misc.is_hash(sb.object_hash):
-            sb.submit(dashd)
+        sb.submit(dashd)
+    else:
+        print "we lost the election... FAKING IT!"
+        sb.submit(dashd)
+
+
+    # theoretically we could vote there...
 
     print "LEAVING attempt_superblock_creation"
 
@@ -152,11 +136,12 @@ def is_dashd_port_open(dashd):
 def fake_upvote_proposals(dashd):
     import dashlib
     max_budget = dashd.next_superblock_max_budget()
-    for prop in Proposal.valid(max_budget):
-        go = prop.governance_object
-        go.yes_count += 1000
-        go.absolute_yes_count += 1000
-        go.save()
+    for prop in Proposal.select():
+        if prop.is_valid(dashd):
+            go = prop.go
+            go.yes_count += 1000
+            go.absolute_yes_count += 1000
+            go.save()
 
 if __name__ == '__main__':
     dashd = DashDaemon.from_dash_conf(config.dash_conf)
@@ -185,7 +170,7 @@ if __name__ == '__main__':
     perform_dashd_object_sync(dashd)
 
     # TODO: fake upvote some proposals here...
-    #fake_upvote_proposals(dashd)
+    fake_upvote_proposals(dashd)
 
     # auto vote network objects as valid/invalid
     check_object_validity(dashd)

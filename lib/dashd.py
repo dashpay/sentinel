@@ -134,6 +134,39 @@ class DashDaemon():
 
         return next_superblock_max_budget
 
+    def is_govobj_maturity_phase(self):
+        # 3-day period for govobj maturity
+        maturity_phase_delta = 1662 #  ~(60*24*3)/2.6
+        if config.network == 'testnet':
+            maturity_phase_delta = 24    # testnet
+
+        event_block_height = self.next_superblock_height()
+        maturity_phase_start_block = event_block_height - maturity_phase_delta
+
+        current_height = self.rpc_command('getblockcount')
+        event_block_height = self.next_superblock_height()
+
+        print "current_height = %d" % current_height
+        print "event_block_height = %d" % event_block_height
+        print "maturity_phase_delta = %d" % maturity_phase_delta
+        print "maturity_phase_start_block = %d" % maturity_phase_start_block
+
+        return (current_height >= maturity_phase_start_block)
+
+    def we_are_the_winner(self):
+        import dashlib
+        # find the elected MN vin for superblock creation...
+        current_block_hash = self.current_block_hash()
+        mn_list = self.get_masternodes()
+        winner = dashlib.elect_mn(block_hash=current_block_hash, mnlist=mn_list)
+        my_vin = self.get_current_masternode_vin()
+
+        print "current_block_hash: [%s]" % current_block_hash
+        print "MN election winner: [%s]" % winner
+        print "current masternode VIN: [%s]" % my_vin
+
+        return (winner == my_vin)
+
 class DashConfig():
 
     @classmethod

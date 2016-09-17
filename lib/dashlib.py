@@ -150,29 +150,14 @@ def create_superblock( dashd, proposals, event_block_height ):
     sb = Superblock(
         name = sbname,
         event_block_height = event_block_height,
-        payment_addresses = '|'.join( [str( pd['address'] ) for pd in payments] ),
-        payment_amounts   = '|'.join( [str( pd['amount' ] ) for pd in payments] ),
+        payment_addresses = '|'.join([str(pd['address']) for pd in payments]),
+        payment_amounts   = '|'.join([str(pd['amount' ]) for pd in payments]),
     )
 
-    print "sb hash = %s" % sb.hex_hash()
-
-    """
-    TODO: THIS WILL BREAK NOW, w/DB schema re-factor
-    """
-    try:
-        dbrec = Superblock.get(Superblock.sb_hash == sb.hex_hash())
-        created = False
-    except DoesNotExist as e:
-        sb.create_with_govobj()
-        dbrec = sb
-        created = True
-
-    print "created SB in DB?: %s" % created
-    print "dbrec = %s" % dbrec.__dict__
-
-    return dbrec
+    return sb
 
 
+# TODO: stick this somewhere that makes more sense
 DASHD_GOVOBJ_TYPES = {
     'proposal': 1,
     'superblock': 2,

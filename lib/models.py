@@ -235,9 +235,12 @@ class Proposal(GovernanceClass, BaseModel):
 
 
     @classmethod
-    def approved_and_ranked(self, proposal_quorum, next_superblock_max_budget):
-        # return all approved proposals, in order of descending vote count
+    def approved_and_ranked(self, dashd):
+        proposal_quorum = dashd.governance_quorum()
+        next_superblock_max_budget = dashd.next_superblock_max_budget()
 
+        # return all approved proposals, in order of descending vote count
+        #
         # we need a secondary 'order by' in case of a tie on vote count, since
         # superblocks must be deterministic
         query = (self
@@ -250,8 +253,8 @@ class Proposal(GovernanceClass, BaseModel):
         ranked = []
         for proposal in query:
             proposal.max_budget = next_superblock_max_budget
-            if proposal.is_valid():
-                ranked.append( proposal )
+            if proposal.is_valid(dashd):
+                ranked.append(proposal)
 
         return ranked
 
@@ -350,8 +353,6 @@ class Superblock(BaseModel, GovernanceClass):
 from playhouse.signals import pre_save
 @pre_save(sender=Superblock)
 def on_save_handler(model_class, instance, created):
-    if created:
-        go = GovernanceObject(object_name=instance.name, object_type=2)
     instance.sb_hash = instance.hex_hash()
 
 class Signal(BaseModel):

@@ -50,8 +50,7 @@ class GovernanceClass(object):
 
         # don't attempt to submit a superblock unless a masternode
         # note: will probably re-factor this, this has code smell
-        my_vin = dashd.get_current_masternode_vin()
-        if (isinstance(self, models.Superblock) and (my_vin == None)):
+        if (isinstance(self, models.Superblock) and not dashd.is_masternode()):
             print "Not a masternode. Only masternodes may submit superblocks."
             return
 
