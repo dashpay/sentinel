@@ -56,16 +56,7 @@ class GovernanceObject(BaseModel):
     def sync(self, dashd):
         golist = dashd.rpc_command('gobject', 'list')
         for item in golist.values():
-            (go, subobj) = self.load_from_dashd( item )
-
-    @classmethod
-    def orphans(self):
-        union = (
-            Proposal.select(Proposal.object_hash) |
-            Superblock.select(Superblock.object_hash)
-        )
-        query = self.select().where(~(self.object_hash << union ))
-        return query
+            (go, subobj) = self.load_from_dashd(item)
 
     @classmethod
     def load_from_dashd(self, rec):
