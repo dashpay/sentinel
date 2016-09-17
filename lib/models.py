@@ -56,10 +56,10 @@ class GovernanceObject(BaseModel):
     def sync(self, dashd):
         golist = dashd.rpc_command('gobject', 'list')
         for item in golist.values():
-            (go, subobj) = self.load_from_dashd(dashd, item)
+            (go, subobj) = self.import_gobject_from_dashd(dashd, item)
 
     @classmethod
-    def load_from_dashd(self, dashd, rec):
+    def import_gobject_from_dashd(self, dashd, rec):
         import dashlib
         import inflection
 
