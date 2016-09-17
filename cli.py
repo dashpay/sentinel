@@ -91,6 +91,7 @@ class SentinelShell(cmd.Cmd):
         args = None
         try:
             args = parser.parse_args(parse(arg))
+        # TODO: remove this and specify the exception type(s) to catch
         except:
             pass
 
