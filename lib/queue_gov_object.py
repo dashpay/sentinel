@@ -101,7 +101,7 @@ class GovernanceClass(object):
         dikt = {
             "Name": self.name,
             "DataHex": self.governance_object.object_data,
-            "Hash": self.governance_object.object_hash,
+            "Hash": self.object_hash,
             "CollateralHash": self.governance_object.object_fee_tx,
             "AbsoluteYesCount": self.governance_object.absolute_yes_count,
             "YesCount": self.governance_object.yes_count,

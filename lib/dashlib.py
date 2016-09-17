@@ -115,7 +115,7 @@ def create_superblock( dashd, proposals, event_block_height ):
             print fmt_string % (
                 proposal.name,
                 proposal.rank,
-                proposal.governance_object.object_hash,
+                proposal.object_hash,
                 proposal.payment_amount,
                 "skipped (blows the budget)",
             )
@@ -124,7 +124,7 @@ def create_superblock( dashd, proposals, event_block_height ):
         print fmt_string % (
             proposal.name,
             proposal.rank,
-            proposal.governance_object.object_hash,
+            proposal.object_hash,
             proposal.payment_amount,
             "adding",
         )

@@ -100,7 +100,7 @@ def attempt_superblock_creation(dashd):
     print "sb hash: %s" % sb.hex_hash()
 
     # vote here if found on network...
-    if misc.is_hash(sb.governance_object.object_hash):
+    if misc.is_hash(sb.object_hash):
         sb.vote(dashd, 'funding', 'yes')
         print "VOTED FUNDING FOR SB! We're done here 'til next month."
         return
@@ -123,7 +123,7 @@ def attempt_superblock_creation(dashd):
     if ( winner == my_vin ):
         print "we are the winner! Submit SB to network"
         # if we already submitted it, DO NOT submit it again
-        if not misc.is_hash(sb.governance_object.object_hash):
+        if not misc.is_hash(sb.object_hash):
             sb.submit(dashd)
 
     print "LEAVING attempt_superblock_creation"
