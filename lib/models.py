@@ -56,10 +56,10 @@ class GovernanceObject(BaseModel):
     def sync(self, dashd):
         golist = dashd.rpc_command('gobject', 'list')
         for item in golist.values():
-            (go, subobj) = self.load_from_dashd(item)
+            (go, subobj) = self.load_from_dashd(dashd, item)
 
     @classmethod
-    def load_from_dashd(self, rec):
+    def load_from_dashd(self, dashd, rec):
         import dashlib
         import inflection
 
@@ -98,14 +98,22 @@ class GovernanceObject(BaseModel):
         subdikt['governance_object'] = govobj
 
         # get/create, then sync payment amounts, etc. from dashd - Dashd is the master
-        subobj, created = subclass.get_or_create(object_hash=object_hash, defaults=subdikt)
+        try:
+            subobj, created = subclass.get_or_create(object_hash=object_hash, defaults=subdikt)
+        except peewee.OperationalError as e:
+            # in this case, vote as delete, and log the vote in the DB
+            print "Invalid object from dashd! Error: %s" % e.message
+            if not govobj.voted_on(signal=VoteSignals.delete, outcome=VoteOutcomes.yes):
+                govobj.vote(dashd, 'delete', 'yes')
+            return (govobj, None)
+
         if created:
             print "subobj created = %s" % created
         count = subobj.update(**subdikt).where(subclass.id == subobj.id).execute()
         if count:
             print "subobj updated = %d" % count
 
-        # ATM, returns a tuple w/govobj and the subobject
+        # ATM, returns a tuple w/gov attributes and the govobj
         return (govobj, subobj)
 
     def get_vote_command(self, signal, outcome):
@@ -140,6 +148,21 @@ class GovernanceObject(BaseModel):
                 object_hash=go.object_hash,
             )
             v.save()
+
+    def voted_on(self, **kwargs):
+        signal  = kwargs.get('signal', None)
+        outcome = kwargs.get('outcome', None)
+
+        query = self.votes
+
+        if signal:
+            query = query.where(Vote.signal == signal)
+
+        if outcome:
+            query = query.where(Vote.outcome == outcome)
+
+        count = query.count()
+        return count
 
 class Setting(BaseModel):
     name     = CharField(default='')

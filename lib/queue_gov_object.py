@@ -18,6 +18,9 @@ class GovernanceClass(object):
     def vote(self, dashd, signal, outcome):
         return self.go.vote(dashd, signal, outcome)
 
+    def voted_on(self, **kwargs):
+        return self.go.voted_on(**kwargs)
+
     def vote_validity(self, dashd):
         if self.is_valid(dashd):
             print "Voting valid! %s: %d" % (self.__class__.__name__, self.id)
@@ -25,21 +28,6 @@ class GovernanceClass(object):
         else:
             print "Voting INVALID! %s: %d" % (self.__class__.__name__, self.id)
             self.vote(dashd, 'valid', 'no')
-
-    def voted_on(self, **kwargs):
-        signal  = kwargs.get('signal', None)
-        outcome = kwargs.get('outcome', None)
-
-        query = self.governance_object.votes
-
-        if signal:
-            query = query.where(models.Vote.signal == signal)
-
-        if outcome:
-            query = query.where(models.Vote.outcome == outcome)
-
-        count = query.count()
-        return count
 
     def list(self):
         dikt = {
