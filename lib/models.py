@@ -40,7 +40,6 @@ class GovernanceObject(BaseModel):
     object_creation_time = IntegerField(default=int(time.time()))
     object_hash = CharField(max_length=64)
     object_parent_hash = CharField(default='0')
-    object_name = CharField(default='', max_length=20)
     object_type = IntegerField(default=0)
     object_revision = IntegerField(default=1)
     object_fee_tx = CharField(default='')
@@ -74,15 +73,11 @@ class GovernanceObject(BaseModel):
         import inflection
 
         object_hex = rec['DataHex']
-        object_name = rec['Name']
         object_hash = rec['Hash']
 
-        # TODO: remove name from here & put into gov class table instead (since serialised w/it)
-        #  -- this would remove data duplication/redundancy
         gobj_dict = {
             'object_hash': object_hash,
             'object_fee_tx': rec['CollateralHash'],
-            'object_name': object_name,
             'absolute_yes_count': rec['AbsoluteYesCount'],
             'abstain_count': rec['AbstainCount'],
             'yes_count': rec['YesCount'],
@@ -101,9 +96,6 @@ class GovernanceObject(BaseModel):
         # exclude any invalid model data from dashd...
         valid_keys = subclass.serialisable_fields()
         subdikt = { k: dikt[k] for k in valid_keys if k in dikt }
-
-        # sigh. set name (even tho redundant in DB...)
-        subdikt['name'] = object_name
 
         # get/create, then sync vote counts from dashd, with every run
         govobj, created = self.get_or_create(object_hash=object_hash, defaults=gobj_dict)

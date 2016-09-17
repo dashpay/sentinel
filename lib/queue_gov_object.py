@@ -12,7 +12,6 @@ import re
 class GovernanceClass(object):
     def create_with_govobj(self):
         govobj = models.GovernanceObject(
-            object_name = self.name,
             object_type = self.govobj_type,
         )
         self.governance_object = govobj
