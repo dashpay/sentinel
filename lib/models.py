@@ -16,7 +16,7 @@ import misc
 import dashd
 
 # our mixin
-from queue_gov_object import GovernanceClass
+from governance_class import GovernanceClass
 
 env = os.environ.get('SENTINEL_ENV') or 'production'
 db_cfg = config.db[env].copy()
