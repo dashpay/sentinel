@@ -30,7 +30,7 @@ def is_valid_dash_address( address, network = 'mainnet' ):
     try:
         decoded = base58.b58decode_chk(address)
         address_version = ord(decoded[0])
-    except:
+    except TypeError as e:
         # rescue from exception, not a valid Dash address
         return False
 
@@ -65,7 +65,7 @@ def elect_mn(**kwargs):
 
     try:
         winner = candidates[0]['vin']
-    except:
+    except (IndexError, AttributeError) as e:
         winner = None
 
     return winner
