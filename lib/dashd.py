@@ -157,9 +157,6 @@ class DashConfig():
         # get rpc info from dash.conf
         match = re.findall(r'rpc(user|password|port)=(.*?)$', data, re.MULTILINE)
 
-        # python <= 2.6
-        #d = dict((key, value) for (key, value) in match)
-
         # python >= 2.7
         creds = { key: value for (key, value) in match }
 
