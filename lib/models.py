@@ -117,6 +117,38 @@ class GovernanceObject(BaseModel):
         # ATM, returns a tuple w/govobj and the subobject
         return (govobj, subobj)
 
+    def get_vote_command(self, signal, outcome):
+        cmd = [ 'gobject', 'vote-conf', self.object_hash,
+                signal, outcome ]
+        return cmd
+
+    def vote(self, dashd, signal, outcome):
+        import dashlib
+
+        # At this point, will probably never reach here. But doesn't hurt to
+        # have an extra check just in case objects get out of sync (people will
+        # muck with the DB).
+        if ( self.object_hash == '0' or not misc.is_hash(self.object_hash)):
+            print "No governance object hash, nothing to vote on."
+            return
+
+        # TODO: ensure Signal, Outcome are valid options for dashd
+        vote_command = self.get_vote_command(signal, outcome)
+        print ' '.join(vote_command)
+        output = dashd.rpc_command(*vote_command)
+
+        # extract vote output parsing to external lib
+        voted = dashlib.did_we_vote(output)
+
+        if voted:
+            # TODO: ensure signal, outcome exist in lookup table or raise exception
+            v = models.Vote(
+                governance_object=self,
+                signal=models.Signal.get(models.Signal.name == signal),
+                outcome=models.Outcome.get(models.Outcome.name == outcome),
+                object_hash=go.object_hash,
+            )
+            v.save()
 
 class Setting(BaseModel):
     name     = CharField(default='')

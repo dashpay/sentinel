@@ -26,11 +26,6 @@ class GovernanceClass(object):
             print "Voting INVALID! %s: %d" % (self.__class__.__name__, self.id)
             self.vote(dashd, 'valid', 'no')
 
-    def get_vote_command(self, signal, outcome):
-        cmd = [ 'gobject', 'vote-conf', self.governance_object.object_hash,
-                signal, outcome ]
-        return cmd
-
     def voted_on(self, **kwargs):
         signal  = kwargs.get('signal', None)
         outcome = kwargs.get('outcome', None)
@@ -45,57 +40,6 @@ class GovernanceClass(object):
 
         count = query.count()
         return count
-
-    def vote(self, dashd, signal, outcome):
-        go = self.governance_object
-
-        # At this point, will probably never reach here. But doesn't hurt to
-        # have an extra check just in case objects get out of sync (people will
-        # muck with the DB).
-        if ( not go or go.object_hash == '0' or not misc.is_hash(go.object_hash)):
-            print "No governance_object hash, nothing to vote on."
-            return
-
-        # TODO: ensure Signal, Outcome are valid options for dashd
-        vote_command = self.get_vote_command(signal, outcome)
-        print ' '.join(vote_command)
-        output = dashd.rpc_command(*vote_command)
-
-        err_msg = ''
-        try:
-            detail = output.get('detail').get('dash.conf')
-            result = detail.get('result')
-            if 'errorMessage' in detail:
-                err_msg = detail.get('errorMessage')
-        except JSONRPCException as e:
-            result = 'failed'
-            err_msg = e.message
-
-        # success, failed
-        print "result  = [%s]" % result
-        if err_msg:
-            print "err_msg = [%s]" % err_msg
-
-        voted = False
-        if result == 'success':
-            voted = True
-
-        # in case we spin up a new instance or server, but have already voted
-        # on the network and network has recorded those votes
-        m = re.match(r'^time between votes is too soon', err_msg)
-        if result == 'failed' and m:
-            print "DEBUG: failed, but marking as voted..."
-            voted = True
-
-        if voted:
-            # TODO: ensure signal, outcome exist in lookup table or raise exception
-            v = models.Vote(
-                governance_object=self.governance_object,
-                signal=models.Signal.get(models.Signal.name == signal),
-                outcome=models.Outcome.get(models.Outcome.name == outcome),
-                object_hash=go.object_hash,
-            )
-            v.save()
 
     def list(self):
         dikt = {

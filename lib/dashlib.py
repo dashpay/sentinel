@@ -245,3 +245,35 @@ def serialise(dikt):
     json = simplejson.dumps(dikt, sort_keys=True, use_decimal=True)
     hexdata = binascii.hexlify(json)
     return hexdata
+
+def did_we_vote(output):
+    # sentinel
+    voted = False
+    err_msg = ''
+
+    try:
+        detail = output.get('detail').get('dash.conf')
+        result = detail.get('result')
+        if 'errorMessage' in detail:
+            err_msg = detail.get('errorMessage')
+    except JSONRPCException as e:
+        result = 'failed'
+        err_msg = e.message
+
+    # success, failed
+    print "result  = [%s]" % result
+    if err_msg:
+        print "err_msg = [%s]" % err_msg
+
+    voted = False
+    if result == 'success':
+        voted = True
+
+    # in case we spin up a new instance or server, but have already voted
+    # on the network and network has recorded those votes
+    m = re.match(r'^time between votes is too soon', err_msg)
+    if result == 'failed' and m:
+        print "DEBUG: failed, but marking as voted..."
+        voted = True
+
+    return voted
