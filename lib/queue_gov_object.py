@@ -10,16 +10,13 @@ import re
 
 # mixin for GovObj composed classes like proposal and superblock, etc.
 class GovernanceClass(object):
-    def create_with_govobj(self):
-        govobj = models.GovernanceObject(
-            object_type = self.govobj_type,
-        )
-        self.governance_object = govobj
+    # lazy
+    @property
+    def go(self):
+        return self.governance_object
 
-        # atomic write for both objects, 1:1 relationship
-        with models.BaseModel._meta.database.atomic():
-            govobj.save()
-            self.save()
+    def vote(self, dashd, signal, outcome):
+        return self.go.vote(dashd, signal, outcome)
 
     def vote_validity(self, dashd):
         if self.is_valid(dashd):
