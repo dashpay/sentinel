@@ -102,7 +102,7 @@ class GovernanceObject(BaseModel):
             subobj, created = subclass.get_or_create(object_hash=object_hash, defaults=subdikt)
         except peewee.OperationalError as e:
             # in this case, vote as delete, and log the vote in the DB
-            print "Invalid object from dashd! Error: %s" % e.message
+            print "Invalid object from dashd! Error: %s" % e
             if not govobj.voted_on(signal=VoteSignals.delete, outcome=VoteOutcomes.yes):
                 govobj.vote(dashd, 'delete', 'yes')
             return (govobj, None)
