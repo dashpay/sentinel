@@ -86,6 +86,8 @@ def attempt_superblock_creation(dashd):
         # DB -- otherwise it would not have been synced.)
         dbrec = Superblock.get(Superblock.sb_hash == sb.hex_hash())
         dbrec.vote(dashd, 'funding', 'yes')
+        print "VOTED FUNDING FOR SB! We're done here 'til next month."
+        return
 
         # TODO: then vote any other Superblocks for the same event_block_height as 'no'
         # maybe not necessary, but for completeness...
