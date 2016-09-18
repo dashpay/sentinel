@@ -100,7 +100,7 @@ class GovernanceObject(BaseModel):
         # get/create, then sync payment amounts, etc. from dashd - Dashd is the master
         try:
             subobj, created = subclass.get_or_create(object_hash=object_hash, defaults=subdikt)
-        except peewee.OperationalError as e:
+        except (peewee.OperationalError, peewee.IntegrityError) as e:
             # in this case, vote as delete, and log the vote in the DB
             print "Invalid object from dashd! Error: %s" % e
             if not govobj.voted_on(signal=VoteSignals.delete, outcome=VoteOutcomes.yes):
