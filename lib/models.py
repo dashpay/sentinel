@@ -24,6 +24,14 @@ dbname = db_cfg.pop('database')
 
 db = MySQLDatabase(dbname, **db_cfg)
 
+try:
+    db.connect()
+except peewee.OperationalError as e:
+    print "%s" % e
+    print "Please ensure MySQL database service is running and user access is properly configured in 'config.py'"
+    sys.exit(2)
+
+
 # === models ===
 
 class BaseModel(playhouse.signals.Model):
@@ -386,10 +394,3 @@ class Vote(BaseModel):
         db_table = 'votes'
 
 # === /models ===
-
-try:
-    db.connect()
-except peewee.OperationalError as e:
-    print "%s" % e
-    print "Please ensure MySQL database service is running and user access is properly configured in 'config.py'"
-    sys.exit(2)
