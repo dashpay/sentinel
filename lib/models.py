@@ -324,8 +324,6 @@ class Superblock(BaseModel, GovernanceClass):
     # has this masternode voted on *any* superblocks at the given event_block_height?
     @classmethod
     def is_voted_funding(self, ebh):
-        funding = Signal.get( Signal.name == 'funding' )
-        yes     = Outcome.get( Outcome.name == 'yes' )
         count = (self.select()
                     .where(self.event_block_height == ebh)
                     .join(GovernanceObject)
@@ -333,8 +331,9 @@ class Superblock(BaseModel, GovernanceClass):
                     .join(Signal)
                     .switch(Vote) # switch join query context back to Vote
                     .join(Outcome)
-                    .where(Vote.signal == funding & Vote.outcome == yes)
-                    .count())
+                    .where(Vote.signal == VoteSignals.funding)
+                    .where(Vote.outcome == VoteOutcomes.yes)
+                .count())
         return count
 
     @classmethod
