@@ -47,7 +47,6 @@ def proposal():
 def superblock():
     # NOTE: no governance_object_id is set
     sbobj = Superblock(
-        name = "sb62500",
         event_block_height = 62500,
         payment_address = "yYe8KwyaUu5YswSYmB3q3ryx8XTUu9y7Ui|yTC62huR4YQEPn9AJHjnQxxreHSbgAoatV",
         payment_amount  = "5|3"
@@ -59,35 +58,8 @@ def superblock():
 
 
 def test_superblock_is_valid(superblock):
-
     # fixture as-is should be valid
-    # assert superblock.is_valid() == True
-
-    # ============================================================
-    # ensure valid name
-    # ============================================================
-    # name = superblock.name
-    #
-    # superblock.name = '   heya!@209h '
-    # assert superblock.is_valid() == False
-    #
-    # superblock.name = "anything' OR 'x'='x"
-    # assert superblock.is_valid() == False
-    #
-    # superblock.name = ' '
-    # assert superblock.is_valid() == False
-    #
-    # superblock.name = ''
-    # assert superblock.is_valid() == False
-    #
-    # superblock.name = '0'
-    # assert superblock.is_valid() == True
-    #
-    # superblock.name = 'R66-Y'
-    # assert superblock.is_valid() == True
-    #
-    # # reset
-    # superblock.name = name
+    # assert superblock.is_valid(dashd) == True
     pass
 
 def test_superblock_is_deletable(superblock):
@@ -103,7 +75,7 @@ def test_superblock_is_deletable(superblock):
     pass
 
 def test_serialisable_fields():
-    s1 = ['name', 'event_block_height', 'payment_addresses', 'payment_amounts']
+    s1 = ['event_block_height', 'payment_addresses', 'payment_amounts']
     s2 = Superblock.serialisable_fields()
 
     s1.sort()

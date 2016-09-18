@@ -54,7 +54,6 @@ CREATE TABLE `proposals` (
 CREATE TABLE `superblocks` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `governance_object_id` int(10) unsigned NOT NULL,
-  `name` varchar(20) NOT NULL,
   `event_block_height` int(10) unsigned NOT NULL,
   `payment_addresses` text,
   `payment_amounts` text,
@@ -153,8 +152,7 @@ select p.name
 
 
 create view vsuperblocks as
-select sb.name
-     , sb.event_block_height
+select sb.event_block_height
      , sb.payment_addresses
      , sb.payment_amounts
      , go.object_hash

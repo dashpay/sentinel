@@ -174,11 +174,6 @@ def SHIM_serialise_for_dashd(sentinel_hex):
     # add 'type' attribute
     obj[1]['type'] = DASHD_GOVOBJ_TYPES[govtype]
 
-    # change 'name' attribute
-    dashd_preferred_object_name = "%s_name" % govtype
-    obj[1][dashd_preferred_object_name] = obj[1]['name']
-    del obj[1]['name']
-
     # superblock => "trigger" in dashd
     if govtype == 'superblock':
         obj[0] = 'trigger'
@@ -205,12 +200,6 @@ def SHIM_deserialise_from_dashd(dashd_hex):
     # superblock => "trigger" in dashd
     if govtype == 'trigger':
         obj[0] = govtype = 'superblock'
-
-    # fix name
-    dashd_preferred_object_name = "%s_name" % govtype
-    if dashd_preferred_object_name in obj[1]:
-        obj[1]['name'] = obj[1][dashd_preferred_object_name]
-        del obj[1][dashd_preferred_object_name]
 
     # remove redundant 'type' attribute
     if 'type' in obj[1]:

@@ -275,7 +275,6 @@ class Proposal(GovernanceClass, BaseModel):
 
 class Superblock(BaseModel, GovernanceClass):
     governance_object = ForeignKeyField(GovernanceObject, related_name = 'superblocks')
-    name      = CharField(max_length=20)
     event_block_height   = IntegerField()
     payment_addresses    = TextField()
     payment_amounts      = TextField()
@@ -327,7 +326,7 @@ class Superblock(BaseModel, GovernanceClass):
     # in case of differing superblocks
     @classmethod
     def serialisable_fields(self):
-        return ['name', 'event_block_height', 'payment_addresses', 'payment_amounts' ]
+        return ['event_block_height', 'payment_addresses', 'payment_amounts']
 
     # has this masternode voted on *any* superblocks at the given event_block_height?
     @classmethod
