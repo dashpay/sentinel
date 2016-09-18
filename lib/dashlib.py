@@ -157,14 +157,9 @@ def create_superblock( dashd, proposals, event_block_height ):
     return sb
 
 
-# TODO: stick this somewhere that makes more sense
-DASHD_GOVOBJ_TYPES = {
-    'proposal': 1,
-    'superblock': 2,
-}
-
 # shims 'til we can fix the dashd side
 def SHIM_serialise_for_dashd(sentinel_hex):
+    from models import DASHD_GOVOBJ_TYPES
     # unpack
     obj = deserialise(sentinel_hex)
 
@@ -187,6 +182,8 @@ def SHIM_serialise_for_dashd(sentinel_hex):
 
 # shims 'til we can fix the dashd side
 def SHIM_deserialise_from_dashd(dashd_hex):
+    from models import DASHD_GOVOBJ_TYPES
+
     # unpack
     obj = deserialise(dashd_hex)
 

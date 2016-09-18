@@ -32,6 +32,12 @@ except peewee.OperationalError as e:
     sys.exit(2)
 
 
+# TODO: put this in a lookup table
+DASHD_GOVOBJ_TYPES = {
+    'proposal': 1,
+    'superblock': 2,
+}
+
 # === models ===
 
 class BaseModel(playhouse.signals.Model):
@@ -91,6 +97,9 @@ class GovernanceObject(BaseModel):
         obj_type, dikt = objects[0:2:1]
         obj_type = inflection.pluralize(obj_type)
         subclass = self._meta.reverse_rel[obj_type].model_class
+
+        # set object_type in govobj table
+        gobj_dict['object_type'] = subclass.govobj_type
 
         # exclude any invalid model data from dashd...
         valid_keys = subclass.serialisable_fields()
@@ -193,7 +202,8 @@ class Proposal(GovernanceClass, BaseModel):
 
     # TODO: remove this redundancy if/when dashd can be fixed to use
     # strings/types instead of ENUM types for type ID
-    govobj_type = 1
+    # govobj_type = 1
+    govobj_type = DASHD_GOVOBJ_TYPES['proposal']
 
     class Meta:
         db_table = 'proposals'
@@ -231,7 +241,6 @@ class Proposal(GovernanceClass, BaseModel):
 
         return True
 
-
     def is_deletable(self):
         # end_date < (current_date - 30 days)
         thirty_days = (86400 * 30)
@@ -240,7 +249,6 @@ class Proposal(GovernanceClass, BaseModel):
 
         # TBD (item moved to external storage/DashDrive, etc.)
         return False
-
 
     @classmethod
     def approved_and_ranked(self, dashd):
@@ -283,7 +291,8 @@ class Superblock(BaseModel, GovernanceClass):
 
     # TODO: remove this redundancy if/when dashd can be fixed to use
     # strings/types instead of ENUM types for type ID
-    govobj_type = 2
+    # govobj_type = 2
+    govobj_type = DASHD_GOVOBJ_TYPES['superblock']
 
     class Meta:
         db_table = 'superblocks'
