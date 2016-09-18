@@ -167,3 +167,13 @@ select sb.name
   from superblocks sb
   join governance_objects go on go.object_hash = sb.object_hash
 ;
+
+create view vvotes as
+select v.object_hash
+     , sig.name as `signal`
+     , o.name as `outcome`
+     , v.voted_at
+  from votes v
+  join signals sig on sig.id = v.signal_id
+  join outcomes o on o.id = v.outcome_id
+;
