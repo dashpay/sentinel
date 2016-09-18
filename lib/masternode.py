@@ -29,11 +29,10 @@ class Masternode():
         # trim whitespace
         # mn_full_out = mn_full_out.strip()
 
-        # [  ENABLED 70201 yjaFS6dudxUTxYPTDB9BYd1Nv4vMJXm3vK    52.90.74.124:19999 1472700273   223244 1472699862]
-        (status, protocol, address, ip_port,
-         lastseen, activeseconds, lastpaid) = mn_full_out.split()
+        (status, protocol, address, lastseen, activeseconds, lastpaid,
+         lastpaidblock, ip_port) = mn_full_out.split()
 
-        # status protocol pubkey IP lastseen activeseconds lastpaid'
+        # status protocol pubkey IP lastseen activeseconds lastpaid
         return (status, protocol, address, ip_port, lastseen, activeseconds, lastpaid)
 
     @property
