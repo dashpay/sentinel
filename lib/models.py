@@ -286,11 +286,8 @@ class Superblock(BaseModel, GovernanceClass):
         import dashlib
         obj_data = dashlib.SHIM_serialise_for_dashd(self.serialise())
 
-        go = self.governance_object
-
-        cmd = [ 'gobject', 'submit', go.object_parent_hash,
-                str(go.object_revision), str(go.object_creation_time),
-                go.object_name, obj_data ]
+        # new superblocks won't have parent_hash, revision, etc...
+        cmd = ['gobject', 'submit', 0, 1, int(time.time()), obj_data]
 
         return cmd
 

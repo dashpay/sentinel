@@ -46,7 +46,6 @@ class GovernanceClass(object):
 
     # boolean -- does the object meet collateral confirmations?
     def submit(self, dashd):
-        go = self.governance_object
 
         # don't attempt to submit a superblock unless a masternode
         # note: will probably re-factor this, this has code smell
@@ -59,9 +58,6 @@ class GovernanceClass(object):
         print " -- executing submit ... getting object hash"
         object_hash = dashd.rpc_command(*self.get_submit_command())
         print " -- got hash: [%s]" % object_hash
-
-        go.object_hash = object_hash
-        go.save()
 
     def serialise(self):
         import inflection
