@@ -69,8 +69,18 @@ class GovernanceObject(BaseModel):
     @classmethod
     def sync(self, dashd):
         golist = dashd.rpc_command('gobject', 'list')
+
+        # objects which are removed from the network should be removed from the DB
+        for purged in self.purged_network_objects(golist.keys()):
+            # SOMEDAY: possible archive step here
+            purged.delete_instance()
+
         for item in golist.values():
             (go, subobj) = self.import_gobject_from_dashd(dashd, item)
+
+    @classmethod
+    def purged_network_objects(self, network_object_hashes):
+        return self.select().where(~(self.object_hash << network_object_hashes))
 
     @classmethod
     def import_gobject_from_dashd(self, dashd, rec):
