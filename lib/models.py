@@ -131,7 +131,7 @@ class GovernanceObject(BaseModel):
             # in this case, vote as delete, and log the vote in the DB
             print "Invalid object from dashd! Error: %s" % e
             if not govobj.voted_on(signal=VoteSignals.delete, outcome=VoteOutcomes.yes):
-                govobj.vote(dashd, 'delete', 'yes')
+                govobj.vote(dashd, VoteSignals.delete, VoteOutcomes.yes)
             return (govobj, None)
 
         if created:
@@ -145,7 +145,7 @@ class GovernanceObject(BaseModel):
 
     def get_vote_command(self, signal, outcome):
         cmd = [ 'gobject', 'vote-conf', self.object_hash,
-                signal, outcome ]
+                signal.name, outcome.name ]
         return cmd
 
     def vote(self, dashd, signal, outcome):
@@ -170,8 +170,8 @@ class GovernanceObject(BaseModel):
             # TODO: ensure signal, outcome exist in lookup table or raise exception
             v = Vote(
                 governance_object=self,
-                signal=Signal.get(Signal.name == signal),
-                outcome=Outcome.get(Outcome.name == outcome),
+                signal=signal,
+                outcome=outcome,
                 object_hash=self.object_hash,
             )
             v.save()

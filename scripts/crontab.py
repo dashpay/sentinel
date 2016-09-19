@@ -57,7 +57,7 @@ def attempt_superblock_creation(dashd):
 
     try:
         dbrec = Superblock.get(Superblock.sb_hash == sb.hex_hash())
-        dbrec.vote(dashd, 'funding', 'yes')
+        dbrec.vote(dashd, VoteSignals.funding, VoteOutcomes.yes)
         print "VOTED FUNDING FOR SB! We're done here 'til next month."
         return
 

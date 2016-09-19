@@ -24,10 +24,10 @@ class GovernanceClass(object):
     def vote_validity(self, dashd):
         if self.is_valid(dashd):
             # print "Voting valid! %s: %d" % (self.__class__.__name__, self.id)
-            self.vote(dashd, 'valid', 'yes')
+            self.vote(dashd, models.VoteSignals.valid, models.VoteOutcomes.yes)
         else:
             # print "Voting INVALID! %s: %d" % (self.__class__.__name__, self.id)
-            self.vote(dashd, 'valid', 'no')
+            self.vote(dashd, models.VoteSignals.valid, models.VoteOutcomes.no)
 
     def list(self):
         dikt = {
