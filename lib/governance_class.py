@@ -23,41 +23,42 @@ class GovernanceClass(object):
 
     def vote_validity(self, dashd):
         if self.is_valid(dashd):
-            print "Voting valid! %s: %d" % (self.__class__.__name__, self.id)
+            # print "Voting valid! %s: %d" % (self.__class__.__name__, self.id)
             self.vote(dashd, 'valid', 'yes')
         else:
-            print "Voting INVALID! %s: %d" % (self.__class__.__name__, self.id)
+            # print "Voting INVALID! %s: %d" % (self.__class__.__name__, self.id)
             self.vote(dashd, 'valid', 'no')
 
     def list(self):
         dikt = {
-            "Name": self.name,
-            "DataHex": self.governance_object.object_data,
+            "DataHex": self.serialise(),
             "Hash": self.object_hash,
-            "CollateralHash": self.governance_object.object_fee_tx,
-            "AbsoluteYesCount": self.governance_object.absolute_yes_count,
-            "YesCount": self.governance_object.yes_count,
-            "NoCount": self.governance_object.no_count,
-            "AbstainCount": self.governance_object.abstain_count,
+            "CollateralHash": self.go.object_fee_tx,
+            "AbsoluteYesCount": self.go.absolute_yes_count,
+            "YesCount": self.go.yes_count,
+            "NoCount": self.go.no_count,
+            "AbstainCount": self.go.abstain_count,
         }
 
         # return a dict similar to dashd "gobject list" output
-        return { self.name: dikt }
+        return { self.object_hash: dikt }
 
-    # boolean -- does the object meet collateral confirmations?
     def submit(self, dashd):
-
         # don't attempt to submit a superblock unless a masternode
         # note: will probably re-factor this, this has code smell
         if (isinstance(self, models.Superblock) and not dashd.is_masternode()):
             print "Not a masternode. Only masternodes may submit superblocks."
             return
 
-        print " -- submit cmd : ", ' '.join(self.get_submit_command())
-        print
-        print " -- executing submit ... getting object hash"
-        object_hash = dashd.rpc_command(*self.get_submit_command())
-        print " -- got hash: [%s]" % object_hash
+        # print " -- submit cmd : ", ' '.join(self.get_submit_command())
+        # print
+        # print " -- executing submit ... getting object hash"
+
+        try:
+            object_hash = dashd.rpc_command(*self.get_submit_command())
+            print "Submitted: [%s]" % object_hash
+        except JSONRPCException as e:
+            print "Got error on submit: %s" % e.message
 
     def serialise(self):
         import inflection
@@ -68,7 +69,7 @@ class GovernanceClass(object):
         name = self._meta.name
         obj_type = inflection.singularize(name)
 
-        return binascii.hexlify(simplejson.dumps( (obj_type, self.get_dict()) , sort_keys = True))
+        return binascii.hexlify(simplejson.dumps((obj_type, self.get_dict()), sort_keys = True))
 
     def dashd_serialise(self):
         import dashlib

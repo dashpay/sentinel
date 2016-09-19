@@ -1,5 +1,3 @@
-import pdb
-from pprint import pprint
 import sys, os
 sys.path.append( os.path.join( os.path.dirname(__file__), '..' ) )
 sys.path.append( os.path.join( os.path.dirname(__file__), '..', 'lib' ) )
@@ -9,7 +7,6 @@ import re
 from decimal import Decimal
 import simplejson
 import binascii
-from peewee import DoesNotExist
 
 def is_valid_dash_address( address, network = 'mainnet' ):
     # Only public key addresses are allowed
@@ -84,55 +81,43 @@ def parse_masternode_status_vin(status_vin_string):
 
     return vin
 
-
-# create superblock logic -- probably need a join table for proposal, superblock linkage
-def create_superblock( dashd, proposals, event_block_height ):
+def create_superblock(dashd, proposals, event_block_height):
     from models import Superblock, GovernanceObject, Proposal
-    import dashlib
 
     # don't create an empty superblock
     if ( len(proposals) == 0 ):
-        print "No proposals!"
+        print "No proposals, cannot create an empty superblock."
         return None
 
     budget_allocated = Decimal(0)
     budget_max       = dashd.get_superblock_budget_allocation(event_block_height)
 
-    print "  IN create_superblock"
-    print "    current height: %d" % dashd.rpc_command('getblockcount')
-    print "event_block_height: %d" % event_block_height
-    print "       budget_max : %d" % budget_max
-    print " "
-
-    # TODO: probably use a sub-table to link proposals for RI
     payments = []
     for proposal in proposals:
-        # fmt_string = "name: %s , rank: %4d , amount: %s <= %s"
-        fmt_string = "name: %s, rank: %4d, hash: %s, amount: %s <= %s"
+        # fmt_string = "name: %s, rank: %4d, hash: %s, amount: %s <= %s"
 
         # skip proposals that are too expensive...
         if (budget_allocated + proposal.payment_amount) > budget_max:
-            print fmt_string % (
-                proposal.name,
-                proposal.rank,
-                proposal.object_hash,
-                proposal.payment_amount,
-                "skipped (blows the budget)",
-            )
+            # print fmt_string % (
+            #     proposal.name,
+            #     proposal.rank,
+            #     proposal.object_hash,
+            #     proposal.payment_amount,
+            #     "skipped (blows the budget)",
+            # )
             continue
 
-        print fmt_string % (
-            proposal.name,
-            proposal.rank,
-            proposal.object_hash,
-            proposal.payment_amount,
-            "adding",
-        )
+        # print fmt_string % (
+        #     proposal.name,
+        #     proposal.rank,
+        #     proposal.object_hash,
+        #     proposal.payment_amount,
+        #     "adding",
+        # )
 
         # else add proposal and keep track of total budget allocation
         budget_allocated += proposal.payment_amount
 
-        # TODO: probably use a sub-table to link proposals for RI
         payment = { 'address': proposal.payment_address,
                     'amount': proposal.payment_amount }
         payments.append( payment )
@@ -142,20 +127,14 @@ def create_superblock( dashd, proposals, event_block_height ):
         print "No proposals made the cut!"
         return None
 
-    # deterministic superblocks can't have random names
-    sbname = "sb" + str(event_block_height)
 
-    # TODO: separate table for payments, in a specified order. Will enforce RI
-    # in the DB schema.
     sb = Superblock(
-        name = sbname,
         event_block_height = event_block_height,
         payment_addresses = '|'.join([str(pd['address']) for pd in payments]),
         payment_amounts   = '|'.join([str(pd['amount' ]) for pd in payments]),
     )
 
     return sb
-
 
 # shims 'til we can fix the dashd side
 def SHIM_serialise_for_dashd(sentinel_hex):
@@ -218,6 +197,8 @@ def serialise(dikt):
     return hexdata
 
 def did_we_vote(output):
+    from bitcoinrpc.authproxy import JSONRPCException
+
     # sentinel
     voted = False
     err_msg = ''

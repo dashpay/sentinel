@@ -218,8 +218,6 @@ class Proposal(GovernanceClass, BaseModel):
     class Meta:
         db_table = 'proposals'
 
-    # TODO: unit tests for all these items, both individually and some grouped
-    # **This can be easily mocked.**
     def is_valid(self, dashd):
         import dashlib
         now = misc.get_epoch()
@@ -321,11 +319,6 @@ class Superblock(BaseModel, GovernanceClass):
 
         return cmd
 
-    # boolean -- does the object meet collateral confirmations?
-    # superblocks don't require any, so True
-    def has_collateral_confirmations(self, dashd):
-        return True
-
     def is_valid(self, dashd):
         # ensure EBH is on-cycle
         if (self.event_block_height != dashd.next_superblock_height()):
@@ -347,6 +340,8 @@ class Superblock(BaseModel, GovernanceClass):
 
     # workaround for now, b/c we must uniquely ID a superblock with the hash,
     # in case of differing superblocks
+    #
+    # this prevents sb_hash from being added to the serialised fields
     @classmethod
     def serialisable_fields(self):
         return ['event_block_height', 'payment_addresses', 'payment_amounts']

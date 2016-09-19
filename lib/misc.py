@@ -1,26 +1,12 @@
 import time
 import re
-import datetime
-
-"""
-    take any non-meta attributes and serialize them into a register
-"""
 
 sentinel_options = []
-
-def clean_hash(s):
-    m = re.match('^([a-f0-9]+)$', s)
-    if m: return m.group(1)
-    return None
 
 def is_hash(s):
     m = re.match('^([a-f0-9]+)$', s)
     if m: return True
     return False
-
-def normalize(s):
-    # args passes in enclosing quotations
-    return s.replace("'", "").replace("\"", "")
 
 def get_epoch():
     return int(time.time())

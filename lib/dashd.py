@@ -1,16 +1,11 @@
-import pdb
-from pprint import pprint
 """
-Dashd interface
+dashd JSONRPC interface
 """
-
 import sys, os
 sys.path.append( os.path.join( os.path.dirname(__file__), '..' ) )
 sys.path.append( os.path.join( os.path.dirname(__file__), '..', 'lib' ) )
 import config
 import base58
-import subprocess
-import json
 import io
 import re
 from bitcoinrpc.authproxy import AuthServiceProxy, JSONRPCException
@@ -146,10 +141,10 @@ class DashDaemon():
         current_height = self.rpc_command('getblockcount')
         event_block_height = self.next_superblock_height()
 
-        print "current_height = %d" % current_height
-        print "event_block_height = %d" % event_block_height
-        print "maturity_phase_delta = %d" % maturity_phase_delta
-        print "maturity_phase_start_block = %d" % maturity_phase_start_block
+        # print "current_height = %d" % current_height
+        # print "event_block_height = %d" % event_block_height
+        # print "maturity_phase_delta = %d" % maturity_phase_delta
+        # print "maturity_phase_start_block = %d" % maturity_phase_start_block
 
         return (current_height >= maturity_phase_start_block)
 
@@ -161,9 +156,9 @@ class DashDaemon():
         winner = dashlib.elect_mn(block_hash=current_block_hash, mnlist=mn_list)
         my_vin = self.get_current_masternode_vin()
 
-        print "current_block_hash: [%s]" % current_block_hash
-        print "MN election winner: [%s]" % winner
-        print "current masternode VIN: [%s]" % my_vin
+        # print "current_block_hash: [%s]" % current_block_hash
+        # print "MN election winner: [%s]" % winner
+        # print "current masternode VIN: [%s]" % my_vin
 
         return (winner == my_vin)
 

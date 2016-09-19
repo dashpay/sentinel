@@ -1,11 +1,4 @@
 #!/usr/bin/env python
-
-"""
-    - look through events table, process what we're suppose to do
-    - can include building fee transactions, submitting govobjs to the network
-"""
-import pdb
-from pprint import pprint
 import random
 import sys, os
 sys.path.append( os.path.join( os.path.dirname(__file__), '..', 'lib' ) )
@@ -16,7 +9,6 @@ from dashd import DashDaemon
 from dashd import DashConfig
 from models import Superblock, Proposal, GovernanceObject
 from models import VoteSignals, VoteOutcomes
-from bitcoinrpc.authproxy import AuthServiceProxy, JSONRPCException
 import socket
 
 """
@@ -25,8 +17,8 @@ import socket
  FLAT MODULE FOR PROCESSING SENTINEL EVENTS
 
  - perform_dashd_object_sync
- - attempt_superblock_creation
  - check_object_validity
+ - attempt_superblock_creation
 """
 
 # sync dashd gobject list with our local relational DB backend
@@ -34,10 +26,8 @@ def perform_dashd_object_sync(dashd):
     GovernanceObject.sync(dashd)
 
 def attempt_superblock_creation(dashd):
-    print "IN attempt_superblock_creation"
     import dashlib
 
-    # extra check @ top, can be commented for testing
     if not dashd.is_masternode():
         print "We are not a Masternode... can't submit superblocks!"
         return
@@ -54,20 +44,7 @@ def attempt_superblock_creation(dashd):
     if Superblock.is_voted_funding(event_block_height):
        print "ALREADY VOTED! 'til next time!"
        return
-    else:
-       print "not yet voted! will continue."
 
-    # ok, now we're here, we've clearly not yet voted for a Superblock at this
-    # particular EBH... so it's vote time!
-    #
-    # first we must create a SB deterministically
-    #
-    # then see if it already exists on the network (will be in the DB b/c of the sync)
-    #
-    # then see if we win. If yes, submit it, if no, then... wait 'til next time I guess, then try and upvote/ -OR- submit again (b/c we might win the next election if one's not yet been submitted).
-
-    # only continue once we've entered the maturity phase...
-    # if (current_height < maturity_phase_start_block):
     if not dashd.is_govobj_maturity_phase():
         print "Not in maturity phase yet -- will not attempt Superblock"
         return
@@ -78,12 +55,7 @@ def attempt_superblock_creation(dashd):
         print "No superblock created, sorry. Returning."
         return
 
-    print "sb hash: %s" % sb.hex_hash()
-
     try:
-        # if this is found in the DB, then it is the valid one (because we're #
-        # searchign by the deterministic hash) and it's on the network (b/c in the
-        # DB -- otherwise it would not have been synced.)
         dbrec = Superblock.get(Superblock.sb_hash == sb.hex_hash())
         dbrec.vote(dashd, 'funding', 'yes')
         print "VOTED FUNDING FOR SB! We're done here 'til next month."
@@ -108,11 +80,6 @@ def attempt_superblock_creation(dashd):
     else:
         print "we lost the election... FAKING IT!"
         sb.submit(dashd)
-
-
-    # theoretically we could vote there...
-
-    print "LEAVING attempt_superblock_creation"
 
 
 def check_object_validity(dashd):
