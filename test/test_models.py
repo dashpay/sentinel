@@ -36,10 +36,11 @@ def governance_object():
     return GovernanceObject()
 
 def test_governance_object(governance_object):
-    d = governance_object.get_dict()
+    d = governance_object._meta.columns
     assert type(d) == type({})
 
     fields = [
+        'id',
         'parent_id',
         'object_creation_time',
         'object_hash',

@@ -8,14 +8,13 @@ from pprint import pprint
 
 os.environ['SENTINEL_ENV'] = 'test'
 sys.path.append( os.path.join( os.path.dirname(__file__), '..', 'lib' ) )
-from models import GovernanceObject, Proposal, Superblock
+from models import GovernanceObject, Superblock
 
 # NGM/TODO: setup both Proposal and Superblock, and insert related rows
 
 def setup():
 
     # clear tables first...
-    Proposal.delete().execute()
     Superblock.delete().execute()
     GovernanceObject.delete().execute()
 
@@ -28,16 +27,32 @@ def superblock():
 
     # NOTE: no governance_object_id is set
     sbobj = Superblock(
-        name = "sb62500",
         event_block_height = 62500,
         payment_addresses = "yYe8KwyaUu5YswSYmB3q3ryx8XTUu9y7Ui|yTC62huR4YQEPn9AJHjnQxxreHSbgAoatV",
         payment_amounts  = "5|3"
     )
 
-    # NOTE: this object is (intentionally) not saved yet.
-    #       We want to return an built, but unsaved, object
     return sbobj
 
+
+@pytest.fixture
+def superblock_obj_from_dashd():
+    return {
+        u'AbsoluteYesCount': 1,
+        u'AbstainCount': 0,
+        u'CollateralHash': u'0000000000000000000000000000000000000000000000000000000000000000',
+        u'DataHex': u'5b5b2274726967676572222c207b226576656e745f626c6f636b5f686569676874223a2037313136302c20227061796d656e745f616464726573736573223a2022795443363268755234595145506e39414a486a6e517878726548536267416f617456222c20227061796d656e745f616d6f756e7473223a202233392e3233303030303030222c20227375706572626c6f636b5f6e616d65223a202273623731313630222c202274797065223a20327d5d5d',
+        u'DataString': u'[["trigger", {"event_block_height": 71160, "payment_addresses": "yTC62huR4YQEPn9AJHjnQxxreHSbgAoatV", "payment_amounts": "39.23000000", "superblock_name": "sb71160", "type": 2}]]',
+        u'Hash': u'b9f42f914c0be92c9e044b1dc9aab8a9f6530fbacd6bc44279c92dc6d945ed1c',
+        u'IsValidReason': u'',
+        u'NoCount': 0,
+        u'YesCount': 1,
+        u'fBlockchainValidity': True,
+        u'fCachedDelete': False,
+        u'fCachedEndorsed': False,
+        u'fCachedFunding': False,
+        u'fCachedValid': True
+    }
 
 @pytest.fixture
 def proposal():
@@ -68,20 +83,7 @@ def governance_object():
     return govobj
 
 def test_submit_command(superblock):
-    superblock.create_with_govobj()
-    gobj = superblock.governance_object
-
-    # some small manipulations for our test cases
-    gobj.object_creation_time = 1471898632
-    gobj.save()
-
-    # update primary key for our test -- can't be done w/save() method
-    uq = GovernanceObject.update(id = 5).where(GovernanceObject.id == gobj.id)
-    uq.execute()
-
-    # reload stale objects
-    superblock = Superblock.get( Superblock.id == superblock.id )
-    gobj = GovernanceObject.get( GovernanceObject.id == 5 )
+    # (gobj, superblock) = GovernanceObject.import_object_from_dashd(superblock_obj_from_dashd)
 
     cmd = superblock.get_submit_command()
 
@@ -92,52 +94,7 @@ def test_submit_command(superblock):
     assert re.match(r'^[\d]+$', cmd[4]) != None
     assert re.match(r'^[\w-]+$', cmd[5]) != None
 
-    gobject_command = ['gobject', 'submit', '0', '1', '1471898632', '5b5b2274726967676572222c207b226576656e745f626c6f636b5f686569676874223a2036323530302c20227061796d656e745f616464726573736573223a2022795965384b77796155753559737753596d42337133727978385854557539793755697c795443363268755234595145506e39414a486a6e517878726548536267416f617456222c20227061796d656e745f616d6f756e7473223a2022357c33222c20227375706572626c6f636b5f6e616d65223a202273623632353030222c202274797065223a20327d5d5d']
+    submit_time = cmd[4]
+
+    gobject_command = ['gobject', 'submit', '0', '1', submit_time, '5b5b2274726967676572222c207b226576656e745f626c6f636b5f686569676874223a2036323530302c20227061796d656e745f616464726573736573223a2022795965384b77796155753559737753596d42337133727978385854557539793755697c795443363268755234595145506e39414a486a6e517878726548536267416f617456222c20227061796d656e745f616d6f756e7473223a2022357c33222c202274797065223a20327d5d5d']
     assert cmd == gobject_command
-
-
-# ensure both rows get created -- govobj & proposal
-def test_proposal_create_with_govobj(proposal):
-    from models import GovernanceObject, Proposal
-
-    proposal_count = Proposal.select().count()
-    gov_obj_count  = GovernanceObject.select().count()
-    total_count = proposal_count + gov_obj_count
-
-    assert total_count == 0
-
-    try:
-        proposal.create_with_govobj()
-    except PeeweeException as e:
-        print "error: %s" % e[1]
-
-    proposal_count = Proposal.select().count()
-    gov_obj_count  = GovernanceObject.select().count()
-    total_count = proposal_count + gov_obj_count
-
-    assert proposal_count == 1
-    assert gov_obj_count  == 1
-    assert total_count == 2
-
-# ensure both rows get created -- govobj & superblock
-def test_superblock_create_with_govobj(superblock):
-    from models import GovernanceObject, Superblock
-
-    superblock_count = Superblock.select().count()
-    gov_obj_count  = GovernanceObject.select().count()
-    total_count = superblock_count + gov_obj_count
-
-    assert total_count == 0
-
-    try:
-        superblock.create_with_govobj()
-    except PeeweeException as e:
-        print "error: %s" % e[1]
-
-    superblock_count = Superblock.select().count()
-    gov_obj_count  = GovernanceObject.select().count()
-    total_count = superblock_count + gov_obj_count
-
-    assert superblock_count == 1
-    assert gov_obj_count    == 1
-    assert total_count      == 2
