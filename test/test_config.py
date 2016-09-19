@@ -12,7 +12,7 @@ sys.path.append( os.path.join( os.path.dirname(__file__), '..' ) )
 
 import config
 # from dashd import DashDaemon
-from dashd import DashConfig
+from dash_config import DashConfig
 
 
 @pytest.fixture

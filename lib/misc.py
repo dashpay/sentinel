@@ -41,7 +41,7 @@ def startup():
     readline.set_completer_delims(old_delims.replace('-', '')) # <-
 
     # history file
-    histfile = os.path.join(os.environ['HOME'], '.pythonhistory')
+    histfile = os.path.join(os.environ.get('HOME'), '.pythonhistory')
     try:
         readline.read_history_file(histfile)
     except IOError:

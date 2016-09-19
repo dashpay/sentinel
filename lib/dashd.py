@@ -6,8 +6,6 @@ sys.path.append( os.path.join( os.path.dirname(__file__), '..' ) )
 sys.path.append( os.path.join( os.path.dirname(__file__), '..', 'lib' ) )
 import config
 import base58
-import io
-import re
 from bitcoinrpc.authproxy import AuthServiceProxy, JSONRPCException
 from masternode import Masternode
 from decimal import Decimal
@@ -27,6 +25,7 @@ class DashDaemon():
 
     @classmethod
     def from_dash_conf(self, dash_dot_conf):
+        from dash_config import DashConfig
         config_text = DashConfig.slurp_config_file(dash_dot_conf)
         creds = DashConfig.get_rpc_creds(config_text)
 
@@ -161,42 +160,3 @@ class DashDaemon():
         # print "current masternode VIN: [%s]" % my_vin
 
         return (winner == my_vin)
-
-class DashConfig():
-
-    @classmethod
-    def slurp_config_file(self, filename):
-        # read dash.conf config but skip commented lines
-        f = io.open(filename)
-        lines = []
-        for line in f:
-            if re.match('^\s*#', line):
-                continue
-            lines.append(line)
-        f.close()
-
-        # data is dash.conf without commented lines
-        data = ''.join(lines)
-
-        return data
-
-    @classmethod
-    def get_rpc_creds(self, data):
-        # get rpc info from dash.conf
-        match = re.findall(r'rpc(user|password|port)=(.*?)$', data, re.MULTILINE)
-
-        # python >= 2.7
-        creds = { key: value for (key, value) in match }
-
-        # standard Dash defaults...
-        default_port = 9998 if ( config.network == 'mainnet' ) else 19998
-
-        # use default port for network if not specified in dash.conf
-        if not ( 'port' in creds ):
-            creds[u'port'] = default_port
-
-        # convert to an int if taken from dash.conf
-        creds[u'port'] = int(creds[u'port'])
-
-        # return a dictionary with RPC credential key, value pairs
-        return creds

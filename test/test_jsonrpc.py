@@ -1,19 +1,14 @@
 import pytest
-import os
-import sys
+import sys, os
 import re
-
-import pdb
-from pprint import pprint
 
 os.environ['SENTINEL_ENV'] = 'test'
 sys.path.append( os.path.join( os.path.dirname(__file__), '..', 'lib' ) )
 sys.path.append( os.path.join( os.path.dirname(__file__), '..' ) )
-
 import config
-from dashd import DashDaemon
-from dashd import DashConfig
 
+from dashd import DashDaemon
+from dash_config import DashConfig
 
 @pytest.fixture
 def dash_conf(**kwargs):
@@ -55,7 +50,6 @@ def test_dashd():
     # Dash testnet block 0 hash == 00000bafbc94add76cb75e2ec92894837288a481e5c005f6563d91623bf8bc2c
     # test commands without arguments
     info  = dashd.rpc_command('getinfo')
-    # pprint(info)
 
     info_keys = [
         'balance',

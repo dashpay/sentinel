@@ -1,8 +1,6 @@
-import pdb
-from peewee import Model, MySQLDatabase, IntegerField, CharField, TextField, ForeignKeyField, DecimalField, DateTimeField
+from peewee import IntegerField, CharField, TextField, ForeignKeyField, DecimalField, DateTimeField
 import peewee
 import playhouse.signals
-from pprint import pprint
 import time
 import simplejson
 import binascii
@@ -18,11 +16,7 @@ import dashd
 # our mixin
 from governance_class import GovernanceClass
 
-env = os.environ.get('SENTINEL_ENV') or 'production'
-db_cfg = config.db[env].copy()
-dbname = db_cfg.pop('database')
-
-db = MySQLDatabase(dbname, **db_cfg)
+db = config.db
 
 try:
     db.connect()

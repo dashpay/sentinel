@@ -6,7 +6,7 @@ sys.path.append( os.path.join( os.path.dirname(__file__), '..') )
 import config
 import misc
 from dashd import DashDaemon
-from dashd import DashConfig
+from dash_config import DashConfig
 from models import Superblock, Proposal, GovernanceObject
 from models import VoteSignals, VoteOutcomes
 import socket

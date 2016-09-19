@@ -1,5 +1,3 @@
-scripts/1.sql
-
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -92,9 +90,7 @@ ENV/
 # Rope project settings
 .ropeproject
 
-# modeler files
-config.py
-
+# OS specific and other
 .DS_Store
 docs/.DS_Store
 
