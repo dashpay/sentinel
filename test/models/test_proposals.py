@@ -134,6 +134,19 @@ def test_proposal_is_valid(proposal):
     proposal.payment_address = 'yYe8KwyaUu5YswSYmB3q3ryx8XTUu9y7Ui'
     assert proposal.is_valid(dashd) == True
 
+    # validate URL (ish)
+    proposal.url = 'www.com'
+    assert proposal.is_valid(dashd) == True
+
+    proposal.url = ' '
+    assert proposal.is_valid(dashd) == False
+
+    proposal.url = '    '
+    assert proposal.is_valid(dashd) == False
+
+    proposal.url = 'v.ht/'
+    assert proposal.is_valid(dashd) == True
+
 
     # ============================================================
     # ensure proposal can't request more than the budget

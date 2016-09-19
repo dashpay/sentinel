@@ -239,6 +239,10 @@ class Proposal(GovernanceClass, BaseModel):
         if not dashlib.is_valid_dash_address( self.payment_address, config.network ):
             return False
 
+        # URL
+        if (len(self.url.strip()) < 4):
+            return False
+
         return True
 
     def is_deletable(self):
