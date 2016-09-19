@@ -1,8 +1,12 @@
-/*
-  DATABASE TABLES
-
-  TODO: drop a comment w/schema conventions in here
-*/
+--
+-- schema conventions:
+--
+-- `id` is a unique serial autoincrement PK to uniquely identify any rows
+-- without having to reference other tables.
+--
+-- Indexes are named with the pattern `index_TABLENAME_COLUMNNAME`
+-- Foreign Key constraints are named with the pattern `fk_TABLENAME_COLUMNNAME`
+--
 
 DROP VIEW if exists vvotes ;
 DROP VIEW if exists vsuperblocks ;
