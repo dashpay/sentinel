@@ -5,7 +5,7 @@ import sys,  os
 sys.path.append( os.path.join( os.path.dirname(__file__), '..', 'lib' ) )
 sys.path.append( os.path.join( os.path.dirname(__file__), '..' ) )
 import config
-from models import Event, Superblock, Proposal, GovernanceObject
+from models import Proposal, GovernanceObject
 from peewee import PeeweeException #, OperationalError, IntegrityError
 from time import time
 import dashlib
@@ -23,19 +23,19 @@ def create_fake_proposal_data():
 
     dikt = {
         'name': name,
-        'url': "http://dashcentral.org/%s" % name,
+        'url': "https://www.dashcentral.org/p/%s" % name,
         'payment_address': 'yYe8KwyaUu5YswSYmB3q3ryx8XTUu9y7Ui',
-        'payment_amount': Decimal(5.75),
-        'start_epoch': 1483250400,
+        'payment_amount': Decimal(25.75),
+        'start_epoch': 1474261086,
         'end_epoch': 1491368400,
     }
 
     return dikt
 
 
-
 num = 2
 for i in range(num):
+    import dashlib
     data = create_fake_proposal_data()
     proposal = Proposal(**data)
-    proposal.create_and_queue()
+    print "%s - %s" % (proposal.name, proposal.dashd_serialise())
