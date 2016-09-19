@@ -378,18 +378,12 @@ class Signal(BaseModel):
     class Meta:
         db_table = 'signals'
 
-# convenience accessors
-VoteSignals = misc.Bunch(**{ sig.name: sig for sig in Signal.select() })
-
 class Outcome(BaseModel):
     name = CharField(unique=True)
     created_at = DateTimeField(default=datetime.datetime.utcnow())
     updated_at = DateTimeField(default=datetime.datetime.utcnow())
     class Meta:
         db_table = 'outcomes'
-
-# convenience accessors
-VoteOutcomes = misc.Bunch(**{ out.name: out for out in Outcome.select() })
 
 class Vote(BaseModel):
     governance_object = ForeignKeyField(GovernanceObject, related_name = 'votes')
@@ -404,3 +398,41 @@ class Vote(BaseModel):
         db_table = 'votes'
 
 # === /models ===
+
+def load_db_seeds():
+    rows_created = 0
+
+    for name in ['funding', 'valid', 'delete']:
+        (obj, created) = Signal.get_or_create(name=name)
+        if created:
+            rows_created = rows_created + 1
+
+    for name in ['yes', 'no', 'abstain']:
+        (obj, created) = Outcome.get_or_create(name=name)
+        if created:
+            rows_created = rows_created + 1
+
+    return rows_created
+
+def check_db_sane():
+    missing_table_models = []
+
+    for model in [ GovernanceObject, Setting, Proposal, Superblock, Signal, Outcome, Vote ]:
+        if not getattr(model, 'table_exists')():
+            missing_table_models.append(model)
+            print "[warning]: table for %s (%s) doesn't exist in DB." % (model, model._meta.db_table)
+
+    if missing_table_models:
+        print "[warning]: Missing database tables. Auto-creating tables."
+        try:
+            db.create_tables(missing_table_models, safe=True)
+        except peewee.OperationalError as e:
+            print "[error] Could not create tables: %s" % e
+
+# sanity checks...
+check_db_sane()     # ensure tables exist
+load_db_seeds()     # ensure seed data loaded
+
+# convenience accessors
+VoteSignals = misc.Bunch(**{ sig.name: sig for sig in Signal.select() })
+VoteOutcomes = misc.Bunch(**{ out.name: out for out in Outcome.select() })
