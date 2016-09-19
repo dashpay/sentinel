@@ -192,7 +192,7 @@ class Setting(BaseModel):
 
 class Proposal(GovernanceClass, BaseModel):
     governance_object = ForeignKeyField(GovernanceObject, related_name = 'proposals')
-    name = CharField(max_length=20)
+    name = CharField(default='', max_length=20)
     url = CharField(default='')
     start_epoch = IntegerField()
     end_epoch = IntegerField()
