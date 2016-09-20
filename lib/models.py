@@ -341,7 +341,8 @@ class Superblock(BaseModel, GovernanceClass):
     def serialisable_fields(self):
         return ['event_block_height', 'payment_addresses', 'payment_amounts']
 
-    # has this masternode voted on *any* superblocks at the given event_block_height?
+    # has this masternode voted to fund *any* superblocks at the given
+    # event_block_height?
     @classmethod
     def is_voted_funding(self, ebh):
         count = (self.select()
