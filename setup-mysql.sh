@@ -238,7 +238,7 @@ create_db() {
 }
 
 init_db() {
-    init_schema=$(cat "database/001.sql")
+    init_schema=$(cat "database/sentinel.mysql")
     do_query "USE sentinel; $init_schema"
     do_query "USE sentinel_test; $init_schema"
     echo "..done"
