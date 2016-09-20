@@ -1,7 +1,12 @@
 import time
 import re
+import sys, os
 
 sentinel_options = []
+
+def printdbg(str):
+    if os.environ.get('SENTINEL_DEBUG', None):
+        print(str)
 
 def is_hash(s):
     m = re.match('^([a-f0-9]+)$', s)

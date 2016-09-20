@@ -7,6 +7,7 @@ import re
 from decimal import Decimal
 import simplejson
 import binascii
+from misc import printdbg
 
 def is_valid_dash_address( address, network = 'mainnet' ):
     # Only public key addresses are allowed
@@ -86,7 +87,7 @@ def create_superblock(dashd, proposals, event_block_height):
 
     # don't create an empty superblock
     if ( len(proposals) == 0 ):
-        print "No proposals, cannot create an empty superblock."
+        printdbg("No proposals, cannot create an empty superblock.")
         return None
 
     budget_allocated = Decimal(0)
@@ -94,26 +95,30 @@ def create_superblock(dashd, proposals, event_block_height):
 
     payments = []
     for proposal in proposals:
-        # fmt_string = "name: %s, rank: %4d, hash: %s, amount: %s <= %s"
+        fmt_string = "name: %s, rank: %4d, hash: %s, amount: %s <= %s"
 
         # skip proposals that are too expensive...
         if (budget_allocated + proposal.payment_amount) > budget_max:
-            # print fmt_string % (
-            #     proposal.name,
-            #     proposal.rank,
-            #     proposal.object_hash,
-            #     proposal.payment_amount,
-            #     "skipped (blows the budget)",
-            # )
+            printdbg(
+                fmt_string % (
+                    proposal.name,
+                    proposal.rank,
+                    proposal.object_hash,
+                    proposal.payment_amount,
+                    "skipped (blows the budget)",
+                )
+            )
             continue
 
-        # print fmt_string % (
-        #     proposal.name,
-        #     proposal.rank,
-        #     proposal.object_hash,
-        #     proposal.payment_amount,
-        #     "adding",
-        # )
+        printdbg(
+            fmt_string % (
+                proposal.name,
+                proposal.rank,
+                proposal.object_hash,
+                proposal.payment_amount,
+                "adding",
+            )
+        )
 
         # else add proposal and keep track of total budget allocation
         budget_allocated += proposal.payment_amount
@@ -124,7 +129,7 @@ def create_superblock(dashd, proposals, event_block_height):
 
     # don't create an empty superblock
     if not payments:
-        print "No proposals made the cut!"
+        printdbg("No proposals made the cut!")
         return None
 
 
@@ -213,9 +218,9 @@ def did_we_vote(output):
         err_msg = e.message
 
     # success, failed
-    print "result  = [%s]" % result
+    printdbg("result  = [%s]" % result)
     if err_msg:
-        print "err_msg = [%s]" % err_msg
+        printdbg("err_msg = [%s]" % err_msg)
 
     voted = False
     if result == 'success':
@@ -225,7 +230,7 @@ def did_we_vote(output):
     # on the network and network has recorded those votes
     m = re.match(r'^time between votes is too soon', err_msg)
     if result == 'failed' and m:
-        print "DEBUG: failed, but marking as voted..."
+        printdbg("DEBUG: failed, but marking as voted...")
         voted = True
 
     return voted

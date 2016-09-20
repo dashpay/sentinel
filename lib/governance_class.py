@@ -7,6 +7,7 @@ import models
 from bitcoinrpc.authproxy import JSONRPCException
 import misc
 import re
+from misc import printdbg
 
 # mixin for GovObj composed classes like proposal and superblock, etc.
 class GovernanceClass(object):
@@ -23,10 +24,10 @@ class GovernanceClass(object):
 
     def vote_validity(self, dashd):
         if self.is_valid(dashd):
-            # print "Voting valid! %s: %d" % (self.__class__.__name__, self.id)
+            printdbg("Voting valid! %s: %d" % (self.__class__.__name__, self.id))
             self.vote(dashd, models.VoteSignals.valid, models.VoteOutcomes.yes)
         else:
-            # print "Voting INVALID! %s: %d" % (self.__class__.__name__, self.id)
+            printdbg("Voting INVALID! %s: %d" % (self.__class__.__name__, self.id))
             self.vote(dashd, models.VoteSignals.valid, models.VoteOutcomes.no)
 
     def list(self):
@@ -50,13 +51,9 @@ class GovernanceClass(object):
             print "Not a masternode. Only masternodes may submit superblocks."
             return
 
-        # print " -- submit cmd : ", ' '.join(self.get_submit_command())
-        # print
-        # print " -- executing submit ... getting object hash"
-
         try:
             object_hash = dashd.rpc_command(*self.get_submit_command())
-            print "Submitted: [%s]" % object_hash
+            printdbg("Submitted: [%s]" % object_hash)
         except JSONRPCException as e:
             print "Got error on submit: %s" % e.message
 

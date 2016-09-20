@@ -12,6 +12,7 @@ sys.path.append( os.path.join( os.path.dirname(__file__), '..' , 'lib' ) )
 import config
 import misc
 import dashd
+from misc import printdbg
 
 # our mixin
 from governance_class import GovernanceClass
@@ -112,10 +113,10 @@ class GovernanceObject(BaseModel):
         # get/create, then sync vote counts from dashd, with every run
         govobj, created = self.get_or_create(object_hash=object_hash, defaults=gobj_dict)
         if created:
-            print "govobj created = %s" % created
+            printdbg("govobj created = %s" % created)
         count = govobj.update(**gobj_dict).where(self.id == govobj.id).execute()
         if count:
-            print "govobj updated = %d" % count
+            printdbg("govobj updated = %d" % count)
         subdikt['governance_object'] = govobj
 
         # get/create, then sync payment amounts, etc. from dashd - Dashd is the master
@@ -123,16 +124,16 @@ class GovernanceObject(BaseModel):
             subobj, created = subclass.get_or_create(object_hash=object_hash, defaults=subdikt)
         except (peewee.OperationalError, peewee.IntegrityError) as e:
             # in this case, vote as delete, and log the vote in the DB
-            print "Invalid object from dashd! Error: %s" % e
+            printdbg("Got invalid object from dashd! %s" % e)
             if not govobj.voted_on(signal=VoteSignals.delete, outcome=VoteOutcomes.yes):
                 govobj.vote(dashd, VoteSignals.delete, VoteOutcomes.yes)
             return (govobj, None)
 
         if created:
-            print "subobj created = %s" % created
+            printdbg("subobj created = %s" % created)
         count = subobj.update(**subdikt).where(subclass.id == subobj.id).execute()
         if count:
-            print "subobj updated = %d" % count
+            printdbg("subobj updated = %d" % count)
 
         # ATM, returns a tuple w/gov attributes and the govobj
         return (govobj, subobj)
@@ -149,12 +150,12 @@ class GovernanceObject(BaseModel):
         # have an extra check just in case objects get out of sync (people will
         # muck with the DB).
         if ( self.object_hash == '0' or not misc.is_hash(self.object_hash)):
-            print "No governance object hash, nothing to vote on."
+            printdbg("No governance object hash, nothing to vote on.")
             return
 
         # TODO: ensure Signal, Outcome are valid options for dashd
         vote_command = self.get_vote_command(signal, outcome)
-        print ' '.join(vote_command)
+        printdbg(' '.join(vote_command))
         output = dashd.rpc_command(*vote_command)
 
         # extract vote output parsing to external lib

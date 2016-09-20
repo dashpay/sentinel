@@ -10,6 +10,7 @@ from dash_config import DashConfig
 from models import Superblock, Proposal, GovernanceObject
 from models import VoteSignals, VoteOutcomes
 import socket
+from misc import printdbg
 
 """
  scripts/crontab.py
@@ -42,23 +43,23 @@ def attempt_superblock_creation(dashd):
     event_block_height = dashd.next_superblock_height()
 
     if Superblock.is_voted_funding(event_block_height):
-       print "ALREADY VOTED! 'til next time!"
+       printdbg("ALREADY VOTED! 'til next time!")
        return
 
     if not dashd.is_govobj_maturity_phase():
-        print "Not in maturity phase yet -- will not attempt Superblock"
+        printdbg("Not in maturity phase yet -- will not attempt Superblock")
         return
 
     proposals = Proposal.approved_and_ranked(dashd)
     sb = dashlib.create_superblock(dashd, proposals, event_block_height)
     if not sb:
-        print "No superblock created, sorry. Returning."
+        printdbg("No superblock created, sorry. Returning.")
         return
 
     try:
         dbrec = Superblock.get(Superblock.sb_hash == sb.hex_hash())
         dbrec.vote(dashd, VoteSignals.funding, VoteOutcomes.yes)
-        print "VOTED FUNDING FOR SB! We're done here 'til next month."
+        printdbg("VOTED FUNDING FOR SB! We're done here 'til next superblock cycle.")
         return
 
         # TODO: then vote any other Superblocks for the same event_block_height as 'no'
@@ -71,16 +72,16 @@ def attempt_superblock_creation(dashd):
         # maybe a custom method/query for this specific case
 
     except Superblock.DoesNotExist as e:
-        print "The correct superblock wasn't found on the network..."
+        printdbg("The correct superblock wasn't found on the network...")
 
     # if we are the elected masternode...
     if (dashd.we_are_the_winner()):
-        print "we are the winner! Submit SB to network"
+        printdbg("we are the winner! Submit SB to network")
         sb.submit(dashd)
+    #TODO: prune this & let it fly...
     else:
-        print "we lost the election... FAKING IT!"
+        printdbg("we lost the election... FAKING IT!")
         sb.submit(dashd)
-
 
 def check_object_validity(dashd):
     # vote invalid objects
@@ -102,6 +103,7 @@ def is_dashd_port_open(dashd):
 
     return port_open
 
+# TODO: remove this...
 def fake_upvote_proposals(dashd):
     import dashlib
     max_budget = dashd.next_superblock_max_budget()
@@ -138,7 +140,7 @@ if __name__ == '__main__':
     # load "gobject list" rpc command data & create new objects in local MySQL DB
     perform_dashd_object_sync(dashd)
 
-    # TODO: fake upvote some proposals here...
+    # TODO: remove this
     fake_upvote_proposals(dashd)
 
     # auto vote network objects as valid/invalid
