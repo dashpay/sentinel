@@ -12,7 +12,7 @@ sys.path.append( os.path.join( os.path.dirname(__file__), '..', '..' ) )
 
 import misc
 import config
-from models import GovernanceObject, Proposal, Vote
+from models import GovernanceObject, Proposal, Superblock, Vote
 
 # clear DB tables before each execution
 def setup():
@@ -25,9 +25,9 @@ def teardown():
     pass
 
 
-# list of govobjs to import for proposal ranking, ordering
+# list of proposal govobjs to import for testing
 @pytest.fixture
-def golist():
+def go_list_proposals():
     items = [
         {u'AbsoluteYesCount': 1000,
          u'AbstainCount': 7,
@@ -210,20 +210,13 @@ def test_proposal_is_deletable(proposal):
     assert proposal.is_deletable() == True
 
 # deterministic ordering
-def test_approved_and_ranked(golist):
+def test_approved_and_ranked(go_list_proposals):
     from dashd import DashDaemon
     dashd = DashDaemon.from_dash_conf(config.dash_conf)
-    for item in golist:
+    for item in go_list_proposals:
         (go, subobj) = GovernanceObject.import_gobject_from_dashd(dashd, item)
 
     prop_list = Proposal.approved_and_ranked(dashd)
 
-    from pprint import pprint
-    # import pdb;pdb.set_trace()
-    # pprint(prop_list)
-
     assert prop_list[0].object_hash == u'0523445762025b2e01a2cd34f1d10f4816cf26ee1796167e5b029901e5873630'
     assert prop_list[1].object_hash == u'dfd7d63979c0b62456b63d5fc5306dbec451180adee85876cbf5b28c69d1a86c'
-
-
-
