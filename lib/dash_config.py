@@ -4,6 +4,7 @@ sys.path.append( os.path.join( os.path.dirname(__file__), '..', 'lib' ) )
 import config
 import io
 import re
+from misc import printdbg
 
 class DashConfig():
 
@@ -46,7 +47,12 @@ class DashConfig():
 
     @classmethod
     def tokenize(self, filename):
-        data = self.slurp_config_file(filename)
-        match = re.findall(r'(.*?)=(.*?)$', data, re.MULTILINE)
-        tokens = { key: value for (key, value) in match }
+        tokens = {}
+        try:
+            data = self.slurp_config_file(filename)
+            match = re.findall(r'(.*?)=(.*?)$', data, re.MULTILINE)
+            tokens = { key: value for (key, value) in match }
+        except IOError as e:
+            printdbg("[warning] error reading config file: %s" % e)
+
         return tokens
