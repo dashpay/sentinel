@@ -67,7 +67,7 @@ class GovernanceObject(BaseModel):
         # objects which are removed from the network should be removed from the DB
         for purged in self.purged_network_objects(golist.keys()):
             # SOMEDAY: possible archive step here
-            purged.delete_instance()
+            purged.delete_instance(recursive=True, delete_nullable=True)
 
         for item in golist.values():
             (go, subobj) = self.import_gobject_from_dashd(dashd, item)
