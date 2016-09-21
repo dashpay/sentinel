@@ -114,22 +114,64 @@ def go_list_superblocks():
 
 @pytest.fixture
 def superblock():
-    # NOTE: no governance_object_id is set
-    sbobj = Superblock(
+    sb = Superblock(
         event_block_height = 62500,
-        payment_address = "yYe8KwyaUu5YswSYmB3q3ryx8XTUu9y7Ui|yTC62huR4YQEPn9AJHjnQxxreHSbgAoatV",
-        payment_amount  = "5|3"
+        payment_addresses = "yYe8KwyaUu5YswSYmB3q3ryx8XTUu9y7Ui|yTC62huR4YQEPn9AJHjnQxxreHSbgAoatV",
+        payment_amounts = "5|3"
     )
 
     # NOTE: this object is (intentionally) not saved yet.
     #       We want to return an built, but unsaved, object
-    return sbobj
+    return sb
 
 
 def test_superblock_is_valid(superblock):
-    # fixture as-is should be valid
-    # assert superblock.is_valid(dashd) == True
-    pass
+    from dashd import DashDaemon
+    dashd = DashDaemon.from_dash_conf(config.dash_conf)
+
+    current_ebh = dashd.next_superblock_height()
+    superblock.event_block_height = current_ebh
+    orig = Superblock(**superblock.get_dict()) # make a copy
+
+    # original as-is should be valid
+    assert orig.is_valid(dashd) == True
+
+    # mess with payment amounts
+    superblock.payment_amounts = '7|yyzx'
+    assert superblock.is_valid(dashd) == False
+
+    superblock.payment_amounts = '7,|yzx'
+    assert superblock.is_valid(dashd) == False
+
+    # reset
+    superblock.payment_amounts = orig.payment_amounts
+    assert superblock.is_valid(dashd) == True
+
+    # mess with payment addresses
+    superblock.payment_addresses = 'yTC62huR4YQEPn9AJHjnQxxreHSbgAoatV|1234 Anywhere ST, Chicago, USA'
+    assert superblock.is_valid(dashd) == False
+
+    # single payment addr/amt is ok
+    superblock.payment_addresses = 'yTC62huR4YQEPn9AJHjnQxxreHSbgAoatV'
+    superblock.payment_amounts = '5.00'
+    assert superblock.is_valid(dashd) == True
+
+    # ensure number of payment addresses matches number of payments
+    superblock.payment_addresses = 'yTC62huR4YQEPn9AJHjnQxxreHSbgAoatV'
+    superblock.payment_amounts = '37.00|23.24'
+    assert superblock.is_valid(dashd) == False
+
+    superblock.payment_addresses = 'yYe8KwyaUu5YswSYmB3q3ryx8XTUu9y7Ui|yTC62huR4YQEPn9AJHjnQxxreHSbgAoatV'
+    superblock.payment_amounts = '37.00'
+    assert superblock.is_valid(dashd) == False
+
+    # ensure amounts greater than zero
+    superblock.payment_addresses = 'yTC62huR4YQEPn9AJHjnQxxreHSbgAoatV'
+    superblock.payment_amounts = '-37.00'
+    assert superblock.is_valid(dashd) == False
+
+
+
 
 def test_superblock_is_deletable(superblock):
     # now = misc.get_epoch()
@@ -177,4 +219,3 @@ def test_deterministic_superblock_selection(go_list_superblocks):
     sb = Superblock.find_highest_deterministic('5c7c28ddec8c1ad54b49f6f1e79369e7ccaf76f5ddc30e502569d674e458ccf3')
 
     assert sb.object_hash == 'bc2834f357da7504138566727c838e6ada74d079e63b6104701f4f8eb05dae36'
-

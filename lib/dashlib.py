@@ -9,7 +9,7 @@ import simplejson
 import binascii
 from misc import printdbg
 
-def is_valid_dash_address( address, network = 'mainnet' ):
+def is_valid_dash_address(address, network='mainnet'):
     # Only public key addresses are allowed
     # A valid address is a RIPEMD-160 hash which contains 20 bytes
     # Prior to base58 encoding 1 version byte is prepended and

@@ -4,6 +4,19 @@ import sys, os
 
 sentinel_options = []
 
+def is_numeric(strin):
+    import decimal
+
+    # Decimal allows spaces in input, but we don't
+    if strin.strip() != strin:
+        return False
+    try:
+        value = decimal.Decimal(strin)
+    except decimal.InvalidOperation as e:
+        return False
+
+    return True
+
 def printdbg(str):
     if os.environ.get('SENTINEL_DEBUG', None):
         print(str)

@@ -220,28 +220,28 @@ class Proposal(GovernanceClass, BaseModel):
         now = misc.get_epoch()
 
         # proposal name is normalized (something like "[a-zA-Z0-9-_]+")
-        if not re.match( '^[-_a-zA-Z0-9]+$', self.name ):
+        if not re.match(r'^[-_a-zA-Z0-9]+$', self.name):
             return False
 
         # end date < start date
-        if ( self.end_epoch <= self.start_epoch ):
+        if (self.end_epoch <= self.start_epoch):
             return False
 
         # end date < current date
-        if ( self.end_epoch <= now ):
+        if (self.end_epoch <= now):
             return False
 
         # budget check
         max_budget = dashd.next_superblock_max_budget()
-        if ( max_budget and (self.payment_amount > max_budget) ):
+        if (max_budget and (self.payment_amount > max_budget)):
             return False
 
         # amount can't be negative or 0
-        if ( self.payment_amount <= 0 ):
+        if (self.payment_amount <= 0):
             return False
 
         # payment address is valid base58 dash addr, non-multisig
-        if not dashlib.is_valid_dash_address( self.payment_address, config.network ):
+        if not dashlib.is_valid_dash_address(self.payment_address, config.network):
             return False
 
         # URL
@@ -253,7 +253,7 @@ class Proposal(GovernanceClass, BaseModel):
     def is_deletable(self):
         # end_date < (current_date - 30 days)
         thirty_days = (86400 * 30)
-        if ( self.end_epoch < (misc.get_epoch() - thirty_days) ):
+        if (self.end_epoch < (misc.get_epoch() - thirty_days)):
             return True
 
         # TBD (item moved to external storage/DashDrive, etc.)
@@ -317,6 +317,29 @@ class Superblock(BaseModel, GovernanceClass):
         return cmd
 
     def is_valid(self, dashd):
+        import dashlib
+        import decimal
+
+        # it's a string from the DB...
+        addresses = self.payment_addresses.split('|')
+        for addr in addresses:
+            if not dashlib.is_valid_dash_address(addr, config.network):
+                return False
+
+        amounts = self.payment_amounts.split('|')
+        for amt in amounts:
+            if not misc.is_numeric(amt):
+                return False
+
+            # no negative or zero amounts allowed
+            damt = decimal.Decimal(amt)
+            if not damt > 0:
+                return False
+
+        # ensure number of payment addresses matches number of payments
+        if len(addresses) != len(amounts):
+            return False
+
         # ensure EBH is on-cycle
         if (self.event_block_height != dashd.next_superblock_height()):
             return False
