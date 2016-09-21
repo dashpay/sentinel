@@ -174,7 +174,7 @@ def test_deterministic_superblock_selection(go_list_superblocks):
         (go, subobj) = GovernanceObject.import_gobject_from_dashd(dashd, item)
 
     # highest hash wins if same -- so just order by hash
-    sb = Superblock.find_the_one('5c7c28ddec8c1ad54b49f6f1e79369e7ccaf76f5ddc30e502569d674e458ccf3')
+    sb = Superblock.find_highest_deterministic('5c7c28ddec8c1ad54b49f6f1e79369e7ccaf76f5ddc30e502569d674e458ccf3')
 
     assert sb.object_hash == 'bc2834f357da7504138566727c838e6ada74d079e63b6104701f4f8eb05dae36'
 

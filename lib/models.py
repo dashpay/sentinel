@@ -365,6 +365,23 @@ class Superblock(BaseModel, GovernanceClass):
             obj = None
         return obj
 
+    @classmethod
+    def at_height(self, ebh):
+        query = (self.select().where(self.event_block_height == ebh))
+        return query
+
+    @classmethod
+    def find_highest_deterministic(self, sb_hash):
+        # highest block hash wins
+        query = (self.select()
+                    .where(self.sb_hash == sb_hash)
+                    .order_by(self.object_hash.desc()))
+        try:
+            obj = query.limit(1)[0]
+        except IndexError as e:
+            obj = None
+        return obj
+
 # ok, this is an awkward way to implement these...
 # "hook" into the Superblock model and run this code just before any save()
 from playhouse.signals import pre_save

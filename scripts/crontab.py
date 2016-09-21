@@ -43,8 +43,15 @@ def attempt_superblock_creation(dashd):
     event_block_height = dashd.next_superblock_height()
 
     if Superblock.is_voted_funding(event_block_height):
-       printdbg("ALREADY VOTED! 'til next time!")
-       return
+        # printdbg("ALREADY VOTED! 'til next time!")
+
+        # vote down any new SBs because we've already chosen a winner
+        for sb in Superblock.at_height(event_block_height):
+            if not sb.voted_on(signal=VoteSignals.funding):
+                sb.vote(dashd, VoteSignals.funding, VoteOutcomes.no)
+
+        # now return, we're done
+        return
 
     if not dashd.is_govobj_maturity_phase():
         printdbg("Not in maturity phase yet -- will not attempt Superblock")
@@ -56,23 +63,21 @@ def attempt_superblock_creation(dashd):
         printdbg("No superblock created, sorry. Returning.")
         return
 
-    try:
-        dbrec = Superblock.get(Superblock.sb_hash == sb.hex_hash())
+    # find the deterministic SB w/highest object_hash in the DB
+    dbrec = Superblock.find_highest_deterministic(sb.hex_hash())
+    if dbrec:
         dbrec.vote(dashd, VoteSignals.funding, VoteOutcomes.yes)
+
+        # any other blocks which match the sb_hash are duplicates, delete them
+        for sb in Superblock.select().where(Superblock.sb_hash == sb.hex_hash()):
+            if not sb.voted_on(signal=VoteSignals.funding):
+                sb.vote(dashd, VoteSignals.delete, VoteOutcomes.yes)
+
         printdbg("VOTED FUNDING FOR SB! We're done here 'til next superblock cycle.")
         return
-
-        # TODO: then vote any other Superblocks for the same event_block_height as 'no'
-        # maybe not necessary, but for completeness...
-        #
-        # this can be done simply via a DB query for all Superblocks for this
-        # EBH which have not been voted on for 'funding', e.g. the opposite of
-        # event.voted_on(signal=VoteSignals.funding)
-        #
-        # maybe a custom method/query for this specific case
-
-    except Superblock.DoesNotExist as e:
+    else:
         printdbg("The correct superblock wasn't found on the network...")
+
 
     # if we are the elected masternode...
     if (dashd.we_are_the_winner()):
