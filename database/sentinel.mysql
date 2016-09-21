@@ -36,7 +36,7 @@ CREATE TABLE `governance_objects` (
   `absolute_yes_count` smallint(6) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`),
   UNIQUE KEY `index_governance_objects_object_hash` (`object_hash`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `proposals` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -53,7 +53,7 @@ CREATE TABLE `proposals` (
   CONSTRAINT `fk_proposals_object_hash` FOREIGN KEY(`object_hash`) REFERENCES governance_objects(`object_hash`) ON DELETE CASCADE ON UPDATE CASCADE,
   UNIQUE KEY `index_proposals_governance_object_id` (`governance_object_id`),
   UNIQUE KEY `index_proposals_object_hash` (`object_hash`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `superblocks` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -68,7 +68,7 @@ CREATE TABLE `superblocks` (
   CONSTRAINT `fk_superblocks_object_hash` FOREIGN KEY(`object_hash`) REFERENCES governance_objects(`object_hash`) ON DELETE CASCADE ON UPDATE CASCADE,
   UNIQUE KEY `index_superblocks_governance_object_id` (`governance_object_id`),
   UNIQUE KEY `index_superblocks_object_hash` (`object_hash`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `settings` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -78,7 +78,7 @@ CREATE TABLE `settings` (
   `updated_at` DATETIME NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `index_settings_name` (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 
 -- votes
@@ -90,7 +90,7 @@ CREATE TABLE `signals` (
     `updated_at` DATETIME NOT NULL,
     PRIMARY KEY (`id`),
     UNIQUE KEY `index_signals_name` (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `outcomes` (
     `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -99,7 +99,7 @@ CREATE TABLE `outcomes` (
     `updated_at` DATETIME NOT NULL,
     PRIMARY KEY (`id`),
     UNIQUE KEY `index_outcomes_name` (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `votes` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -115,7 +115,7 @@ CREATE TABLE `votes` (
   CONSTRAINT `fk_votes_signal_id` FOREIGN KEY (`signal_id`) REFERENCES signals(`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_votes_outcome_id` FOREIGN KEY (`outcome_id`) REFERENCES outcomes(`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_votes_object_hash` FOREIGN KEY(`object_hash`) REFERENCES governance_objects(`object_hash`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 
 INSERT INTO signals ( name, created_at, updated_at )
