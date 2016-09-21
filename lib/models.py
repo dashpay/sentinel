@@ -75,7 +75,11 @@ class GovernanceObject(BaseModel):
 
     @classmethod
     def purged_network_objects(self, network_object_hashes):
-        return self.select().where(~(self.object_hash << network_object_hashes))
+        if network_object_hashes:
+            iterable = self.select().where(~(self.object_hash << network_object_hashes))
+        else:
+            iterable = []
+        return iterable
 
     @classmethod
     def import_gobject_from_dashd(self, dashd, rec):
