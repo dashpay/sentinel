@@ -28,11 +28,12 @@ def get_network():
 def get_db_conn():
     env = os.environ.get('SENTINEL_ENV', 'production')
 
+    # default values should be used unless you need a different config for development
     db_host     = sentinel_cfg.get('db_host', '127.0.0.1')
     db_name     = sentinel_cfg.get('db_name', 'sentinel')
     db_user     = sentinel_cfg.get('db_user', 'sentinel')
     db_password = sentinel_cfg.get('db_password', 'sentinel')
-    db_charset  = sentinel_cfg.get('db_charset', 'utf8mb4')
+    db_charset  = sentinel_cfg.get('db_charset', 'utf8_bin')
 
     if (env == 'test'):
         db_name = "%s_test" % db_name
