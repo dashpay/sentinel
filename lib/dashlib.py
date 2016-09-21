@@ -49,7 +49,6 @@ def elect_mn(**kwargs):
     # filter only enabled MNs
     enabled = [mn for mn in mn_list if mn.status == 'ENABLED']
 
-    # TODO: need to use an offset, e.g. 10 blocks or something -- discuss w/Evan.
     block_hash_hash = hashit(current_block_hash)
 
     candidates = []

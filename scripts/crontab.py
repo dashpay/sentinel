@@ -6,7 +6,6 @@ sys.path.append( os.path.join( os.path.dirname(__file__), '..') )
 import config
 import misc
 from dashd import DashDaemon
-from dash_config import DashConfig
 from models import Superblock, Proposal, GovernanceObject
 from models import VoteSignals, VoteOutcomes
 import socket
@@ -78,14 +77,9 @@ def attempt_superblock_creation(dashd):
     else:
         printdbg("The correct superblock wasn't found on the network...")
 
-
     # if we are the elected masternode...
     if (dashd.we_are_the_winner()):
         printdbg("we are the winner! Submit SB to network")
-        sb.submit(dashd)
-    #TODO: prune this & let it fly...
-    else:
-        printdbg("we lost the election... FAKING IT!")
         sb.submit(dashd)
 
 def check_object_validity(dashd):
@@ -107,17 +101,6 @@ def is_dashd_port_open(dashd):
         print "%s" % e
 
     return port_open
-
-# TODO: remove this...
-def fake_upvote_proposals(dashd):
-    import dashlib
-    max_budget = dashd.next_superblock_max_budget()
-    for prop in Proposal.select():
-        if prop.is_valid(dashd):
-            go = prop.go
-            go.yes_count += 1000
-            go.absolute_yes_count += 1000
-            go.save()
 
 if __name__ == '__main__':
     dashd = DashDaemon.from_dash_conf(config.dash_conf)
@@ -144,9 +127,6 @@ if __name__ == '__main__':
     #
     # load "gobject list" rpc command data & create new objects in local MySQL DB
     perform_dashd_object_sync(dashd)
-
-    # TODO: remove this
-    fake_upvote_proposals(dashd)
 
     # auto vote network objects as valid/invalid
     check_object_validity(dashd)
