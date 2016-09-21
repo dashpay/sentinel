@@ -124,7 +124,7 @@ def create_superblock(dashd, proposals, event_block_height):
         budget_allocated += proposal.payment_amount
 
         payment = { 'address': proposal.payment_address,
-                    'amount': proposal.payment_amount }
+                    'amount': "{0:.8f}".format(proposal.payment_amount) }
         payments.append( payment )
 
     # don't create an empty superblock
@@ -135,8 +135,8 @@ def create_superblock(dashd, proposals, event_block_height):
 
     sb = Superblock(
         event_block_height = event_block_height,
-        payment_addresses = '|'.join([str(pd['address']) for pd in payments]),
-        payment_amounts   = '|'.join([str(pd['amount' ]) for pd in payments]),
+        payment_addresses = '|'.join([pd['address'] for pd in payments]),
+        payment_amounts   = '|'.join([pd['amount' ] for pd in payments]),
     )
 
     return sb
