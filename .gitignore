@@ -96,3 +96,7 @@ docs/.DS_Store
 
 # ignore everything in ignore/
 ignore/
+
+# SQLite databases
+database/sentinel.db
+database/sentinel_test.db
