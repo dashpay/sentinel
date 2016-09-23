@@ -93,6 +93,7 @@ ENV/
 # OS specific and other
 .DS_Store
 docs/.DS_Store
+.keep
 
 # ignore everything in ignore/
 ignore/
@@ -100,3 +101,4 @@ ignore/
 # SQLite databases
 database/sentinel.db
 database/sentinel_test.db
+database/sentinel.db_test
