@@ -11,9 +11,7 @@ sys.path.append( os.path.join( os.path.dirname(__file__), '..', 'lib' ) )
 sys.path.append( os.path.join( os.path.dirname(__file__), '..' ) )
 
 import config
-# from dashd import DashDaemon
 from dash_config import DashConfig
-
 
 @pytest.fixture
 def dash_conf(**kwargs):
@@ -27,7 +25,7 @@ def dash_conf(**kwargs):
     for (key, value) in kwargs.iteritems():
         defaults[ key ] = value
 
-    config = """# basic settings
+    conf = """# basic settings
 testnet=1 # TESTNET
 server=1
 rpcuser={rpcuser}
@@ -36,12 +34,11 @@ rpcallowip=127.0.0.1
 rpcport={rpcport}
 """.format(**defaults)
 
-    return config
-
+    return conf
 
 def test_get_rpc_creds():
-    config = dash_conf()
-    creds = DashConfig.get_rpc_creds(config)
+    dash_config = dash_conf()
+    creds = DashConfig.get_rpc_creds(dash_config, 'testnet')
 
     for key in ('user', 'password', 'port'):
         assert key in creds
@@ -50,8 +47,8 @@ def test_get_rpc_creds():
     assert creds.get('port') == 29241
 
 
-    config = dash_conf(rpcpassword = 's00pers33kr1t', rpcport=8000)
-    creds = DashConfig.get_rpc_creds(config)
+    dash_config = dash_conf(rpcpassword = 's00pers33kr1t', rpcport=8000)
+    creds = DashConfig.get_rpc_creds(dash_config, 'testnet')
 
     for key in ('user', 'password', 'port'):
         assert key in creds
@@ -61,7 +58,7 @@ def test_get_rpc_creds():
 
 
     no_port_specified = re.sub('\nrpcport=.*?\n', "\n", dash_conf(), re.M)
-    creds = DashConfig.get_rpc_creds(no_port_specified)
+    creds = DashConfig.get_rpc_creds(no_port_specified, 'testnet')
 
     for key in ('user', 'password', 'port'):
         assert key in creds

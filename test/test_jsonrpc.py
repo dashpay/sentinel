@@ -36,7 +36,7 @@ rpcport={rpcport}
 
 def test_dashd():
     config_text = DashConfig.slurp_config_file(config.dash_conf)
-    creds = DashConfig.get_rpc_creds(config_text)
+    creds = DashConfig.get_rpc_creds(config_text, 'testnet')
 
     dashd = DashDaemon(
         user     = creds.get('user'),

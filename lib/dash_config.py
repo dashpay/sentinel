@@ -1,7 +1,6 @@
 import sys, os
 sys.path.append( os.path.join( os.path.dirname(__file__), '..' ) )
 sys.path.append( os.path.join( os.path.dirname(__file__), '..', 'lib' ) )
-import config
 import io
 import re
 from misc import printdbg
@@ -25,7 +24,7 @@ class DashConfig():
         return data
 
     @classmethod
-    def get_rpc_creds(self, data):
+    def get_rpc_creds(self, data, network='mainnet'):
         # get rpc info from dash.conf
         match = re.findall(r'rpc(user|password|port)=(.*?)$', data, re.MULTILINE)
 
@@ -33,7 +32,7 @@ class DashConfig():
         creds = { key: value for (key, value) in match }
 
         # standard Dash defaults...
-        default_port = 9998 if (config.network == 'mainnet') else 19998
+        default_port = 9998 if (network == 'mainnet') else 19998
 
         # use default port for network if not specified in dash.conf
         if not ( 'port' in creds ):
