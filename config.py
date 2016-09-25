@@ -7,7 +7,6 @@ import sys, os
 sys.path.append( os.path.join( os.path.dirname(__file__), '.' ) )
 sys.path.append( os.path.join( os.path.dirname(__file__), '.', 'lib' ) )
 from dash_config import DashConfig
-import peewee
 
 sentinel_cfg = DashConfig.tokenize('sentinel.conf')
 
@@ -44,6 +43,7 @@ def get_db_conn():
         'passwd': db_password,
     }
 
+    import peewee
     db = peewee.MySQLDatabase(db_name, **db_conn)
 
     return db
