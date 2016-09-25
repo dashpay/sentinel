@@ -16,7 +16,7 @@ Make sure Python version 2.7.x is installed, 3.x and above are not supported
 
     python --version
 
-Install MySQL Server 5.7.x and Sentinel dependencies, making sure you enter a strong root password when asked. Newer versions may have breaking changes.
+Install MySQL Server 5.5+ and Sentinel dependencies, making sure you enter a strong root password when asked.
 
     $ sudo apt-get update 
     $ sudo apt-get install mysql-server python-pytest
