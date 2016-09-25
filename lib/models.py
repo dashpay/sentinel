@@ -23,7 +23,7 @@ try:
     db.connect()
 except peewee.OperationalError as e:
     print "%s" % e
-    print "Please ensure MySQL database service is running and user access is properly configured in 'config.py'"
+    print "Please ensure MySQL database service is running and user access is properly configured in 'sentinel.conf'"
     sys.exit(2)
 
 
