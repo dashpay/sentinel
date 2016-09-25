@@ -1,8 +1,8 @@
 #!/usr/bin/env python
-import random
 import sys, os
 sys.path.append( os.path.join( os.path.dirname(__file__), '..', 'lib' ) )
 sys.path.append( os.path.join( os.path.dirname(__file__), '..') )
+import init
 import config
 import misc
 from dashd import DashDaemon
@@ -108,12 +108,6 @@ if __name__ == '__main__':
     # check dashd connectivity
     if not is_dashd_port_open(dashd):
         print "Cannot connect to dashd. Please ensure dashd is running and the JSONRPC port is open to Sentinel."
-        sys.exit(2)
-
-    # check database engine connectivity
-    import models
-    if not models.BaseModel.is_database_connected():
-        print "Cannot connect to database. Please ensure MySQL database service is running and the JSONRPC port is open to Sentinel."
         sys.exit(2)
 
     # check dashd sync

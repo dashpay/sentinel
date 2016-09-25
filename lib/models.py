@@ -1,30 +1,25 @@
-from peewee import IntegerField, CharField, TextField, ForeignKeyField, DecimalField, DateTimeField
-import peewee
-import playhouse.signals
-import time
-import simplejson
-import binascii
-import datetime
-import re
 import sys, os
 sys.path.append( os.path.join( os.path.dirname(__file__), '..' ) )
 sys.path.append( os.path.join( os.path.dirname(__file__), '..' , 'lib' ) )
-import config
+import init
+import time
+import binascii
+import datetime
+import re
+import simplejson
+from peewee import IntegerField, CharField, TextField, ForeignKeyField, DecimalField, DateTimeField
+import peewee
+import playhouse.signals
 import misc
 import dashd
 from misc import printdbg
+import config
 
 # our mixin
 from governance_class import GovernanceClass
 
 db = config.db
-
-try:
-    db.connect()
-except peewee.OperationalError as e:
-    print "%s" % e
-    print "Please ensure MySQL database service is running and user access is properly configured in 'sentinel.conf'"
-    sys.exit(2)
+db.connect()
 
 
 # TODO: lookup table?
