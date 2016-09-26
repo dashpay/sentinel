@@ -18,8 +18,8 @@ Make sure Python version 2.7.x is installed, 3.x and above are not supported
 
 Install MySQL Server 5.5+ and Sentinel dependencies, making sure you enter a strong root password when asked.
 
-    $ sudo apt-get update 
-    $ sudo apt-get install mysql-server python-pytest
+    $ sudo apt-get update
+    $ sudo apt-get install mysql-server python-pytest python-virtualenv
     $ sudo service mysql start
 
 Make sure the local Dash daemon running is version 12.1 (120100), and is configured as a masternode
@@ -34,7 +34,8 @@ This section can be used to install Sentinel source or update it for new release
 Clone the Sentinel code and install Python dependencies.
 
     $ git clone https://github.com/nmarley/sentinel.git && cd sentinel
-    $ pip install -r requirements.txt
+    $ virtualenv venv
+    $ ./venv/bin/pip install -r requirements.txt
 
 Recommended: Build the Sentinel database schemas from source and configure MySQL for Sentinel requirements.
 
@@ -50,7 +51,7 @@ Setup a crontab to call Sentinel regularly, recommended every 2 minutes, by firs
 
 In the crontab editor, add the lines below, replacing '/home/YOURUSERNAME/sentinel' to the path where you cloned sentinel to:
 
-    */2 * * * * cd /home/YOURUSERNAME/sentinel && /usr/bin/python scripts/crontab.py >/dev/null 2>&1
+    */2 * * * * cd /home/YOURUSERNAME/sentinel && ./venv/bin/python scripts/crontab.py >/dev/null 2>&1
 
 ### 4. Test the Configuration
 
