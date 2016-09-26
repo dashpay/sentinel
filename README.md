@@ -50,7 +50,7 @@ Setup a crontab to call Sentinel regularly, recommended every 2 minutes, by firs
 
 In the crontab editor, add the lines below, replacing '/home/YOURUSERNAME/sentinel' to the path where you cloned sentinel to:
 
-    2 * * * * cd /home/YOURUSERNAME/sentinel && /usr/bin/python scripts/crontab.py >/dev/null 2>&1
+    */2 * * * * cd /home/YOURUSERNAME/sentinel && /usr/bin/python scripts/crontab.py >/dev/null 2>&1
 
 ### 4. Test the Configuration
 
