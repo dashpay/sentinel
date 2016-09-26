@@ -29,7 +29,7 @@ def attempt_superblock_creation(dashd):
     import dashlib
 
     if not dashd.is_masternode():
-        print "We are not a Masternode... can't submit superblocks!"
+        print("We are not a Masternode... can't submit superblocks!")
         return
 
     # query votes for this specific ebh... if we have voted for this specific
@@ -98,7 +98,7 @@ def is_dashd_port_open(dashd):
         info = dashd.rpc_command('getinfo')
         port_open = True
     except socket.error as e:
-        print "%s" % e
+        print("%s" % e)
 
     return port_open
 
@@ -107,12 +107,12 @@ if __name__ == '__main__':
 
     # check dashd connectivity
     if not is_dashd_port_open(dashd):
-        print "Cannot connect to dashd. Please ensure dashd is running and the JSONRPC port is open to Sentinel."
+        print("Cannot connect to dashd. Please ensure dashd is running and the JSONRPC port is open to Sentinel.")
         sys.exit(2)
 
     # check dashd sync
     if not dashd.is_synced():
-        print "dashd not synced with network! Awaiting full sync before running Sentinel."
+        print("dashd not synced with network! Awaiting full sync before running Sentinel.")
         sys.exit(2)
 
     # ========================================================================

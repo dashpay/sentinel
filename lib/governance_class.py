@@ -48,14 +48,14 @@ class GovernanceClass(object):
         # don't attempt to submit a superblock unless a masternode
         # note: will probably re-factor this, this has code smell
         if (isinstance(self, models.Superblock) and not dashd.is_masternode()):
-            print "Not a masternode. Only masternodes may submit superblocks."
+            print("Not a masternode. Only masternodes may submit superblocks.")
             return
 
         try:
             object_hash = dashd.rpc_command(*self.get_submit_command())
             printdbg("Submitted: [%s]" % object_hash)
         except JSONRPCException as e:
-            print "Got error on submit: %s" % e.message
+            print("Got error on submit: %s" % e.message)
 
     def serialise(self):
         import inflection
@@ -66,7 +66,7 @@ class GovernanceClass(object):
         name = self._meta.name
         obj_type = inflection.singularize(name)
 
-        return binascii.hexlify(simplejson.dumps((obj_type, self.get_dict()), sort_keys = True))
+        return binascii.hexlify(simplejson.dumps((obj_type, self.get_dict()), sort_keys = True).encode('utf-8')).decode('utf-8')
 
     def dashd_serialise(self):
         import dashlib
@@ -80,7 +80,7 @@ class GovernanceClass(object):
         do_not_use = [ pk_column ]
         do_not_use.extend(fk_columns)
         do_not_use.append('object_hash')
-        fields_to_serialise = self._meta.columns.keys()
+        fields_to_serialise = list(self._meta.columns.keys())
 
         for field in do_not_use:
             if field in fields_to_serialise:

@@ -65,7 +65,7 @@ class DashDaemon():
         min_quorum = govinfo['governanceminquorum']
 
         # the minimum quorum is calculated based on the number of masternodes
-        quorum = max( min_quorum, total_masternodes / min_quorum )
+        quorum = max( min_quorum, total_masternodes // min_quorum )
         return quorum
 
     @property
@@ -87,7 +87,7 @@ class DashDaemon():
     def last_superblock_height(self):
         height = self.rpc_command('getblockcount')
         cycle  = self.superblockcycle()
-        return cycle * (height / cycle)
+        return cycle * (height // cycle)
 
     def next_superblock_height(self):
         return self.last_superblock_height() + self.superblockcycle()
@@ -118,7 +118,7 @@ class DashDaemon():
         cycle = self.superblockcycle()
         current_block_height = self.rpc_command('getblockcount')
 
-        last_superblock_height = (current_block_height / cycle) * cycle
+        last_superblock_height = (current_block_height // cycle) * cycle
         next_superblock_height = last_superblock_height + cycle
 
         last_allocation = self.get_superblock_budget_allocation(last_superblock_height)

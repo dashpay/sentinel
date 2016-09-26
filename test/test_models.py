@@ -24,8 +24,7 @@ def test_proposal(proposal):
         'payment_amount',
     ]
     fields.sort()
-    sorted_keys = d.keys()
-    sorted_keys.sort()
+    sorted_keys = sorted(d.keys())
     assert sorted_keys == fields
 
 
@@ -55,6 +54,5 @@ def test_governance_object(governance_object):
     ]
 
     fields.sort()
-    sorted_keys = d.keys()
-    sorted_keys.sort()
+    sorted_keys = sorted(d.keys())
     assert sorted_keys == fields

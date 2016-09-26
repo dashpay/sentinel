@@ -22,7 +22,7 @@ def dash_conf(**kwargs):
     }
 
     # merge kwargs into defaults
-    for (key, value) in kwargs.iteritems():
+    for (key, value) in kwargs.items():
         defaults[ key ] = value
 
     conf = """# basic settings

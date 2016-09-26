@@ -27,7 +27,7 @@ def is_valid_dash_address(address, network='mainnet'):
 
     try:
         decoded = base58.b58decode_chk(address)
-        address_version = ord(decoded[0])
+        address_version = ord(decoded[0:1])
     except TypeError as e:
         # rescue from exception, not a valid Dash address
         return False
@@ -37,9 +37,8 @@ def is_valid_dash_address(address, network='mainnet'):
 
     return True
 
-
-def hashit( data ):
-    return int( hashlib.sha256(data).hexdigest(), 16 )
+def hashit(data):
+    return int(hashlib.sha256(data.encode('utf-8')).hexdigest(), 16)
 
 # returns the masternode VIN of the elected winner
 def elect_mn(**kwargs):
@@ -197,7 +196,7 @@ def deserialise(hexdata):
 
 def serialise(dikt):
     json = simplejson.dumps(dikt, sort_keys=True, use_decimal=True)
-    hexdata = binascii.hexlify(json)
+    hexdata = binascii.hexlify(json.encode('utf-8')).decode('utf-8')
     return hexdata
 
 def did_we_vote(output):

@@ -61,7 +61,7 @@ class GovernanceObject(BaseModel):
         golist = dashd.rpc_command('gobject', 'list')
 
         # objects which are removed from the network should be removed from the DB
-        for purged in self.purged_network_objects(golist.keys()):
+        for purged in self.purged_network_objects(list(golist.keys())):
             # SOMEDAY: possible archive step here
             purged.delete_instance(recursive=True, delete_nullable=True)
 
@@ -458,14 +458,14 @@ def check_db_sane():
     for model in [ GovernanceObject, Setting, Proposal, Superblock, Signal, Outcome, Vote ]:
         if not getattr(model, 'table_exists')():
             missing_table_models.append(model)
-            print "[warning]: table for %s (%s) doesn't exist in DB." % (model, model._meta.db_table)
+            print("[warning]: table for %s (%s) doesn't exist in DB." % (model, model._meta.db_table))
 
     if missing_table_models:
-        print "[warning]: Missing database tables. Auto-creating tables."
+        print("[warning]: Missing database tables. Auto-creating tables.")
         try:
             db.create_tables(missing_table_models, safe=True)
         except peewee.OperationalError as e:
-            print "[error] Could not create tables: %s" % e
+            print("[error] Could not create tables: %s" % e)
 
 # sanity checks...
 check_db_sane()     # ensure tables exist
