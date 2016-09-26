@@ -6,7 +6,10 @@ def is_valid_python_version():
     version_valid = False
 
     ver = sys.version_info
-    if (2 == ver.major) and (7 == ver.minor):
+    if (2 == ver.major) and (7 <= ver.minor):
+        version_valid = True
+
+    if (3 == ver.major) and (4 <= ver.minor):
         version_valid = True
 
     return version_valid
