@@ -65,7 +65,7 @@ class DashDaemon():
         min_quorum = govinfo['governanceminquorum']
 
         # the minimum quorum is calculated based on the number of masternodes
-        quorum = max( min_quorum, total_masternodes // min_quorum )
+        quorum = max(min_quorum, (total_masternodes // 10))
         return quorum
 
     @property
