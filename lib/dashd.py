@@ -48,6 +48,13 @@ class DashDaemon():
         mnlist = self.rpc_command('masternodelist', 'full')
         return [ Masternode(k, v) for (k, v) in mnlist.items()]
 
+    def get_object_list(self):
+        try:
+            golist = self.rpc_command('gobject', 'list')
+        except JSONRPCException as e:
+            golist = self.rpc_command('mnbudget', 'show')
+        return golist
+
     def get_current_masternode_vin(self):
         from dashlib import parse_masternode_status_vin
 
