@@ -60,7 +60,7 @@ class DashDaemon():
         return my_vin
 
     def governance_quorum(self):
-        total_masternodes = self.rpc_command('masternode', 'count')
+        total_masternodes = self.rpc_command('masternode', 'count', 'enabled')
         govinfo = self.rpc_command('getgovernanceinfo')
         min_quorum = govinfo['governanceminquorum']
 
