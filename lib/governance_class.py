@@ -8,6 +8,7 @@ from bitcoinrpc.authproxy import JSONRPCException
 import misc
 import re
 from misc import printdbg
+import time
 
 # mixin for GovObj composed classes like proposal and superblock, etc.
 class GovernanceClass(object):
@@ -45,6 +46,20 @@ class GovernanceClass(object):
 
         # return a dict similar to dashd "gobject list" output
         return { self.object_hash: dikt }
+
+    def get_submit_command(self):
+        import dashlib
+        obj_data = dashlib.SHIM_serialise_for_dashd(self.serialise())
+
+        # new objects won't have parent_hash, revision, etc...
+        cmd = ['gobject', 'submit', '0', '1', str(int(time.time())), obj_data]
+
+        # some objects don't have a collateral tx to submit
+        if not self.only_masternode_can_submit:
+            cmd.append(go.object_fee_tx)
+
+        return cmd
+
 
     def submit(self, dashd):
         # don't attempt to submit a superblock unless a masternode

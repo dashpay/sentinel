@@ -301,16 +301,6 @@ class Superblock(BaseModel, GovernanceClass):
     class Meta:
         db_table = 'superblocks'
 
-    # superblocks don't have a collateral tx to submit
-    def get_submit_command(self):
-        import dashlib
-        obj_data = dashlib.SHIM_serialise_for_dashd(self.serialise())
-
-        # new superblocks won't have parent_hash, revision, etc...
-        cmd = ['gobject', 'submit', '0', '1', str(int(time.time())), obj_data]
-
-        return cmd
-
     def is_valid(self, dashd):
         import dashlib
         import decimal
