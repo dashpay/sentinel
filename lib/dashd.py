@@ -160,3 +160,7 @@ class DashDaemon():
         # print "current masternode VIN: [%s]" % my_vin
 
         return (winner == my_vin)
+
+    @property
+    def MASTERNODE_WATCHDOG_MAX_SECONDS(self):
+        return self.govinfo['masternodewatchdogmaxseconds']

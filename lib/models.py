@@ -26,6 +26,7 @@ db.connect()
 DASHD_GOVOBJ_TYPES = {
     'proposal': 1,
     'superblock': 2,
+    'watchdog': 3,
 }
 
 # === models ===
@@ -434,6 +435,49 @@ class Vote(BaseModel):
     class Meta:
         db_table = 'votes'
 
+class Watchdog(BaseModel, GovernanceClass):
+    governance_object = ForeignKeyField(GovernanceObject, related_name = 'watchdogs')
+    created_at = IntegerField()
+    object_hash = CharField(max_length=64)
+
+    govobj_type = DASHD_GOVOBJ_TYPES['watchdog']
+    only_masternode_can_submit = True
+
+    @classmethod
+    def active(self, dashd):
+        now = int(time.time())
+        resultset = self.select().where(
+            self.created_at >= (now - dashd.MASTERNODE_WATCHDOG_MAX_SECONDS)
+        )
+        return resultset
+
+    @classmethod
+    def expired(self, dashd):
+        now = int(time.time())
+        resultset = self.select().where(
+            self.created_at < (now - dashd.MASTERNODE_WATCHDOG_MAX_SECONDS)
+        )
+        return resultset
+
+    def is_expired(self, dashd):
+        now = int(time.time())
+        return (self.created_at < (now - dashd.MASTERNODE_WATCHDOG_MAX_SECONDS))
+
+    def is_valid(self, dashd):
+        if self.is_expired(dashd):
+            return False
+
+        return True
+
+    def is_deletable(self, dashd):
+        if self.is_expired(dashd):
+            return True
+
+        return False
+
+    class Meta:
+        db_table = 'watchdogs'
+
 # === /models ===
 
 def load_db_seeds():
@@ -454,7 +498,16 @@ def load_db_seeds():
 def check_db_sane():
     missing_table_models = []
 
-    for model in [ GovernanceObject, Setting, Proposal, Superblock, Signal, Outcome, Vote ]:
+    for model in [
+        GovernanceObject,
+        Setting,
+        Proposal,
+        Superblock,
+        Signal,
+        Outcome,
+        Vote,
+        Watchdog
+        ]:
         if not getattr(model, 'table_exists')():
             missing_table_models.append(model)
             print("[warning]: table for %s (%s) doesn't exist in DB." % (model, model._meta.db_table))
@@ -463,7 +516,7 @@ def check_db_sane():
         print("[warning]: Missing database tables. Auto-creating tables.")
         try:
             db.create_tables(missing_table_models, safe=True)
-        except peewee.OperationalError as e:
+        except (peewee.InternalError, peewee.OperationalError, peewee.ProgrammingError) as e:
             print("[error] Could not create tables: %s" % e)
 
 # sanity checks...

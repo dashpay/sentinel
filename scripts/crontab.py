@@ -6,10 +6,11 @@ import init
 import config
 import misc
 from dashd import DashDaemon
-from models import Superblock, Proposal, GovernanceObject
+from models import Superblock, Proposal, GovernanceObject, Watchdog
 from models import VoteSignals, VoteOutcomes
 import socket
 from misc import printdbg
+import time
 
 """
  scripts/crontab.py
@@ -24,6 +25,33 @@ from misc import printdbg
 # sync dashd gobject list with our local relational DB backend
 def perform_dashd_object_sync(dashd):
     GovernanceObject.sync(dashd)
+
+# delete old watchdog objects, create new when necessary
+def watchdog_check(dashd):
+    # delete expired watchdogs
+    for wd in Watchdog.expired(dashd):
+        wd.vote(dashd, VoteSignals.delete, VoteOutcomes.yes)
+
+    # now, get all the active ones...
+    active_wd = Watchdog.active(dashd)
+    active_count = active_wd.count()
+
+    # none exist, submit a new one to the network
+    if 0 == active_count:
+        # create/submit one
+        wd = Watchdog(created_at = int(time.time()))
+        wd.submit(dashd)
+
+    else:
+        wd_list = sorted(active_wd, key=lambda wd: wd.object_hash)
+
+        # highest hash wins
+        winner = wd_list.pop()
+        winner.vote(dashd, VoteSignals.valid, VoteOutcomes.yes)
+
+        # if remaining Watchdogs exist in the list, vote delete
+        for wd in wd_list:
+            wd.vote(dashd, VoteSignals.delete, VoteOutcomes.yes)
 
 def attempt_superblock_creation(dashd):
     import dashlib
@@ -83,7 +111,7 @@ def attempt_superblock_creation(dashd):
         sb.submit(dashd)
 
 def check_object_validity(dashd):
-    # vote invalid objects
+    # vote (in)valid objects
     for gov_class in [Proposal, Superblock]:
         for obj in gov_class.select():
             if not obj.voted_on(signal=VoteSignals.valid):
@@ -121,6 +149,9 @@ if __name__ == '__main__':
     #
     # load "gobject list" rpc command data & create new objects in local MySQL DB
     perform_dashd_object_sync(dashd)
+
+    # delete old watchdog objects, create a new if necessary
+    watchdog_check(dashd)
 
     # auto vote network objects as valid/invalid
     check_object_validity(dashd)
