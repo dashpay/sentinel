@@ -11,6 +11,8 @@ from misc import printdbg
 
 # mixin for GovObj composed classes like proposal and superblock, etc.
 class GovernanceClass(object):
+    only_masternode_can_submit = False
+
     # lazy
     @property
     def go(self):
@@ -47,8 +49,8 @@ class GovernanceClass(object):
     def submit(self, dashd):
         # don't attempt to submit a superblock unless a masternode
         # note: will probably re-factor this, this has code smell
-        if (isinstance(self, models.Superblock) and not dashd.is_masternode()):
-            print("Not a masternode. Only masternodes may submit superblocks.")
+        if (self.only_masternode_can_submit and not dashd.is_masternode()):
+            print("Not a masternode. Only masternodes may submit these objects")
             return
 
         try:

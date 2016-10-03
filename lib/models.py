@@ -202,9 +202,6 @@ class Proposal(GovernanceClass, BaseModel):
     payment_amount = DecimalField(max_digits=16, decimal_places=8)
     object_hash = CharField(max_length=64)
 
-    # TODO: remove this redundancy if/when dashd can be fixed to use
-    # strings/types instead of ENUM types for type ID
-    # govobj_type = 1
     govobj_type = DASHD_GOVOBJ_TYPES['proposal']
 
     class Meta:
@@ -293,10 +290,8 @@ class Superblock(BaseModel, GovernanceClass):
     sb_hash      = CharField()
     object_hash = CharField(max_length=64)
 
-    # TODO: remove this redundancy if/when dashd can be fixed to use
-    # strings/types instead of ENUM types for type ID
-    # govobj_type = 2
     govobj_type = DASHD_GOVOBJ_TYPES['superblock']
+    only_masternode_can_submit = True
 
     class Meta:
         db_table = 'superblocks'

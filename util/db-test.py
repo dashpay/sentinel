@@ -8,7 +8,6 @@ sys.path.append( os.path.join( os.path.dirname(__file__), '..' ) )
 import config
 from models import Superblock, Proposal, GovernanceObject, Setting
 from peewee import PeeweeException #, OperationalError, IntegrityError
-from time import time
 from dashd import DashDaemon
 from dashd import DashConfig
 import dashlib
