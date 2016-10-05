@@ -437,7 +437,7 @@ class Watchdog(BaseModel, GovernanceClass):
     def active(self, dashd):
         now = int(time.time())
         resultset = self.select().where(
-            self.created_at >= (now - dashd.MASTERNODE_WATCHDOG_MAX_SECONDS)
+            self.created_at >= (now - dashd.SENTINEL_WATCHDOG_MAX_SECONDS)
         )
         return resultset
 
@@ -445,13 +445,13 @@ class Watchdog(BaseModel, GovernanceClass):
     def expired(self, dashd):
         now = int(time.time())
         resultset = self.select().where(
-            self.created_at < (now - dashd.MASTERNODE_WATCHDOG_MAX_SECONDS)
+            self.created_at < (now - dashd.SENTINEL_WATCHDOG_MAX_SECONDS)
         )
         return resultset
 
     def is_expired(self, dashd):
         now = int(time.time())
-        return (self.created_at < (now - dashd.MASTERNODE_WATCHDOG_MAX_SECONDS))
+        return (self.created_at < (now - dashd.SENTINEL_WATCHDOG_MAX_SECONDS))
 
     def is_valid(self, dashd):
         if self.is_expired(dashd):

@@ -61,9 +61,9 @@ class DashDaemon():
         return my_vin
 
     def governance_quorum(self):
+        # TODO: expensive call, so memoize this
         total_masternodes = self.rpc_command('masternode', 'count', 'enabled')
-        govinfo = self.rpc_command('getgovernanceinfo')
-        min_quorum = govinfo['governanceminquorum']
+        min_quorum = self.govinfo['governanceminquorum']
 
         # the minimum quorum is calculated based on the number of masternodes
         quorum = max(min_quorum, (total_masternodes // 10))
@@ -164,4 +164,9 @@ class DashDaemon():
 
     @property
     def MASTERNODE_WATCHDOG_MAX_SECONDS(self):
+        # note: self.govinfo is already memoized
         return self.govinfo['masternodewatchdogmaxseconds']
+
+    @property
+    def SENTINEL_WATCHDOG_MAX_SECONDS(self):
+        return (self.MASTERNODE_WATCHDOG_MAX_SECONDS // 2)
