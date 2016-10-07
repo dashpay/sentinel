@@ -18,6 +18,7 @@ import time
  FLAT MODULE FOR PROCESSING SENTINEL EVENTS
 
  - perform_dashd_object_sync
+ - watchdog_check
  - check_object_validity
  - attempt_superblock_creation
 """
@@ -28,8 +29,10 @@ def perform_dashd_object_sync(dashd):
 
 # delete old watchdog objects, create new when necessary
 def watchdog_check(dashd):
+    printdbg("in watchdog_check")
     # delete expired watchdogs
     for wd in Watchdog.expired(dashd):
+        printdbg("\tFound expired watchdog [%s], voting to delete" % wd.object_hash)
         wd.vote(dashd, VoteSignals.delete, VoteOutcomes.yes)
 
     # now, get all the active ones...
@@ -39,6 +42,7 @@ def watchdog_check(dashd):
     # none exist, submit a new one to the network
     if 0 == active_count:
         # create/submit one
+        printdbg("\tNo watchdogs exist... submitting new one.")
         wd = Watchdog(created_at = int(time.time()))
         wd.submit(dashd)
 
@@ -47,11 +51,15 @@ def watchdog_check(dashd):
 
         # highest hash wins
         winner = wd_list.pop()
+        printdbg("\tFound winning watchdog [%s], voting VALID" % winner.object_hash)
         winner.vote(dashd, VoteSignals.valid, VoteOutcomes.yes)
 
         # if remaining Watchdogs exist in the list, vote delete
         for wd in wd_list:
+            printdbg("\tFound losing watchdog [%s], voting DELETE" % wd.object_hash)
             wd.vote(dashd, VoteSignals.delete, VoteOutcomes.yes)
+
+    printdbg("leaving watchdog_check")
 
 def attempt_superblock_creation(dashd):
     import dashlib
