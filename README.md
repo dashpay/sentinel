@@ -57,7 +57,7 @@ In the crontab editor, add the lines below, replacing '/home/YOURUSERNAME/sentin
 
 Test the config by runnings all tests from the sentinel folder you cloned into
 
-    $ py.test
+    $ ./venv/bin/py.test ./test
 
 With all tests passing and crontab setup, Sentinel will stay in sync with dashd and the installation is complete
 
