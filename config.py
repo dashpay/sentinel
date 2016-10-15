@@ -30,6 +30,7 @@ def get_db_conn():
 
     # default values should be used unless you need a different config for development
     db_host     = sentinel_cfg.get('db_host', '127.0.0.1')
+    db_port     = sentinel_cfg.get('db_port', None)
     db_name     = sentinel_cfg.get('db_name', 'sentinel')
     db_user     = sentinel_cfg.get('db_user', 'sentinel')
     db_password = sentinel_cfg.get('db_password', 'sentinel')
@@ -52,6 +53,9 @@ def get_db_conn():
         'user': db_user,
         dbpfn: db_password,
     }
+    if db_port:
+        db_conn['port'] = int(db_port)
+
     if driver == peewee.SqliteDatabase:
         db_conn = {}
 
