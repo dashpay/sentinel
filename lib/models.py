@@ -211,6 +211,10 @@ class Proposal(GovernanceClass, BaseModel):
         import dashlib
         now = misc.get_epoch()
 
+        # proposal name exists and is not null/whitespace
+        if (len(self.name.strip()) == 0):
+            return False
+
         # proposal name is normalized (something like "[a-zA-Z0-9-_]+")
         if not re.match(r'^[-_a-zA-Z0-9]+$', self.name):
             return False
