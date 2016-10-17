@@ -12,17 +12,6 @@ import socket
 from misc import printdbg
 import time
 
-"""
- scripts/crontab.py
- -------------------------------
- FLAT MODULE FOR PROCESSING SENTINEL EVENTS
-
- - perform_dashd_object_sync
- - watchdog_check
- - check_object_validity
- - attempt_superblock_creation
-"""
-
 # sync dashd gobject list with our local relational DB backend
 def perform_dashd_object_sync(dashd):
     GovernanceObject.sync(dashd)
