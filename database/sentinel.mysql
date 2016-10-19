@@ -15,6 +15,7 @@ DROP VIEW if exists vproposals ;
 DROP TABLE if exists `votes` ;
 DROP TABLE if exists `signals` ;
 DROP TABLE if exists `outcomes` ;
+DROP TABLE if exists `watchdogs` ;
 
 DROP TABLE if exists `proposals` ;
 DROP TABLE if exists `superblocks` ;
@@ -41,7 +42,7 @@ CREATE TABLE `governance_objects` (
 CREATE TABLE `proposals` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `governance_object_id` int(10) unsigned NOT NULL,
-  `name` varchar(20) NOT NULL,
+  `name` varchar(255) NOT NULL,
   `url` varchar(255) NOT NULL,
   `start_epoch` int(11) NOT NULL DEFAULT 0,
   `end_epoch` int(11) NOT NULL DEFAULT 0,
@@ -127,7 +128,7 @@ CREATE TABLE `watchdogs` (
   CONSTRAINT `fk_watchdogs_object_hash` FOREIGN KEY(`object_hash`) REFERENCES governance_objects(`object_hash`) ON DELETE CASCADE ON UPDATE CASCADE,
   UNIQUE KEY `index_watchdogs_governance_object_id` (`governance_object_id`),
   UNIQUE KEY `index_watchdogs_object_hash` (`object_hash`)
-)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 INSERT INTO signals ( name, created_at, updated_at )
 VALUES ( 'funding', UTC_TIMESTAMP(), UTC_TIMESTAMP() )
