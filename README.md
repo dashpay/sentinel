@@ -43,9 +43,9 @@ Recommended: Build the Sentinel database schemas from source and configure MySQL
 
 A reboot is recommended at this stage.
 
-### 3. Setup Crontab
+### 3. Set up Cron
 
-Setup a crontab to call Sentinel regularly, recommended every 2 minutes, by first opening a crontab editor.
+Set up a crontab entry to call Sentinel regularly, recommended every 2 minutes, by first opening a crontab editor.
 
     $ crontab -e
 
@@ -84,6 +84,24 @@ To run individual Sentinel tests, specify the test from the test folder, e.g.
     $ py.test test/test_config.py
     $ py.test test/test_jsonrpc.py
     $ py.test test/test_models.py
+
+## Contributing
+
+Please follow the [DashCore guidelines for contributing](https://github.com/dashpay/dash/blob/v0.12.1.x/CONTRIBUTING.md).
+
+Specifically:
+
+* [Contributor Workflow](https://github.com/dashpay/dash/blob/v0.12.1.x/CONTRIBUTING.md#contributor-workflow)
+
+    To contribute a patch, the workflow is as follows:
+
+    * Fork repository
+    * Create topic branch
+    * Commit patches
+
+    In general commits should be atomic and diffs should be easy to read. For this reason do not mix any formatting fixes or code moves with actual code changes.
+
+    Commit messages should be verbose by default, consisting of a short subject line (50 chars max), a blank line and detailed explanatory text as separate paragraph(s); unless the title alone is self-explanatory (like "Corrected typo in main.cpp") then a single title line is sufficient. Commit messages should be helpful to people reading your code in the future, so explain the reasoning for your decisions. Further explanation [here](http://chris.beams.io/posts/git-commit/).
 
 ## Documentation
 
