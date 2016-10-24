@@ -8,10 +8,6 @@
 -- Foreign Key constraints are named with the pattern `fk_TABLENAME_COLUMNNAME`
 --
 
-DROP VIEW if exists vvotes ;
-DROP VIEW if exists vsuperblocks ;
-DROP VIEW if exists vproposals ;
-
 DROP TABLE if exists `votes` ;
 DROP TABLE if exists `signals` ;
 DROP TABLE if exists `outcomes` ;
@@ -144,51 +140,3 @@ VALUES ( 'yes', UTC_TIMESTAMP(), UTC_TIMESTAMP() )
 
 -- /votes
 
-
--- views
-
-create view vproposals as
-select p.name
-     , p.url
-     , p.start_epoch
-     , p.end_epoch
-     , p.payment_address
-     , p.payment_amount
-     , go.object_hash
-     , go.object_fee_tx
-     , go.yes_count
-     , go.no_count
-     , go.abstain_count
-     , go.absolute_yes_count
-     , go.id as `governance_object_id`
-     , p.id as `proposal_id`
-  from proposals p
-  join governance_objects go on go.object_hash = p.object_hash
-;
-
-
-create view vsuperblocks as
-select sb.event_block_height
-     , sb.payment_addresses
-     , sb.payment_amounts
-     , go.object_hash
-     , go.object_fee_tx
-     , go.yes_count
-     , go.no_count
-     , go.abstain_count
-     , go.absolute_yes_count
-     , go.id as `governance_object_id`
-     , sb.id as `superblock_id`
-  from superblocks sb
-  join governance_objects go on go.object_hash = sb.object_hash
-;
-
-create view vvotes as
-select v.object_hash
-     , sig.name as `signal`
-     , o.name as `outcome`
-     , v.voted_at
-  from votes v
-  join signals sig on sig.id = v.signal_id
-  join outcomes o on o.id = v.outcome_id
-;
