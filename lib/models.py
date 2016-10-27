@@ -468,6 +468,85 @@ class Watchdog(BaseModel, GovernanceClass):
     class Meta:
         db_table = 'watchdogs'
 
+class Transient(object):
+
+    def __init__(self, **kwargs):
+        for key in ['created_at', 'timeout', 'value']:
+            self.__setattr__(key, kwargs.get(key))
+
+    def is_expired(self):
+        return (self.created_at + self.timeout) < misc.now()
+
+    @classmethod
+    def deserialise(self, json):
+        try:
+            dikt = simplejson.loads(json)
+        # a no-op, but this tells us what exception to expect
+        except simplejson.scanner.JSONDecodeError as e:
+            raise e
+
+        lizt = [dikt.get(key, None) for key in ['timeout', 'value']]
+        lizt = list(set(lizt))
+        if None in lizt:
+            printdbg("Not all fields required for transient -- moving along.")
+            raise Exception("Required fields not present for transient.")
+
+        return dikt
+
+    @classmethod
+    def from_setting(self, setting):
+        dikt = Transient.deserialise(setting.value)
+        dikt['created_at'] = int((setting.created_at - datetime.datetime.utcfromtimestamp(0)).total_seconds())
+        return Transient(**dikt)
+
+    @classmethod
+    def cleanup(self):
+        for s in Setting.select().where(Setting.name.startswith('__transient_')):
+            try:
+                t = Transient.from_setting(s)
+            except:
+                continue
+
+            if t.is_expired():
+                s.delete_instance()
+
+    @classmethod
+    def get(self, name):
+        setting_name = "__transient_%s" % (name)
+
+        try:
+            the_setting = Setting.get(Setting.name == setting_name)
+            t = Transient.from_setting(the_setting)
+        except Setting.DoesNotExist as e:
+            return False
+
+        if t.is_expired():
+            the_setting.delete_instance()
+            return False
+        else:
+            return t.value
+
+    @classmethod
+    def set(self, name, value, timeout):
+        setting_name = "__transient_%s" % (name)
+        setting_dikt = {
+            'value': simplejson.dumps({
+                'value': value,
+                'timeout': timeout,
+            }),
+        }
+        setting, created = Setting.get_or_create(name=setting_name, defaults=setting_dikt)
+        return setting
+
+    @classmethod
+    def delete(self, name):
+        setting_name = "__transient_%s" % (name)
+        try:
+            s = Setting.get(Setting.name == setting_name)
+        except Setting.DoesNotExist as e:
+            return False
+        return s.delete_instance()
+
 # === /models ===
 
 def load_db_seeds():
