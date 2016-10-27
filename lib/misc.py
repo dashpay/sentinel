@@ -26,7 +26,7 @@ def is_hash(s):
     if m: return True
     return False
 
-def get_epoch():
+def now():
     return int(time.time())
 
 def add_sentinel_option(param):

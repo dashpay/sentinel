@@ -210,7 +210,7 @@ class Proposal(GovernanceClass, BaseModel):
 
     def is_valid(self, dashd):
         import dashlib
-        now = misc.get_epoch()
+        now = misc.now()
 
         # proposal name exists and is not null/whitespace
         if (len(self.name.strip()) == 0):
@@ -250,7 +250,7 @@ class Proposal(GovernanceClass, BaseModel):
     def is_deletable(self):
         # end_date < (current_date - 30 days)
         thirty_days = (86400 * 30)
-        if (self.end_epoch < (misc.get_epoch() - thirty_days)):
+        if (self.end_epoch < (misc.now() - thirty_days)):
             return True
 
         # TBD (item moved to external storage/DashDrive, etc.)

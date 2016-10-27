@@ -134,14 +134,14 @@ def test_proposal_is_valid(proposal):
     # ============================================================
     # ensure proposal not too late
     # ============================================================
-    proposal.end_epoch = misc.get_epoch() - 1
+    proposal.end_epoch = misc.now() - 1
     assert proposal.is_valid(dashd) == False
 
-    proposal.end_epoch = misc.get_epoch()
+    proposal.end_epoch = misc.now()
     assert proposal.is_valid(dashd) == False
 
-    proposal.start_epoch = misc.get_epoch() + 2
-    proposal.end_epoch = misc.get_epoch() + 4
+    proposal.start_epoch = misc.now() + 2
+    proposal.end_epoch = misc.now() + 4
     assert proposal.is_valid(dashd) == True
 
     # reset
@@ -199,7 +199,7 @@ def test_proposal_is_valid(proposal):
 
 
 def test_proposal_is_deletable(proposal):
-    now = misc.get_epoch()
+    now = misc.now()
     assert proposal.is_deletable() == False
 
     proposal.end_epoch = now - (86400 * 29)

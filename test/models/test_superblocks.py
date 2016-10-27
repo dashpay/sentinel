@@ -174,7 +174,7 @@ def test_superblock_is_valid(superblock):
 
 
 def test_superblock_is_deletable(superblock):
-    # now = misc.get_epoch()
+    # now = misc.now()
     # assert superblock.is_deletable() == False
 
     # superblock.end_epoch = now - (86400 * 29)
