@@ -7,7 +7,7 @@ import config
 import misc
 from dashd import DashDaemon
 from models import Superblock, Proposal, GovernanceObject, Watchdog
-from models import VoteSignals, VoteOutcomes
+from models import VoteSignals, VoteOutcomes, Transient
 import socket
 from misc import printdbg
 import time
@@ -127,7 +127,7 @@ def is_dashd_port_open(dashd):
 
     return port_open
 
-if __name__ == '__main__':
+def main():
     dashd = DashDaemon.from_dash_conf(config.dash_conf)
 
     # check dashd connectivity
@@ -155,3 +155,22 @@ if __name__ == '__main__':
 
     # create a Superblock if necessary
     attempt_superblock_creation(dashd)
+
+
+if __name__ == '__main__':
+    # ensure another instance of Sentinel is not currently running
+    mutex_key = 'SENTINEL_RUNNING'
+    # assume that all processes expire after 'timeout_seconds' seconds
+    timeout_seconds = 90
+
+    is_running = Transient.get(mutex_key)
+    if is_running:
+        printdbg("An instance of Sentinel is already running -- aborting.")
+        sys.exit(2)
+    else:
+        Transient.set(mutex_key, misc.now(), timeout_seconds)
+
+    # locked to this instance -- perform main logic here
+    main()
+
+    Transient.delete(mutex_key)
