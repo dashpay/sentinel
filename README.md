@@ -4,7 +4,7 @@ An all-powerful toolset for Dash.
 
 Sentinel is an autonomous agent for persisting, processing and automating Dash V12.1 governance objects and tasks, and for expanded functions in the upcoming Dash V13 release (Evolution).
 
-Sentinel is implemented as a Python application that binds to a local MySQL and v12.1 dashd instance on each Dash V12.1 Masternode.
+Sentinel is implemented as a Python application that binds to a local version 12.1 dashd instance on each Dash V12.1 Masternode.
 
 This guide covers installing Sentinel onto an existing 12.1 Masternode in Ubuntu 14.04 / 16.04.
 
@@ -16,11 +16,10 @@ Make sure Python version 2.7.x or above is installed.
 
     python --version
 
-Install MySQL Server 5.5+ and Sentinel dependencies, making sure you enter a strong root password when asked.
+Install Sentinel and dependencies:
 
     $ sudo apt-get update
-    $ sudo apt-get install mysql-server python-pytest python-virtualenv
-    $ sudo service mysql start
+    $ sudo apt-get install python-virtualenv
 
 Make sure the local Dash daemon running is version 12.1 (120100), and is configured as a masternode
 
@@ -34,14 +33,8 @@ This section can be used to install Sentinel source or update it for new release
 Clone the Sentinel code and install Python dependencies.
 
     $ git clone https://github.com/nmarley/sentinel.git && cd sentinel
-    $ virtualenv venv
+    $ virtualenv ./venv
     $ ./venv/bin/pip install -r requirements.txt
-
-Recommended: Build the Sentinel database schemas from source and configure MySQL for Sentinel requirements.
-
-    $ ./setup-mysql.sh
-
-A reboot is recommended at this stage.
 
 ### 3. Set up Cron
 
@@ -63,10 +56,6 @@ With all tests passing and crontab setup, Sentinel will stay in sync with dashd 
 
 ## Troubleshooting
 
-If data issues occur, you can reinitialize the database schema and data to the initial state by re-running the sql setup script.
-
-    $ ./setup-mysql.sh
-
 If Sentinel cannot communicate with dashd, check that RPC settings are configured in dash.conf...
 
     $ nano ~/.dashcore/dash.conf
@@ -75,15 +64,15 @@ If Sentinel cannot communicate with dashd, check that RPC settings are configure
 
     $ nano sentinel.conf
 
-To debug Sentinel's sync with dashd, run the crontab sync manually and examine the output
+To debug Sentinel's sync with dashd, run the crontab sync manually and examine the debug output:
 
-    $ python scripts/crontab.py
+    $ SENTINEL_DEBUG=1 ./venv/bin/python scripts/crontab.py
 
 To run individual Sentinel tests, specify the test from the test folder, e.g.
 
-    $ py.test test/test_config.py
-    $ py.test test/test_jsonrpc.py
-    $ py.test test/test_models.py
+    $ ./venv/bin/py.test test/test_config.py
+    $ ./venv/bin/py.test test/test_jsonrpc.py
+    $ ./venv/bin/py.test test/test_models.py
 
 ## Contributing
 
@@ -103,9 +92,6 @@ Specifically:
 
     Commit messages should be verbose by default, consisting of a short subject line (50 chars max), a blank line and detailed explanatory text as separate paragraph(s); unless the title alone is self-explanatory (like "Corrected typo in main.cpp") then a single title line is sufficient. Commit messages should be helpful to people reading your code in the future, so explain the reasoning for your decisions. Further explanation [here](http://chris.beams.io/posts/git-commit/).
 
-## Documentation
+### License
 
-- [usage.md](docs/usage.md) - New system usage
-- [conversion.md](docs/conversion.md) - How we will convert from 12.0 to 12.1
-- [rules.md](docs/rules.md) - What the rules are for the new system
-- [sentinel-cli.md](docs/sentinel-cli.md) - How to use the CLI to create and amend records
+Released under the MIT license, undre the same terms as DashCore itself. See [LICENSE](LICENSE) for more info.
