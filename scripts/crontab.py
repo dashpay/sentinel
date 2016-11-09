@@ -111,9 +111,7 @@ def check_object_validity(dashd):
     # vote (in)valid objects
     for gov_class in [Proposal, Superblock]:
         for obj in gov_class.select():
-            if not obj.voted_on(signal=VoteSignals.valid):
-                obj.vote_validity(dashd)
-
+            obj.vote_validity(dashd)
 
 def is_dashd_port_open(dashd):
     # test socket open before beginning, display instructive message to MN

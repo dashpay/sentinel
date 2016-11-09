@@ -153,6 +153,25 @@ class GovernanceObject(BaseModel):
             printdbg("No governance object hash, nothing to vote on.")
             return
 
+        # have I already voted on this gobject with this particular signal and outcome?
+        if self.voted_on(signal=signal):
+            printdbg("Found a vote for this gobject/signal...")
+            vote = self.votes.where(Vote.signal == signal)[0]
+
+            # if the outcome is the same, move on, nothing more to do
+            if vote.outcome == outcome:
+                # move on.
+                printdbg("Already voted for this same gobject/signal/outcome, no need to re-vote.")
+                return
+            else:
+                printdbg("Found a STALE vote for this gobject/signal, deleting so that we can re-vote.")
+                vote.delete_instance()
+
+        else:
+            printdbg("Haven't voted on this gobject/signal yet...")
+
+        # now ... vote!
+
         vote_command = self.get_vote_command(signal, outcome)
         printdbg(' '.join(vote_command))
         output = dashd.rpc_command(*vote_command)

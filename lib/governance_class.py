@@ -19,9 +19,11 @@ class GovernanceClass(object):
     def go(self):
         return self.governance_object
 
+    # pass thru to GovernanceObject#vote
     def vote(self, dashd, signal, outcome):
         return self.go.vote(dashd, signal, outcome)
 
+    # pass thru to GovernanceObject#voted_on
     def voted_on(self, **kwargs):
         return self.go.voted_on(**kwargs)
 
