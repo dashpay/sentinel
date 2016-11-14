@@ -228,7 +228,7 @@ def did_we_vote(output):
     # in case we spin up a new instance or server, but have already voted
     # on the network and network has recorded those votes
     m_old = re.match(r'^time between votes is too soon', err_msg)
-    m_new = re.match(r'^Masternode voting too often', err_msg)
+    m_new = re.match(r'Masternode voting too often', err_msg)
     if result == 'failed' and (m_old or m_new):
         printdbg("DEBUG: failed, but marking as voted...")
         voted = True
