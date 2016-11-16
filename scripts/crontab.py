@@ -11,6 +11,8 @@ from models import VoteSignals, VoteOutcomes, Transient
 import socket
 from misc import printdbg
 import time
+from bitcoinrpc.authproxy import JSONRPCException
+
 
 # sync dashd gobject list with our local relational DB backend
 def perform_dashd_object_sync(dashd):
@@ -120,7 +122,7 @@ def is_dashd_port_open(dashd):
     try:
         info = dashd.rpc_command('getinfo')
         port_open = True
-    except socket.error as e:
+    except (socket.error, JSONRPCException) as e:
         print("%s" % e)
 
     return port_open
