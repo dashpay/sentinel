@@ -180,13 +180,23 @@ class GovernanceObject(BaseModel):
         voted = dashlib.did_we_vote(output)
 
         if voted:
-            v = Vote(
-                governance_object=self,
-                signal=signal,
-                outcome=outcome,
-                object_hash=self.object_hash,
-            )
-            v.save()
+            printdbg('VOTE success, saving Vote object to database')
+            Vote(governance_object=self, signal=signal, outcome=outcome,
+                 object_hash=self.object_hash).save()
+        else:
+            printdbg('VOTE failed, trying to sync with network vote')
+            self.sync_network_vote(dashd, signal)
+
+    def sync_network_vote(self, dashd, signal):
+        printdbg('\tsyncing network vote for object %s with signal %s' % (self.object_hash, signal.name))
+        vote_info = dashd.get_my_gobject_votes(self.object_hash)
+        for vdikt in vote_info:
+            if vdikt['signal'] != signal.name:
+                continue
+            printdbg('\tFound a matching valid vote on the network, outcome = %s' % vdikt['outcome'])
+            outcome = VoteOutcomes.get(vdikt['outcome'])
+            Vote(governance_object=self, signal=signal, outcome=outcome,
+                 object_hash=self.object_hash).save()
 
     def voted_on(self, **kwargs):
         signal  = kwargs.get('signal', None)

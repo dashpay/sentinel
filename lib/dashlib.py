@@ -228,9 +228,27 @@ def did_we_vote(output):
     # in case we spin up a new instance or server, but have already voted
     # on the network and network has recorded those votes
     m_old = re.match(r'^time between votes is too soon', err_msg)
-    m_new = re.match(r'Masternode voting too often', err_msg)
+    m_new = re.search(r'Masternode voting too often', err_msg, re.M)
+
     if result == 'failed' and (m_old or m_new):
-        printdbg("DEBUG: failed, but marking as voted...")
-        voted = True
+        printdbg("DEBUG: Voting too often, need to sync w/network")
+        voted = False
 
     return voted
+
+def parse_raw_votes(raw_votes):
+    votes = []
+    for v in list(raw_votes.values()):
+        (outpoint, ntime, outcome, signal) = v.split(':')
+        signal  = signal.lower()
+        outcome = outcome.lower()
+
+        mn_collateral_outpoint = parse_masternode_status_vin(outpoint)
+        v = {
+            'mn_collateral_outpoint': mn_collateral_outpoint,
+            'signal': signal,
+            'outcome': outcome,
+        }
+        votes.append(v)
+
+    return votes
