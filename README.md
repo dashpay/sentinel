@@ -10,27 +10,24 @@ This guide covers installing Sentinel onto an existing 12.1 Masternode in Ubuntu
 
 ## Installation
 
-### 1. Install Components
+### 1. Install Prerequisites
 
-Make sure Python version 2.7.x or above is installed.
+Make sure Python version 2.7.x or above is installed:
 
     python --version
 
-Install Sentinel and dependencies:
+Update system packages and ensure virtualenv is installed:
 
     $ sudo apt-get update
-    $ sudo apt-get install python-virtualenv
+    $ sudo apt-get -y install python-virtualenv
 
-Make sure the local Dash daemon running is version 12.1 (120100), and is configured as a masternode
+Make sure the local Dash daemon running is at least version 12.1 (120100)
 
-    $ dash-cli getinfo | grep '"version"'
-    $ dash-cli masternode status | grep '"status"'
+    $ dash-cli getinfo | grep version
 
-### 2. Get / Update Source
+### 2. Install Sentinel
 
-This section can be used to install Sentinel source or update it for new releases.
-
-Clone the Sentinel code and install Python dependencies.
+Clone the Sentinel repo and install Python dependencies.
 
     $ git clone https://github.com/nmarley/sentinel.git && cd sentinel
     $ virtualenv ./venv
@@ -54,25 +51,17 @@ Test the config by runnings all tests from the sentinel folder you cloned into
 
 With all tests passing and crontab setup, Sentinel will stay in sync with dashd and the installation is complete
 
+## Configuration
+
+An alternative (non-default) path to the `dash.conf` file can be specified in `sentinel.conf`:
+
+    dash_conf=/path/to/dash.conf
+
 ## Troubleshooting
 
-If Sentinel cannot communicate with dashd, check that RPC settings are configured in dash.conf...
-
-    $ nano ~/.dashcore/dash.conf
-
-...or if dash.conf is stored elsewhere, set a custom path in sentinel.conf with the dash\_conf parameter:
-
-    $ nano sentinel.conf
-
-To debug Sentinel's sync with dashd, run the crontab sync manually and examine the debug output:
+To view debug output, set the `SENTINEL_DEBUG` environment variable to anything non-zero, then run the script manually:
 
     $ SENTINEL_DEBUG=1 ./venv/bin/python scripts/crontab.py
-
-To run individual Sentinel tests, specify the test from the test folder, e.g.
-
-    $ ./venv/bin/py.test test/test_config.py
-    $ ./venv/bin/py.test test/test_jsonrpc.py
-    $ ./venv/bin/py.test test/test_models.py
 
 ## Contributing
 
@@ -94,4 +83,4 @@ Specifically:
 
 ### License
 
-Released under the MIT license, undre the same terms as DashCore itself. See [LICENSE](LICENSE) for more info.
+Released under the MIT license, under the same terms as DashCore itself. See [LICENSE](LICENSE) for more info.
