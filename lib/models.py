@@ -193,8 +193,13 @@ class GovernanceObject(BaseModel):
         for vdikt in vote_info:
             if vdikt['signal'] != signal.name:
                 continue
-            printdbg('\tFound a matching valid vote on the network, outcome = %s' % vdikt['outcome'])
+
+            # ensure valid outcome
             outcome = VoteOutcomes.get(vdikt['outcome'])
+            if not outcome:
+                continue
+
+            printdbg('\tFound a matching valid vote on the network, outcome = %s' % vdikt['outcome'])
             Vote(governance_object=self, signal=signal, outcome=outcome,
                  object_hash=self.object_hash).save()
 
