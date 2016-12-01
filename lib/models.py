@@ -359,10 +359,6 @@ class Superblock(BaseModel, GovernanceClass):
         if len(addresses) != len(amounts):
             return False
 
-        # ensure EBH is on-cycle
-        if (self.event_block_height != dashd.next_superblock_height()):
-            return False
-
         return True
 
     def is_deletable(self):
