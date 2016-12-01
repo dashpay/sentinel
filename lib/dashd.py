@@ -134,8 +134,13 @@ class DashDaemon():
     # memoized on a per-run, per-object_hash basis
     def get_my_gobject_votes(self, object_hash):
         import dashlib
-        if ( not self.gobject_votes.get(object_hash) ):
+        if not self.gobject_votes.get(object_hash):
             my_vin = self.get_current_masternode_vin()
+            # if we can't get MN vin from output of `masternode status`,
+            # return an empty list
+            if not my_vin:
+                return []
+
             (txid, vout_index) = my_vin.split('-')
 
             cmd = ['gobject', 'getcurrentvotes', object_hash, txid, vout_index]
