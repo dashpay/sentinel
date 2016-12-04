@@ -246,39 +246,51 @@ class Proposal(GovernanceClass, BaseModel):
         import dashlib
         now = misc.now()
 
+        printdbg("In Proposal#is_valid, for Proposal: %s" % self.__dict__)
+        printdbg("\tnow = %s" % now)
+
         # proposal name exists and is not null/whitespace
         if (len(self.name.strip()) == 0):
+            printdbg("\tInvalid Proposal name [%s], returning False" % self.name)
             return False
 
         # proposal name is normalized (something like "[a-zA-Z0-9-_]+")
         if not re.match(r'^[-_a-zA-Z0-9]+$', self.name):
+            printdbg("\tInvalid Proposal name [%s] (does not match regex), returning False" % self.name)
             return False
 
         # end date < start date
         if (self.end_epoch <= self.start_epoch):
+            printdbg("\tProposal end_epoch [%s] <= start_epoch [%s] , returning False" % (self.end_epoch, self.start_epoch))
             return False
 
         # end date < current date
         if (self.end_epoch <= now):
+            printdbg("\tProposal end_epoch [%s] <= now [%s] , returning False" % (self.end_epoch, now))
             return False
 
         # budget check
         max_budget = dashd.next_superblock_max_budget()
         if (max_budget and (self.payment_amount > max_budget)):
+            printdbg("\tProposal amount [%s] is bigger than max_budget [%s], returning False" % (self.payment_amount, max_budget))
             return False
 
         # amount can't be negative or 0
         if (self.payment_amount <= 0):
+            printdbg("\tProposal amount [%s] is negative or zero, returning False" % self.payment_amount)
             return False
 
         # payment address is valid base58 dash addr, non-multisig
         if not dashlib.is_valid_dash_address(self.payment_address, config.network):
+            printdbg("\tPayment address [%s] not a valid Dash address for network [%s], returning False" % (self.payment_address, config.network))
             return False
 
         # URL
         if (len(self.url.strip()) < 4):
+            printdbg("\tProposal URL [%s] too short, returning False" % self.url)
             return False
 
+        printdbg("Leaving Proposal#is_valid, Valid = True")
         return True
 
     def is_deletable(self):
@@ -339,26 +351,33 @@ class Superblock(BaseModel, GovernanceClass):
         import dashlib
         import decimal
 
+        printdbg("In Superblock#is_valid, for SB: %s" % self.__dict__)
+
         # it's a string from the DB...
         addresses = self.payment_addresses.split('|')
         for addr in addresses:
             if not dashlib.is_valid_dash_address(addr, config.network):
+                printdbg("\tInvalid address [%s], returning False" % addr)
                 return False
 
         amounts = self.payment_amounts.split('|')
         for amt in amounts:
             if not misc.is_numeric(amt):
+                printdbg("\tAmount [%s] is not numeric, returning False" % amt)
                 return False
 
             # no negative or zero amounts allowed
             damt = decimal.Decimal(amt)
             if not damt > 0:
+                printdbg("\tAmount [%s] is zero or negative, returning False" % damt)
                 return False
 
         # ensure number of payment addresses matches number of payments
         if len(addresses) != len(amounts):
+            printdbg("\tNumber of payment addresses [%s] != number of payment amounts [%s], returning False" % (len(addresses), len(amounts)))
             return False
 
+        printdbg("Leaving Superblock#is_valid, Valid = True")
         return True
 
     def is_deletable(self):
