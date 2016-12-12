@@ -243,10 +243,8 @@ class Proposal(GovernanceClass, BaseModel):
 
     def is_valid(self, dashd):
         import dashlib
-        now = misc.now()
 
         printdbg("In Proposal#is_valid, for Proposal: %s" % self.__dict__)
-        printdbg("\tnow = %s" % now)
 
         # proposal name exists and is not null/whitespace
         if (len(self.name.strip()) == 0):
@@ -261,11 +259,6 @@ class Proposal(GovernanceClass, BaseModel):
         # end date < start date
         if (self.end_epoch <= self.start_epoch):
             printdbg("\tProposal end_epoch [%s] <= start_epoch [%s] , returning False" % (self.end_epoch, self.start_epoch))
-            return False
-
-        # end date < current date
-        if (self.end_epoch <= now):
-            printdbg("\tProposal end_epoch [%s] <= now [%s] , returning False" % (self.end_epoch, now))
             return False
 
         # budget check
@@ -291,6 +284,19 @@ class Proposal(GovernanceClass, BaseModel):
 
         printdbg("Leaving Proposal#is_valid, Valid = True")
         return True
+
+    def is_expired(self):
+        printdbg("In Proposal#is_expired, for Proposal: %s" % self.__dict__)
+        now = misc.now()
+        printdbg("\tnow = %s" % now)
+
+        # end date < current date
+        if (self.end_epoch <= now):
+            printdbg("\tProposal end_epoch [%s] <= now [%s] , returning True" % (self.end_epoch, now))
+            return True
+
+        printdbg("Leaving Proposal#is_expired, Expired = False")
+        return False
 
     def is_deletable(self):
         # end_date < (current_date - 30 days)
