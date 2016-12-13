@@ -343,6 +343,7 @@ class Superblock(BaseModel, GovernanceClass):
     event_block_height   = IntegerField()
     payment_addresses    = TextField()
     payment_amounts      = TextField()
+    proposal_hashes      = TextField()
     sb_hash      = CharField()
     object_hash = CharField(max_length=64)
 
@@ -375,6 +376,13 @@ class Superblock(BaseModel, GovernanceClass):
             damt = decimal.Decimal(amt)
             if not damt > 0:
                 printdbg("\tAmount [%s] is zero or negative, returning False" % damt)
+                return False
+
+        # verify proposal hashes correctly formatted...
+        hashes = self.proposal_hashes.split('|')
+        for object_hash in hashes:
+            if not misc.is_hash(object_hash):
+                printdbg("\tInvalid proposal hash [%s], returning False" % object_hash)
                 return False
 
         # ensure number of payment addresses matches number of payments
