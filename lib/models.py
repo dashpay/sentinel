@@ -667,6 +667,8 @@ def check_db_sane():
         except (peewee.InternalError, peewee.OperationalError, peewee.ProgrammingError) as e:
             print("[error] Could not create tables: %s" % e)
 
+    update_schema_version()
+
 def check_db_schema_version():
     """ Ensure DB schema is correct version. Drop tables if not. """
     db_schema_version = None
@@ -685,6 +687,12 @@ def check_db_schema_version():
             db.drop_tables(db_models(), safe=False, cascade=False)
         except (peewee.InternalError, peewee.OperationalError, peewee.ProgrammingError) as e:
             print("[error] Could not drop tables: %s" % e)
+
+def update_schema_version():
+    schema_version_setting, created = Setting.get_or_create(name='DB_SCHEMA_VERSION', defaults={'value': SCHEMA_VERSION})
+    if (schema_version_setting.value != SCHEMA_VERSION):
+        schema_version_setting.save()
+    return
 
 # sanity checks...
 check_db_sane()     # ensure tables exist
