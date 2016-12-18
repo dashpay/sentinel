@@ -29,6 +29,15 @@ DASHD_GOVOBJ_TYPES = {
     'watchdog': 3,
 }
 
+# schema version follows format 'YYYYMMDD-NUM'.
+#
+# YYYYMMDD is the 4-digit year, 2-digit month and 2-digit day the schema
+# changes were added.
+#
+# NUM is a numerical version of changes for that specific date. If the date
+# changes, the NUM resets to 1.
+SCHEMA_VERSION = '20161217-1'
+
 # === models ===
 
 class BaseModel(playhouse.signals.Model):
@@ -626,10 +635,9 @@ def load_db_seeds():
 
     return rows_created
 
-def check_db_sane():
-    missing_table_models = []
-
-    for model in [
+def db_models():
+    """ Return a list of Sentinel DB models. """
+    models = [
         GovernanceObject,
         Setting,
         Proposal,
@@ -638,7 +646,16 @@ def check_db_sane():
         Outcome,
         Vote,
         Watchdog
-        ]:
+    ]
+    return models
+
+def check_db_sane():
+    """ Ensure DB tables exist, create them if they don't. """
+    check_db_schema_version()
+
+    missing_table_models = []
+
+    for model in db_models():
         if not getattr(model, 'table_exists')():
             missing_table_models.append(model)
             print("[warning]: table for %s (%s) doesn't exist in DB." % (model, model._meta.db_table))
@@ -649,6 +666,25 @@ def check_db_sane():
             db.create_tables(missing_table_models, safe=True)
         except (peewee.InternalError, peewee.OperationalError, peewee.ProgrammingError) as e:
             print("[error] Could not create tables: %s" % e)
+
+def check_db_schema_version():
+    """ Ensure DB schema is correct version. Drop tables if not. """
+    db_schema_version = None
+
+    try:
+        db_schema_version = Setting.get(Setting.name == 'DB_SCHEMA_VERSION').value
+    except (peewee.OperationalError, peewee.DoesNotExist) as e:
+        printdbg("[info]: Can't get DB_SCHEMA_VERSION...")
+
+    printdbg("[info]: SCHEMA_VERSION (code) = [%s]" % SCHEMA_VERSION)
+    printdbg("[info]: DB_SCHEMA_VERSION = [%s]" % db_schema_version)
+    if (SCHEMA_VERSION != db_schema_version):
+        print("[info]: Schema version mis-match. Syncing tables.")
+        printdbg("[info]: Dropping tables...")
+        try:
+            db.drop_tables(db_models(), safe=False, cascade=True)
+        except (peewee.InternalError, peewee.OperationalError, peewee.ProgrammingError) as e:
+            print("[error] Could not drop tables: %s" % e)
 
 # sanity checks...
 check_db_sane()     # ensure tables exist
