@@ -682,7 +682,7 @@ def check_db_schema_version():
         print("[info]: Schema version mis-match. Syncing tables.")
         printdbg("[info]: Dropping tables...")
         try:
-            db.drop_tables(db_models(), safe=False, cascade=True)
+            db.drop_tables(db_models(), safe=False, cascade=False)
         except (peewee.InternalError, peewee.OperationalError, peewee.ProgrammingError) as e:
             print("[error] Could not drop tables: %s" % e)
 
