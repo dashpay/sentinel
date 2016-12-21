@@ -352,7 +352,7 @@ class Superblock(BaseModel, GovernanceClass):
     event_block_height   = IntegerField()
     payment_addresses    = TextField()
     payment_amounts      = TextField()
-    proposal_hashes      = TextField()
+    proposal_hashes      = TextField(default='')
     sb_hash      = CharField()
     object_hash = CharField(max_length=64)
 
