@@ -388,11 +388,12 @@ class Superblock(BaseModel, GovernanceClass):
                 return False
 
         # verify proposal hashes correctly formatted...
-        hashes = self.proposal_hashes.split('|')
-        for object_hash in hashes:
-            if not misc.is_hash(object_hash):
-                printdbg("\tInvalid proposal hash [%s], returning False" % object_hash)
-                return False
+        if len(self.proposal_hashes) > 0:
+            hashes = self.proposal_hashes.split('|')
+            for object_hash in hashes:
+                if not misc.is_hash(object_hash):
+                    printdbg("\tInvalid proposal hash [%s], returning False" % object_hash)
+                    return False
 
         # ensure number of payment addresses matches number of payments
         if len(addresses) != len(amounts):
