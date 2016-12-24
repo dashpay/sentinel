@@ -421,7 +421,12 @@ class Superblock(BaseModel, GovernanceClass):
     # this prevents sb_hash from being added to the serialised fields
     @classmethod
     def serialisable_fields(self):
-        return ['event_block_height', 'payment_addresses', 'payment_amounts']
+        return [
+            'event_block_height',
+            'payment_addresses',
+            'payment_amounts',
+            'proposal_hashes'
+        ]
 
     # has this masternode voted to fund *any* superblocks at the given
     # event_block_height?
