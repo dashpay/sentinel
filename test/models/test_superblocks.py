@@ -186,7 +186,7 @@ def test_superblock_is_deletable(superblock):
     pass
 
 def test_serialisable_fields():
-    s1 = ['event_block_height', 'payment_addresses', 'payment_amounts']
+    s1 = ['event_block_height', 'payment_addresses', 'payment_amounts', 'proposal_hashes']
     s2 = Superblock.serialisable_fields()
 
     s1.sort()
