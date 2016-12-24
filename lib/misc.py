@@ -22,7 +22,7 @@ def printdbg(str):
         print(str)
 
 def is_hash(s):
-    m = re.match('^([a-f0-9]+)$', s)
+    m = re.match('^[a-f0-9]{64}$', s)
     if m: return True
     return False
 

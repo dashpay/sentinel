@@ -46,8 +46,8 @@ def go_list_proposals():
         {u'AbsoluteYesCount': 1000,
          u'AbstainCount': 29,
          u'CollateralHash': u'3efd23283aa98c2c33f80e4d9ed6f277d195b72547b6491f43280380f6aac810',
-         u'DataHex': u'5b5b2270726f706f73616c222c207b22656e645f65706f6368223a20313439313336383430302c20226e616d65223a20226665726e616e64657a2d37363235222c20227061796d656e745f61646472657373223a2022795965384b77796155753559737753596d4233713372797838585455753979375569222c20227061796d656e745f616d6f756e74223a2032352e37352c202273746172745f65706f6368223a20313437343236313038362c202274797065223a20312c202275726c223a2022687474703a2f2f6461736863656e7472616c2e6f72672f6665726e616e64657a2d37363235227d5d5d',
-         u'DataString': u'[["proposal", {"end_epoch": 1491368400, "name": "fernandez-7625", "payment_address": "yYe8KwyaUu5YswSYmB3q3ryx8XTUu9y7Ui", "payment_amount": 25.75, "start_epoch": 1474261086, "type": 1, "url": "http://dashcentral.org/fernandez-7625"}]]',
+         u'DataHex': u'5b5b2270726f706f73616c222c207b22656e645f65706f6368223a20313439313336383430302c20226e616d65223a20226665726e616e64657a2d37363235222c20227061796d656e745f61646472657373223a2022795443363268755234595145506e39414a486a6e517878726548536267416f617456222c20227061796d656e745f616d6f756e74223a2033322e30312c202273746172745f65706f6368223a20313437343236313038362c202274797065223a20312c202275726c223a2022687474703a2f2f6461736863656e7472616c2e6f72672f6665726e616e64657a2d37363235227d5d5d',
+         u'DataString': u'[["proposal", {"end_epoch": 1491368400, "name": "fernandez-7625", "payment_address": "yTC62huR4YQEPn9AJHjnQxxreHSbgAoatV", "payment_amount": 32.01, "start_epoch": 1474261086, "type": 1, "url": "http://dashcentral.org/fernandez-7625"}]]',
          u'Hash': u'0523445762025b2e01a2cd34f1d10f4816cf26ee1796167e5b029901e5873630',
          u'IsValidReason': u'',
          u'NoCount': 56,
@@ -115,22 +115,17 @@ def go_list_superblocks():
 @pytest.fixture
 def superblock():
     sb = Superblock(
-        event_block_height = 62500,
-        payment_addresses = "yYe8KwyaUu5YswSYmB3q3ryx8XTUu9y7Ui|yTC62huR4YQEPn9AJHjnQxxreHSbgAoatV",
-        payment_amounts = "5|3"
+        event_block_height=62500,
+        payment_addresses='yYe8KwyaUu5YswSYmB3q3ryx8XTUu9y7Ui|yTC62huR4YQEPn9AJHjnQxxreHSbgAoatV',
+        payment_amounts='5|3',
+        proposal_hashes='e8a0057914a2e1964ae8a945c4723491caae2077a90a00a2aabee22b40081a87|d1ce73527d7cd6f2218f8ca893990bc7d5c6b9334791ce7973bfa22f155f826e',
     )
-
-    # NOTE: this object is (intentionally) not saved yet.
-    #       We want to return an built, but unsaved, object
     return sb
-
 
 def test_superblock_is_valid(superblock):
     from dashd import DashDaemon
     dashd = DashDaemon.from_dash_conf(config.dash_conf)
 
-    current_ebh = dashd.next_superblock_height()
-    superblock.event_block_height = current_ebh
     orig = Superblock(**superblock.get_dict()) # make a copy
 
     # original as-is should be valid
@@ -144,7 +139,7 @@ def test_superblock_is_valid(superblock):
     assert superblock.is_valid(dashd) == False
 
     # reset
-    superblock.payment_amounts = orig.payment_amounts
+    superblock = Superblock(**orig.get_dict())
     assert superblock.is_valid(dashd) == True
 
     # mess with payment addresses
@@ -170,8 +165,26 @@ def test_superblock_is_valid(superblock):
     superblock.payment_amounts = '-37.00'
     assert superblock.is_valid(dashd) == False
 
+    # reset
+    superblock = Superblock(**orig.get_dict())
+    assert superblock.is_valid(dashd) == True
 
+    # mess with proposal hashes
+    superblock.proposal_hashes = '7|yyzx'
+    assert superblock.is_valid(dashd) == False
 
+    superblock.proposal_hashes = '7,|yyzx'
+    assert superblock.is_valid(dashd) == False
+
+    superblock.proposal_hashes = '0|1'
+    assert superblock.is_valid(dashd) == False
+
+    superblock.proposal_hashes = '0000000000000000000000000000000000000000000000000000000000000000|1111111111111111111111111111111111111111111111111111111111111111'
+    assert superblock.is_valid(dashd) == True
+
+    # reset
+    superblock = Superblock(**orig.get_dict())
+    assert superblock.is_valid(dashd) == True
 
 def test_superblock_is_deletable(superblock):
     # now = misc.now()
@@ -205,9 +218,11 @@ def test_deterministic_superblock_creation(go_list_proposals):
     sb = dashlib.create_superblock(dashd, prop_list, 72000)
 
     assert sb.event_block_height == 72000
-    assert sb.payment_addresses == 'yYe8KwyaUu5YswSYmB3q3ryx8XTUu9y7Ui|yYe8KwyaUu5YswSYmB3q3ryx8XTUu9y7Ui'
-    assert sb.payment_amounts == '25.75000000|25.75000000'
-    assert sb.hex_hash() == 'f740f95ef49b050f522ba2bda921819b72dbab7c622bfdd3786624e3fbf6e25f'
+    assert sb.payment_addresses == 'yYe8KwyaUu5YswSYmB3q3ryx8XTUu9y7Ui|yTC62huR4YQEPn9AJHjnQxxreHSbgAoatV'
+    assert sb.payment_amounts == '25.75000000|32.01000000'
+    assert sb.proposal_hashes == 'dfd7d63979c0b62456b63d5fc5306dbec451180adee85876cbf5b28c69d1a86c|0523445762025b2e01a2cd34f1d10f4816cf26ee1796167e5b029901e5873630'
+
+    assert sb.hex_hash() == '5534e9fa4a51423820b9e19fa6d4770c12ea0a5663e8adff8223f5e8b6df641c'
 
 def test_deterministic_superblock_selection(go_list_superblocks):
     from dashd import DashDaemon
