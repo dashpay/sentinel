@@ -681,7 +681,7 @@ def check_db_schema_version():
 
     try:
         db_schema_version = Setting.get(Setting.name == 'DB_SCHEMA_VERSION').value
-    except (peewee.OperationalError, peewee.DoesNotExist) as e:
+    except (peewee.OperationalError, peewee.DoesNotExist, peewee.ProgrammingError) as e:
         printdbg("[info]: Can't get DB_SCHEMA_VERSION...")
 
     printdbg("[info]: SCHEMA_VERSION (code) = [%s]" % SCHEMA_VERSION)
