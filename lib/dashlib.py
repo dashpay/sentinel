@@ -132,6 +132,10 @@ def create_superblock(dashd, proposals, event_block_height):
         printdbg("No proposals made the cut!")
         return None
 
+    # 'payments' now contains all the proposals for inclusion in the
+    # Superblock, but needs to be sorted by proposal hash descending
+    payments.sort(key=lambda k: k['proposal'], reverse=True)
+
     sb = Superblock(
         event_block_height = event_block_height,
         payment_addresses = '|'.join([pd['address' ] for pd in payments]),
