@@ -18,8 +18,10 @@ def is_numeric(strin):
     return True
 
 def printdbg(str):
+    ts = time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(now()))
+    logstr = "{} {}".format(ts, str)
     if os.environ.get('SENTINEL_DEBUG', None):
-        print(str)
+        print(logstr)
 
 def is_hash(s):
     m = re.match('^[a-f0-9]{64}$', s)
