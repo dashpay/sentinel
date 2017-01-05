@@ -92,6 +92,9 @@ def create_superblock(dashd, proposals, event_block_height):
     budget_allocated = Decimal(0)
     budget_max       = dashd.get_superblock_budget_allocation(event_block_height)
 
+    sb_epoch_time = block_height_to_epoch(event_block_height)
+    fudge = 60 * 60 * 2  # fudge-factor to allow for slighly incorrect estimates
+
     payments = []
     for proposal in proposals:
         fmt_string = "name: %s, rank: %4d, hash: %s, amount: %s <= %s"
@@ -105,6 +108,26 @@ def create_superblock(dashd, proposals, event_block_height):
                     proposal.object_hash,
                     proposal.payment_amount,
                     "skipped (blows the budget)",
+                )
+            )
+            continue
+
+        # skip proposals if the SB isn't within the Proposal time window...
+        window_start = proposal.start_epoch - fudge
+        window_end   = proposal.end_epoch + fudge
+
+        print("\twindow_start: %s" % misc.epoch2str(window_start))
+        print("\twindow_end: %s" % misc.epoch2str(window_end))
+        print("\tsb_epoch_time: %s" % misc.epoch2str(sb_epoch_time))
+
+        if (sb_epoch_time < window_start or sb_epoch_time > window_end):
+            printdbg(
+                fmt_string % (
+                    proposal.name,
+                    proposal.rank,
+                    proposal.object_hash,
+                    proposal.payment_amount,
+                    "skipped (SB time is outside of Proposal window)",
                 )
             )
             continue
