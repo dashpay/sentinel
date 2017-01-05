@@ -1,4 +1,5 @@
 import time
+from datetime import datetime
 import re
 import sys, os
 
@@ -28,6 +29,9 @@ def is_hash(s):
 
 def now():
     return int(time.time())
+
+def epoch2str(epoch):
+    return datetime.utcfromtimestamp(epoch).strftime("%Y-%m-%d %H:%M:%S")
 
 class Bunch(object):
     def __init__(self, **kwargs):
