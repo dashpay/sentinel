@@ -197,3 +197,42 @@ class DashDaemon():
     @property
     def SENTINEL_WATCHDOG_MAX_SECONDS(self):
         return (self.MASTERNODE_WATCHDOG_MAX_SECONDS // 2)
+
+    def estimate_block_time(self, height):
+        """
+        Called by block_height_to_epoch if block height is in the future.
+        Call `block_height_to_epoch` instead of this method.
+
+        DO NOT CALL DIRECTLY if you don't want a "Horse shit." exception.
+        """
+        current_block_height = self.rpc_command('getblockcount')
+        diff = height - current_block_height
+
+        if (diff < 0):
+            raise Exception("Horse shit.")
+
+        future_minutes = 2.62 * diff
+        future_seconds = 60 * future_minutes
+        estimated_epoch = int(time.time() + future_seconds)
+
+        return estimated_epoch
+
+    def block_height_to_epoch(self, height):
+        """
+        Get the epoch for a given block height, or estimate it if the block hasn't
+        been mined yet. Call this method instead of `estimate_block_time`.
+        """
+        epoch = -1
+
+        try:
+            bhash = self.rpc_command('getblockhash', height)
+            block = self.rpc_command('getblock', bhash)
+            epoch = block['time']
+        except JSONRPCException as e:
+            if e.message == 'Block height out of range':
+                epoch = self.estimate_block_time(height)
+            else:
+                print("error: %s" % e)
+                raise e
+
+        return epoch
