@@ -92,7 +92,7 @@ def create_superblock(dashd, proposals, event_block_height):
     budget_allocated = Decimal(0)
     budget_max       = dashd.get_superblock_budget_allocation(event_block_height)
 
-    sb_epoch_time = block_height_to_epoch(event_block_height)
+    sb_epoch_time = dashd.block_height_to_epoch(event_block_height)
     fudge = 60 * 60 * 2  # fudge-factor to allow for slighly incorrect estimates
 
     payments = []
