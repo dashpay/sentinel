@@ -116,9 +116,9 @@ def create_superblock(dashd, proposals, event_block_height):
         window_start = proposal.start_epoch - fudge
         window_end   = proposal.end_epoch + fudge
 
-        print("\twindow_start: %s" % epoch2str(window_start))
-        print("\twindow_end: %s" % epoch2str(window_end))
-        print("\tsb_epoch_time: %s" % epoch2str(sb_epoch_time))
+        printdbg("\twindow_start: %s" % epoch2str(window_start))
+        printdbg("\twindow_end: %s" % epoch2str(window_end))
+        printdbg("\tsb_epoch_time: %s" % epoch2str(sb_epoch_time))
 
         if (sb_epoch_time < window_start or sb_epoch_time > window_end):
             printdbg(
