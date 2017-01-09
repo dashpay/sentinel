@@ -256,40 +256,45 @@ class Proposal(GovernanceClass, BaseModel):
 
         printdbg("In Proposal#is_valid, for Proposal: %s" % self.__dict__)
 
-        # proposal name exists and is not null/whitespace
-        if (len(self.name.strip()) == 0):
-            printdbg("\tInvalid Proposal name [%s], returning False" % self.name)
-            return False
+        try:
+            # proposal name exists and is not null/whitespace
+            if (len(self.name.strip()) == 0):
+                printdbg("\tInvalid Proposal name [%s], returning False" % self.name)
+                return False
 
-        # proposal name is normalized (something like "[a-zA-Z0-9-_]+")
-        if not re.match(r'^[-_a-zA-Z0-9]+$', self.name):
-            printdbg("\tInvalid Proposal name [%s] (does not match regex), returning False" % self.name)
-            return False
+            # proposal name is normalized (something like "[a-zA-Z0-9-_]+")
+            if not re.match(r'^[-_a-zA-Z0-9]+$', self.name):
+                printdbg("\tInvalid Proposal name [%s] (does not match regex), returning False" % self.name)
+                return False
 
-        # end date < start date
-        if (self.end_epoch <= self.start_epoch):
-            printdbg("\tProposal end_epoch [%s] <= start_epoch [%s] , returning False" % (self.end_epoch, self.start_epoch))
-            return False
+            # end date < start date
+            if (self.end_epoch <= self.start_epoch):
+                printdbg("\tProposal end_epoch [%s] <= start_epoch [%s] , returning False" % (self.end_epoch, self.start_epoch))
+                return False
 
-        # budget check
-        max_budget = dashd.next_superblock_max_budget()
-        if (max_budget and (self.payment_amount > max_budget)):
-            printdbg("\tProposal amount [%s] is bigger than max_budget [%s], returning False" % (self.payment_amount, max_budget))
-            return False
+            # budget check
+            max_budget = dashd.next_superblock_max_budget()
+            if (max_budget and (self.payment_amount > max_budget)):
+                printdbg("\tProposal amount [%s] is bigger than max_budget [%s], returning False" % (self.payment_amount, max_budget))
+                return False
 
-        # amount can't be negative or 0
-        if (self.payment_amount <= 0):
-            printdbg("\tProposal amount [%s] is negative or zero, returning False" % self.payment_amount)
-            return False
+            # amount can't be negative or 0
+            if (self.payment_amount <= 0):
+                printdbg("\tProposal amount [%s] is negative or zero, returning False" % self.payment_amount)
+                return False
 
-        # payment address is valid base58 dash addr, non-multisig
-        if not dashlib.is_valid_dash_address(self.payment_address, config.network):
-            printdbg("\tPayment address [%s] not a valid Dash address for network [%s], returning False" % (self.payment_address, config.network))
-            return False
+            # payment address is valid base58 dash addr, non-multisig
+            if not dashlib.is_valid_dash_address(self.payment_address, config.network):
+                printdbg("\tPayment address [%s] not a valid Dash address for network [%s], returning False" % (self.payment_address, config.network))
+                return False
 
-        # URL
-        if (len(self.url.strip()) < 4):
-            printdbg("\tProposal URL [%s] too short, returning False" % self.url)
+            # URL
+            if (len(self.url.strip()) < 4):
+                printdbg("\tProposal URL [%s] too short, returning False" % self.url)
+                return False
+
+        except Exception as e:
+            print("Got error on Proposal#is_valid, marking invalid: %s" % e.message)
             return False
 
         printdbg("Leaving Proposal#is_valid, Valid = True")
