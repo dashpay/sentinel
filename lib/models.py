@@ -37,7 +37,7 @@ DASHD_GOVOBJ_TYPES = {
 #
 # NUM is a numerical version of changes for that specific date. If the date
 # changes, the NUM resets to 1.
-SCHEMA_VERSION = '20161217-1'
+SCHEMA_VERSION = '20170111-1'
 
 # === models ===
 
