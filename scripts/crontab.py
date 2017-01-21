@@ -12,6 +12,7 @@ import socket
 from misc import printdbg
 import time
 from bitcoinrpc.authproxy import JSONRPCException
+import signal
 
 
 # sync dashd gobject list with our local relational DB backend
@@ -156,8 +157,14 @@ def main():
     # create a Superblock if necessary
     attempt_superblock_creation(dashd)
 
+def signal_handler(signum, frame):
+    print("Got a signal [%d], cleaning up..." % (signum))
+    Transient.delete('SENTINEL_RUNNING')
+    sys.exit(1)
 
 if __name__ == '__main__':
+    signal.signal(signal.SIGINT, signal_handler)
+
     # ensure another instance of Sentinel is not currently running
     mutex_key = 'SENTINEL_RUNNING'
     # assume that all processes expire after 'timeout_seconds' seconds
