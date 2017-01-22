@@ -294,7 +294,7 @@ class Proposal(GovernanceClass, BaseModel):
                 return False
 
         except Exception as e:
-            print("Got error on Proposal#is_valid, marking invalid: %s" % e.message)
+            print("Unable to validate Proposal#is_valid, marking invalid: %s" % e.message)
             return False
 
         printdbg("Leaving Proposal#is_valid, Valid = True")
@@ -373,7 +373,7 @@ class Proposal(GovernanceClass, BaseModel):
             print(manual_submit)
 
         except JSONRPCException as e:
-            print("Got error on prepare: %s" % e.message)
+            print("Unable to prepare: %s" % e.message)
 
 class Superblock(BaseModel, GovernanceClass):
     governance_object = ForeignKeyField(GovernanceObject, related_name = 'superblocks', on_delete='CASCADE', on_update='CASCADE')

@@ -84,7 +84,7 @@ class GovernanceClass(object):
             object_hash = dashd.rpc_command(*self.get_submit_command())
             printdbg("Submitted: [%s]" % object_hash)
         except JSONRPCException as e:
-            print("Got error on submit: %s" % e.message)
+            print("Unable to submit: %s" % e.message)
 
     def serialise(self):
         import inflection
