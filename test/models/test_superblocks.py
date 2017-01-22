@@ -68,7 +68,7 @@ def go_list_superblocks():
         {u'AbsoluteYesCount': 1,
          u'AbstainCount': 0,
          u'CollateralHash': u'0000000000000000000000000000000000000000000000000000000000000000',
-         u'DataHex': u'5b5b2274726967676572222c207b226576656e745f626c6f636b5f686569676874223a2037323639362c20227061796d656e745f616464726573736573223a2022795965384b77796155753559737753596d42337133727978385854557539793755697c795965384b77796155753559737753596d4233713372797838585455753979375569222c20227061796d656e745f616d6f756e7473223a202232352e37357c32352e3735222c202274797065223a20327d5d5d',
+         u'DataHex': u'5b5b2274726967676572222c207b226576656e745f626c6f636b5f686569676874223a2037323639362c20227061796d656e745f616464726573736573223a2022795965384b77796155753559737753596d42337133727978385854557539793755697c795965384b77796155753559737753596d4233713372797838585455753979375569222c20227061796d656e745f616d6f756e7473223a202232352e37353030303030307c32352e3735303030303030222c202274797065223a20327d5d5d',
          u'DataString': u'[["trigger", {"event_block_height": 72696, "payment_addresses": "yYe8KwyaUu5YswSYmB3q3ryx8XTUu9y7Ui|yYe8KwyaUu5YswSYmB3q3ryx8XTUu9y7Ui", "payment_amounts": "25.75000000|25.7575000000", "type": 2}]]',
          u'Hash': u'667c4a53eb81ba14d02860fdb4779e830eb8e98306f9145f3789d347cbeb0721',
          u'IsValidReason': u'',
@@ -79,6 +79,7 @@ def go_list_superblocks():
          u'fCachedEndorsed': False,
          u'fCachedFunding': False,
          u'fCachedValid': True},
+
         {u'AbsoluteYesCount': 1,
          u'AbstainCount': 0,
          u'CollateralHash': u'0000000000000000000000000000000000000000000000000000000000000000',
@@ -227,10 +228,11 @@ def test_deterministic_superblock_creation(go_list_proposals):
 def test_deterministic_superblock_selection(go_list_superblocks):
     from dashd import DashDaemon
     dashd = DashDaemon.from_dash_conf(config.dash_conf)
+
     for item in go_list_superblocks:
         (go, subobj) = GovernanceObject.import_gobject_from_dashd(dashd, item)
 
     # highest hash wins if same -- so just order by hash
-    sb = Superblock.find_highest_deterministic('5c7c28ddec8c1ad54b49f6f1e79369e7ccaf76f5ddc30e502569d674e458ccf3')
+    sb = Superblock.find_highest_deterministic('22a5f429c5ffb2b79b1b30c3ac30751284e3efa4e710bc7fd35fbe7456b1e485')
 
     assert sb.object_hash == 'bc2834f357da7504138566727c838e6ada74d079e63b6104701f4f8eb05dae36'

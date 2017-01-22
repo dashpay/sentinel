@@ -12,7 +12,7 @@ sys.path.append( os.path.join( os.path.dirname(__file__), '..', '..' ) )
 
 import misc
 import config
-from models import GovernanceObject, Proposal, Superblock, Vote
+from models import GovernanceObject, Proposal, Vote
 
 # clear DB tables before each execution
 def setup():
@@ -84,6 +84,8 @@ def test_proposal_is_valid(proposal):
     from dashd import DashDaemon
     dashd = DashDaemon.from_dash_conf(config.dash_conf)
 
+    orig = Proposal(**proposal.get_dict()) # make a copy
+
     # fixture as-is should be valid
     assert proposal.is_valid(dashd) == True
 
@@ -103,12 +105,11 @@ def test_proposal_is_valid(proposal):
     assert proposal.is_valid(dashd) == True
 
     # reset
-    proposal.end_epoch = 1491022800
+    proposal = Proposal(**orig.get_dict())
 
     # ============================================================
     # ensure valid proposal name
     # ============================================================
-    name = proposal.name
 
     proposal.name = '   heya!@209h '
     assert proposal.is_valid(dashd) == False
@@ -129,24 +130,7 @@ def test_proposal_is_valid(proposal):
     assert proposal.is_valid(dashd) == True
 
     # reset
-    proposal.name = name
-
-    # ============================================================
-    # ensure proposal not too late
-    # ============================================================
-    proposal.end_epoch = misc.now() - 1
-    assert proposal.is_valid(dashd) == False
-
-    proposal.end_epoch = misc.now()
-    assert proposal.is_valid(dashd) == False
-
-    proposal.start_epoch = misc.now() + 2
-    proposal.end_epoch = misc.now() + 4
-    assert proposal.is_valid(dashd) == True
-
-    # reset
-    proposal.start_epoch = 1483250400
-    proposal.end_epoch = 1491022800
+    proposal = Proposal(**orig.get_dict())
 
     # ============================================================
     # ensure valid payment address
@@ -170,6 +154,9 @@ def test_proposal_is_valid(proposal):
     proposal.payment_address = 'yYe8KwyaUu5YswSYmB3q3ryx8XTUu9y7Ui'
     assert proposal.is_valid(dashd) == True
 
+    # reset
+    proposal = Proposal(**orig.get_dict())
+
     # validate URL (ish)
     proposal.url = 'www.com'
     assert proposal.is_valid(dashd) == True
@@ -183,6 +170,8 @@ def test_proposal_is_valid(proposal):
     proposal.url = 'v.ht/'
     assert proposal.is_valid(dashd) == True
 
+    # reset
+    proposal = Proposal(**orig.get_dict())
 
     # ============================================================
     # ensure proposal can't request more than the budget
