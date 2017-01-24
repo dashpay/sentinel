@@ -72,12 +72,15 @@ class GovernanceObject(BaseModel):
         golist = dashd.rpc_command('gobject', 'list')
 
         # objects which are removed from the network should be removed from the DB
-        for purged in self.purged_network_objects(list(golist.keys())):
-            # SOMEDAY: possible archive step here
-            purged.delete_instance(recursive=True, delete_nullable=True)
+        try:
+            for purged in self.purged_network_objects(list(golist.keys())):
+                # SOMEDAY: possible archive step here
+                purged.delete_instance(recursive=True, delete_nullable=True)
 
-        for item in golist.values():
-            (go, subobj) = self.import_gobject_from_dashd(dashd, item)
+            for item in golist.values():
+                (go, subobj) = self.import_gobject_from_dashd(dashd, item)
+        except (peewee.InternalError, peewee.OperationalError, peewee.ProgrammingError) as e:
+            printdbg("Got an error upon import: %s" % e)
 
     @classmethod
     def purged_network_objects(self, network_object_hashes):

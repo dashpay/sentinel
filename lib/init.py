@@ -1,6 +1,6 @@
 import sys, os
-sys.path.append( os.path.join( os.path.dirname(__file__), '..' ) )
-sys.path.append( os.path.join( os.path.dirname(__file__), '..', 'lib' ) )
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'lib'))
 
 def is_valid_python_version():
     version_valid = False

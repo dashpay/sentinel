@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import sys, os
-sys.path.append( os.path.join( os.path.dirname(__file__), '..', 'lib' ) )
-sys.path.append( os.path.join( os.path.dirname(__file__), '..') )
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'lib'))
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 import init
 import config
 import misc
@@ -140,6 +140,13 @@ def main():
     if not dashd.is_synced():
         print("dashd not synced with network! Awaiting full sync before running Sentinel.")
         sys.exit(2)
+
+    # register a handler if SENTINEL_DEBUG is set
+    if os.environ.get('SENTINEL_DEBUG', None):
+        import logging
+        logger = getlogger('peewee')
+        logger.setlevel(logging.DEBUG)
+        logger.addHandler(logging.StreamHandler())
 
     # ========================================================================
     # general flow:
