@@ -162,15 +162,21 @@ def test_proposal_is_valid(proposal):
     # reset
     proposal = Proposal(**orig.get_dict())
 
-    # validate URL (ish)
-    proposal.url = 'www.com'
-    assert proposal.is_valid() == True
-
+    # validate URL
     proposal.url = ' '
     assert proposal.is_valid() == False
 
     proposal.url = '    '
     assert proposal.is_valid() == False
+
+    proposal.url = 'http://bit.ly/1e1EYJv'
+    assert proposal.is_valid() == True
+
+    proposal.url = 'https://example.com/resource.ext?param=1&other=2'
+    assert proposal.is_valid() == True
+
+    proposal.url = 'www.com'
+    assert proposal.is_valid() == True
 
     proposal.url = 'v.ht/'
     assert proposal.is_valid() == True
