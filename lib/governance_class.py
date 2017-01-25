@@ -72,7 +72,6 @@ class GovernanceClass(object):
 
         return cmd
 
-
     def submit(self, dashd):
         # don't attempt to submit a superblock unless a masternode
         # note: will probably re-factor this, this has code smell

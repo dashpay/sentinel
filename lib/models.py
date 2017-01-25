@@ -291,7 +291,7 @@ class Proposal(GovernanceClass, BaseModel):
                 return False
 
         except Exception as e:
-            print("Unable to validate Proposal#is_valid, marking invalid: %s" % e.message)
+            printdbg("Unable to validate in Proposal#is_valid, marking invalid: %s" % e.message)
             return False
 
         printdbg("Leaving Proposal#is_valid, Valid = True")
@@ -689,10 +689,10 @@ def check_db_sane():
     for model in db_models():
         if not getattr(model, 'table_exists')():
             missing_table_models.append(model)
-            print("[warning]: table for %s (%s) doesn't exist in DB." % (model, model._meta.db_table))
+            printdbg("[warning]: table for %s (%s) doesn't exist in DB." % (model, model._meta.db_table))
 
     if missing_table_models:
-        print("[warning]: Missing database tables. Auto-creating tables.")
+        printdbg("[warning]: Missing database tables. Auto-creating tables.")
         try:
             db.create_tables(missing_table_models, safe=True)
         except (peewee.InternalError, peewee.OperationalError, peewee.ProgrammingError) as e:
@@ -712,7 +712,7 @@ def check_db_schema_version():
     printdbg("[info]: SCHEMA_VERSION (code) = [%s]" % SCHEMA_VERSION)
     printdbg("[info]: DB_SCHEMA_VERSION = [%s]" % db_schema_version)
     if (SCHEMA_VERSION != db_schema_version):
-        print("[info]: Schema version mis-match. Syncing tables.")
+        printdbg("[info]: Schema version mis-match. Syncing tables.")
         try:
             existing_table_names = db.get_tables()
             existing_models = [m for m in db_models() if m._meta.db_table in existing_table_names]
