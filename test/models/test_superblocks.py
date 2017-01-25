@@ -130,62 +130,62 @@ def test_superblock_is_valid(superblock):
     orig = Superblock(**superblock.get_dict()) # make a copy
 
     # original as-is should be valid
-    assert orig.is_valid(dashd) == True
+    assert orig.is_valid() == True
 
     # mess with payment amounts
     superblock.payment_amounts = '7|yyzx'
-    assert superblock.is_valid(dashd) == False
+    assert superblock.is_valid() == False
 
     superblock.payment_amounts = '7,|yzx'
-    assert superblock.is_valid(dashd) == False
+    assert superblock.is_valid() == False
 
     # reset
     superblock = Superblock(**orig.get_dict())
-    assert superblock.is_valid(dashd) == True
+    assert superblock.is_valid() == True
 
     # mess with payment addresses
     superblock.payment_addresses = 'yTC62huR4YQEPn9AJHjnQxxreHSbgAoatV|1234 Anywhere ST, Chicago, USA'
-    assert superblock.is_valid(dashd) == False
+    assert superblock.is_valid() == False
 
     # single payment addr/amt is ok
     superblock.payment_addresses = 'yTC62huR4YQEPn9AJHjnQxxreHSbgAoatV'
     superblock.payment_amounts = '5.00'
-    assert superblock.is_valid(dashd) == True
+    assert superblock.is_valid() == True
 
     # ensure number of payment addresses matches number of payments
     superblock.payment_addresses = 'yTC62huR4YQEPn9AJHjnQxxreHSbgAoatV'
     superblock.payment_amounts = '37.00|23.24'
-    assert superblock.is_valid(dashd) == False
+    assert superblock.is_valid() == False
 
     superblock.payment_addresses = 'yYe8KwyaUu5YswSYmB3q3ryx8XTUu9y7Ui|yTC62huR4YQEPn9AJHjnQxxreHSbgAoatV'
     superblock.payment_amounts = '37.00'
-    assert superblock.is_valid(dashd) == False
+    assert superblock.is_valid() == False
 
     # ensure amounts greater than zero
     superblock.payment_addresses = 'yTC62huR4YQEPn9AJHjnQxxreHSbgAoatV'
     superblock.payment_amounts = '-37.00'
-    assert superblock.is_valid(dashd) == False
+    assert superblock.is_valid() == False
 
     # reset
     superblock = Superblock(**orig.get_dict())
-    assert superblock.is_valid(dashd) == True
+    assert superblock.is_valid() == True
 
     # mess with proposal hashes
     superblock.proposal_hashes = '7|yyzx'
-    assert superblock.is_valid(dashd) == False
+    assert superblock.is_valid() == False
 
     superblock.proposal_hashes = '7,|yyzx'
-    assert superblock.is_valid(dashd) == False
+    assert superblock.is_valid() == False
 
     superblock.proposal_hashes = '0|1'
-    assert superblock.is_valid(dashd) == False
+    assert superblock.is_valid() == False
 
     superblock.proposal_hashes = '0000000000000000000000000000000000000000000000000000000000000000|1111111111111111111111111111111111111111111111111111111111111111'
-    assert superblock.is_valid(dashd) == True
+    assert superblock.is_valid() == True
 
     # reset
     superblock = Superblock(**orig.get_dict())
-    assert superblock.is_valid(dashd) == True
+    assert superblock.is_valid() == True
 
 def test_superblock_is_deletable(superblock):
     # now = misc.now()

@@ -28,7 +28,7 @@ class GovernanceClass(object):
         return self.go.voted_on(**kwargs)
 
     def vote_validity(self, dashd):
-        if self.is_valid(dashd):
+        if self.is_valid():
             printdbg("Voting valid! %s: %d" % (self.__class__.__name__, self.id))
             self.vote(dashd, models.VoteSignals.valid, models.VoteOutcomes.yes)
         else:

@@ -254,7 +254,7 @@ class Proposal(GovernanceClass, BaseModel):
     class Meta:
         db_table = 'proposals'
 
-    def is_valid(self, dashd):
+    def is_valid(self):
         import dashlib
 
         printdbg("In Proposal#is_valid, for Proposal: %s" % self.__dict__)
@@ -273,12 +273,6 @@ class Proposal(GovernanceClass, BaseModel):
             # end date < start date
             if (self.end_epoch <= self.start_epoch):
                 printdbg("\tProposal end_epoch [%s] <= start_epoch [%s] , returning False" % (self.end_epoch, self.start_epoch))
-                return False
-
-            # budget check
-            max_budget = dashd.next_superblock_max_budget()
-            if (max_budget and (self.payment_amount > max_budget)):
-                printdbg("\tProposal amount [%s] is bigger than max_budget [%s], returning False" % (self.payment_amount, max_budget))
                 return False
 
             # amount can't be negative or 0
@@ -344,7 +338,7 @@ class Proposal(GovernanceClass, BaseModel):
         ranked = []
         for proposal in query:
             proposal.max_budget = next_superblock_max_budget
-            if proposal.is_valid(dashd):
+            if proposal.is_valid():
                 ranked.append(proposal)
 
         return ranked
@@ -393,7 +387,7 @@ class Superblock(BaseModel, GovernanceClass):
     class Meta:
         db_table = 'superblocks'
 
-    def is_valid(self, dashd):
+    def is_valid(self):
         import dashlib
         import decimal
 

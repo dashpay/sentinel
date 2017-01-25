@@ -82,27 +82,28 @@ def proposal():
 
 def test_proposal_is_valid(proposal):
     from dashd import DashDaemon
+    import dashlib
     dashd = DashDaemon.from_dash_conf(config.dash_conf)
 
     orig = Proposal(**proposal.get_dict()) # make a copy
 
     # fixture as-is should be valid
-    assert proposal.is_valid(dashd) == True
+    assert proposal.is_valid() == True
 
     # ============================================================
     # ensure end_date not greater than start_date
     # ============================================================
     proposal.end_epoch = proposal.start_epoch
-    assert proposal.is_valid(dashd) == False
+    assert proposal.is_valid() == False
 
     proposal.end_epoch = proposal.start_epoch - 1
-    assert proposal.is_valid(dashd) == False
+    assert proposal.is_valid() == False
 
     proposal.end_epoch = proposal.start_epoch + 0
-    assert proposal.is_valid(dashd) == False
+    assert proposal.is_valid() == False
 
     proposal.end_epoch = proposal.start_epoch + 1
-    assert proposal.is_valid(dashd) == True
+    assert proposal.is_valid() == True
 
     # reset
     proposal = Proposal(**orig.get_dict())
@@ -112,22 +113,22 @@ def test_proposal_is_valid(proposal):
     # ============================================================
 
     proposal.name = '   heya!@209h '
-    assert proposal.is_valid(dashd) == False
+    assert proposal.is_valid() == False
 
     proposal.name = "anything' OR 'x'='x"
-    assert proposal.is_valid(dashd) == False
+    assert proposal.is_valid() == False
 
     proposal.name = ' '
-    assert proposal.is_valid(dashd) == False
+    assert proposal.is_valid() == False
 
     proposal.name = ''
-    assert proposal.is_valid(dashd) == False
+    assert proposal.is_valid() == False
 
     proposal.name = '0'
-    assert proposal.is_valid(dashd) == True
+    assert proposal.is_valid() == True
 
     proposal.name = 'R66-Y'
-    assert proposal.is_valid(dashd) == True
+    assert proposal.is_valid() == True
 
     # reset
     proposal = Proposal(**orig.get_dict())
@@ -136,55 +137,48 @@ def test_proposal_is_valid(proposal):
     # ensure valid payment address
     # ============================================================
     proposal.payment_address = '7'
-    assert proposal.is_valid(dashd) == False
+    assert proposal.is_valid() == False
 
     proposal.payment_address = 'YYE8KWYAUU5YSWSYMB3Q3RYX8XTUU9Y7UI'
-    assert proposal.is_valid(dashd) == False
+    assert proposal.is_valid() == False
 
     proposal.payment_address = 'yYe8KwyaUu5YswSYmB3q3ryx8XTUu9y7Uj'
-    assert proposal.is_valid(dashd) == False
+    assert proposal.is_valid() == False
 
     proposal.payment_address = '221 B Baker St., London, United Kingdom'
-    assert proposal.is_valid(dashd) == False
+    assert proposal.is_valid() == False
 
     # this is actually the Dash foundation multisig address...
     proposal.payment_address = '7gnwGHt17heGpG9Crfeh4KGpYNFugPhJdh'
-    assert proposal.is_valid(dashd) == False
+    assert proposal.is_valid() == False
 
     proposal.payment_address = 'yYe8KwyaUu5YswSYmB3q3ryx8XTUu9y7Ui'
-    assert proposal.is_valid(dashd) == True
+    assert proposal.is_valid() == True
 
     # reset
     proposal = Proposal(**orig.get_dict())
 
     # validate URL (ish)
     proposal.url = 'www.com'
-    assert proposal.is_valid(dashd) == True
+    assert proposal.is_valid() == True
 
     proposal.url = ' '
-    assert proposal.is_valid(dashd) == False
+    assert proposal.is_valid() == False
 
     proposal.url = '    '
-    assert proposal.is_valid(dashd) == False
+    assert proposal.is_valid() == False
 
     proposal.url = 'v.ht/'
-    assert proposal.is_valid(dashd) == True
+    assert proposal.is_valid() == True
 
     # reset
     proposal = Proposal(**orig.get_dict())
 
     # ============================================================
-    # ensure proposal can't request more than the budget
+    # ensure proposal can't request negative dash
     # ============================================================
-
-    max_budget = 7000
-
-    # it's over 9000!
-    proposal.payment_amount = 9001
-    assert proposal.is_valid(dashd) == False
-
     proposal.payment_amount = -1
-    assert proposal.is_valid(dashd) == False
+    assert proposal.is_valid() == False
 
 
 def test_proposal_is_deletable(proposal):
