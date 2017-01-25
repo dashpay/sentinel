@@ -15,6 +15,7 @@ import dashd
 from misc import printdbg
 import config
 from bitcoinrpc.authproxy import JSONRPCException
+import urlparse
 
 # our mixin
 from governance_class import GovernanceClass
@@ -288,6 +289,12 @@ class Proposal(GovernanceClass, BaseModel):
             # URL
             if (len(self.url.strip()) < 4):
                 printdbg("\tProposal URL [%s] too short, returning False" % self.url)
+                return False
+
+            try:
+                parsed = urlparse.urlparse(self.url)
+            except Exception as e:
+                printdbg("\tUnable to parse Proposal URL, marking invalid: %s" % e)
                 return False
 
         except Exception as e:
