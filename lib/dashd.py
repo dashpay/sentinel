@@ -203,13 +203,13 @@ class DashDaemon():
         Called by block_height_to_epoch if block height is in the future.
         Call `block_height_to_epoch` instead of this method.
 
-        DO NOT CALL DIRECTLY if you don't want a "Horse shit." exception.
+        DO NOT CALL DIRECTLY if you don't want a "Oh Noes." exception.
         """
         current_block_height = self.rpc_command('getblockcount')
         diff = height - current_block_height
 
         if (diff < 0):
-            raise Exception("Horse shit.")
+            raise Exception("Oh Noes.")
 
         future_minutes = 2.62 * diff
         future_seconds = 60 * future_minutes

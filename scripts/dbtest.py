@@ -15,7 +15,7 @@ from decimal import Decimal
 dashd = DashDaemon.from_dash_conf(config.dash_conf)
 import misc
 # ==============================================================================
-# do shit here
+# do stuff here
 
 pr = Proposal(
     name='proposal7',
