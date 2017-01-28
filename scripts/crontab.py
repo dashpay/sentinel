@@ -144,8 +144,8 @@ def main():
     # register a handler if SENTINEL_DEBUG is set
     if os.environ.get('SENTINEL_DEBUG', None):
         import logging
-        logger = getlogger('peewee')
-        logger.setlevel(logging.DEBUG)
+        logger = logging.getLogger('peewee')
+        logger.setLevel(logging.DEBUG)
         logger.addHandler(logging.StreamHandler())
 
     # ========================================================================
