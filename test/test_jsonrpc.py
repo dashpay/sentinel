@@ -14,12 +14,8 @@ def test_dashd():
     config_text = DashConfig.slurp_config_file(config.dash_conf)
     creds = DashConfig.get_rpc_creds(config_text, 'testnet')
 
-    dashd = DashDaemon(
-        user     = creds.get('user'),
-        password = creds.get('password'),
-        port     = creds.get('port')
-    )
     assert dashd.rpc_command != None
+    dashd = DashDaemon(**creds)
 
     assert hasattr(dashd, 'rpc_connection') == True
 
