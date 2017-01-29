@@ -13,7 +13,7 @@ usage = "%s <hex>" % sys.argv[0]
 obj = None
 if len(sys.argv) < 2:
     print(usage)
-    sys.exit(2)
+    sys.exit(1)
 else:
     obj = dashlib.deserialise(sys.argv[1])
 
