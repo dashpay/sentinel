@@ -8,4 +8,9 @@ install:
   - pip install -r requirements.txt
   - ./share/travis_setup.sh
 
-script: py.test -svv test/unit/
+script:
+  # run unit tests
+  - py.test -svv test/unit/
+
+  # style guide check
+  - find ./lib ./test ./bin -name \*.py -exec pycodestyle --show-source --ignore=E501,E402 {} +
