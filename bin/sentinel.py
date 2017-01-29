@@ -163,7 +163,7 @@ def main():
     # general flow:
     # ========================================================================
     #
-    # load "gobject list" rpc command data & create new objects in local MySQL DB
+    # load "gobject list" rpc command data, sync objects into internal database
     perform_dashd_object_sync(dashd)
 
     # delete old watchdog objects, create a new if necessary
