@@ -100,4 +100,3 @@ ignore/
 
 # SQLite databases
 database/*.db
-database/sentinel.db_test
