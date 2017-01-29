@@ -13,6 +13,7 @@ from misc import printdbg
 import time
 from bitcoinrpc.authproxy import JSONRPCException
 import signal
+import atexit
 
 
 # sync dashd gobject list with our local relational DB backend
@@ -184,7 +185,12 @@ def signal_handler(signum, frame):
     sys.exit(1)
 
 
+def cleanup():
+    Transient.delete(mutex_key)
+
+
 if __name__ == '__main__':
+    atexit.register(cleanup)
     signal.signal(signal.SIGINT, signal_handler)
 
     # ensure another instance of Sentinel is not currently running
