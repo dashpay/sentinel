@@ -147,6 +147,11 @@ def main():
         print("dashd not synced with network! Awaiting full sync before running Sentinel.")
         sys.exit(2)
 
+    # ensure valid masternode
+    if not dashd.is_masternode():
+        print("Invalid Masternode Status, cannot continue.")
+        return
+
     # register a handler if SENTINEL_DEBUG is set
     if os.environ.get('SENTINEL_DEBUG', None):
         import logging
