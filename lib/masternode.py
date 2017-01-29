@@ -1,6 +1,7 @@
 # basically just parse & make it easier to access the MN data from the output of
 # "masternodelist full"
 
+
 class Masternode():
     def __init__(self, collateral, mnstring):
         (txid, vout_index) = self.parse_collateral_string(collateral)

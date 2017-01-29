@@ -3,9 +3,10 @@ import binascii
 import sys
 import pdb
 from pprint import pprint
-import sys, os
-sys.path.append( os.path.join( os.path.dirname(__file__), '..' ) )
-sys.path.append( os.path.join( os.path.dirname(__file__), '..', 'lib' ) )
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'lib'))
 import dashlib
 # ============================================================================
 usage = "%s <hex>" % sys.argv[0]

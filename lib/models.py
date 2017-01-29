@@ -1,6 +1,7 @@
-import sys, os
-sys.path.append( os.path.join( os.path.dirname(__file__), '..' ) )
-sys.path.append( os.path.join( os.path.dirname(__file__), '..' , 'lib' ) )
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'lib'))
 import init
 import time
 import binascii
@@ -45,14 +46,15 @@ SCHEMA_VERSION = '20170111-1'
 
 # === models ===
 
-class BaseModel(playhouse.signals.Model):
 
+class BaseModel(playhouse.signals.Model):
     class Meta:
         database = db
 
     @classmethod
     def is_database_connected(self):
         return not db.is_closed()
+
 
 class GovernanceObject(BaseModel):
     parent_id = IntegerField(default=0)
@@ -124,7 +126,7 @@ class GovernanceObject(BaseModel):
 
         # exclude any invalid model data from dashd...
         valid_keys = subclass.serialisable_fields()
-        subdikt = { k: dikt[k] for k in valid_keys if k in dikt }
+        subdikt = {k: dikt[k] for k in valid_keys if k in dikt}
 
         # get/create, then sync vote counts from dashd, with every run
         govobj, created = self.get_or_create(object_hash=object_hash, defaults=gobj_dict)
@@ -155,8 +157,8 @@ class GovernanceObject(BaseModel):
         return (govobj, subobj)
 
     def get_vote_command(self, signal, outcome):
-        cmd = [ 'gobject', 'vote-conf', self.object_hash,
-                signal.name, outcome.name ]
+        cmd = ['gobject', 'vote-conf', self.object_hash,
+               signal.name, outcome.name]
         return cmd
 
     def vote(self, dashd, signal, outcome):
@@ -165,7 +167,7 @@ class GovernanceObject(BaseModel):
         # At this point, will probably never reach here. But doesn't hurt to
         # have an extra check just in case objects get out of sync (people will
         # muck with the DB).
-        if ( self.object_hash == '0' or not misc.is_hash(self.object_hash)):
+        if (self.object_hash == '0' or not misc.is_hash(self.object_hash)):
             printdbg("No governance object hash, nothing to vote on.")
             return
 
@@ -220,7 +222,7 @@ class GovernanceObject(BaseModel):
                  object_hash=self.object_hash).save()
 
     def voted_on(self, **kwargs):
-        signal  = kwargs.get('signal', None)
+        signal = kwargs.get('signal', None)
         outcome = kwargs.get('outcome', None)
 
         query = self.votes
@@ -234,14 +236,16 @@ class GovernanceObject(BaseModel):
         count = query.count()
         return count
 
+
 class Setting(BaseModel):
-    name     = CharField(default='')
-    value    = CharField(default='')
+    name = CharField(default='')
+    value = CharField(default='')
     created_at = DateTimeField(default=datetime.datetime.utcnow())
     updated_at = DateTimeField(default=datetime.datetime.utcnow())
 
     class Meta:
         db_table = 'settings'
+
 
 class Proposal(GovernanceClass, BaseModel):
     governance_object = ForeignKeyField(GovernanceObject, related_name='proposals', on_delete='CASCADE', on_update='CASCADE')
@@ -382,13 +386,14 @@ class Proposal(GovernanceClass, BaseModel):
         except JSONRPCException as e:
             print("Unable to prepare: %s" % e.message)
 
+
 class Superblock(BaseModel, GovernanceClass):
-    governance_object = ForeignKeyField(GovernanceObject, related_name = 'superblocks', on_delete='CASCADE', on_update='CASCADE')
-    event_block_height   = IntegerField()
-    payment_addresses    = TextField()
-    payment_amounts      = TextField()
-    proposal_hashes      = TextField(default='')
-    sb_hash      = CharField()
+    governance_object = ForeignKeyField(GovernanceObject, related_name='superblocks', on_delete='CASCADE', on_update='CASCADE')
+    event_block_height = IntegerField()
+    payment_addresses = TextField()
+    payment_amounts = TextField()
+    proposal_hashes = TextField(default='')
+    sb_hash = CharField()
     object_hash = CharField(max_length=64)
 
     govobj_type = DASHD_GOVOBJ_TYPES['superblock']
@@ -468,15 +473,15 @@ class Superblock(BaseModel, GovernanceClass):
     @classmethod
     def is_voted_funding(self, ebh):
         count = (self.select()
-                    .where(self.event_block_height == ebh)
-                    .join(GovernanceObject)
-                    .join(Vote)
-                    .join(Signal)
-                    .switch(Vote) # switch join query context back to Vote
-                    .join(Outcome)
-                    .where(Vote.signal == VoteSignals.funding)
-                    .where(Vote.outcome == VoteOutcomes.yes)
-                .count())
+                 .where(self.event_block_height == ebh)
+                 .join(GovernanceObject)
+                 .join(Vote)
+                 .join(Signal)
+                 .switch(Vote)  # switch join query context back to Vote
+                 .join(Outcome)
+                 .where(Vote.signal == VoteSignals.funding)
+                 .where(Vote.outcome == VoteOutcomes.yes)
+                 .count())
         return count
 
     @classmethod
@@ -496,39 +501,47 @@ class Superblock(BaseModel, GovernanceClass):
     def find_highest_deterministic(self, sb_hash):
         # highest block hash wins
         query = (self.select()
-                    .where(self.sb_hash == sb_hash)
-                    .order_by(self.object_hash.desc()))
+                 .where(self.sb_hash == sb_hash)
+                 .order_by(self.object_hash.desc()))
         try:
             obj = query.limit(1)[0]
         except IndexError as e:
             obj = None
         return obj
 
+
 # ok, this is an awkward way to implement these...
 # "hook" into the Superblock model and run this code just before any save()
 from playhouse.signals import pre_save
+
+
 @pre_save(sender=Superblock)
 def on_save_handler(model_class, instance, created):
     instance.sb_hash = instance.hex_hash()
+
 
 class Signal(BaseModel):
     name = CharField(unique=True)
     created_at = DateTimeField(default=datetime.datetime.utcnow())
     updated_at = DateTimeField(default=datetime.datetime.utcnow())
+
     class Meta:
         db_table = 'signals'
+
 
 class Outcome(BaseModel):
     name = CharField(unique=True)
     created_at = DateTimeField(default=datetime.datetime.utcnow())
     updated_at = DateTimeField(default=datetime.datetime.utcnow())
+
     class Meta:
         db_table = 'outcomes'
 
+
 class Vote(BaseModel):
-    governance_object = ForeignKeyField(GovernanceObject, related_name = 'votes', on_delete='CASCADE', on_update='CASCADE')
-    signal = ForeignKeyField(Signal, related_name = 'votes', on_delete='CASCADE', on_update='CASCADE')
-    outcome = ForeignKeyField(Outcome, related_name = 'votes', on_delete='CASCADE', on_update='CASCADE')
+    governance_object = ForeignKeyField(GovernanceObject, related_name='votes', on_delete='CASCADE', on_update='CASCADE')
+    signal = ForeignKeyField(Signal, related_name='votes', on_delete='CASCADE', on_update='CASCADE')
+    outcome = ForeignKeyField(Outcome, related_name='votes', on_delete='CASCADE', on_update='CASCADE')
     voted_at = DateTimeField(default=datetime.datetime.utcnow())
     created_at = DateTimeField(default=datetime.datetime.utcnow())
     updated_at = DateTimeField(default=datetime.datetime.utcnow())
@@ -537,8 +550,9 @@ class Vote(BaseModel):
     class Meta:
         db_table = 'votes'
 
+
 class Watchdog(BaseModel, GovernanceClass):
-    governance_object = ForeignKeyField(GovernanceObject, related_name = 'watchdogs')
+    governance_object = ForeignKeyField(GovernanceObject, related_name='watchdogs')
     created_at = IntegerField()
     object_hash = CharField(max_length=64)
 
@@ -579,6 +593,7 @@ class Watchdog(BaseModel, GovernanceClass):
 
     class Meta:
         db_table = 'watchdogs'
+
 
 class Transient(object):
 
@@ -661,6 +676,7 @@ class Transient(object):
 
 # === /models ===
 
+
 def load_db_seeds():
     rows_created = 0
 
@@ -676,6 +692,7 @@ def load_db_seeds():
 
     return rows_created
 
+
 def db_models():
     """ Return a list of Sentinel DB models. """
     models = [
@@ -689,6 +706,7 @@ def db_models():
         Watchdog
     ]
     return models
+
 
 def check_db_sane():
     """ Ensure DB tables exist, create them if they don't. """
@@ -709,6 +727,7 @@ def check_db_sane():
             print("[error] Could not create tables: %s" % e)
 
     update_schema_version()
+
 
 def check_db_schema_version():
     """ Ensure DB schema is correct version. Drop tables if not. """
@@ -732,16 +751,18 @@ def check_db_schema_version():
         except (peewee.InternalError, peewee.OperationalError, peewee.ProgrammingError) as e:
             print("[error] Could not drop tables: %s" % e)
 
+
 def update_schema_version():
     schema_version_setting, created = Setting.get_or_create(name='DB_SCHEMA_VERSION', defaults={'value': SCHEMA_VERSION})
     if (schema_version_setting.value != SCHEMA_VERSION):
         schema_version_setting.save()
     return
 
+
 # sanity checks...
 check_db_sane()     # ensure tables exist
 load_db_seeds()     # ensure seed data loaded
 
 # convenience accessors
-VoteSignals = misc.Bunch(**{ sig.name: sig for sig in Signal.select() })
-VoteOutcomes = misc.Bunch(**{ out.name: out for out in Outcome.select() })
+VoteSignals = misc.Bunch(**{sig.name: sig for sig in Signal.select()})
+VoteOutcomes = misc.Bunch(**{out.name: out for out in Outcome.select()})

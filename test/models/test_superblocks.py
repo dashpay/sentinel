@@ -1,18 +1,18 @@
-from pprint import pprint
-import pdb
 import pytest
-import sys, os
+import sys
+import os
 import time
 
 os.environ['SENTINEL_ENV'] = 'test'
-sys.path.append( os.path.join( os.path.dirname(__file__), '..', 'lib' ) )
-sys.path.append( os.path.join( os.path.dirname(__file__), '..', '..', 'lib' ) )
-sys.path.append( os.path.join( os.path.dirname(__file__), '..' ) )
-sys.path.append( os.path.join( os.path.dirname(__file__), '..', '..' ) )
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'lib'))
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', 'lib'))
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 
 import misc
 import config
 from models import GovernanceObject, Proposal, Superblock, Vote
+
 
 # clear DB tables before each execution
 def setup():
@@ -22,8 +22,10 @@ def setup():
     Superblock.delete().execute()
     GovernanceObject.delete().execute()
 
+
 def teardown():
     pass
+
 
 # list of proposal govobjs to import for testing
 @pytest.fixture
@@ -61,6 +63,7 @@ def go_list_proposals():
 
     return items
 
+
 # list of superblock govobjs to import for testing
 @pytest.fixture
 def go_list_superblocks():
@@ -79,7 +82,6 @@ def go_list_superblocks():
          u'fCachedEndorsed': False,
          u'fCachedFunding': False,
          u'fCachedValid': True},
-
         {u'AbsoluteYesCount': 1,
          u'AbstainCount': 0,
          u'CollateralHash': u'0000000000000000000000000000000000000000000000000000000000000000',
@@ -123,81 +125,84 @@ def superblock():
     )
     return sb
 
+
 def test_superblock_is_valid(superblock):
     from dashd import DashDaemon
     dashd = DashDaemon.from_dash_conf(config.dash_conf)
 
-    orig = Superblock(**superblock.get_dict()) # make a copy
+    orig = Superblock(**superblock.get_dict())  # make a copy
 
     # original as-is should be valid
-    assert orig.is_valid() == True
+    assert orig.is_valid() is True
 
     # mess with payment amounts
     superblock.payment_amounts = '7|yyzx'
-    assert superblock.is_valid() == False
+    assert superblock.is_valid() is False
 
     superblock.payment_amounts = '7,|yzx'
-    assert superblock.is_valid() == False
+    assert superblock.is_valid() is False
 
     # reset
     superblock = Superblock(**orig.get_dict())
-    assert superblock.is_valid() == True
+    assert superblock.is_valid() is True
 
     # mess with payment addresses
     superblock.payment_addresses = 'yTC62huR4YQEPn9AJHjnQxxreHSbgAoatV|1234 Anywhere ST, Chicago, USA'
-    assert superblock.is_valid() == False
+    assert superblock.is_valid() is False
 
     # single payment addr/amt is ok
     superblock.payment_addresses = 'yTC62huR4YQEPn9AJHjnQxxreHSbgAoatV'
     superblock.payment_amounts = '5.00'
-    assert superblock.is_valid() == True
+    assert superblock.is_valid() is True
 
     # ensure number of payment addresses matches number of payments
     superblock.payment_addresses = 'yTC62huR4YQEPn9AJHjnQxxreHSbgAoatV'
     superblock.payment_amounts = '37.00|23.24'
-    assert superblock.is_valid() == False
+    assert superblock.is_valid() is False
 
     superblock.payment_addresses = 'yYe8KwyaUu5YswSYmB3q3ryx8XTUu9y7Ui|yTC62huR4YQEPn9AJHjnQxxreHSbgAoatV'
     superblock.payment_amounts = '37.00'
-    assert superblock.is_valid() == False
+    assert superblock.is_valid() is False
 
     # ensure amounts greater than zero
     superblock.payment_addresses = 'yTC62huR4YQEPn9AJHjnQxxreHSbgAoatV'
     superblock.payment_amounts = '-37.00'
-    assert superblock.is_valid() == False
+    assert superblock.is_valid() is False
 
     # reset
     superblock = Superblock(**orig.get_dict())
-    assert superblock.is_valid() == True
+    assert superblock.is_valid() is True
 
     # mess with proposal hashes
     superblock.proposal_hashes = '7|yyzx'
-    assert superblock.is_valid() == False
+    assert superblock.is_valid() is False
 
     superblock.proposal_hashes = '7,|yyzx'
-    assert superblock.is_valid() == False
+    assert superblock.is_valid() is False
 
     superblock.proposal_hashes = '0|1'
-    assert superblock.is_valid() == False
+    assert superblock.is_valid() is False
 
     superblock.proposal_hashes = '0000000000000000000000000000000000000000000000000000000000000000|1111111111111111111111111111111111111111111111111111111111111111'
-    assert superblock.is_valid() == True
+    assert superblock.is_valid() is True
 
     # reset
     superblock = Superblock(**orig.get_dict())
-    assert superblock.is_valid() == True
+    assert superblock.is_valid() is True
+
 
 def test_superblock_is_deletable(superblock):
     # now = misc.now()
-    # assert superblock.is_deletable() == False
+    # assert superblock.is_deletable() is False
 
     # superblock.end_epoch = now - (86400 * 29)
-    # assert superblock.is_deletable() == False
+    # assert superblock.is_deletable() is False
 
     # add a couple seconds for time variance
     # superblock.end_epoch = now - ((86400 * 30) + 2)
-    # assert superblock.is_deletable() == True
+    # assert superblock.is_deletable() is True
     pass
+
 
 def test_serialisable_fields():
     s1 = ['event_block_height', 'payment_addresses', 'payment_amounts', 'proposal_hashes']
@@ -207,6 +212,7 @@ def test_serialisable_fields():
     s2.sort()
 
     assert s2 == s1
+
 
 def test_deterministic_superblock_creation(go_list_proposals):
     import dashlib
@@ -224,6 +230,7 @@ def test_deterministic_superblock_creation(go_list_proposals):
     assert sb.proposal_hashes == 'dfd7d63979c0b62456b63d5fc5306dbec451180adee85876cbf5b28c69d1a86c|0523445762025b2e01a2cd34f1d10f4816cf26ee1796167e5b029901e5873630'
 
     assert sb.hex_hash() == '5534e9fa4a51423820b9e19fa6d4770c12ea0a5663e8adff8223f5e8b6df641c'
+
 
 def test_deterministic_superblock_selection(go_list_superblocks):
     from dashd import DashDaemon

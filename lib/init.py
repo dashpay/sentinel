@@ -1,6 +1,8 @@
-import sys, os
+import sys
+import os
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'lib'))
+
 
 def is_valid_python_version():
     version_valid = False
@@ -14,9 +16,11 @@ def is_valid_python_version():
 
     return version_valid
 
+
 def python_short_ver_str():
     ver = sys.version_info
     return "%s.%s" % (ver.major, ver.minor)
+
 
 def are_deps_installed():
     installed = False
@@ -31,6 +35,7 @@ def are_deps_installed():
         print("[error]: Missing dependencies")
 
     return installed
+
 
 def is_database_correctly_configured():
     import peewee
@@ -51,6 +56,7 @@ def is_database_correctly_configured():
 
     return configured
 
+
 def has_dash_conf():
     import config
     import io
@@ -69,7 +75,9 @@ def has_dash_conf():
 
     return valid_dash_conf
 
+
 # === begin main
+
 
 def main():
     install_instructions = "\tpip install -r requirements.txt"
@@ -90,5 +98,6 @@ def main():
     if not has_dash_conf():
         print("Dash Core must be installed and configured, including JSONRPC access in dash.conf")
         sys.exit(0)
+
 
 main()

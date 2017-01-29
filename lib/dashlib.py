@@ -1,6 +1,7 @@
-import sys, os
-sys.path.append( os.path.join( os.path.dirname(__file__), '..' ) )
-sys.path.append( os.path.join( os.path.dirname(__file__), '..', 'lib' ) )
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'lib'))
 import base58
 import hashlib
 import re
@@ -9,6 +10,7 @@ import simplejson
 import binascii
 from misc import printdbg, epoch2str
 import time
+
 
 def is_valid_dash_address(address, network='mainnet'):
     # Only public key addresses are allowed
@@ -21,7 +23,7 @@ def is_valid_dash_address(address, network='mainnet'):
 
     # Check length (This is important because the base58 library has problems
     # with long addresses (which are invalid anyway).
-    if ( ( len( address ) < 26 ) or ( len( address ) > 35 ) ):
+    if ((len(address) < 26) or (len(address) > 35)):
         return False
 
     address_version = None
@@ -33,13 +35,15 @@ def is_valid_dash_address(address, network='mainnet'):
         # rescue from exception, not a valid Dash address
         return False
 
-    if ( address_version != dash_version ):
+    if (address_version != dash_version):
         return False
 
     return True
 
+
 def hashit(data):
     return int(hashlib.sha256(data.encode('utf-8')).hexdigest(), 16)
+
 
 # returns the masternode VIN of the elected winner
 def elect_mn(**kwargs):
@@ -53,12 +57,12 @@ def elect_mn(**kwargs):
 
     candidates = []
     for mn in enabled:
-        mn_vin_hash = hashit( mn.vin )
+        mn_vin_hash = hashit(mn.vin)
         diff = mn_vin_hash - block_hash_hash
-        absdiff = abs( diff )
-        candidates.append({ 'vin': mn.vin, 'diff': absdiff })
+        absdiff = abs(diff)
+        candidates.append({'vin': mn.vin, 'diff': absdiff})
 
-    candidates.sort( key = lambda k: k['diff'] )
+    candidates.sort(key=lambda k: k['diff'])
 
     try:
         winner = candidates[0]['vin']
@@ -69,9 +73,9 @@ def elect_mn(**kwargs):
 
 
 def parse_masternode_status_vin(status_vin_string):
-    status_vin_string_regex = re.compile( 'CTxIn\(COutPoint\(([0-9a-zA-Z]+),\\s*(\d+)\),' )
+    status_vin_string_regex = re.compile('CTxIn\(COutPoint\(([0-9a-zA-Z]+),\\s*(\d+)\),')
 
-    m = status_vin_string_regex.match( status_vin_string )
+    m = status_vin_string_regex.match(status_vin_string)
     txid = m.group(1)
     index = m.group(2)
 
@@ -81,16 +85,17 @@ def parse_masternode_status_vin(status_vin_string):
 
     return vin
 
+
 def create_superblock(dashd, proposals, event_block_height):
     from models import Superblock, GovernanceObject, Proposal
 
     # don't create an empty superblock
-    if ( len(proposals) == 0 ):
+    if (len(proposals) == 0):
         printdbg("No proposals, cannot create an empty superblock.")
         return None
 
     budget_allocated = Decimal(0)
-    budget_max       = dashd.get_superblock_budget_allocation(event_block_height)
+    budget_max = dashd.get_superblock_budget_allocation(event_block_height)
 
     sb_epoch_time = dashd.block_height_to_epoch(event_block_height)
     fudge = 60 * 60 * 2  # fudge-factor to allow for slighly incorrect estimates
@@ -114,7 +119,7 @@ def create_superblock(dashd, proposals, event_block_height):
 
         # skip proposals if the SB isn't within the Proposal time window...
         window_start = proposal.start_epoch - fudge
-        window_end   = proposal.end_epoch + fudge
+        window_end = proposal.end_epoch + fudge
 
         printdbg("\twindow_start: %s" % epoch2str(window_start))
         printdbg("\twindow_end: %s" % epoch2str(window_end))
@@ -145,10 +150,10 @@ def create_superblock(dashd, proposals, event_block_height):
         # else add proposal and keep track of total budget allocation
         budget_allocated += proposal.payment_amount
 
-        payment = { 'address': proposal.payment_address,
-                    'amount': "{0:.8f}".format(proposal.payment_amount),
-                    'proposal': "{}".format(proposal.object_hash) }
-        payments.append( payment )
+        payment = {'address': proposal.payment_address,
+                   'amount': "{0:.8f}".format(proposal.payment_amount),
+                   'proposal': "{}".format(proposal.object_hash)}
+        payments.append(payment)
 
     # don't create an empty superblock
     if not payments:
@@ -160,14 +165,15 @@ def create_superblock(dashd, proposals, event_block_height):
     payments.sort(key=lambda k: k['proposal'], reverse=True)
 
     sb = Superblock(
-        event_block_height = event_block_height,
-        payment_addresses = '|'.join([pd['address' ] for pd in payments]),
-        payment_amounts   = '|'.join([pd['amount'  ] for pd in payments]),
-        proposal_hashes   = '|'.join([pd['proposal'] for pd in payments]),
+        event_block_height=event_block_height,
+        payment_addresses='|'.join([pd['address'] for pd in payments]),
+        payment_amounts='|'.join([pd['amount'] for pd in payments]),
+        proposal_hashes='|'.join([pd['proposal'] for pd in payments]),
     )
     printdbg("generated superblock: %s" % sb.__dict__)
 
     return sb
+
 
 # shims 'til we can fix the dashd side
 def SHIM_serialise_for_dashd(sentinel_hex):
@@ -191,6 +197,7 @@ def SHIM_serialise_for_dashd(sentinel_hex):
     # re-pack
     dashd_hex = serialise(obj)
     return dashd_hex
+
 
 # shims 'til we can fix the dashd side
 def SHIM_deserialise_from_dashd(dashd_hex):
@@ -218,16 +225,19 @@ def SHIM_deserialise_from_dashd(dashd_hex):
     sentinel_hex = serialise(obj)
     return sentinel_hex
 
+
 # convenience
 def deserialise(hexdata):
     json = binascii.unhexlify(hexdata)
-    obj  = simplejson.loads(json, use_decimal=True)
+    obj = simplejson.loads(json, use_decimal=True)
     return obj
+
 
 def serialise(dikt):
     json = simplejson.dumps(dikt, sort_keys=True, use_decimal=True)
     hexdata = binascii.hexlify(json.encode('utf-8')).decode('utf-8')
     return hexdata
+
 
 def did_we_vote(output):
     from bitcoinrpc.authproxy import JSONRPCException
@@ -265,11 +275,12 @@ def did_we_vote(output):
 
     return voted
 
+
 def parse_raw_votes(raw_votes):
     votes = []
     for v in list(raw_votes.values()):
         (outpoint, ntime, outcome, signal) = v.split(':')
-        signal  = signal.lower()
+        signal = signal.lower()
         outcome = outcome.lower()
 
         mn_collateral_outpoint = parse_masternode_status_vin(outpoint)

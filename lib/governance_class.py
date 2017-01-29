@@ -1,14 +1,13 @@
-import pdb
-from pprint import pprint
 import os
 import sys
-sys.path.append( os.path.join( os.path.dirname(__file__), '..', 'lib' ) )
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'lib'))
 import models
 from bitcoinrpc.authproxy import JSONRPCException
 import misc
 import re
 from misc import printdbg
 import time
+
 
 # mixin for GovObj composed classes like proposal and superblock, etc.
 class GovernanceClass(object):
@@ -57,7 +56,7 @@ class GovernanceClass(object):
         }
 
         # return a dict similar to dashd "gobject list" output
-        return { self.object_hash: dikt }
+        return {self.object_hash: dikt}
 
     def get_submit_command(self):
         import dashlib
@@ -94,7 +93,7 @@ class GovernanceClass(object):
         name = self._meta.name
         obj_type = inflection.singularize(name)
 
-        return binascii.hexlify(simplejson.dumps((obj_type, self.get_dict()), sort_keys = True).encode('utf-8')).decode('utf-8')
+        return binascii.hexlify(simplejson.dumps((obj_type, self.get_dict()), sort_keys=True).encode('utf-8')).decode('utf-8')
 
     def dashd_serialise(self):
         import dashlib
@@ -103,9 +102,9 @@ class GovernanceClass(object):
     @classmethod
     def serialisable_fields(self):
         # Python is so not very elegant...
-        pk_column  = self._meta.primary_key.db_column
-        fk_columns = [ fk.db_column for fk in self._meta.rel.values() ]
-        do_not_use = [ pk_column ]
+        pk_column = self._meta.primary_key.db_column
+        fk_columns = [fk.db_column for fk in self._meta.rel.values()]
+        do_not_use = [pk_column]
         do_not_use.extend(fk_columns)
         do_not_use.append('object_hash')
         fields_to_serialise = list(self._meta.columns.keys())
@@ -120,6 +119,6 @@ class GovernanceClass(object):
         dikt = {}
 
         for field_name in self.serialisable_fields():
-            dikt[ field_name ] = getattr( self, field_name )
+            dikt[field_name] = getattr(self, field_name)
 
         return dikt

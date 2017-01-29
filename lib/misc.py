@@ -1,7 +1,9 @@
 import time
 from datetime import datetime
 import re
-import sys, os
+import sys
+import os
+
 
 def is_numeric(strin):
     import decimal
@@ -16,22 +18,26 @@ def is_numeric(strin):
 
     return True
 
+
 def printdbg(str):
     ts = time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(now()))
     logstr = "{} {}".format(ts, str)
     if os.environ.get('SENTINEL_DEBUG', None):
         print(logstr)
 
+
 def is_hash(s):
     m = re.match('^[a-f0-9]{64}$', s)
-    if m: return True
-    return False
+    return m is not None
+
 
 def now():
     return int(time.time())
 
+
 def epoch2str(epoch):
     return datetime.utcfromtimestamp(epoch).strftime("%Y-%m-%d %H:%M:%S")
+
 
 class Bunch(object):
     def __init__(self, **kwargs):

@@ -1,5 +1,6 @@
 #!/usr/bin/env python
-import sys, os
+import sys
+import os
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'lib'))
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 import init
@@ -19,6 +20,7 @@ import signal
 def perform_dashd_object_sync(dashd):
     GovernanceObject.sync(dashd)
 
+
 # delete old watchdog objects, create new when necessary
 def watchdog_check(dashd):
     printdbg("in watchdog_check")
@@ -35,7 +37,7 @@ def watchdog_check(dashd):
     if 0 == active_count:
         # create/submit one
         printdbg("\tNo watchdogs exist... submitting new one.")
-        wd = Watchdog(created_at = int(time.time()))
+        wd = Watchdog(created_at=int(time.time()))
         wd.submit(dashd)
 
     else:
@@ -52,6 +54,7 @@ def watchdog_check(dashd):
             wd.vote(dashd, VoteSignals.delete, VoteOutcomes.yes)
 
     printdbg("leaving watchdog_check")
+
 
 def attempt_superblock_creation(dashd):
     import dashlib
@@ -110,11 +113,13 @@ def attempt_superblock_creation(dashd):
         printdbg("we are the winner! Submit SB to network")
         sb.submit(dashd)
 
+
 def check_object_validity(dashd):
     # vote (in)valid objects
     for gov_class in [Proposal, Superblock]:
         for obj in gov_class.select():
             obj.vote_validity(dashd)
+
 
 def is_dashd_port_open(dashd):
     # test socket open before beginning, display instructive message to MN
@@ -127,6 +132,7 @@ def is_dashd_port_open(dashd):
         print("%s" % e)
 
     return port_open
+
 
 def main():
     dashd = DashDaemon.from_dash_conf(config.dash_conf)
@@ -164,10 +170,12 @@ def main():
     # create a Superblock if necessary
     attempt_superblock_creation(dashd)
 
+
 def signal_handler(signum, frame):
     print("Got a signal [%d], cleaning up..." % (signum))
     Transient.delete('SENTINEL_RUNNING')
     sys.exit(1)
+
 
 if __name__ == '__main__':
     signal.signal(signal.SIGINT, signal_handler)
