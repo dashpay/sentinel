@@ -4,8 +4,8 @@ import os
 import re
 
 os.environ['SENTINEL_ENV'] = 'test'
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'lib'))
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', 'lib'))
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 import config
 
 from dashd import DashDaemon
