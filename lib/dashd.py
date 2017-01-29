@@ -18,12 +18,15 @@ class DashDaemon():
         password = kwargs.get('password')
         port = kwargs.get('port')
 
-        creds = (user, password, host, port)
-        self.rpc_connection = AuthServiceProxy("http://{0}:{1}@{2}:{3}".format(*creds))
+        self.creds = (user, password, host, port)
 
         # memoize calls to some dashd methods
         self.governance_info = None
         self.gobject_votes = {}
+
+    @property
+    def rpc_connection(self):
+        return AuthServiceProxy("http://{0}:{1}@{2}:{3}".format(*self.creds))
 
     @classmethod
     def from_dash_conf(self, dash_dot_conf):
