@@ -140,12 +140,12 @@ def main():
     # check dashd connectivity
     if not is_dashd_port_open(dashd):
         print("Cannot connect to dashd. Please ensure dashd is running and the JSONRPC port is open to Sentinel.")
-        sys.exit(2)
+        return
 
     # check dashd sync
     if not dashd.is_synced():
         print("dashd not synced with network! Awaiting full sync before running Sentinel.")
-        sys.exit(2)
+        return
 
     # ensure valid masternode
     if not dashd.is_masternode():
@@ -193,7 +193,7 @@ if __name__ == '__main__':
     is_running = Transient.get(mutex_key)
     if is_running:
         printdbg("An instance of Sentinel is already running -- aborting.")
-        sys.exit(2)
+        sys.exit(1)
     else:
         Transient.set(mutex_key, misc.now(), timeout_seconds)
 
