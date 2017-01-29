@@ -4,10 +4,7 @@ import os
 import time
 
 os.environ['SENTINEL_ENV'] = 'test'
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', 'lib'))
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', '..', 'lib'))
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
+sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../lib')))
 
 import misc
 import config

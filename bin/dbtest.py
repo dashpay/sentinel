@@ -4,8 +4,7 @@ from pprint import pprint
 import re
 import sys
 import os
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'lib'))
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../lib')))
 import config
 from models import Superblock, Proposal, GovernanceObject, Setting, Signal, Vote, Outcome, Watchdog
 from models import VoteSignals, VoteOutcomes

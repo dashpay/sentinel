@@ -4,7 +4,7 @@ import os
 import re
 
 os.environ['SENTINEL_ENV'] = 'test'
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'lib'))
+sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../lib')))
 
 
 @pytest.fixture
