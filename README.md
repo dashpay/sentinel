@@ -2,6 +2,8 @@
 
 An all-powerful toolset for Dash.
 
+[![Build Status](https://travis-ci.org/nmarley/sentinel.svg?branch=master)](https://travis-ci.org/nmarley/sentinel)
+
 Sentinel is an autonomous agent for persisting, processing and automating Dash V12.1 governance objects and tasks, and for expanded functions in the upcoming Dash V13 release (Evolution).
 
 Sentinel is implemented as a Python application that binds to a local version 12.1 dashd instance on each Dash V12.1 Masternode.
