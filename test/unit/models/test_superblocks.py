@@ -217,13 +217,15 @@ def test_serialisable_fields():
 
 def test_deterministic_superblock_creation(go_list_proposals):
     import dashlib
+    import misc
     from dashd import DashDaemon
     dashd = DashDaemon.from_dash_conf(config.dash_conf)
     for item in go_list_proposals:
         (go, subobj) = GovernanceObject.import_gobject_from_dashd(dashd, item)
 
-    prop_list = Proposal.approved_and_ranked(dashd)
-    sb = dashlib.create_superblock(dashd, prop_list, 72000)
+    max_budget = 60
+    prop_list = Proposal.approved_and_ranked(proposal_quorum=1, next_superblock_max_budget=max_budget)
+    sb = dashlib.create_superblock(prop_list, 72000, budget_max=max_budget, sb_epoch_time=misc.now())
 
     assert sb.event_block_height == 72000
     assert sb.payment_addresses == 'yYe8KwyaUu5YswSYmB3q3ryx8XTUu9y7Ui|yTC62huR4YQEPn9AJHjnQxxreHSbgAoatV'

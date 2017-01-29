@@ -334,10 +334,7 @@ class Proposal(GovernanceClass, BaseModel):
         return False
 
     @classmethod
-    def approved_and_ranked(self, dashd):
-        proposal_quorum = dashd.governance_quorum()
-        next_superblock_max_budget = dashd.next_superblock_max_budget()
-
+    def approved_and_ranked(self, proposal_quorum, next_superblock_max_budget):
         # return all approved proposals, in order of descending vote count
         #
         # we need a secondary 'order by' in case of a tie on vote count, since

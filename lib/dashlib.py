@@ -86,7 +86,7 @@ def parse_masternode_status_vin(status_vin_string):
     return vin
 
 
-def create_superblock(dashd, proposals, event_block_height):
+def create_superblock(proposals, event_block_height, budget_max, sb_epoch_time):
     from models import Superblock, GovernanceObject, Proposal
 
     # don't create an empty superblock
@@ -95,9 +95,6 @@ def create_superblock(dashd, proposals, event_block_height):
         return None
 
     budget_allocated = Decimal(0)
-    budget_max = dashd.get_superblock_budget_allocation(event_block_height)
-
-    sb_epoch_time = dashd.block_height_to_epoch(event_block_height)
     fudge = 60 * 60 * 2  # fudge-factor to allow for slighly incorrect estimates
 
     payments = []
