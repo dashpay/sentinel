@@ -173,7 +173,7 @@ def main():
     watchdog_check(dashd)
 
     # auto vote network objects as valid/invalid
-    check_object_validity(dashd)
+    # check_object_validity(dashd)
 
     # create a Superblock if necessary
     attempt_superblock_creation(dashd)
