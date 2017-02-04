@@ -2,10 +2,9 @@ import pytest
 import sys
 import os
 import time
-
 os.environ['SENTINEL_ENV'] = 'test'
-sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../lib')))
-
+os.environ['SENTINEL_CONFIG'] = os.path.normpath(os.path.join(os.path.dirname(__file__), '../../test_sentinel.conf'))
+sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../../lib')))
 import misc
 import config
 from models import GovernanceObject, Proposal, Vote
@@ -13,7 +12,7 @@ from models import GovernanceObject, Proposal, Vote
 
 # clear DB tables before each execution
 def setup():
-    # clear tables first...
+    # clear tables first
     Vote.delete().execute()
     Proposal.delete().execute()
     GovernanceObject.delete().execute()
@@ -224,6 +223,7 @@ def test_proposal_is_deletable(proposal):
 def test_approved_and_ranked(go_list_proposals):
     from dashd import DashDaemon
     dashd = DashDaemon.from_dash_conf(config.dash_conf)
+
     for item in go_list_proposals:
         (go, subobj) = GovernanceObject.import_gobject_from_dashd(dashd, item)
 

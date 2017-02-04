@@ -5,7 +5,11 @@ import sys
 import os
 from dash_config import DashConfig
 
-sentinel_cfg = DashConfig.tokenize('sentinel.conf')
+default_sentinel_config = os.path.normpath(
+    os.path.join(os.path.dirname(__file__), '../sentinel.conf')
+)
+sentinel_config_file = os.environ.get('SENTINEL_CONFIG', default_sentinel_config)
+sentinel_cfg = DashConfig.tokenize(sentinel_config_file)
 
 
 def get_dash_conf():
