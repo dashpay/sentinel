@@ -2,7 +2,7 @@
 
 An all-powerful toolset for Dash.
 
-[![Build Status](https://travis-ci.org/nmarley/sentinel.svg?branch=master)](https://travis-ci.org/nmarley/sentinel)
+[![Build Status](https://travis-ci.org/dashpay/sentinel.svg?branch=master)](https://travis-ci.org/dashpay/sentinel)
 
 Sentinel is an autonomous agent for persisting, processing and automating Dash V12.1 governance objects and tasks, and for expanded functions in the upcoming Dash V13 release (Evolution).
 
@@ -31,7 +31,7 @@ Make sure the local Dash daemon running is at least version 12.1 (120100)
 
 Clone the Sentinel repo and install Python dependencies.
 
-    $ git clone https://github.com/nmarley/sentinel.git && cd sentinel
+    $ git clone https://github.com/dashpay/sentinel.git && cd sentinel
     $ virtualenv ./venv
     $ ./venv/bin/pip install -r requirements.txt
 
