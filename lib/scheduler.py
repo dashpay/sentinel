@@ -58,7 +58,7 @@ class Scheduler:
         nrunsperhour = 6.0
         nruns = int(nrunsperhour * (3600. - float(currentOffset)) / 3600.)
         printdbg("Scheduler.createSchedule: currentOffset = %s, nrunsperhour = %s, nruns = %s" % (currentOffset, nrunsperhour, nruns))
-        offsets = [random.randint(currentOffset + 1, 3599) for i in range(nruns)]
+        offsets = [random.randint(min(3599, currentOffset + 1), 3599) for i in range(nruns)]
         offsets.sort()
         self.schedule = {'hour': hour,
                          'offsets': offsets}
