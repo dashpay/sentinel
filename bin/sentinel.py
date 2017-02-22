@@ -24,6 +24,9 @@ def perform_dashd_object_sync(dashd):
 
 # delete old watchdog objects, create new when necessary
 def watchdog_check(dashd):
+    if not is_watchdog_time():
+        printdbg("Not yet due for a WD check, moving on.")
+
     printdbg("in watchdog_check")
     # delete expired watchdogs
     for wd in Watchdog.expired(dashd):
@@ -54,7 +57,22 @@ def watchdog_check(dashd):
             printdbg("\tFound losing watchdog [%s], voting DELETE" % wd.object_hash)
             wd.vote(dashd, VoteSignals.delete, VoteOutcomes.yes)
 
+    next_wd_check_at = misc.now() + random.randint(1, 1800)
+    printdbg("scheduling next WD check for %d" % next_wd_check_at)
+    Transient.set(Watchdog.transient_key_scheduled, next_wd_check_at,
+                  next_wd_check_at)
+
     printdbg("leaving watchdog_check")
+
+
+def is_watchdog_time():
+    next_watchdog_time = Transient.get(Watchdog.transient_key_scheduled) or 0
+    now = misc.now()
+
+    printdbg("current_time = %d" % now)
+    printdbg("next_watchdog_time = %d" % next_watchdog_time)
+
+    return now >= next_watchdog_time
 
 
 def attempt_superblock_creation(dashd):

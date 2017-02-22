@@ -555,6 +555,7 @@ class Watchdog(BaseModel, GovernanceClass):
 
     govobj_type = DASHD_GOVOBJ_TYPES['watchdog']
     only_masternode_can_submit = True
+    transient_key_scheduled = 'NEXT_WATCHDOG_CHECK_AT'
 
     @classmethod
     def active(self, dashd):
