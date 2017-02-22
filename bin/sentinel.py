@@ -28,6 +28,10 @@ def watchdog_check(dashd):
         printdbg("Not yet due for a WD check, moving on.")
 
     printdbg("in watchdog_check")
+
+    # running check, so remove the scheduled event
+    Transient.delete(Watchdog.transient_key_scheduled)
+
     # delete expired watchdogs
     for wd in Watchdog.expired(dashd):
         printdbg("\tFound expired watchdog [%s], voting to delete" % wd.object_hash)
