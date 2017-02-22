@@ -65,6 +65,13 @@ To view debug output, set the `SENTINEL_DEBUG` environment variable to anything 
 
     $ SENTINEL_DEBUG=1 ./venv/bin/python bin/sentinel.py
 
+Note: because of randomized scheduling sentinel will not actually run every time it is invoked.  To bypass the scheduler for
+testing purposes use the -b option:
+
+    $ SENTINEL_DEBUG=1 ./venv/bin/python bin/sentinel.py -b
+
+It is recommended to use this option only for manual testing.
+
 ## Contributing
 
 Please follow the [DashCore guidelines for contributing](https://github.com/dashpay/dash/blob/v0.12.1.x/CONTRIBUTING.md).
