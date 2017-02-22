@@ -18,6 +18,7 @@ import random
 
 from scheduler import Scheduler
 
+
 # sync dashd gobject list with our local relational DB backend
 def perform_dashd_object_sync(dashd):
     GovernanceObject.sync(dashd)
@@ -137,6 +138,7 @@ def is_dashd_port_open(dashd):
         print("%s" % e)
 
     return port_open
+
 
 def main():
     dashd = DashDaemon.from_dash_conf(config.dash_conf)

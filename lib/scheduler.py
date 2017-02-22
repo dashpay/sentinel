@@ -6,6 +6,7 @@ import random
 
 from misc import printdbg
 
+
 class Scheduler:
 
     def __init__(self):
@@ -57,19 +58,19 @@ class Scheduler:
         nrunsperhour = 6.0
         nruns = int(nrunsperhour * (3600. - float(currentOffset)) / 3600.)
         printdbg("Scheduler.createSchedule: currentOffset = %s, nrunsperhour = %s, nruns = %s" % (currentOffset, nrunsperhour, nruns))
-        offsets = [random.randint(currentOffset+1, 3599) for i in range(nruns)]
+        offsets = [random.randint(currentOffset + 1, 3599) for i in range(nruns)]
         offsets.sort()
         self.schedule = {'hour': hour,
                          'offsets': offsets}
         self.storeSchedule()
         printdbg("Scheduler.createSchedule: schedule = %s" % (str(self.schedule)))
-        
+
     def storeSchedule(self):
         printdbg("Scheduler.storeSchedule: Start")
         jsonSchedule = json.dumps(self.schedule)
         ofile = file(self.schedulePath, "w")
         ofile.write(jsonSchedule)
-        
+
     def checkScheduleFormat(self):
         printdbg("Scheduler.checkScheduleFormat: Start")
         if not isinstance(self.schedule, dict):
