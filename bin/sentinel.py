@@ -15,8 +15,11 @@ from bitcoinrpc.authproxy import JSONRPCException
 import signal
 import atexit
 import random
+from optparse import OptionParser
 
 from scheduler import Scheduler
+
+SCHEDULER_ENABLED = True
 
 
 # sync dashd gobject list with our local relational DB backend
@@ -165,9 +168,12 @@ def main():
         logger.setLevel(logging.DEBUG)
         logger.addHandler(logging.StreamHandler())
 
-    scheduler = Scheduler()
-    if not scheduler.runThisTime():
-        return
+    if SCHEDULER_ENABLED:
+        scheduler = Scheduler()
+        if not scheduler.runThisTime():
+            return
+    else:
+        print("NOTE: Bypassing scheduler as requested, not recommended for production use.")
 
     # ========================================================================
     # general flow:
@@ -211,6 +217,21 @@ if __name__ == '__main__':
         sys.exit(1)
     else:
         Transient.set(mutex_key, misc.now(), timeout_seconds)
+
+    # Parse command line options
+    parser = OptionParser()
+
+    parser.add_option("-b",
+                      "--bypass-scheduler",
+                      action="store_true",
+                      default=False,
+                      help="Ignore scheduler and force sentinel to run",
+                      dest="bypassScheduler")
+
+    (options, args) = parser.parse_args()
+
+    if options.bypassScheduler:
+        SCHEDULER_ENABLED = False
 
     # locked to this instance -- perform main logic here
     main()
