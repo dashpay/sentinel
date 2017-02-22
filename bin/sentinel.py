@@ -16,6 +16,7 @@ import signal
 import atexit
 import random
 
+from scheduler import Scheduler
 
 # sync dashd gobject list with our local relational DB backend
 def perform_dashd_object_sync(dashd):
@@ -137,13 +138,6 @@ def is_dashd_port_open(dashd):
 
     return port_open
 
-
-def delay():
-    delay_in_seconds = random.randint(1, 50)
-    printdbg("Delay of [%d] seconds to prevent watchdog sync issues")
-    time.sleep(delay_in_seconds)
-
-
 def main():
     dashd = DashDaemon.from_dash_conf(config.dash_conf)
 
@@ -169,7 +163,10 @@ def main():
         logger.setLevel(logging.DEBUG)
         logger.addHandler(logging.StreamHandler())
 
-    delay()
+    scheduler = Scheduler()
+    if not scheduler.runThisTime():
+        return
+
     # ========================================================================
     # general flow:
     # ========================================================================
