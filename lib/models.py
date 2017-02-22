@@ -555,28 +555,6 @@ class Watchdog(BaseModel, GovernanceClass):
 
     govobj_type = DASHD_GOVOBJ_TYPES['watchdog']
     only_masternode_can_submit = True
-    transient_key_scheduled = 'NEXT_WATCHDOG_CHECK_AT'
-
-    @classmethod
-    def schedule_next_check(self):
-        next_wd_check_at = misc.now() + random.randint(1, 1800)
-        printdbg("scheduling next WD check for %d" % next_wd_check_at)
-        Transient.set(Watchdog.transient_key_scheduled, next_wd_check_at,
-                      next_wd_check_at)
-
-    @classmethod
-    def is_watchdog_time(self):
-        next_watchdog_time = Transient.get(Watchdog.transient_key_scheduled) or 0
-        now = misc.now()
-
-        printdbg("current_time = %d" % now)
-        printdbg("next_watchdog_time = %d" % next_watchdog_time)
-
-        return now >= next_watchdog_time
-
-    @classmethod
-    def clear_schedule(self):
-        Transient.delete(Watchdog.transient_key_scheduled)
 
     @classmethod
     def active(self, dashd):
