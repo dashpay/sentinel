@@ -15,6 +15,7 @@ from bitcoinrpc.authproxy import JSONRPCException
 import signal
 import atexit
 import random
+import scheduler
 
 
 # sync dashd gobject list with our local relational DB backend
@@ -24,13 +25,7 @@ def perform_dashd_object_sync(dashd):
 
 # delete old watchdog objects, create new when necessary
 def watchdog_check(dashd):
-    if not Watchdog.is_watchdog_time():
-        printdbg("Not yet due for a WD check, moving on.")
-
     printdbg("in watchdog_check")
-
-    # running check, so remove the scheduled event
-    Watchdog.clear_schedule()
 
     # delete expired watchdogs
     for wd in Watchdog.expired(dashd):
@@ -61,7 +56,6 @@ def watchdog_check(dashd):
             printdbg("\tFound losing watchdog [%s], voting DELETE" % wd.object_hash)
             wd.vote(dashd, VoteSignals.delete, VoteOutcomes.yes)
 
-    Watchdog.schedule_next_check()
     printdbg("leaving watchdog_check")
 
 
@@ -171,6 +165,13 @@ def main():
         logger.setLevel(logging.DEBUG)
         logger.addHandler(logging.StreamHandler())
 
+    if not Scheduler.is_run_time():
+        printdbg("Not yet time for an object sync/vote, moving on.")
+        return
+
+    # running now, so remove the scheduled event
+    Scheduler.clear_schedule()
+
     # ========================================================================
     # general flow:
     # ========================================================================
@@ -186,6 +187,9 @@ def main():
 
     # create a Superblock if necessary
     attempt_superblock_creation(dashd)
+
+    # schedule the next run
+    Scheduler.schedule_next_run()
 
 
 def signal_handler(signum, frame):
