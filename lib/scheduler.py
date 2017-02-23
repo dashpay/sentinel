@@ -32,7 +32,7 @@ class Scheduler(object):
         if not random_interval:
             random_interval = self.random_interval_max
 
-        next_run_at = misc.now() + random.randint(1, random_interval_max)
+        next_run_at = misc.now() + random.randint(1, random_interval)
         printdbg("scheduling next sentinel run for %d" % next_run_at)
         Transient.set(self.transient_key_scheduled, next_run_at,
                       next_run_at)

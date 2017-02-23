@@ -15,7 +15,7 @@ from bitcoinrpc.authproxy import JSONRPCException
 import signal
 import atexit
 import random
-import scheduler
+from scheduler import Scheduler
 
 
 # sync dashd gobject list with our local relational DB backend
