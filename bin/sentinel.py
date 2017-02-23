@@ -16,6 +16,7 @@ import signal
 import atexit
 import random
 from scheduler import Scheduler
+import argparse
 
 
 # sync dashd gobject list with our local relational DB backend
@@ -142,6 +143,7 @@ def is_dashd_port_open(dashd):
 
 def main():
     dashd = DashDaemon.from_dash_conf(config.dash_conf)
+    options = process_args()
 
     # check dashd connectivity
     if not is_dashd_port_open(dashd):
@@ -164,6 +166,10 @@ def main():
         logger = logging.getLogger('peewee')
         logger.setLevel(logging.DEBUG)
         logger.addHandler(logging.StreamHandler())
+
+    if options.bypass:
+        # bypassing scheduler, remove the scheduled event
+        Scheduler.clear_schedule()
 
     if not Scheduler.is_run_time():
         printdbg("Not yet time for an object sync/vote, moving on.")
@@ -200,6 +206,17 @@ def signal_handler(signum, frame):
 
 def cleanup():
     Transient.delete(mutex_key)
+
+
+def process_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-b', '--bypass-scheduler',
+                        action='store_true',
+                        help='Bypass scheduler and sync/vote immediately',
+                        dest='bypass')
+    args = parser.parse_args()
+
+    return args
 
 
 if __name__ == '__main__':
