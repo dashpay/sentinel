@@ -175,6 +175,10 @@ def main():
         printdbg("Not yet time for an object sync/vote, moving on.")
         return
 
+    if not options.bypass:
+        # delay to account for cron minute sync
+        Scheduler.delay()
+
     # running now, so remove the scheduled event
     Scheduler.clear_schedule()
 
