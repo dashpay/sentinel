@@ -169,6 +169,7 @@ def main():
 
     if options.bypass:
         # bypassing scheduler, remove the scheduled event
+        printdbg("--bypass-schedule option used, clearing schedule")
         Scheduler.clear_schedule()
 
     if not Scheduler.is_run_time():
