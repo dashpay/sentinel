@@ -25,6 +25,8 @@ def printdbg(str):
     if os.environ.get('SENTINEL_DEBUG', None):
         print(logstr)
 
+    sys.stdout.flush()
+
 
 def is_hash(s):
     m = re.match('^[a-f0-9]{64}$', s)
