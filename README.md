@@ -37,13 +37,13 @@ Clone the Sentinel repo and install Python dependencies.
 
 ### 3. Set up Cron
 
-Set up a crontab entry to call Sentinel regularly, recommended every 2 minutes, by first opening a crontab editor.
+Set up a crontab entry to call Sentinel every minute:
 
     $ crontab -e
 
 In the crontab editor, add the lines below, replacing '/home/YOURUSERNAME/sentinel' to the path where you cloned sentinel to:
 
-    */2 * * * * cd /home/YOURUSERNAME/sentinel && ./venv/bin/python bin/sentinel.py >/dev/null 2>&1
+    * * * * * cd /home/YOURUSERNAME/sentinel && ./venv/bin/python bin/sentinel.py >/dev/null 2>&1
 
 ### 4. Test the Configuration
 
