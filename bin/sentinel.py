@@ -133,7 +133,7 @@ def is_dashd_port_open(dashd):
     # operators if it's not
     port_open = False
     try:
-        info = dashd.rpc_command('getinfo')
+        info = dashd.rpc_command('getgovernanceinfo')
         port_open = True
     except (socket.error, JSONRPCException) as e:
         print("%s" % e)
