@@ -317,8 +317,8 @@ class Proposal(GovernanceClass, BaseModel):
         printdbg("\tnow = %s" % now)
 
         # end date < current date
-        if (self.end_epoch <= now):
-            printdbg("\tProposal end_epoch [%s] <= now [%s] , returning True" % (self.end_epoch, now))
+        if (self.end_epoch < now):
+            printdbg("\tProposal end_epoch [%s] < now [%s] , returning True" % (self.end_epoch, now))
             return True
 
         printdbg("Leaving Proposal#is_expired, Expired = False")
@@ -353,6 +353,16 @@ class Proposal(GovernanceClass, BaseModel):
                 ranked.append(proposal)
 
         return ranked
+
+    @classmethod
+    def expired(self, dashd):
+        expired = []
+
+        for proposal in self.select():
+            if proposal.is_expired():
+                expired.append(proposal)
+
+        return expired
 
     @property
     def rank(self):

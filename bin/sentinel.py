@@ -60,6 +60,12 @@ def watchdog_check(dashd):
     printdbg("leaving watchdog_check")
 
 
+def prune_expired_proposals(dashd):
+    # vote delete for old proposals
+    for proposal in Proposal.expired():
+        proposal.vote(dashd, VoteSignals.delete, VoteOutcomes.yes)
+
+
 def attempt_superblock_creation(dashd):
     import dashlib
 
@@ -195,6 +201,9 @@ def main():
 
     # auto vote network objects as valid/invalid
     # check_object_validity(dashd)
+
+    # vote to delete expired proposals
+    prune_expired_proposals(dashd)
 
     # create a Superblock if necessary
     attempt_superblock_creation(dashd)
