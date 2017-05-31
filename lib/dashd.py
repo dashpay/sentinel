@@ -237,3 +237,7 @@ class DashDaemon():
                 raise e
 
         return epoch
+
+    @property
+    def has_sentinel_ping(self):
+        return self.govinfo['hassentinelping']
