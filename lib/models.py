@@ -355,7 +355,7 @@ class Proposal(GovernanceClass, BaseModel):
         return ranked
 
     @classmethod
-    def expired(self, dashd):
+    def expired(self):
         expired = []
 
         for proposal in self.select():
