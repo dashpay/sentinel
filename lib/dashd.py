@@ -240,4 +240,7 @@ class DashDaemon():
 
     @property
     def has_sentinel_ping(self):
-        return self.govinfo['hassentinelping']
+        try:
+            return self.govinfo['hassentinelping']
+        except KeyError:
+            return 0
