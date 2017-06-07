@@ -203,7 +203,7 @@ def main():
     # load "gobject list" rpc command data, sync objects into internal database
     perform_dashd_object_sync(dashd)
 
-    if dashd.has_sentinel_ping():
+    if dashd.has_sentinel_ping:
         sentinel_ping(dashd)
     else:
         # delete old watchdog objects, create a new if necessary
