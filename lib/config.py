@@ -12,6 +12,7 @@ sentinel_config_file = os.environ.get('SENTINEL_CONFIG', default_sentinel_config
 sentinel_cfg = DashConfig.tokenize(sentinel_config_file)
 sentinel_version = 2
 
+
 def get_dash_conf():
     home = os.environ.get('HOME')
 

@@ -59,6 +59,7 @@ def watchdog_check(dashd):
 
     printdbg("leaving watchdog_check")
 
+
 # ping dashd
 def sentinel_ping(dashd):
     printdbg("in sentinel_ping")
