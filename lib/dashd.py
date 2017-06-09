@@ -242,4 +242,3 @@ class DashDaemon():
     def has_sentinel_ping(self):
         getinfo = self.rpc_command('getinfo')
         return (getinfo['protocolversion'] >= config.min_dashd_proto_version_with_sentinel_ping)
-
