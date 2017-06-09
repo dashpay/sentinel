@@ -240,7 +240,6 @@ class DashDaemon():
 
     @property
     def has_sentinel_ping(self):
-        try:
-            return self.govinfo['hassentinelping']
-        except KeyError:
-            return 0
+        getinfo = self.rpc_command('getinfo')
+        return (getinfo['protocolversion'] >= config.min_dashd_proto_version_with_sentinel_ping)
+
