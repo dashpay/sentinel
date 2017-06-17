@@ -316,6 +316,9 @@ class Proposal(GovernanceClass, BaseModel):
         now = misc.now()
         printdbg("\tnow = %s" % now)
 
+        # TODO: get window between superblocks, divide by 2, convert to a # of seconds
+        #       add this value to the fudge_window defined elsewhere in Sentinel
+        #       the sum of these 2 values (in seconds) should be added to now condition below:
         # end date < current date
         if (self.end_epoch < now):
             printdbg("\tProposal end_epoch [%s] < now [%s] , returning True" % (self.end_epoch, now))
