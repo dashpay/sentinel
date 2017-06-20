@@ -311,16 +311,31 @@ class Proposal(GovernanceClass, BaseModel):
         printdbg("Leaving Proposal#is_valid, Valid = True")
         return True
 
-    def is_expired(self):
+    def is_expired(self, superblockcycle=None):
+        from constants import SUPERBLOCK_FUDGE_WINDOW
+        import dashlib
+
+        if not superblockcycle:
+            raise Exception("Required field superblockcycle missing.")
+
         printdbg("In Proposal#is_expired, for Proposal: %s" % self.__dict__)
         now = misc.now()
         printdbg("\tnow = %s" % now)
 
-        # TODO: get window between superblocks, divide by 2, convert to a # of seconds
-        #       add this value to the fudge_window defined elsewhere in Sentinel
-        #       the sum of these 2 values (in seconds) should be added to now condition below:
-        # end date < current date
-        if (self.end_epoch < now):
+        # half the SB cycle, converted to seconds
+        # add the fudge_window in seconds, defined elsewhere in Sentinel
+        expiration_window_seconds = int(
+            (dashlib.blocks_to_seconds(superblockcycle) / 2) +
+            SUPERBLOCK_FUDGE_WINDOW
+        )
+        printdbg("\texpiration_window_seconds = %s" % expiration_window_seconds)
+
+        # "fully expires" adds the expiration window to end time to ensure a
+        # valid proposal isn't excluded from SB by cutting it too close
+        fully_expires_at = self.end_epoch + expiration_window_seconds
+        printdbg("\tfully_expires_at = %s" % fully_expires_at)
+
+        if (fully_expires_at < now):
             printdbg("\tProposal end_epoch [%s] < now [%s] , returning True" % (self.end_epoch, now))
             return True
 
@@ -358,11 +373,14 @@ class Proposal(GovernanceClass, BaseModel):
         return ranked
 
     @classmethod
-    def expired(self):
+    def expired(self, superblockcycle=None):
+        if not superblockcycle:
+            raise Exception("Required field superblockcycle missing.")
+
         expired = []
 
         for proposal in self.select():
-            if proposal.is_expired():
+            if proposal.is_expired(superblockcycle):
                 expired.append(proposal)
 
         return expired
