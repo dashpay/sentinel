@@ -207,6 +207,22 @@ def test_proposal_is_valid(proposal):
     assert proposal.is_valid() is False
 
 
+def test_proposal_is_expired(proposal):
+    cycle = 24  # testnet
+    now = misc.now()
+
+    proposal.start_epoch = now - (86400 * 2)  # two days ago
+    proposal.end_epoch = now - (60 * 60)  # expired one hour ago
+    assert proposal.is_expired(superblockcycle=cycle) is False
+
+    # fudge factor + a 24-block cycle == an expiry window of 9086, so...
+    proposal.end_epoch = now - 9085
+    assert proposal.is_expired(superblockcycle=cycle) is False
+
+    proposal.end_epoch = now - 9087
+    assert proposal.is_expired(superblockcycle=cycle) is True
+
+
 def test_proposal_is_deletable(proposal):
     now = misc.now()
     assert proposal.is_deletable() is False
