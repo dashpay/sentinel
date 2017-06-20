@@ -127,3 +127,14 @@ def test_hash_function():
 
     hex_hash = "%x" % dashlib.hashit(sb_data_hex)
     assert hex_hash == sb_hash
+
+
+def test_blocks_to_seconds():
+    import dashlib
+    from decimal import Decimal
+
+    precision = Decimal('0.001')
+    assert Decimal(dashlib.blocks_to_seconds(0)) == Decimal(0.0)
+    assert Decimal(dashlib.blocks_to_seconds(2)).quantize(precision) \
+        == Decimal(314.4).quantize(precision)
+    assert int(dashlib.blocks_to_seconds(16616)) == 2612035
