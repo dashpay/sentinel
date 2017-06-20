@@ -64,12 +64,7 @@ def watchdog_check(dashd):
 def sentinel_ping(dashd):
     printdbg("in sentinel_ping")
 
-    # delete expired watchdogs
-    for wd in Watchdog.expired(dashd):
-        printdbg("\tFound expired watchdog [%s], voting to delete" % wd.object_hash)
-        wd.vote(dashd, VoteSignals.delete, VoteOutcomes.yes)
-
-    dashd.rpc_command("sentinelping", config.sentinel_version)
+    dashd.ping()
 
     printdbg("leaving sentinel_ping")
 
