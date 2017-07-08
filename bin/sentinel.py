@@ -62,7 +62,7 @@ def watchdog_check(dashd):
 
 def prune_expired_proposals(dashd):
     # vote delete for old proposals
-    for proposal in Proposal.expired(dashd.superblockcycle):
+    for proposal in Proposal.expired(dashd.superblockcycle()):
         proposal.vote(dashd, VoteSignals.delete, VoteOutcomes.yes)
 
 
