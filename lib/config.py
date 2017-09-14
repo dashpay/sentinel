@@ -10,6 +10,8 @@ default_sentinel_config = os.path.normpath(
 )
 sentinel_config_file = os.environ.get('SENTINEL_CONFIG', default_sentinel_config)
 sentinel_cfg = DashConfig.tokenize(sentinel_config_file)
+sentinel_version = "1.0.2"
+min_dashd_proto_version_with_sentinel_ping = 70207
 
 
 def get_dash_conf():

@@ -60,6 +60,15 @@ def watchdog_check(dashd):
     printdbg("leaving watchdog_check")
 
 
+# ping dashd
+def sentinel_ping(dashd):
+    printdbg("in sentinel_ping")
+
+    dashd.ping()
+
+    printdbg("leaving sentinel_ping")
+
+
 def attempt_superblock_creation(dashd):
     import dashlib
 
@@ -190,8 +199,11 @@ def main():
     # load "gobject list" rpc command data, sync objects into internal database
     perform_dashd_object_sync(dashd)
 
-    # delete old watchdog objects, create a new if necessary
-    watchdog_check(dashd)
+    if dashd.has_sentinel_ping:
+        sentinel_ping(dashd)
+    else:
+        # delete old watchdog objects, create a new if necessary
+        watchdog_check(dashd)
 
     # auto vote network objects as valid/invalid
     # check_object_validity(dashd)
