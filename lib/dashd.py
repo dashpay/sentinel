@@ -63,7 +63,8 @@ class DashDaemon():
 
         try:
             status = self.rpc_command('masternode', 'status')
-            my_vin = parse_masternode_status_vin(status['vin'])
+            mn_outpoint = status.get('outpoint') or status.get('vin')
+            my_vin = parse_masternode_status_vin(mn_outpoint)
         except JSONRPCException as e:
             pass
 
