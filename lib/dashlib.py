@@ -94,6 +94,7 @@ def parse_masternode_status_vin(status_vin_string):
 
 def create_superblock(proposals, event_block_height, budget_max, sb_epoch_time):
     from models import Superblock, GovernanceObject, Proposal
+    from constants import SUPERBLOCK_FUDGE_WINDOW
 
     # don't create an empty superblock
     if (len(proposals) == 0):
@@ -101,7 +102,7 @@ def create_superblock(proposals, event_block_height, budget_max, sb_epoch_time):
         return None
 
     budget_allocated = Decimal(0)
-    fudge = 60 * 60 * 2  # fudge-factor to allow for slighly incorrect estimates
+    fudge = SUPERBLOCK_FUDGE_WINDOW  # fudge-factor to allow for slighly incorrect estimates
 
     payments = []
     for proposal in proposals:
@@ -296,3 +297,11 @@ def parse_raw_votes(raw_votes):
         votes.append(v)
 
     return votes
+
+
+def blocks_to_seconds(blocks):
+    """
+    Return the estimated number of seconds which will transpire for a given
+    number of blocks.
+    """
+    return blocks * 2.62 * 60
