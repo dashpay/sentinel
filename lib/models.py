@@ -97,6 +97,7 @@ class GovernanceObject(BaseModel):
 
     @classmethod
     def import_gobject_from_dashd(self, dashd, rec):
+        import decimal
         import dashlib
         import inflection
 
@@ -140,7 +141,7 @@ class GovernanceObject(BaseModel):
         # get/create, then sync payment amounts, etc. from dashd - Dashd is the master
         try:
             subobj, created = subclass.get_or_create(object_hash=object_hash, defaults=subdikt)
-        except (peewee.OperationalError, peewee.IntegrityError) as e:
+        except (peewee.OperationalError, peewee.IntegrityError, decimal.InvalidOperation) as e:
             # in this case, vote as delete, and log the vote in the DB
             printdbg("Got invalid object from dashd! %s" % e)
             if not govobj.voted_on(signal=VoteSignals.delete, outcome=VoteOutcomes.yes):
