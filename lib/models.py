@@ -13,7 +13,7 @@ import peewee
 import playhouse.signals
 import misc
 import dashd
-from misc import printdbg
+from misc import (printdbg, is_numeric)
 import config
 from bitcoinrpc.authproxy import JSONRPCException
 try:
@@ -287,6 +287,11 @@ class Proposal(GovernanceClass, BaseModel):
             # amount can't be negative or 0
             if (self.payment_amount <= 0):
                 printdbg("\tProposal amount [%s] is negative or zero, returning False" % self.payment_amount)
+                return False
+
+            # amount must be numeric
+            if misc.is_numeric(self.payment_amount) is False:
+                printdbg("\tProposal amount [%s] is not valid, returning False" % self.payment_amount)
                 return False
 
             # payment address is valid base58 dash addr, non-multisig
