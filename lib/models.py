@@ -771,6 +771,7 @@ def check_db_sane():
             print("[error] Could not create tables: %s" % e)
 
     update_schema_version()
+    purge_invalid_amounts()
 
 
 def check_db_schema_version():
@@ -801,6 +802,20 @@ def update_schema_version():
     if (schema_version_setting.value != SCHEMA_VERSION):
         schema_version_setting.save()
     return
+
+
+def purge_invalid_amounts():
+    result_set = Proposal.select(
+        Proposal.id,
+        Proposal.governance_object
+    ).where(Proposal.payment_amount.contains(','))
+
+    for proposal in result_set:
+        gobject = GovernanceObject.get(
+            GovernanceObject.id == proposal.governance_object_id
+        )
+        printdbg("[info]: Pruning governance object w/invalid amount: %s" % gobject.object_hash)
+        gobject.delete_instance(recursive=True, delete_nullable=True)
 
 
 # sanity checks...
