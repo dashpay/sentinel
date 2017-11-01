@@ -144,8 +144,7 @@ class GovernanceObject(BaseModel):
         except (peewee.OperationalError, peewee.IntegrityError, decimal.InvalidOperation) as e:
             # in this case, vote as delete, and log the vote in the DB
             printdbg("Got invalid object from dashd! %s" % e)
-            if not govobj.voted_on(signal=VoteSignals.delete, outcome=VoteOutcomes.yes):
-                govobj.vote(dashd, VoteSignals.delete, VoteOutcomes.yes)
+            govobj.vote_delete(dashd)
             return (govobj, None)
 
         if created:
@@ -156,6 +155,11 @@ class GovernanceObject(BaseModel):
 
         # ATM, returns a tuple w/gov attributes and the govobj
         return (govobj, subobj)
+
+    def vote_delete(self, dashd):
+        if not self.voted_on(signal=VoteSignals.delete, outcome=VoteOutcomes.yes):
+            self.vote(dashd, VoteSignals.delete, VoteOutcomes.yes)
+        return
 
     def get_vote_command(self, signal, outcome):
         cmd = ['gobject', 'vote-conf', self.object_hash,
