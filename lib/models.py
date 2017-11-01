@@ -140,6 +140,12 @@ class GovernanceObject(BaseModel):
 
         # get/create, then sync payment amounts, etc. from dashd - Dashd is the master
         try:
+            newdikt = subdikt.copy()
+            newdikt['object_hash'] = object_hash
+            if subclass(**newdikt).is_valid() is False:
+                govobj.vote_delete(dashd)
+                return (govobj, None)
+
             subobj, created = subclass.get_or_create(object_hash=object_hash, defaults=subdikt)
         except (peewee.OperationalError, peewee.IntegrityError, decimal.InvalidOperation) as e:
             # in this case, vote as delete, and log the vote in the DB
@@ -288,14 +294,14 @@ class Proposal(GovernanceClass, BaseModel):
                 printdbg("\tProposal end_epoch [%s] <= start_epoch [%s] , returning False" % (self.end_epoch, self.start_epoch))
                 return False
 
-            # amount can't be negative or 0
-            if (self.payment_amount <= 0):
-                printdbg("\tProposal amount [%s] is negative or zero, returning False" % self.payment_amount)
-                return False
-
             # amount must be numeric
             if misc.is_numeric(self.payment_amount) is False:
                 printdbg("\tProposal amount [%s] is not valid, returning False" % self.payment_amount)
+                return False
+
+            # amount can't be negative or 0
+            if (float(self.payment_amount) <= 0):
+                printdbg("\tProposal amount [%s] is negative or zero, returning False" % self.payment_amount)
                 return False
 
             # payment address is valid base58 dash addr, non-multisig
