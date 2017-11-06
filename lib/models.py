@@ -13,7 +13,7 @@ import peewee
 import playhouse.signals
 import misc
 import dashd
-from misc import printdbg
+from misc import (printdbg, is_numeric)
 import config
 from bitcoinrpc.authproxy import JSONRPCException
 try:
@@ -85,7 +85,7 @@ class GovernanceObject(BaseModel):
 
             for item in golist.values():
                 (go, subobj) = self.import_gobject_from_dashd(dashd, item)
-        except (peewee.InternalError, peewee.OperationalError, peewee.ProgrammingError) as e:
+        except Exception as e:
             printdbg("Got an error upon import: %s" % e)
 
     @classmethod
@@ -140,12 +140,17 @@ class GovernanceObject(BaseModel):
 
         # get/create, then sync payment amounts, etc. from dashd - Dashd is the master
         try:
+            newdikt = subdikt.copy()
+            newdikt['object_hash'] = object_hash
+            if subclass(**newdikt).is_valid() is False:
+                govobj.vote_delete(dashd)
+                return (govobj, None)
+
             subobj, created = subclass.get_or_create(object_hash=object_hash, defaults=subdikt)
-        except (peewee.OperationalError, peewee.IntegrityError, decimal.InvalidOperation) as e:
+        except Exception as e:
             # in this case, vote as delete, and log the vote in the DB
             printdbg("Got invalid object from dashd! %s" % e)
-            if not govobj.voted_on(signal=VoteSignals.delete, outcome=VoteOutcomes.yes):
-                govobj.vote(dashd, VoteSignals.delete, VoteOutcomes.yes)
+            govobj.vote_delete(dashd)
             return (govobj, None)
 
         if created:
@@ -156,6 +161,11 @@ class GovernanceObject(BaseModel):
 
         # ATM, returns a tuple w/gov attributes and the govobj
         return (govobj, subobj)
+
+    def vote_delete(self, dashd):
+        if not self.voted_on(signal=VoteSignals.delete, outcome=VoteOutcomes.yes):
+            self.vote(dashd, VoteSignals.delete, VoteOutcomes.yes)
+        return
 
     def get_vote_command(self, signal, outcome):
         cmd = ['gobject', 'vote-conf', self.object_hash,
@@ -284,8 +294,13 @@ class Proposal(GovernanceClass, BaseModel):
                 printdbg("\tProposal end_epoch [%s] <= start_epoch [%s] , returning False" % (self.end_epoch, self.start_epoch))
                 return False
 
+            # amount must be numeric
+            if misc.is_numeric(self.payment_amount) is False:
+                printdbg("\tProposal amount [%s] is not valid, returning False" % self.payment_amount)
+                return False
+
             # amount can't be negative or 0
-            if (self.payment_amount <= 0):
+            if (float(self.payment_amount) <= 0):
                 printdbg("\tProposal amount [%s] is negative or zero, returning False" % self.payment_amount)
                 return False
 
@@ -756,6 +771,7 @@ def check_db_sane():
             print("[error] Could not create tables: %s" % e)
 
     update_schema_version()
+    purge_invalid_amounts()
 
 
 def check_db_schema_version():
@@ -786,6 +802,20 @@ def update_schema_version():
     if (schema_version_setting.value != SCHEMA_VERSION):
         schema_version_setting.save()
     return
+
+
+def purge_invalid_amounts():
+    result_set = Proposal.select(
+        Proposal.id,
+        Proposal.governance_object
+    ).where(Proposal.payment_amount.contains(','))
+
+    for proposal in result_set:
+        gobject = GovernanceObject.get(
+            GovernanceObject.id == proposal.governance_object_id
+        )
+        printdbg("[info]: Pruning governance object w/invalid amount: %s" % gobject.object_hash)
+        gobject.delete_instance(recursive=True, delete_nullable=True)
 
 
 # sanity checks...
