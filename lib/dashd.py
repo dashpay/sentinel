@@ -63,7 +63,8 @@ class DashDaemon():
 
         try:
             status = self.rpc_command('masternode', 'status')
-            my_vin = parse_masternode_status_vin(status['vin'])
+            mn_outpoint = status.get('outpoint') or status.get('vin')
+            my_vin = parse_masternode_status_vin(mn_outpoint)
         except JSONRPCException as e:
             pass
 
@@ -200,6 +201,7 @@ class DashDaemon():
         return (self.MASTERNODE_WATCHDOG_MAX_SECONDS // 2)
 
     def estimate_block_time(self, height):
+        import dashlib
         """
         Called by block_height_to_epoch if block height is in the future.
         Call `block_height_to_epoch` instead of this method.
@@ -212,8 +214,7 @@ class DashDaemon():
         if (diff < 0):
             raise Exception("Oh Noes.")
 
-        future_minutes = 2.62 * diff
-        future_seconds = 60 * future_minutes
+        future_seconds = dashlib.blocks_to_seconds(diff)
         estimated_epoch = int(time.time() + future_seconds)
 
         return estimated_epoch
@@ -237,3 +238,11 @@ class DashDaemon():
                 raise e
 
         return epoch
+
+    @property
+    def has_sentinel_ping(self):
+        getinfo = self.rpc_command('getinfo')
+        return (getinfo['protocolversion'] >= config.min_dashd_proto_version_with_sentinel_ping)
+
+    def ping(self):
+        self.rpc_command('sentinelping', config.sentinel_version)
