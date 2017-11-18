@@ -2,7 +2,7 @@
 
 An all-powerful toolset for Chaincoin.
 
-[![Build Status](https://travis-ci.org/chaincoinpay/sentinel.svg?branch=master)](https://travis-ci.org/chaincoinpay/sentinel)
+[![Build Status](https://travis-ci.org/ChainCoinUnlimited/sentinel.svg?branch=dev_chaincoin)](https://travis-ci.org/ChainCoinUnlimited/sentinel)
 
 Sentinel is an autonomous agent for persisting, processing and automating Chaincoin V12.1 governance objects and tasks, and for expanded functions in the upcoming Chaincoin V13 release (Evolution).
 
@@ -71,7 +71,7 @@ Please follow the [ChaincoinCore guidelines for contributing](https://github.com
 
 Specifically:
 
-* [Contributor Workflow](https://github.com/chaincoinpay/chaincoin/blob/v0.12.1.x/CONTRIBUTING.md#contributor-workflow)
+* [Contributor Workflow](https://github.com/chaincoinpay/chaincoin/blob/v0.12.2.x/CONTRIBUTING.md#contributor-workflow)
 
     To contribute a patch, the workflow is as follows:
 
