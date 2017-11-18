@@ -12,7 +12,7 @@ from peewee import IntegerField, CharField, TextField, ForeignKeyField, DecimalF
 import peewee
 import playhouse.signals
 import misc
-import dashd
+import chaincoind
 from misc import (printdbg, is_numeric)
 import config
 from bitcoinrpc.authproxy import JSONRPCException
@@ -29,7 +29,7 @@ db.connect()
 
 
 # TODO: lookup table?
-DASHD_GOVOBJ_TYPES = {
+CHAINCOIND_GOVOBJ_TYPES = {
     'proposal': 1,
     'superblock': 2,
     'watchdog': 3,
@@ -72,10 +72,10 @@ class GovernanceObject(BaseModel):
     class Meta:
         db_table = 'governance_objects'
 
-    # sync dashd gobject list with our local relational DB backend
+    # sync chaincoind gobject list with our local relational DB backend
     @classmethod
-    def sync(self, dashd):
-        golist = dashd.rpc_command('gobject', 'list')
+    def sync(self, chaincoind):
+        golist = chaincoind.rpc_command('gobject', 'list')
 
         # objects which are removed from the network should be removed from the DB
         try:
@@ -84,7 +84,7 @@ class GovernanceObject(BaseModel):
                 purged.delete_instance(recursive=True, delete_nullable=True)
 
             for item in golist.values():
-                (go, subobj) = self.import_gobject_from_dashd(dashd, item)
+                (go, subobj) = self.import_gobject_from_chaincoind(chaincoind, item)
         except Exception as e:
             printdbg("Got an error upon import: %s" % e)
 
@@ -96,9 +96,9 @@ class GovernanceObject(BaseModel):
         return query
 
     @classmethod
-    def import_gobject_from_dashd(self, dashd, rec):
+    def import_gobject_from_chaincoind(self, chaincoind, rec):
         import decimal
-        import dashlib
+        import chaincoinlib
         import inflection
 
         object_hex = rec['DataHex']
@@ -113,9 +113,9 @@ class GovernanceObject(BaseModel):
             'no_count': rec['NoCount'],
         }
 
-        # shim/dashd conversion
-        object_hex = dashlib.SHIM_deserialise_from_dashd(object_hex)
-        objects = dashlib.deserialise(object_hex)
+        # shim/chaincoind conversion
+        object_hex = chaincoinlib.SHIM_deserialise_from_chaincoind(object_hex)
+        objects = chaincoinlib.deserialise(object_hex)
         subobj = None
 
         obj_type, dikt = objects[0:2:1]
@@ -125,11 +125,11 @@ class GovernanceObject(BaseModel):
         # set object_type in govobj table
         gobj_dict['object_type'] = subclass.govobj_type
 
-        # exclude any invalid model data from dashd...
+        # exclude any invalid model data from chaincoind...
         valid_keys = subclass.serialisable_fields()
         subdikt = {k: dikt[k] for k in valid_keys if k in dikt}
 
-        # get/create, then sync vote counts from dashd, with every run
+        # get/create, then sync vote counts from chaincoind, with every run
         govobj, created = self.get_or_create(object_hash=object_hash, defaults=gobj_dict)
         if created:
             printdbg("govobj created = %s" % created)
@@ -138,19 +138,19 @@ class GovernanceObject(BaseModel):
             printdbg("govobj updated = %d" % count)
         subdikt['governance_object'] = govobj
 
-        # get/create, then sync payment amounts, etc. from dashd - Dashd is the master
+        # get/create, then sync payment amounts, etc. from chaincoind - Chaincoind is the master
         try:
             newdikt = subdikt.copy()
             newdikt['object_hash'] = object_hash
             if subclass(**newdikt).is_valid() is False:
-                govobj.vote_delete(dashd)
+                govobj.vote_delete(chaincoind)
                 return (govobj, None)
 
             subobj, created = subclass.get_or_create(object_hash=object_hash, defaults=subdikt)
         except Exception as e:
             # in this case, vote as delete, and log the vote in the DB
-            printdbg("Got invalid object from dashd! %s" % e)
-            govobj.vote_delete(dashd)
+            printdbg("Got invalid object from chaincoind! %s" % e)
+            govobj.vote_delete(chaincoind)
             return (govobj, None)
 
         if created:
@@ -162,9 +162,9 @@ class GovernanceObject(BaseModel):
         # ATM, returns a tuple w/gov attributes and the govobj
         return (govobj, subobj)
 
-    def vote_delete(self, dashd):
+    def vote_delete(self, chaincoind):
         if not self.voted_on(signal=VoteSignals.delete, outcome=VoteOutcomes.yes):
-            self.vote(dashd, VoteSignals.delete, VoteOutcomes.yes)
+            self.vote(chaincoind, VoteSignals.delete, VoteOutcomes.yes)
         return
 
     def get_vote_command(self, signal, outcome):
@@ -172,8 +172,8 @@ class GovernanceObject(BaseModel):
                signal.name, outcome.name]
         return cmd
 
-    def vote(self, dashd, signal, outcome):
-        import dashlib
+    def vote(self, chaincoind, signal, outcome):
+        import chaincoinlib
 
         # At this point, will probably never reach here. But doesn't hurt to
         # have an extra check just in case objects get out of sync (people will
@@ -203,10 +203,10 @@ class GovernanceObject(BaseModel):
 
         vote_command = self.get_vote_command(signal, outcome)
         printdbg(' '.join(vote_command))
-        output = dashd.rpc_command(*vote_command)
+        output = chaincoind.rpc_command(*vote_command)
 
         # extract vote output parsing to external lib
-        voted = dashlib.did_we_vote(output)
+        voted = chaincoinlib.did_we_vote(output)
 
         if voted:
             printdbg('VOTE success, saving Vote object to database')
@@ -214,11 +214,11 @@ class GovernanceObject(BaseModel):
                  object_hash=self.object_hash).save()
         else:
             printdbg('VOTE failed, trying to sync with network vote')
-            self.sync_network_vote(dashd, signal)
+            self.sync_network_vote(chaincoind, signal)
 
-    def sync_network_vote(self, dashd, signal):
+    def sync_network_vote(self, chaincoind, signal):
         printdbg('\tsyncing network vote for object %s with signal %s' % (self.object_hash, signal.name))
-        vote_info = dashd.get_my_gobject_votes(self.object_hash)
+        vote_info = chaincoind.get_my_gobject_votes(self.object_hash)
         for vdikt in vote_info:
             if vdikt['signal'] != signal.name:
                 continue
@@ -268,13 +268,13 @@ class Proposal(GovernanceClass, BaseModel):
     payment_amount = DecimalField(max_digits=16, decimal_places=8)
     object_hash = CharField(max_length=64)
 
-    govobj_type = DASHD_GOVOBJ_TYPES['proposal']
+    govobj_type = CHAINCOIND_GOVOBJ_TYPES['proposal']
 
     class Meta:
         db_table = 'proposals'
 
     def is_valid(self):
-        import dashlib
+        import chaincoinlib
 
         printdbg("In Proposal#is_valid, for Proposal: %s" % self.__dict__)
 
@@ -304,9 +304,9 @@ class Proposal(GovernanceClass, BaseModel):
                 printdbg("\tProposal amount [%s] is negative or zero, returning False" % self.payment_amount)
                 return False
 
-            # payment address is valid base58 dash addr, non-multisig
-            if not dashlib.is_valid_dash_address(self.payment_address, config.network):
-                printdbg("\tPayment address [%s] not a valid Dash address for network [%s], returning False" % (self.payment_address, config.network))
+            # payment address is valid base58 chaincoin addr, non-multisig
+            if not chaincoinlib.is_valid_chaincoin_address(self.payment_address, config.network):
+                printdbg("\tPayment address [%s] not a valid Chaincoin address for network [%s], returning False" % (self.payment_address, config.network))
                 return False
 
             # URL
@@ -329,7 +329,7 @@ class Proposal(GovernanceClass, BaseModel):
 
     def is_expired(self, superblockcycle=None):
         from constants import SUPERBLOCK_FUDGE_WINDOW
-        import dashlib
+        import chaincoinlib
 
         if not superblockcycle:
             raise Exception("Required field superblockcycle missing.")
@@ -341,7 +341,7 @@ class Proposal(GovernanceClass, BaseModel):
         # half the SB cycle, converted to seconds
         # add the fudge_window in seconds, defined elsewhere in Sentinel
         expiration_window_seconds = int(
-            (dashlib.blocks_to_seconds(superblockcycle) / 2) +
+            (chaincoinlib.blocks_to_seconds(superblockcycle) / 2) +
             SUPERBLOCK_FUDGE_WINDOW
         )
         printdbg("\texpiration_window_seconds = %s" % expiration_window_seconds)
@@ -364,7 +364,7 @@ class Proposal(GovernanceClass, BaseModel):
         if (self.end_epoch < (misc.now() - thirty_days)):
             return True
 
-        # TBD (item moved to external storage/DashDrive, etc.)
+        # TBD (item moved to external storage/ChaincoinDrive, etc.)
         return False
 
     @classmethod
@@ -409,17 +409,17 @@ class Proposal(GovernanceClass, BaseModel):
             return rank
 
     def get_prepare_command(self):
-        import dashlib
-        obj_data = dashlib.SHIM_serialise_for_dashd(self.serialise())
+        import chaincoinlib
+        obj_data = chaincoinlib.SHIM_serialise_for_chaincoind(self.serialise())
 
         # new superblocks won't have parent_hash, revision, etc...
         cmd = ['gobject', 'prepare', '0', '1', str(int(time.time())), obj_data]
 
         return cmd
 
-    def prepare(self, dashd):
+    def prepare(self, chaincoind):
         try:
-            object_hash = dashd.rpc_command(*self.get_prepare_command())
+            object_hash = chaincoind.rpc_command(*self.get_prepare_command())
             printdbg("Submitted: [%s]" % object_hash)
             self.go.object_fee_tx = object_hash
             self.go.save()
@@ -440,14 +440,14 @@ class Superblock(BaseModel, GovernanceClass):
     sb_hash = CharField()
     object_hash = CharField(max_length=64)
 
-    govobj_type = DASHD_GOVOBJ_TYPES['superblock']
+    govobj_type = CHAINCOIND_GOVOBJ_TYPES['superblock']
     only_masternode_can_submit = True
 
     class Meta:
         db_table = 'superblocks'
 
     def is_valid(self):
-        import dashlib
+        import chaincoinlib
         import decimal
 
         printdbg("In Superblock#is_valid, for SB: %s" % self.__dict__)
@@ -455,7 +455,7 @@ class Superblock(BaseModel, GovernanceClass):
         # it's a string from the DB...
         addresses = self.payment_addresses.split('|')
         for addr in addresses:
-            if not dashlib.is_valid_dash_address(addr, config.network):
+            if not chaincoinlib.is_valid_chaincoin_address(addr, config.network):
                 printdbg("\tInvalid address [%s], returning False" % addr)
                 return False
 
@@ -489,12 +489,12 @@ class Superblock(BaseModel, GovernanceClass):
 
     def is_deletable(self):
         # end_date < (current_date - 30 days)
-        # TBD (item moved to external storage/DashDrive, etc.)
+        # TBD (item moved to external storage/ChaincoinDrive, etc.)
         pass
 
     def hash(self):
-        import dashlib
-        return dashlib.hashit(self.serialise())
+        import chaincoinlib
+        return chaincoinlib.hashit(self.serialise())
 
     def hex_hash(self):
         return "%x" % self.hash()
@@ -600,37 +600,37 @@ class Watchdog(BaseModel, GovernanceClass):
     created_at = IntegerField()
     object_hash = CharField(max_length=64)
 
-    govobj_type = DASHD_GOVOBJ_TYPES['watchdog']
+    govobj_type = CHAINCOIND_GOVOBJ_TYPES['watchdog']
     only_masternode_can_submit = True
 
     @classmethod
-    def active(self, dashd):
+    def active(self, chaincoind):
         now = int(time.time())
         resultset = self.select().where(
-            self.created_at >= (now - dashd.SENTINEL_WATCHDOG_MAX_SECONDS)
+            self.created_at >= (now - chaincoind.SENTINEL_WATCHDOG_MAX_SECONDS)
         )
         return resultset
 
     @classmethod
-    def expired(self, dashd):
+    def expired(self, chaincoind):
         now = int(time.time())
         resultset = self.select().where(
-            self.created_at < (now - dashd.SENTINEL_WATCHDOG_MAX_SECONDS)
+            self.created_at < (now - chaincoind.SENTINEL_WATCHDOG_MAX_SECONDS)
         )
         return resultset
 
-    def is_expired(self, dashd):
+    def is_expired(self, chaincoind):
         now = int(time.time())
-        return (self.created_at < (now - dashd.SENTINEL_WATCHDOG_MAX_SECONDS))
+        return (self.created_at < (now - chaincoind.SENTINEL_WATCHDOG_MAX_SECONDS))
 
-    def is_valid(self, dashd):
-        if self.is_expired(dashd):
+    def is_valid(self, chaincoind):
+        if self.is_expired(chaincoind):
             return False
 
         return True
 
-    def is_deletable(self, dashd):
-        if self.is_expired(dashd):
+    def is_deletable(self, chaincoind):
+        if self.is_expired(chaincoind):
             return True
 
         return False

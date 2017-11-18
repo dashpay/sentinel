@@ -31,7 +31,7 @@ def go_list_proposals():
          u'AbstainCount': 7,
          u'CollateralHash': u'acb67ec3f3566c9b94a26b70b36c1f74a010a37c0950c22d683cc50da324fdca',
          u'DataHex': u'5b5b2270726f706f73616c222c207b22656e645f65706f6368223a20323132323532303430302c20226e616d65223a20226465616e2d6d696c6c65722d35343933222c20227061796d656e745f61646472657373223a2022795965384b77796155753559737753596d4233713372797838585455753979375569222c20227061796d656e745f616d6f756e74223a2032352e37352c202273746172745f65706f6368223a20313437343236313038362c202274797065223a20312c202275726c223a2022687474703a2f2f6461736863656e7472616c2e6f72672f6465616e2d6d696c6c65722d35343933227d5d5d',
-         u'DataString': u'[["proposal", {"end_epoch": 2122520400, "name": "dean-miller-5493", "payment_address": "yYe8KwyaUu5YswSYmB3q3ryx8XTUu9y7Ui", "payment_amount": 25.75, "start_epoch": 1474261086, "type": 1, "url": "http://dashcentral.org/dean-miller-5493"}]]',
+         u'DataString': u'[["proposal", {"end_epoch": 2122520400, "name": "dean-miller-5493", "payment_address": "yYe8KwyaUu5YswSYmB3q3ryx8XTUu9y7Ui", "payment_amount": 25.75, "start_epoch": 1474261086, "type": 1, "url": "http://chaincoincentral.org/dean-miller-5493"}]]',
          u'Hash': u'dfd7d63979c0b62456b63d5fc5306dbec451180adee85876cbf5b28c69d1a86c',
          u'IsValidReason': u'',
          u'NoCount': 25,
@@ -45,7 +45,7 @@ def go_list_proposals():
          u'AbstainCount': 29,
          u'CollateralHash': u'3efd23283aa98c2c33f80e4d9ed6f277d195b72547b6491f43280380f6aac810',
          u'DataHex': u'5b5b2270726f706f73616c222c207b22656e645f65706f6368223a20323132323532303430302c20226e616d65223a20226665726e616e64657a2d37363235222c20227061796d656e745f61646472657373223a2022795443363268755234595145506e39414a486a6e517878726548536267416f617456222c20227061796d656e745f616d6f756e74223a2033322e30312c202273746172745f65706f6368223a20313437343236313038362c202274797065223a20312c202275726c223a2022687474703a2f2f6461736863656e7472616c2e6f72672f6665726e616e64657a2d37363235227d5d5d',
-         u'DataString': u'[["proposal", {"end_epoch": 2122520400, "name": "fernandez-7625", "payment_address": "yTC62huR4YQEPn9AJHjnQxxreHSbgAoatV", "payment_amount": 32.01, "start_epoch": 1474261086, "type": 1, "url": "http://dashcentral.org/fernandez-7625"}]]',
+         u'DataString': u'[["proposal", {"end_epoch": 2122520400, "name": "fernandez-7625", "payment_address": "yTC62huR4YQEPn9AJHjnQxxreHSbgAoatV", "payment_amount": 32.01, "start_epoch": 1474261086, "type": 1, "url": "http://chaincoincentral.org/fernandez-7625"}]]',
          u'Hash': u'0523445762025b2e01a2cd34f1d10f4816cf26ee1796167e5b029901e5873630',
          u'IsValidReason': u'',
          u'NoCount': 56,
@@ -123,8 +123,8 @@ def superblock():
 
 
 def test_superblock_is_valid(superblock):
-    from dashd import DashDaemon
-    dashd = DashDaemon.from_dash_conf(config.dash_conf)
+    from chaincoind import ChaincoinDaemon
+    chaincoind = ChaincoinDaemon.from_chaincoin_conf(config.chaincoin_conf)
 
     orig = Superblock(**superblock.get_dict())  # make a copy
 
@@ -211,16 +211,16 @@ def test_serialisable_fields():
 
 
 def test_deterministic_superblock_creation(go_list_proposals):
-    import dashlib
+    import chaincoinlib
     import misc
-    from dashd import DashDaemon
-    dashd = DashDaemon.from_dash_conf(config.dash_conf)
+    from chaincoind import ChaincoinDaemon
+    chaincoind = ChaincoinDaemon.from_chaincoin_conf(config.chaincoin_conf)
     for item in go_list_proposals:
-        (go, subobj) = GovernanceObject.import_gobject_from_dashd(dashd, item)
+        (go, subobj) = GovernanceObject.import_gobject_from_chaincoind(chaincoind, item)
 
     max_budget = 60
     prop_list = Proposal.approved_and_ranked(proposal_quorum=1, next_superblock_max_budget=max_budget)
-    sb = dashlib.create_superblock(prop_list, 72000, budget_max=max_budget, sb_epoch_time=misc.now())
+    sb = chaincoinlib.create_superblock(prop_list, 72000, budget_max=max_budget, sb_epoch_time=misc.now())
 
     assert sb.event_block_height == 72000
     assert sb.payment_addresses == 'yYe8KwyaUu5YswSYmB3q3ryx8XTUu9y7Ui|yTC62huR4YQEPn9AJHjnQxxreHSbgAoatV'
@@ -231,11 +231,11 @@ def test_deterministic_superblock_creation(go_list_proposals):
 
 
 def test_deterministic_superblock_selection(go_list_superblocks):
-    from dashd import DashDaemon
-    dashd = DashDaemon.from_dash_conf(config.dash_conf)
+    from chaincoind import ChaincoinDaemon
+    chaincoind = ChaincoinDaemon.from_chaincoin_conf(config.chaincoin_conf)
 
     for item in go_list_superblocks:
-        (go, subobj) = GovernanceObject.import_gobject_from_dashd(dashd, item)
+        (go, subobj) = GovernanceObject.import_gobject_from_chaincoind(chaincoind, item)
 
     # highest hash wins if same -- so just order by hash
     sb = Superblock.find_highest_deterministic('22a5f429c5ffb2b79b1b30c3ac30751284e3efa4e710bc7fd35fbe7456b1e485')
