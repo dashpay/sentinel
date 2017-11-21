@@ -34,7 +34,7 @@ class ChaincoinConfig():
         creds = {key: value for (key, value) in match}
 
         # standard Chaincoin defaults...
-        default_port = 9998 if (network == 'mainnet') else 19998
+        default_port = 11995 if (network == 'mainnet') else 21995
 
         # use default port for network if not specified in chaincoin.conf
         if not ('port' in creds):
