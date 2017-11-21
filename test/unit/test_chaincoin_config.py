@@ -6,13 +6,13 @@ os.environ['SENTINEL_CONFIG'] = os.path.normpath(os.path.join(os.path.dirname(__
 os.environ['SENTINEL_ENV'] = 'test'
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../lib')))
 import config
-from dash_config import DashConfig
+from chaincoin_config import ChaincoinConfig
 
 
 @pytest.fixture
-def dash_conf(**kwargs):
+def chaincoin_conf(**kwargs):
     defaults = {
-        'rpcuser': 'dashrpc',
+        'rpcuser': 'chaincoinrpc',
         'rpcpassword': 'EwJeV3fZTyTVozdECF627BkBMnNDwQaVLakG3A4wXYyk',
         'rpcport': 29241,
     }
@@ -34,35 +34,35 @@ rpcport={rpcport}
 
 
 def test_get_rpc_creds():
-    dash_config = dash_conf()
-    creds = DashConfig.get_rpc_creds(dash_config, 'testnet')
+    chaincoin_config = chaincoin_conf()
+    creds = ChaincoinConfig.get_rpc_creds(chaincoin_config, 'testnet')
 
     for key in ('user', 'password', 'port'):
         assert key in creds
-    assert creds.get('user') == 'dashrpc'
+    assert creds.get('user') == 'chaincoinrpc'
     assert creds.get('password') == 'EwJeV3fZTyTVozdECF627BkBMnNDwQaVLakG3A4wXYyk'
     assert creds.get('port') == 29241
 
-    dash_config = dash_conf(rpcpassword='s00pers33kr1t', rpcport=8000)
-    creds = DashConfig.get_rpc_creds(dash_config, 'testnet')
+    chaincoin_config = chaincoin_conf(rpcpassword='s00pers33kr1t', rpcport=8000)
+    creds = ChaincoinConfig.get_rpc_creds(chaincoin_config, 'testnet')
 
     for key in ('user', 'password', 'port'):
         assert key in creds
-    assert creds.get('user') == 'dashrpc'
+    assert creds.get('user') == 'chaincoinrpc'
     assert creds.get('password') == 's00pers33kr1t'
     assert creds.get('port') == 8000
 
-    no_port_specified = re.sub('\nrpcport=.*?\n', '\n', dash_conf(), re.M)
-    creds = DashConfig.get_rpc_creds(no_port_specified, 'testnet')
+    no_port_specified = re.sub('\nrpcport=.*?\n', '\n', chaincoin_conf(), re.M)
+    creds = ChaincoinConfig.get_rpc_creds(no_port_specified, 'testnet')
 
     for key in ('user', 'password', 'port'):
         assert key in creds
-    assert creds.get('user') == 'dashrpc'
+    assert creds.get('user') == 'chaincoinrpc'
     assert creds.get('password') == 'EwJeV3fZTyTVozdECF627BkBMnNDwQaVLakG3A4wXYyk'
-    assert creds.get('port') == 19998
+    assert creds.get('port') == 21995
 
 
-# ensure dash network (mainnet, testnet) matches that specified in config
-# requires running dashd on whatever port specified...
+# ensure chaincoin network (mainnet, testnet) matches that specified in config
+# requires running chaincoind on whatever port specified...
 #
-# This is more of a dashd/jsonrpc test than a config test...
+# This is more of a chaincoind/jsonrpc test than a config test...
