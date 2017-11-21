@@ -2,7 +2,7 @@
 
 An all-powerful toolset for Chaincoin.
 
-[![Build Status](https://travis-ci.org/ChainCoinUnlimited/sentinel.svg?branch=dev_chaincoin)](https://travis-ci.org/ChainCoinUnlimited/sentinel)
+[![Build Status](https://travis-ci.org/ChainCoinUnlimited/sentinel.svg?branch=Chaincoin_dev)](https://travis-ci.org/ChainCoinUnlimited/sentinel)
 
 Sentinel is an autonomous agent for persisting, processing and automating Chaincoin V12.1 governance objects and tasks, and for expanded functions in the upcoming Chaincoin V13 release (Evolution).
 
