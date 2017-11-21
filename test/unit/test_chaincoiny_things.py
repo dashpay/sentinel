@@ -136,5 +136,5 @@ def test_blocks_to_seconds():
     precision = Decimal('0.001')
     assert Decimal(chaincoinlib.blocks_to_seconds(0)) == Decimal(0.0)
     assert Decimal(chaincoinlib.blocks_to_seconds(2)).quantize(precision) \
-        == Decimal(314.4).quantize(precision)
-    assert int(chaincoinlib.blocks_to_seconds(16616)) == 2612035
+        == Decimal(180).quantize(precision)
+    assert int(chaincoinlib.blocks_to_seconds(16616)) == 1495440
