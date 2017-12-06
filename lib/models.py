@@ -82,11 +82,14 @@ class GovernanceObject(BaseModel):
             for purged in self.purged_network_objects(list(golist.keys())):
                 # SOMEDAY: possible archive step here
                 purged.delete_instance(recursive=True, delete_nullable=True)
-
-            for item in golist.values():
-                (go, subobj) = self.import_gobject_from_dashd(dashd, item)
         except Exception as e:
-            printdbg("Got an error upon import: %s" % e)
+            printdbg("Got an error while purging: %s" %e)
+
+        for item in golist.values():
+            try:
+                (go, subobj) = self.import_gobject_from_dashd(dashd, item)
+            except Exception as e:
+                printdbg("Got an error upon import: %s" % e)
 
     @classmethod
     def purged_network_objects(self, network_object_hashes):
