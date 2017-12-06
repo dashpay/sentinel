@@ -11,8 +11,6 @@ import binascii
 from misc import printdbg, epoch2str
 import time
 
-MAX_GOVERNANCE_OBJECT_DATA_SIZE = 16 * 1024
-
 
 def is_valid_dash_address(address, network='mainnet'):
     # Only public key addresses are allowed
@@ -168,7 +166,7 @@ def create_superblock(proposals, event_block_height, budget_max, sb_epoch_time, 
 
         data_length += 2 * (len(payment['address']) + len(payment['amount']) + len(payment['proposal']) + 3)
 
-        if data_length > MAX_GOVERNANCE_OBJECT_DATA_SIZE:
+        if data_length > maxgovobjdatasize:
             printdbg("MAX_GOVERNANCE_OBJECT_DATA_SIZE limit reached!")
             break
 

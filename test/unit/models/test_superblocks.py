@@ -220,7 +220,9 @@ def test_deterministic_superblock_creation(go_list_proposals):
 
     max_budget = 60
     prop_list = Proposal.approved_and_ranked(proposal_quorum=1, next_superblock_max_budget=max_budget)
-    maxgovobjdatasize = dashd.govinfo['maxgovobjdatasize']
+
+    # MAX_GOVERNANCE_OBJECT_DATA_SIZE defined in governance-object.h
+    maxgovobjdatasize = 16 * 1024
     sb = dashlib.create_superblock(prop_list, 72000, max_budget, misc.now(), maxgovobjdatasize)
 
     assert sb.event_block_height == 72000
