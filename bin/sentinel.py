@@ -111,7 +111,8 @@ def attempt_superblock_creation(dashd):
     sb_epoch_time = dashd.block_height_to_epoch(event_block_height)
 
     maxgovobjdatasize = dashd.govinfo['maxgovobjdatasize']
-    sb = dashlib.create_superblock(proposals, event_block_height, budget_max, sb_epoch_time, maxgovobjdatasize)
+    testnet = dashd.is_testnet()
+    sb = dashlib.create_superblock(proposals, event_block_height, budget_max, sb_epoch_time, maxgovobjdatasize, testnet)
     if not sb:
         printdbg("No superblock created, sorry. Returning.")
         return
