@@ -83,7 +83,7 @@ class GovernanceObject(BaseModel):
                 # SOMEDAY: possible archive step here
                 purged.delete_instance(recursive=True, delete_nullable=True)
         except Exception as e:
-            printdbg("Got an error while purging: %s" %e)
+            printdbg("Got an error while purging: %s" % e)
 
         for item in golist.values():
             try:
