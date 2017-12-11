@@ -223,8 +223,7 @@ def test_deterministic_superblock_creation(go_list_proposals):
 
     # MAX_GOVERNANCE_OBJECT_DATA_SIZE defined in governance-object.h
     maxgovobjdatasize = 16 * 1024
-    testnet = True
-    sb = dashlib.create_superblock(prop_list, 72000, max_budget, misc.now(), maxgovobjdatasize, testnet)
+    sb = dashlib.create_superblock(prop_list, 72000, max_budget, misc.now(), maxgovobjdatasize)
 
     assert sb.event_block_height == 72000
     assert sb.payment_addresses == 'yYe8KwyaUu5YswSYmB3q3ryx8XTUu9y7Ui|yTC62huR4YQEPn9AJHjnQxxreHSbgAoatV'
