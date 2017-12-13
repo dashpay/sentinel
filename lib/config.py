@@ -30,6 +30,10 @@ def get_network():
     return sentinel_cfg.get('network', 'mainnet')
 
 
+def get_rpchost():
+    return sentinel_cfg.get('rpchost', '127.0.0.1')
+
+
 def sqlite_test_db_name(sqlite_file_path):
     (root, ext) = os.path.splitext(sqlite_file_path)
     test_sqlite_file_path = root + '_test' + ext
@@ -81,4 +85,5 @@ def get_db_conn():
 
 dash_conf = get_dash_conf()
 network = get_network()
+rpc_host = get_rpchost()
 db = get_db_conn()
