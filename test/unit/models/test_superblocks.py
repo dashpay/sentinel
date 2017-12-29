@@ -233,6 +233,32 @@ def test_deterministic_superblock_creation(go_list_proposals):
     assert sb.hex_hash() == '5534e9fa4a51423820b9e19fa6d4770c12ea0a5663e8adff8223f5e8b6df641c'
 
 
+def test_superblock_size_limit(go_list_proposals):
+    import dashlib
+    import misc
+    from dashd import DashDaemon
+    dashd = DashDaemon.from_dash_conf(config.dash_conf)
+    for item in go_list_proposals:
+        (go, subobj) = GovernanceObject.import_gobject_from_dashd(dashd, item)
+
+    max_budget = 60
+    prop_list = Proposal.approved_and_ranked(proposal_quorum=1, next_superblock_max_budget=max_budget)
+
+    maxgovobjdatasize = 469
+    sb = dashlib.create_superblock(prop_list, 72000, max_budget, misc.now(), maxgovobjdatasize)
+
+    # two proposals in the list, but...
+    assert len(prop_list) == 2
+
+    # only one should have been included in the SB, because the 2nd one is over the limit
+    assert sb.event_block_height == 72000
+    assert sb.payment_addresses == 'yYe8KwyaUu5YswSYmB3q3ryx8XTUu9y7Ui'
+    assert sb.payment_amounts == '25.75000000'
+    assert sb.proposal_hashes == 'dfd7d63979c0b62456b63d5fc5306dbec451180adee85876cbf5b28c69d1a86c'
+
+    assert sb.hex_hash() == '94fa588f7da02a6bacdfe22a33bfc2d6e7d7d928dcb6443b3904c3c9aaf9d12b'
+
+
 def test_deterministic_superblock_selection(go_list_superblocks):
     from dashd import DashDaemon
     dashd = DashDaemon.from_dash_conf(config.dash_conf)
