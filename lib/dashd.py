@@ -139,6 +139,7 @@ class DashDaemon():
 
         return next_superblock_max_budget
 
+    '''
     # "my" votes refers to the current running masternode
     # memoized on a per-run, per-object_hash basis
     def get_my_gobject_votes(self, object_hash):
@@ -153,6 +154,17 @@ class DashDaemon():
             (txid, vout_index) = my_vin.split('-')
 
             cmd = ['gobject', 'getcurrentvotes', object_hash, txid, vout_index]
+            raw_votes = self.rpc_command(*cmd)
+            self.gobject_votes[object_hash] = dashlib.parse_raw_votes(raw_votes)
+
+        return self.gobject_votes[object_hash]
+    '''
+
+    def get_gobject_votes(self, object_hash):
+        import dashlib
+        if not self.gobject_votes.get(object_hash):
+
+            cmd = ['gobject', 'getcurrentvotes', object_hash]
             raw_votes = self.rpc_command(*cmd)
             self.gobject_votes[object_hash] = dashlib.parse_raw_votes(raw_votes)
 
