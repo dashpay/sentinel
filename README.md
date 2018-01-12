@@ -8,7 +8,7 @@ Sentinel is an autonomous agent for persisting, processing and automating Dash V
 
 Sentinel is implemented as a Python application that binds to a local version 12.1 dashd instance on each Dash V12.1 Masternode.
 
-This guide covers installing Sentinel onto an existing 12.1 Masternode in Ubuntu 14.04 / 16.04.
+This guide covers installing Sentinel onto an existing 12.1 Dash Node in Ubuntu 14.04 / 16.04.
 
 ## Installation
 
