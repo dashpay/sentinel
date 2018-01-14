@@ -1,6 +1,6 @@
 # Dash Sentinel Data Engine
 
-An all-powerful tool for pulling governance Dash from the blockchain and saving it into a structure data format (SQLite).
+An all-powerful tool for pulling governance data from the Dash blockchain and saving it into a structure data format (SQLite).
 
 [![Build Status](https://travis-ci.org/dashpay/sentinel.svg?branch=master)](https://travis-ci.org/dashpay/sentinel)
 
