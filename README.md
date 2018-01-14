@@ -1,14 +1,12 @@
-# Dash Sentinel
+# Dash Sentinel Data Engine
 
-An all-powerful toolset for Dash.
+An all-powerful tool for pulling governance Dash from the blockchain and saving it into a structure data format (SQLite).
 
 [![Build Status](https://travis-ci.org/dashpay/sentinel.svg?branch=master)](https://travis-ci.org/dashpay/sentinel)
 
-Sentinel is an autonomous agent for persisting, processing and automating Dash V12.1 governance objects and tasks, and for expanded functions in the upcoming Dash V13 release (Evolution).
+Sentinel is implemented as a Python application that binds to a local version 12.1 dashd instance on a non-masternode system.
 
-Sentinel is implemented as a Python application that binds to a local version 12.1 dashd instance on each Dash V12.1 Masternode.
-
-This guide covers installing Sentinel onto an existing 12.1 Dash Node in Ubuntu 14.04 / 16.04.
+This guide covers installing Sentinel Data Engine onto an existing 12.1 Dash Node in Ubuntu 14.04 / 16.04.
 
 ## Installation
 
@@ -45,11 +43,6 @@ In the crontab editor, add the lines below, replacing '/home/YOURUSERNAME/sentin
 
     * * * * * cd /home/YOURUSERNAME/sentinel && ./venv/bin/python bin/sentinel.py >/dev/null 2>&1
 
-### 4. Test the Configuration
-
-Test the config by runnings all tests from the sentinel folder you cloned into
-
-    $ ./venv/bin/py.test ./test
 
 With all tests passing and crontab setup, Sentinel will stay in sync with dashd and the installation is complete
 
