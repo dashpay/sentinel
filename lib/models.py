@@ -71,6 +71,10 @@ class GovernanceObject(BaseModel):
     no_count = IntegerField(default=0)
     abstain_count = IntegerField(default=0)
     absolute_yes_count = IntegerField(default=0)
+    name = CharField(max_length=64)
+    payment_address = CharField(max_length=35)
+    payment_amount = DecimalField(default=0.0)
+    url = CharField(max_length=100)
 
     class Meta:
         db_table = 'governance_objects'
@@ -106,15 +110,11 @@ class GovernanceObject(BaseModel):
 
         object_hex = rec['DataHex']
         object_hash = rec['Hash']
-        object_string = rec['DataString']
+        object_string = rec['DataString'][13:-2]
+        object_dikt = simplejson.loads(object_string)
 
-        try:
-            object_dict = simplejson.dumps(object_string)
-            print(object_dict.keys())
-            print(object_dict)
-            pdb.set_trace()
-        except:
-            print("Failed to load data into simplejson.dumps")
+        #object_dict = simplejson.loads(object_string)
+        #print(type(object_dict))
 
         gobj_dict = {
             'object_hash': object_hash,
@@ -123,7 +123,11 @@ class GovernanceObject(BaseModel):
             'abstain_count': rec['AbstainCount'],
             'yes_count': rec['YesCount'],
             'no_count': rec['NoCount'],
-            'creation_time': rec['CreationTime']
+            'name': object_dikt['name'],
+            'payment_address': object_dikt['payment_address'],
+            'payment_amount': object_dikt['payment_amount'],
+            'url': object_dikt['url'],
+
         }
 
         # shim/dashd conversion
@@ -156,14 +160,12 @@ class GovernanceObject(BaseModel):
             newdikt = subdikt.copy()
             newdikt['object_hash'] = object_hash
             if subclass(**newdikt).is_valid() is False:
-                govobj.vote_delete(dashd)
                 return (govobj, None)
 
             subobj, created = subclass.get_or_create(object_hash=object_hash, defaults=subdikt)
         except Exception as e:
             # in this case, vote as delete, and log the vote in the DB
             printdbg("Got invalid object from dashd! %s" % e)
-            govobj.vote_delete(dashd)
             return (govobj, None)
 
         if created:
