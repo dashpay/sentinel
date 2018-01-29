@@ -163,7 +163,7 @@ class GovernanceObject(BaseModel):
         subdikt['governance_object'] = govobj
 
         # Sync network votes
-        self.sync_network_vote(govobj ,2)
+        self.sync_network_vote(govobj, dashd, VoteSignals.funding)
 
         # get/create, then sync payment amounts, etc. from dashd - Dashd is the master
         try:
