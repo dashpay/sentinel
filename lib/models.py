@@ -94,6 +94,8 @@ class GovernanceObject(BaseModel):
 
             for item in golist.values():
                 (go, subobj) = self.import_gobject_from_dashd(dashd, item)
+                self.sync_network_vote(dashd, 2)
+
         except Exception as e:
             printdbg("Got an error upon import: %s" % e)
 
