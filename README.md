@@ -1,12 +1,10 @@
-# Dash Sentinel Data Engine
+# Dash Sensei Data Engine
 
 An all-powerful tool for pulling governance data from the Dash blockchain and saving it into a structured data format (SQLite).
 
-[![Build Status](https://travis-ci.org/dashpay/sentinel.svg?branch=master)](https://travis-ci.org/dashpay/sentinel)
+Sensei is implemented as a Python application that binds to a local version 12.1 dashd instance on a non-masternode system.
 
-Sentinel is implemented as a Python application that binds to a local version 12.1 dashd instance on a non-masternode system.
-
-This guide covers installing Sentinel Data Engine onto an existing 12.1 Dash Node in Ubuntu 14.04 / 16.04.
+This guide covers installing the Sensei Data Engine onto an existing 12.1 Dash Node in Ubuntu 14.04 / 16.04.
 
 ## Installation
 
@@ -29,7 +27,7 @@ Make sure the local Dash daemon running is at least version 12.1 (120100)
 
 Clone the Sentinel repo and install Python dependencies.
 
-    $ git clone https://github.com/jhodges10/sentinel && cd sentinel
+    $ git clone https://github.com/jhodges10/sensei && cd sensei
     $ virtualenv ./venv
     $ ./venv/bin/pip install -r requirements.txt
 
