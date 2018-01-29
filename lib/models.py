@@ -117,12 +117,7 @@ class GovernanceObject(BaseModel):
             'abstain_count': rec['AbstainCount'],
             'yes_count': rec['YesCount'],
             'no_count': rec['NoCount'],
-            'creation_time': rec['CreationTime'],
-            'fLocalValidity': rec['fLocalValidity'],
-            'IsValidReason': rec['IsValidReason'],
-            'fCachedValid': rec['fCachedValid'],
-            'fCachedFunding': rec['fCachedFunding'],
-            'fCachedDelete': rec['fCachedDelete'],
+            'creation_time': rec['CreationTime']
         }
 
         # shim/dashd conversion
