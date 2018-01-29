@@ -24,6 +24,9 @@ except ImportError:
 # our mixin
 from governance_class import GovernanceClass
 
+# Adding in special sauce
+import pdb
+
 db = config.db
 db.connect()
 
@@ -107,6 +110,9 @@ class GovernanceObject(BaseModel):
 
         try:
             object_dict = simplejson.dumps(object_string)
+            print(object_dict.keys())
+            print(object_dict)
+            pdb.set_trace()
         except:
             print("Failed to load data into simplejson.dumps")
 
