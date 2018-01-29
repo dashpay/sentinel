@@ -223,7 +223,7 @@ class GovernanceObject(BaseModel):
                 continue
 
             printdbg('\tFound a matching valid vote on the network, outcome = %s' % vdikt['outcome'])
-            Vote(governance_object=self, signal=signal, outcome=outcome,
+            Vote(governance_object=self, masternode_outpoint = vote_info['mn_collateral_outpoint'], signal=signal, outcome=outcome,
                  object_hash=self.object_hash).save()
 
     def voted_on(self, **kwargs):
@@ -580,6 +580,7 @@ class Vote(BaseModel):
     governance_object = ForeignKeyField(GovernanceObject, related_name='votes', on_delete='CASCADE', on_update='CASCADE')
     signal = ForeignKeyField(Signal, related_name='votes', on_delete='CASCADE', on_update='CASCADE')
     outcome = ForeignKeyField(Outcome, related_name='votes', on_delete='CASCADE', on_update='CASCADE')
+    masternode_outpoint = CharField(max_length=64)
     voted_at = DateTimeField(default=datetime.datetime.utcnow())
     created_at = DateTimeField(default=datetime.datetime.utcnow())
     updated_at = DateTimeField(default=datetime.datetime.utcnow())
