@@ -103,6 +103,10 @@ class GovernanceObject(BaseModel):
 
         object_hex = rec['DataHex']
         object_hash = rec['Hash']
+        object_string = rec['DataString']
+
+        for parameter in object_string:
+            print(parameter)
 
         gobj_dict = {
             'object_hash': object_hash,
@@ -111,6 +115,12 @@ class GovernanceObject(BaseModel):
             'abstain_count': rec['AbstainCount'],
             'yes_count': rec['YesCount'],
             'no_count': rec['NoCount'],
+            'creation_time': rec['CreationTime'],
+            'fLocalValidity': rec['fLocalValidity'],
+            'IsValidReason': rec['IsValidReason'],
+            'fCachedValid': rec['fCachedValid'],
+            'fCachedFunding': rec['fCachedFunding'],
+            'fCachedDelete': rec['fCachedDelete'],
         }
 
         # shim/dashd conversion
@@ -161,60 +171,6 @@ class GovernanceObject(BaseModel):
 
         # ATM, returns a tuple w/gov attributes and the govobj
         return (govobj, subobj)
-
-    def vote_delete(self, dashd):
-        if not self.voted_on(signal=VoteSignals.delete, outcome=VoteOutcomes.yes):
-            self.vote(dashd, VoteSignals.delete, VoteOutcomes.yes)
-        return
-
-    def get_vote_command(self, signal, outcome):
-        cmd = ['gobject', 'vote-conf', self.object_hash,
-               signal.name, outcome.name]
-        return cmd
-
-    def vote(self, dashd, signal, outcome):
-        import dashlib
-
-        # At this point, will probably never reach here. But doesn't hurt to
-        # have an extra check just in case objects get out of sync (people will
-        # muck with the DB).
-        if (self.object_hash == '0' or not misc.is_hash(self.object_hash)):
-            printdbg("No governance object hash, nothing to vote on.")
-            return
-
-        # have I already voted on this gobject with this particular signal and outcome?
-        if self.voted_on(signal=signal):
-            printdbg("Found a vote for this gobject/signal...")
-            vote = self.votes.where(Vote.signal == signal)[0]
-
-            # if the outcome is the same, move on, nothing more to do
-            if vote.outcome == outcome:
-                # move on.
-                printdbg("Already voted for this same gobject/signal/outcome, no need to re-vote.")
-                return
-            else:
-                printdbg("Found a STALE vote for this gobject/signal, deleting so that we can re-vote.")
-                vote.delete_instance()
-
-        else:
-            printdbg("Haven't voted on this gobject/signal yet...")
-
-        # now ... vote!
-
-        vote_command = self.get_vote_command(signal, outcome)
-        printdbg(' '.join(vote_command))
-        output = dashd.rpc_command(*vote_command)
-
-        # extract vote output parsing to external lib
-        voted = dashlib.did_we_vote(output)
-
-        if voted:
-            printdbg('VOTE success, saving Vote object to database')
-            Vote(governance_object=self, signal=signal, outcome=outcome,
-                 object_hash=self.object_hash).save()
-        else:
-            printdbg('VOTE failed, trying to sync with network vote')
-            self.sync_network_vote(dashd, signal)
 
     ''' # Modified below, here is saved the original
     def sync_network_vote(self, dashd, signal):
@@ -606,6 +562,7 @@ class Vote(BaseModel):
     governance_object = ForeignKeyField(GovernanceObject, related_name='votes', on_delete='CASCADE', on_update='CASCADE')
     signal = ForeignKeyField(Signal, related_name='votes', on_delete='CASCADE', on_update='CASCADE')
     outcome = ForeignKeyField(Outcome, related_name='votes', on_delete='CASCADE', on_update='CASCADE')
+    signal = ForeignKeyField(Signal, related_name='votes', on_delete='CASCADE', on_update='CASCADE')
     voted_at = DateTimeField(default=datetime.datetime.utcnow())
     created_at = DateTimeField(default=datetime.datetime.utcnow())
     updated_at = DateTimeField(default=datetime.datetime.utcnow())

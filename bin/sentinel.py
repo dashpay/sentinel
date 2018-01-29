@@ -24,42 +24,6 @@ def perform_dashd_object_sync(dashd):
     GovernanceObject.sync(dashd)
 
 
-# delete old watchdog objects, create new when necessary
-def watchdog_check(dashd):
-    printdbg("in watchdog_check")
-
-    # delete expired watchdogs
-    for wd in Watchdog.expired(dashd):
-        printdbg("\tFound expired watchdog [%s], voting to delete" % wd.object_hash)
-        wd.vote(dashd, VoteSignals.delete, VoteOutcomes.yes)
-
-    # now, get all the active ones...
-    active_wd = Watchdog.active(dashd)
-    active_count = active_wd.count()
-
-    # none exist, submit a new one to the network
-    if 0 == active_count:
-        # create/submit one
-        printdbg("\tNo watchdogs exist... submitting new one.")
-        wd = Watchdog(created_at=int(time.time()))
-        wd.submit(dashd)
-
-    else:
-        wd_list = sorted(active_wd, key=lambda wd: wd.object_hash)
-
-        # highest hash wins
-        winner = wd_list.pop()
-        printdbg("\tFound winning watchdog [%s], voting VALID" % winner.object_hash)
-        winner.vote(dashd, VoteSignals.valid, VoteOutcomes.yes)
-
-        # if remaining Watchdogs exist in the list, vote delete
-        for wd in wd_list:
-            printdbg("\tFound losing watchdog [%s], voting DELETE" % wd.object_hash)
-            wd.vote(dashd, VoteSignals.delete, VoteOutcomes.yes)
-
-    printdbg("leaving watchdog_check")
-
-
 def prune_expired_proposals(dashd):
     # vote delete for old proposals
     for proposal in Proposal.expired(dashd.superblockcycle()):
