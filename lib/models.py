@@ -210,9 +210,6 @@ class GovernanceObject(BaseModel):
         printdbg('\tsyncing network vote for object %s with signal %s' % (self.object_hash, signal.name))
         vote_info = dashd.get_gobject_votes(self.object_hash)
 
-        print(vote_info)
-        pdb.set_trace()
-
         for vdikt in vote_info:
             if vdikt['signal'] != signal.name:
                 continue
@@ -222,8 +219,9 @@ class GovernanceObject(BaseModel):
             if not outcome:
                 continue
 
+
             printdbg('\tFound a matching valid vote on the network, outcome = %s' % vdikt['outcome'])
-            Vote(governance_object=self, masternode_outpoint = vote_info['mn_collateral_outpoint'], signal=signal, outcome=outcome,
+            Vote(governance_object=self, masternode_outpoint = vdikt['mn_collateral_outpoint'], signal=signal, outcome=outcome,
                  object_hash=self.object_hash).save()
 
     def voted_on(self, **kwargs):
