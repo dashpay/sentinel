@@ -75,6 +75,8 @@ class GovernanceObject(BaseModel):
     payment_address = CharField(max_length=35)
     payment_amount = DecimalField(default=0.0)
     url = CharField(max_length=100)
+    start_epoch = IntegerField(default=int(time.time()))
+    end_epoch = IntegerField(default=int(time.time()))
 
     class Meta:
         db_table = 'governance_objects'
@@ -113,9 +115,6 @@ class GovernanceObject(BaseModel):
         object_string = rec['DataString'][13:-2]
         object_dikt = simplejson.loads(object_string)
 
-        #object_dict = simplejson.loads(object_string)
-        #print(type(object_dict))
-
         gobj_dict = {
             'object_hash': object_hash,
             'object_fee_tx': rec['CollateralHash'],
@@ -127,7 +126,8 @@ class GovernanceObject(BaseModel):
             'payment_address': object_dikt['payment_address'],
             'payment_amount': object_dikt['payment_amount'],
             'url': object_dikt['url'],
-
+            'start_epoch': object_dikt['start_epoch'],
+            'end_epoch': object_dikt['end_epoch']
         }
 
         # shim/dashd conversion
