@@ -132,6 +132,12 @@ class GovernanceObject(BaseModel):
             'end_epoch': object_dikt['end_epoch']
         }
 
+        # Check for comma instead of decimal before attempting to write to database as a decimal
+        if ',' in str(gobj_dict['payment_amount']):
+            gobj_dict.update({"payment_amount": str(gobj_dict["payment_amount"]).replace(',', '.')})
+        else:
+            pass
+
         # shim/dashd conversion
         object_hex = dashlib.SHIM_deserialise_from_dashd(object_hex)
         objects = dashlib.deserialise(object_hex)
