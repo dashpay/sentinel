@@ -94,7 +94,6 @@ class GovernanceObject(BaseModel):
 
             for item in golist.values():
                 (go, subobj) = self.import_gobject_from_dashd(dashd, item)
-                self.sync_network_vote(dashd, 2)
 
         except Exception as e:
             printdbg("Got an error upon import: %s" % e)
@@ -175,6 +174,9 @@ class GovernanceObject(BaseModel):
         count = subobj.update(**subdikt).where(subclass.id == subobj.id).execute()
         if count:
             printdbg("subobj updated = %d" % count)
+
+        # Sync network votes
+        self.sync_network_vote(object_hash,2)
 
         # ATM, returns a tuple w/gov attributes and the govobj
         return (govobj, subobj)
