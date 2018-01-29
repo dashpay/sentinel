@@ -100,9 +100,6 @@ class DashDaemon():
         # Returns the block height of the next superblock
         return self.last_superblock_height() + self.superblockcycle()
 
-    def is_masternode(self):
-        return not (self.get_current_masternode_vin() is None)
-
     def is_synced(self):
         mnsync_status = self.rpc_command('mnsync', 'status')
         synced = (mnsync_status['IsBlockchainSynced'] and

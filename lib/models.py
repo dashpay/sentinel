@@ -105,8 +105,10 @@ class GovernanceObject(BaseModel):
         object_hash = rec['Hash']
         object_string = rec['DataString']
 
-        for parameter in object_string:
-            print(parameter)
+        try:
+            object_dict = simplejson.dumps(object_string)
+        except:
+            print("Failed to load data into simplejson.dumps")
 
         gobj_dict = {
             'object_hash': object_hash,

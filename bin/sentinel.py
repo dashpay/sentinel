@@ -24,82 +24,6 @@ def perform_dashd_object_sync(dashd):
     GovernanceObject.sync(dashd)
 
 
-def prune_expired_proposals(dashd):
-    # vote delete for old proposals
-    for proposal in Proposal.expired(dashd.superblockcycle()):
-        proposal.vote(dashd, VoteSignals.delete, VoteOutcomes.yes)
-
-
-# ping dashd
-def sentinel_ping(dashd):
-    printdbg("in sentinel_ping")
-
-    dashd.ping()
-
-    printdbg("leaving sentinel_ping")
-
-
-def attempt_superblock_creation(dashd):
-    import dashlib
-
-    if not dashd.is_masternode():
-        print("We are not a Masternode... can't submit superblocks!")
-        return
-
-    # query votes for this specific ebh... if we have voted for this specific
-    # ebh, then it's voted on. since we track votes this is all done using joins
-    # against the votes table
-    #
-    # has this masternode voted on *any* superblocks at the given event_block_height?
-    # have we voted FUNDING=YES for a superblock for this specific event_block_height?
-
-    event_block_height = dashd.next_superblock_height()
-
-    if Superblock.is_voted_funding(event_block_height):
-        # printdbg("ALREADY VOTED! 'til next time!")
-
-        # vote down any new SBs because we've already chosen a winner
-        for sb in Superblock.at_height(event_block_height):
-            if not sb.voted_on(signal=VoteSignals.funding):
-                sb.vote(dashd, VoteSignals.funding, VoteOutcomes.no)
-
-        # now return, we're done
-        return
-
-    if not dashd.is_govobj_maturity_phase():
-        printdbg("Not in maturity phase yet -- will not attempt Superblock")
-        return
-
-    proposals = Proposal.approved_and_ranked(proposal_quorum=dashd.governance_quorum(), next_superblock_max_budget=dashd.next_superblock_max_budget())
-    budget_max = dashd.get_superblock_budget_allocation(event_block_height)
-    sb_epoch_time = dashd.block_height_to_epoch(event_block_height)
-
-    sb = dashlib.create_superblock(proposals, event_block_height, budget_max, sb_epoch_time)
-    if not sb:
-        printdbg("No superblock created, sorry. Returning.")
-        return
-
-    # find the deterministic SB w/highest object_hash in the DB
-    dbrec = Superblock.find_highest_deterministic(sb.hex_hash())
-    if dbrec:
-        dbrec.vote(dashd, VoteSignals.funding, VoteOutcomes.yes)
-
-        # any other blocks which match the sb_hash are duplicates, delete them
-        for sb in Superblock.select().where(Superblock.sb_hash == sb.hex_hash()):
-            if not sb.voted_on(signal=VoteSignals.funding):
-                sb.vote(dashd, VoteSignals.delete, VoteOutcomes.yes)
-
-        printdbg("VOTED FUNDING FOR SB! We're done here 'til next superblock cycle.")
-        return
-    else:
-        printdbg("The correct superblock wasn't found on the network...")
-
-    # if we are the elected masternode...
-    if (dashd.we_are_the_winner()):
-        printdbg("we are the winner! Submit SB to network")
-        sb.submit(dashd)
-
-
 def check_object_validity(dashd):
     # vote (in)valid objects
     for gov_class in [Proposal, Superblock]:
@@ -134,11 +58,6 @@ def main():
         print("dashd not synced with network! Awaiting full sync before running Sentinel.")
         return
 
-    # ensure valid masternode
-    # if not dashd.is_masternode():
-    #    print("Invalid Masternode Status, cannot continue.")
-    #    return
-
     # register a handler if SENTINEL_DEBUG is set
     if os.environ.get('SENTINEL_DEBUG', None):
         import logging
@@ -169,20 +88,8 @@ def main():
     # load "gobject list" rpc command data, sync objects into internal database
     perform_dashd_object_sync(dashd)
 
-    if dashd.has_sentinel_ping:
-        sentinel_ping(dashd)
-    else:
-        # delete old watchdog objects, create a new if necessary
-        watchdog_check(dashd)
-
     # auto vote network objects as valid/invalid
     # check_object_validity(dashd)
-
-    # vote to delete expired proposals
-    prune_expired_proposals(dashd)
-
-    # create a Superblock if necessary
-    attempt_superblock_creation(dashd)
 
     # schedule the next run
     Scheduler.schedule_next_run()
