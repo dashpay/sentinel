@@ -210,6 +210,8 @@ class GovernanceObject(BaseModel):
         printdbg('\tsyncing network vote for object %s with signal %s' % (self.object_hash, signal.name))
         vote_info = dashd.get_gobject_votes(self.object_hash)
 
+        print(vote_info)
+        pdb.set_trace()
 
         for vdikt in vote_info:
             if vdikt['signal'] != signal.name:
