@@ -162,6 +162,9 @@ class GovernanceObject(BaseModel):
             printdbg("govobj updated = %d" % count)
         subdikt['governance_object'] = govobj
 
+        # Sync network votes
+        self.sync_network_vote(govobj ,2)
+
         # get/create, then sync payment amounts, etc. from dashd - Dashd is the master
         try:
             newdikt = subdikt.copy()
@@ -181,8 +184,6 @@ class GovernanceObject(BaseModel):
         if count:
             printdbg("subobj updated = %d" % count)
 
-        # Sync network votes
-        self.sync_network_vote(object_hash,2)
 
         # ATM, returns a tuple w/gov attributes and the govobj
         return (govobj, subobj)
