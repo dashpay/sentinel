@@ -282,13 +282,18 @@ def did_we_vote(output):
 
 def parse_raw_votes(raw_votes):
     votes = []
-    for v in list(raw_votes.values()):
-        (outpoint, ntime, outcome, signal) = v.split(':')
+
+    for v in enumerate(raw_votes.keys()):
+        vote_hash = raw_votes[v]
+        (outpoint, ntime, outcome, signal) = raw_votes[vote].split(':')
         signal = signal.lower()
         outcome = outcome.lower()
 
+        # TODO figure out how to get the vote_hash here (only so that it matches previous stuff)
+
         mn_collateral_outpoint = parse_masternode_status_vin(outpoint)
         v = {
+            'vote_hash': vote_hash
             'mn_collateral_outpoint': mn_collateral_outpoint,
             'signal': signal,
             'outcome': outcome,
