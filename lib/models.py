@@ -8,7 +8,7 @@ import binascii
 import datetime
 import re
 import simplejson
-from peewee import IntegerField, CharField, TextField, ForeignKeyField, DecimalField, DateTimeField
+from peewee import IntegerField, CharField, TextField, ForeignKeyField, DecimalField, DateTimeField, BooleanField
 import peewee
 import playhouse.signals
 import misc
@@ -77,6 +77,8 @@ class GovernanceObject(BaseModel):
     url = CharField(max_length=100)
     start_epoch = IntegerField(default=int(time.time()))
     end_epoch = IntegerField(default=int(time.time()))
+    creation_time = IntegerField(default=int(time.time()))
+    fCachedValid = BooleanField(default=0)
 
     class Meta:
         db_table = 'governance_objects'
@@ -128,7 +130,10 @@ class GovernanceObject(BaseModel):
             'payment_amount': object_dikt['payment_amount'],
             'url': object_dikt['url'],
             'start_epoch': object_dikt['start_epoch'],
-            'end_epoch': object_dikt['end_epoch']
+            'end_epoch': object_dikt['end_epoch'],
+            'creation_time': rec['CreationTime'],
+            'fCachedValid': rec['fCachedValid'],
+            'fCachedFunding': rec['fCachedFunding']
         }
 
         # Check for comma instead of decimal before attempting to write to database as a decimal
