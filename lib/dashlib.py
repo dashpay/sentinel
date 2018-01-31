@@ -289,8 +289,6 @@ def parse_raw_votes(raw_votes):
         signal = signal.lower()
         outcome = outcome.lower()
 
-        # TODO figure out how to get the vote_hash here (only so that it matches previous stuff)
-
         mn_collateral_outpoint = parse_masternode_status_vin(outpoint)
         v = {
             'vote_hash': vote_hash
