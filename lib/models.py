@@ -79,6 +79,7 @@ class GovernanceObject(BaseModel):
     end_epoch = IntegerField(default=int(time.time()))
     creation_time = IntegerField(default=int(time.time()))
     fCachedValid = BooleanField(default=0)
+    fCachedFunding = BooleanField(default=0)
 
     class Meta:
         db_table = 'governance_objects'
