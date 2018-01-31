@@ -284,8 +284,8 @@ def parse_raw_votes(raw_votes):
     votes = []
 
     for count, v in enumerate(raw_votes.keys()):
-        vote_hash = raw_votes[v]
-        (outpoint, ntime, outcome, signal) = raw_votes[vote].split(':')
+        vote_hash = v
+        (outpoint, ntime, outcome, signal) = raw_votes[vote_hash].split(':')
         signal = signal.lower()
         outcome = outcome.lower()
 
