@@ -85,15 +85,10 @@ class GovernanceClass(object):
             print("Unable to submit: %s" % e.message)
 
     def serialise(self):
-        import inflection
         import binascii
         import simplejson
 
-        # 'proposal', 'superblock', etc.
-        name = self._meta.name
-        obj_type = inflection.singularize(name)
-
-        return binascii.hexlify(simplejson.dumps((obj_type, self.get_dict()), sort_keys=True).encode('utf-8')).decode('utf-8')
+        return binascii.hexlify(simplejson.dumps(self.get_dict(), sort_keys=True).encode('utf-8')).decode('utf-8')
 
     def dashd_serialise(self):
         import dashlib
@@ -120,5 +115,7 @@ class GovernanceClass(object):
 
         for field_name in self.serialisable_fields():
             dikt[field_name] = getattr(self, field_name)
+
+        dikt['type'] = getattr(self, 'govobj_type')
 
         return dikt

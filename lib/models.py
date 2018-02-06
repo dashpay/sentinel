@@ -34,6 +34,11 @@ DASHD_GOVOBJ_TYPES = {
     'superblock': 2,
     'watchdog': 3,
 }
+GOVOBJ_TYPE_STRINGS = {
+    1: 'proposal',
+    2: 'trigger',  # it should be trigger here, not superblock
+    3: 'watchdog',
+}
 
 # schema version follows format 'YYYYMMDD-NUM'.
 #
@@ -99,9 +104,7 @@ class GovernanceObject(BaseModel):
     def import_gobject_from_dashd(self, dashd, rec):
         import decimal
         import dashlib
-        import inflection
 
-        object_hex = rec['DataHex']
         object_hash = rec['Hash']
 
         gobj_dict = {
@@ -114,13 +117,20 @@ class GovernanceObject(BaseModel):
         }
 
         # shim/dashd conversion
-        object_hex = dashlib.SHIM_deserialise_from_dashd(object_hex)
-        objects = dashlib.deserialise(object_hex)
+        # eventually we'll remove the shim method entirely
+        dikt = dashlib.deserialise(
+            dashlib.SHIM_deserialise_from_dashd(
+                rec['DataHex']
+            )
+        )
         subobj = None
 
-        obj_type, dikt = objects[0:2:1]
-        obj_type = inflection.pluralize(obj_type)
-        subclass = self._meta.reverse_rel[obj_type].model_class
+        type_class_map = {
+            1: Proposal,
+            2: Superblock,
+            3: Watchdog,
+        }
+        subclass = type_class_map[dikt['type']]
 
         # set object_type in govobj table
         gobj_dict['object_type'] = subclass.govobj_type
