@@ -32,7 +32,7 @@ db.connect()
 DASHD_GOVOBJ_TYPES = {
     'proposal': 1,
     'superblock': 2,
-    'watchdog': 3,
+    'watchdog': 3,  # retain for historical purposes only
 }
 GOVOBJ_TYPE_STRINGS = {
     1: 'proposal',
@@ -605,50 +605,6 @@ class Vote(BaseModel):
         db_table = 'votes'
 
 
-class Watchdog(BaseModel, GovernanceClass):
-    governance_object = ForeignKeyField(GovernanceObject, related_name='watchdogs')
-    created_at = IntegerField()
-    object_hash = CharField(max_length=64)
-
-    govobj_type = DASHD_GOVOBJ_TYPES['watchdog']
-    only_masternode_can_submit = True
-
-    @classmethod
-    def active(self, dashd):
-        now = int(time.time())
-        resultset = self.select().where(
-            self.created_at >= (now - dashd.SENTINEL_WATCHDOG_MAX_SECONDS)
-        )
-        return resultset
-
-    @classmethod
-    def expired(self, dashd):
-        now = int(time.time())
-        resultset = self.select().where(
-            self.created_at < (now - dashd.SENTINEL_WATCHDOG_MAX_SECONDS)
-        )
-        return resultset
-
-    def is_expired(self, dashd):
-        now = int(time.time())
-        return (self.created_at < (now - dashd.SENTINEL_WATCHDOG_MAX_SECONDS))
-
-    def is_valid(self, dashd):
-        if self.is_expired(dashd):
-            return False
-
-        return True
-
-    def is_deletable(self, dashd):
-        if self.is_expired(dashd):
-            return True
-
-        return False
-
-    class Meta:
-        db_table = 'watchdogs'
-
-
 class Transient(object):
 
     def __init__(self, **kwargs):
@@ -756,8 +712,7 @@ def db_models():
         Superblock,
         Signal,
         Outcome,
-        Vote,
-        Watchdog
+        Vote
     ]
     return models
 
