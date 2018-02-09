@@ -92,7 +92,7 @@ def parse_masternode_status_vin(status_vin_string):
     return vin
 
 
-def create_superblock(proposals, event_block_height, budget_max, sb_epoch_time):
+def create_superblock(proposals, event_block_height, budget_max, sb_epoch_time, maxgovobjdatasize):
     from models import Superblock, GovernanceObject, Proposal
     from constants import SUPERBLOCK_FUDGE_WINDOW
 
@@ -105,6 +105,7 @@ def create_superblock(proposals, event_block_height, budget_max, sb_epoch_time):
     fudge = SUPERBLOCK_FUDGE_WINDOW  # fudge-factor to allow for slighly incorrect estimates
 
     payments = []
+
     for proposal in proposals:
         fmt_string = "name: %s, rank: %4d, hash: %s, amount: %s <= %s"
 
@@ -151,12 +152,25 @@ def create_superblock(proposals, event_block_height, budget_max, sb_epoch_time):
             )
         )
 
-        # else add proposal and keep track of total budget allocation
-        budget_allocated += proposal.payment_amount
-
         payment = {'address': proposal.payment_address,
                    'amount': "{0:.8f}".format(proposal.payment_amount),
                    'proposal': "{}".format(proposal.object_hash)}
+
+        # calculate current sb data size
+        sb_temp = Superblock(
+            event_block_height=event_block_height,
+            payment_addresses='|'.join([pd['address'] for pd in payments]),
+            payment_amounts='|'.join([pd['amount'] for pd in payments]),
+            proposal_hashes='|'.join([pd['proposal'] for pd in payments])
+        )
+        data_size = len(sb_temp.dashd_serialise())
+
+        if data_size > maxgovobjdatasize:
+            printdbg("MAX_GOVERNANCE_OBJECT_DATA_SIZE limit reached!")
+            break
+
+        # else add proposal and keep track of total budget allocation
+        budget_allocated += proposal.payment_amount
         payments.append(payment)
 
     # don't create an empty superblock
