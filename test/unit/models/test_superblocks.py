@@ -256,7 +256,7 @@ def test_superblock_size_limit(go_list_proposals):
     assert sb.payment_amounts == '25.75000000'
     assert sb.proposal_hashes == 'dfd7d63979c0b62456b63d5fc5306dbec451180adee85876cbf5b28c69d1a86c'
 
-    assert sb.hex_hash() == '94fa588f7da02a6bacdfe22a33bfc2d6e7d7d928dcb6443b3904c3c9aaf9d12b'
+    assert sb.hex_hash() == '6b8cababf797644f1d62003e4cc68c1c40a8c1873c8a68ed0fc88772ea77cc44'
 
 
 def test_deterministic_superblock_selection(go_list_superblocks):
