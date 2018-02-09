@@ -32,12 +32,10 @@ db.connect()
 DASHD_GOVOBJ_TYPES = {
     'proposal': 1,
     'superblock': 2,
-    'watchdog': 3,  # retain for historical purposes only
 }
 GOVOBJ_TYPE_STRINGS = {
     1: 'proposal',
     2: 'trigger',  # it should be trigger here, not superblock
-    3: 'watchdog',
 }
 
 # schema version follows format 'YYYYMMDD-NUM'.
@@ -128,7 +126,6 @@ class GovernanceObject(BaseModel):
         type_class_map = {
             1: Proposal,
             2: Superblock,
-            3: Watchdog,
         }
         subclass = type_class_map[dikt['type']]
 
