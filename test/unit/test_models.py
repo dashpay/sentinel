@@ -19,6 +19,7 @@ def test_proposal(proposal):
     assert isinstance(d, dict)
 
     fields = [
+        'type',
         'name',
         'url',
         'start_epoch',

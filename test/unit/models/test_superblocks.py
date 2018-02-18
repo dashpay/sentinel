@@ -230,7 +230,7 @@ def test_deterministic_superblock_creation(go_list_proposals):
     assert sb.payment_amounts == '25.75000000|32.01000000'
     assert sb.proposal_hashes == 'dfd7d63979c0b62456b63d5fc5306dbec451180adee85876cbf5b28c69d1a86c|0523445762025b2e01a2cd34f1d10f4816cf26ee1796167e5b029901e5873630'
 
-    assert sb.hex_hash() == '5534e9fa4a51423820b9e19fa6d4770c12ea0a5663e8adff8223f5e8b6df641c'
+    assert sb.hex_hash() == 'bb3f33ccf95415c396bd09d35325dbcbc7b067010d51c7ccf772a9e839c1e414'
 
 
 def test_superblock_size_limit(go_list_proposals):
@@ -256,7 +256,7 @@ def test_superblock_size_limit(go_list_proposals):
     assert sb.payment_amounts == '25.75000000'
     assert sb.proposal_hashes == 'dfd7d63979c0b62456b63d5fc5306dbec451180adee85876cbf5b28c69d1a86c'
 
-    assert sb.hex_hash() == '94fa588f7da02a6bacdfe22a33bfc2d6e7d7d928dcb6443b3904c3c9aaf9d12b'
+    assert sb.hex_hash() == '6b8cababf797644f1d62003e4cc68c1c40a8c1873c8a68ed0fc88772ea77cc44'
 
 
 def test_deterministic_superblock_selection(go_list_superblocks):
@@ -267,6 +267,5 @@ def test_deterministic_superblock_selection(go_list_superblocks):
         (go, subobj) = GovernanceObject.import_gobject_from_dashd(dashd, item)
 
     # highest hash wins if same -- so just order by hash
-    sb = Superblock.find_highest_deterministic('22a5f429c5ffb2b79b1b30c3ac30751284e3efa4e710bc7fd35fbe7456b1e485')
-
+    sb = Superblock.find_highest_deterministic('542f4433e438bdd64697b8381fda1a7a9b7a111c3a4e32fad524d1821d820394')
     assert sb.object_hash == 'bc2834f357da7504138566727c838e6ada74d079e63b6104701f4f8eb05dae36'

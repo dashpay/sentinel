@@ -193,54 +193,36 @@ def create_superblock(proposals, event_block_height, budget_max, sb_epoch_time, 
     return sb
 
 
-# shims 'til we can fix the dashd side
+# shims 'til we can fix the JSON format
 def SHIM_serialise_for_dashd(sentinel_hex):
-    from models import DASHD_GOVOBJ_TYPES
+    from models import GOVOBJ_TYPE_STRINGS
+
     # unpack
     obj = deserialise(sentinel_hex)
 
     # shim for dashd
-    govtype = obj[0]
-
-    # add 'type' attribute
-    obj[1]['type'] = DASHD_GOVOBJ_TYPES[govtype]
+    govtype_string = GOVOBJ_TYPE_STRINGS[obj['type']]
 
     # superblock => "trigger" in dashd
-    if govtype == 'superblock':
-        obj[0] = 'trigger'
+    if govtype_string == 'superblock':
+        govtype_string = 'trigger'
 
-    # dashd expects an array (even though there is only a 1:1 relationship between govobj->class)
-    obj = [obj]
+    # dashd expects an array (will be deprecated)
+    obj = [(govtype_string, obj,)]
 
     # re-pack
     dashd_hex = serialise(obj)
     return dashd_hex
 
 
-# shims 'til we can fix the dashd side
+# shims 'til we can fix the JSON format
 def SHIM_deserialise_from_dashd(dashd_hex):
-    from models import DASHD_GOVOBJ_TYPES
-
     # unpack
     obj = deserialise(dashd_hex)
 
-    # shim from dashd
-    # only one element in the array...
-    obj = obj[0]
+    # re-pack, extracting the single element (JSON object)
+    sentinel_hex = serialise(obj[0][1])
 
-    # extract the govobj type
-    govtype = obj[0]
-
-    # superblock => "trigger" in dashd
-    if govtype == 'trigger':
-        obj[0] = govtype = 'superblock'
-
-    # remove redundant 'type' attribute
-    if 'type' in obj[1]:
-        del obj[1]['type']
-
-    # re-pack
-    sentinel_hex = serialise(obj)
     return sentinel_hex
 
 
