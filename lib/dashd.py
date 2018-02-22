@@ -194,13 +194,13 @@ class DashDaemon():
         return (winner == my_vin)
 
     @property
-    def MASTERNODE_WATCHDOG_MAX_SECONDS(self):
+    def MASTERNODE_SENTINEL_PING_MAX_SECONDS(self):
         # note: self.govinfo is already memoized
-        return self.govinfo['masternodewatchdogmaxseconds']
+        return self.govinfo['sentinelpingmaxseconds']
 
     @property
-    def SENTINEL_WATCHDOG_MAX_SECONDS(self):
-        return (self.MASTERNODE_WATCHDOG_MAX_SECONDS // 2)
+    def SENTINEL_SENTINEL_PING_MAX_SECONDS(self):
+        return (self.MASTERNODE_SENTINEL_PING_MAX_SECONDS // 2)
 
     def estimate_block_time(self, height):
         import dashlib
