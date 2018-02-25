@@ -215,17 +215,6 @@ def SHIM_serialise_for_dashd(sentinel_hex):
     return dashd_hex
 
 
-# shims 'til we can fix the JSON format
-def SHIM_deserialise_from_dashd(dashd_hex):
-    # unpack
-    obj = deserialise(dashd_hex)
-
-    # re-pack, extracting the single element (JSON object)
-    sentinel_hex = serialise(obj[0][1])
-
-    return sentinel_hex
-
-
 # convenience
 def deserialise(hexdata):
     json = binascii.unhexlify(hexdata)
