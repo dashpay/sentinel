@@ -4,7 +4,6 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'lib'))
 import init
 import time
-import binascii
 import datetime
 import re
 import simplejson
@@ -105,6 +104,8 @@ class GovernanceObject(BaseModel):
     def import_gobject_from_dashd(self, dashd, rec):
         import decimal
         import dashlib
+        import binascii
+        import gobject_json
 
         object_hash = rec['Hash']
 
@@ -117,13 +118,10 @@ class GovernanceObject(BaseModel):
             'no_count': rec['NoCount'],
         }
 
-        # shim/dashd conversion
-        # eventually we'll remove the shim method entirely
-        dikt = dashlib.deserialise(
-            dashlib.SHIM_deserialise_from_dashd(
-                rec['DataHex']
-            )
-        )
+        # deserialise and extract object
+        json_str = binascii.unhexlify(rec['DataHex']).decode('utf-8')
+        dikt = gobject_json.extract_object(json_str)
+
         subobj = None
 
         type_class_map = {
