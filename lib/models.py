@@ -416,28 +416,6 @@ class Proposal(GovernanceClass, BaseModel):
             rank = self.governance_object.absolute_yes_count
             return rank
 
-    def get_prepare_command(self):
-        import dashlib
-        obj_data = dashlib.SHIM_serialise_for_dashd(self.serialise())
-
-        # new superblocks won't have parent_hash, revision, etc...
-        cmd = ['gobject', 'prepare', '0', '1', str(int(time.time())), obj_data]
-
-        return cmd
-
-    def prepare(self, dashd):
-        try:
-            object_hash = dashd.rpc_command(*self.get_prepare_command())
-            printdbg("Submitted: [%s]" % object_hash)
-            self.go.object_fee_tx = object_hash
-            self.go.save()
-
-            manual_submit = ' '.join(self.get_submit_command())
-            print(manual_submit)
-
-        except JSONRPCException as e:
-            print("Unable to prepare: %s" % e.message)
-
 
 class Superblock(BaseModel, GovernanceClass):
     governance_object = ForeignKeyField(GovernanceObject, related_name='superblocks', on_delete='CASCADE', on_update='CASCADE')
