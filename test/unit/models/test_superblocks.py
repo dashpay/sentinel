@@ -187,19 +187,6 @@ def test_superblock_is_valid(superblock):
     assert superblock.is_valid() is True
 
 
-def test_superblock_is_deletable(superblock):
-    # now = misc.now()
-    # assert superblock.is_deletable() is False
-
-    # superblock.end_epoch = now - (86400 * 29)
-    # assert superblock.is_deletable() is False
-
-    # add a couple seconds for time variance
-    # superblock.end_epoch = now - ((86400 * 30) + 2)
-    # assert superblock.is_deletable() is True
-    pass
-
-
 def test_serialisable_fields():
     s1 = ['event_block_height', 'payment_addresses', 'payment_amounts', 'proposal_hashes']
     s2 = Superblock.serialisable_fields()

@@ -366,15 +366,6 @@ class Proposal(GovernanceClass, BaseModel):
         printdbg("Leaving Proposal#is_expired, Expired = False")
         return False
 
-    def is_deletable(self):
-        # end_date < (current_date - 30 days)
-        thirty_days = (86400 * 30)
-        if (self.end_epoch < (misc.now() - thirty_days)):
-            return True
-
-        # TBD (item moved to external storage/DashDrive, etc.)
-        return False
-
     @classmethod
     def approved_and_ranked(self, proposal_quorum, next_superblock_max_budget):
         # return all approved proposals, in order of descending vote count
@@ -472,11 +463,6 @@ class Superblock(BaseModel, GovernanceClass):
 
         printdbg("Leaving Superblock#is_valid, Valid = True")
         return True
-
-    def is_deletable(self):
-        # end_date < (current_date - 30 days)
-        # TBD (item moved to external storage/DashDrive, etc.)
-        pass
 
     def hash(self):
         import dashlib
