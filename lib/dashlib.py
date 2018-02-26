@@ -163,7 +163,7 @@ def create_superblock(proposals, event_block_height, budget_max, sb_epoch_time, 
             payment_amounts='|'.join([pd['amount'] for pd in payments]),
             proposal_hashes='|'.join([pd['proposal'] for pd in payments])
         )
-        data_size = len(sb_temp.dashd_serialise())
+        data_size = len(sb_temp.serialise())
 
         if data_size > maxgovobjdatasize:
             printdbg("MAX_GOVERNANCE_OBJECT_DATA_SIZE limit reached!")
@@ -191,28 +191,6 @@ def create_superblock(proposals, event_block_height, budget_max, sb_epoch_time, 
     printdbg("generated superblock: %s" % sb.__dict__)
 
     return sb
-
-
-# shims 'til we can fix the JSON format
-def SHIM_serialise_for_dashd(sentinel_hex):
-    from models import GOVOBJ_TYPE_STRINGS
-
-    # unpack
-    obj = deserialise(sentinel_hex)
-
-    # shim for dashd
-    govtype_string = GOVOBJ_TYPE_STRINGS[obj['type']]
-
-    # superblock => "trigger" in dashd
-    if govtype_string == 'superblock':
-        govtype_string = 'trigger'
-
-    # dashd expects an array (will be deprecated)
-    obj = [(govtype_string, obj,)]
-
-    # re-pack
-    dashd_hex = serialise(obj)
-    return dashd_hex
 
 
 # convenience
