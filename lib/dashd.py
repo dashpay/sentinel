@@ -44,19 +44,10 @@ class DashDaemon():
         return self.rpc_connection.__getattr__(params[0])(*params[1:])
 
     # common RPC convenience methods
-    def is_testnet(self):
-        return self.rpc_command('getinfo')['testnet']
 
     def get_masternodes(self):
         mnlist = self.rpc_command('masternodelist', 'full')
         return [Masternode(k, v) for (k, v) in mnlist.items()]
-
-    def get_object_list(self):
-        try:
-            golist = self.rpc_command('gobject', 'list')
-        except JSONRPCException as e:
-            golist = self.rpc_command('mnbudget', 'show')
-        return golist
 
     def get_current_masternode_vin(self):
         from dashlib import parse_masternode_status_vin
@@ -90,12 +81,6 @@ class DashDaemon():
     # governance info convenience methods
     def superblockcycle(self):
         return self.govinfo['superblockcycle']
-
-    def governanceminquorum(self):
-        return self.govinfo['governanceminquorum']
-
-    def proposalfee(self):
-        return self.govinfo['proposalfee']
 
     def last_superblock_height(self):
         height = self.rpc_command('getblockcount')
@@ -192,15 +177,6 @@ class DashDaemon():
         # print "current masternode VIN: [%s]" % my_vin
 
         return (winner == my_vin)
-
-    @property
-    def MASTERNODE_WATCHDOG_MAX_SECONDS(self):
-        # note: self.govinfo is already memoized
-        return self.govinfo['masternodewatchdogmaxseconds']
-
-    @property
-    def SENTINEL_WATCHDOG_MAX_SECONDS(self):
-        return (self.MASTERNODE_WATCHDOG_MAX_SECONDS // 2)
 
     def estimate_block_time(self, height):
         import dashlib
