@@ -29,7 +29,6 @@ def are_deps_installed():
         import peewee
         import bitcoinrpc.authproxy
         import simplejson
-        import inflection
         installed = True
     except ImportError as e:
         print("[error]: Missing dependencies")
