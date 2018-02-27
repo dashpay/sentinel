@@ -138,12 +138,39 @@ def test_superblock_is_valid(superblock):
     superblock.payment_amounts = '7,|yzx'
     assert superblock.is_valid() is False
 
+    superblock.payment_amounts = '7|8'
+    assert superblock.is_valid() is True
+
+    superblock.payment_amounts = ' 7|8'
+    assert superblock.is_valid() is False
+
+    superblock.payment_amounts = '7|8 '
+    assert superblock.is_valid() is False
+
+    superblock.payment_amounts = ' 7|8 '
+    assert superblock.is_valid() is False
+
     # reset
     superblock = Superblock(**orig.get_dict())
     assert superblock.is_valid() is True
 
     # mess with payment addresses
     superblock.payment_addresses = 'yTC62huR4YQEPn9AJHjnQxxreHSbgAoatV|1234 Anywhere ST, Chicago, USA'
+    assert superblock.is_valid() is False
+
+    # leading spaces in payment addresses
+    superblock.payment_addresses = ' yTC62huR4YQEPn9AJHjnQxxreHSbgAoatV'
+    superblock.payment_amounts = '5.00'
+    assert superblock.is_valid() is False
+
+    # trailing spaces in payment addresses
+    superblock.payment_addresses = 'yTC62huR4YQEPn9AJHjnQxxreHSbgAoatV '
+    superblock.payment_amounts = '5.00'
+    assert superblock.is_valid() is False
+
+    # leading & trailing spaces in payment addresses
+    superblock.payment_addresses = ' yTC62huR4YQEPn9AJHjnQxxreHSbgAoatV '
+    superblock.payment_amounts = '5.00'
     assert superblock.is_valid() is False
 
     # single payment addr/amt is ok
