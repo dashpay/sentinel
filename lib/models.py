@@ -322,6 +322,11 @@ class Proposal(GovernanceClass, BaseModel):
                 printdbg("\tProposal URL [%s] too short, returning False" % self.url)
                 return False
 
+            # proposal URL has leading or trailing whitespace
+            if (len(self.url.strip()) != len(self.url)):
+                printdbg("\tProposal URL [%s] has leading/trailing whitespace, returning False" % self.name)
+                return False
+
             try:
                 parsed = urlparse.urlparse(self.url)
             except Exception as e:
