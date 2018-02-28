@@ -258,13 +258,24 @@ def test_superblock_size_limit(go_list_proposals):
     max_budget = 60
     prop_list = Proposal.approved_and_ranked(proposal_quorum=1, next_superblock_max_budget=max_budget)
 
-    maxgovobjdatasize = 469
+    # mock maxgovobjdatasize by setting equal to the size of a trigger
+    # (serialized) if only the first proposal had been included... anything
+    # larger should break the limit
+    single_proposal_sb = Superblock(
+        event_block_height=72000,
+        payment_addresses=prop_list[0].payment_address,
+        payment_amounts="{0:.8f}".format(prop_list[0].payment_amount),
+        proposal_hashes=prop_list[0].object_hash,
+    )
+    maxgovobjdatasize = len(single_proposal_sb.serialise())
+
+    # now try and create a Superblock with the entire proposal list
     sb = dashlib.create_superblock(prop_list, 72000, max_budget, misc.now(), maxgovobjdatasize)
 
     # two proposals in the list, but...
     assert len(prop_list) == 2
 
-    # only one should have been included in the SB, because the 2nd one is over the limit
+    # only one should have been included in the SB, because the 2nd one is over the size limit
     assert sb.event_block_height == 72000
     assert sb.payment_addresses == 'yYe8KwyaUu5YswSYmB3q3ryx8XTUu9y7Ui'
     assert sb.payment_amounts == '25.75000000'
