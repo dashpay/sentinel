@@ -322,6 +322,11 @@ class Proposal(GovernanceClass, BaseModel):
                 printdbg("\tProposal URL [%s] too short, returning False" % self.url)
                 return False
 
+            # proposal URL has any whitespace
+            if (re.search(r'\s', self.url)):
+                printdbg("\tProposal URL [%s] has whitespace, returning False" % self.name)
+                return False
+
             try:
                 parsed = urlparse.urlparse(self.url)
             except Exception as e:
