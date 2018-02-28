@@ -371,15 +371,6 @@ class Proposal(GovernanceClass, BaseModel):
         printdbg("Leaving Proposal#is_expired, Expired = False")
         return False
 
-    def is_deletable(self):
-        # end_date < (current_date - 30 days)
-        thirty_days = (86400 * 30)
-        if (self.end_epoch < (misc.now() - thirty_days)):
-            return True
-
-        # TBD (item moved to external storage/DashDrive, etc.)
-        return False
-
     @classmethod
     def approved_and_ranked(self, proposal_quorum, next_superblock_max_budget):
         # return all approved proposals, in order of descending vote count
@@ -420,28 +411,6 @@ class Proposal(GovernanceClass, BaseModel):
         if self.governance_object:
             rank = self.governance_object.absolute_yes_count
             return rank
-
-    def get_prepare_command(self):
-        import dashlib
-        obj_data = dashlib.SHIM_serialise_for_dashd(self.serialise())
-
-        # new superblocks won't have parent_hash, revision, etc...
-        cmd = ['gobject', 'prepare', '0', '1', str(int(time.time())), obj_data]
-
-        return cmd
-
-    def prepare(self, dashd):
-        try:
-            object_hash = dashd.rpc_command(*self.get_prepare_command())
-            printdbg("Submitted: [%s]" % object_hash)
-            self.go.object_fee_tx = object_hash
-            self.go.save()
-
-            manual_submit = ' '.join(self.get_submit_command())
-            print(manual_submit)
-
-        except JSONRPCException as e:
-            print("Unable to prepare: %s" % e.message)
 
 
 class Superblock(BaseModel, GovernanceClass):
@@ -499,11 +468,6 @@ class Superblock(BaseModel, GovernanceClass):
 
         printdbg("Leaving Superblock#is_valid, Valid = True")
         return True
-
-    def is_deletable(self):
-        # end_date < (current_date - 30 days)
-        # TBD (item moved to external storage/DashDrive, etc.)
-        pass
 
     def hash(self):
         import dashlib
