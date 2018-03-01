@@ -95,9 +95,12 @@ class GovernanceObject(BaseModel):
                 # SOMEDAY: possible archive step here
                 purged.delete_instance(recursive=True, delete_nullable=True)
 
-            for item in golist.values():
-                (go, subobj) = self.import_gobject_from_dashd(dashd, item)
-
+            for item in golist.values():  # monkey patch
+                try:
+                    (go, subobj) = self.import_gobject_from_dashd(dashd, item)
+                except Exception as e:
+                    printdbg("Chances are this was a Superblock: %s" % e)
+                    continue
         except Exception as e:
             printdbg("Got an error upon import: %s" % e)
 
