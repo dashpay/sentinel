@@ -27,7 +27,5 @@ def download_latest():
         return True
     else:
         print('Failed to download, check logs.')
-
-
-download_latest()
+        return False
 

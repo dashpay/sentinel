@@ -35,6 +35,12 @@ def download(url):
 
 
 def unzip(file_path):
-    tar = tarfile.open(file_path, "r:bz2")
-    tar.extractall(os.getcwd())
-    return True
+    try:
+        tar = tarfile.open(file_path, "r:bz2")
+        tar.extractall(os.getcwd())
+        actual_path = os.path.basename(file_path)
+        return actual_path
+
+    except Exception as e:
+        print(e)
+        return False
