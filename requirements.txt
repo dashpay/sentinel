@@ -5,3 +5,4 @@ pycodestyle==2.3.1
 pytest==3.0.1
 python-bitcoinrpc==1.0
 simplejson==3.8.2
+urllib2

@@ -2,6 +2,7 @@
     Set up defaults and read sentinel.conf
 """
 import sys
+import platform
 import os
 from dash_config import DashConfig
 
@@ -15,11 +16,13 @@ min_dashd_proto_version_with_sentinel_ping = 70207
 
 
 def get_dash_conf():
-    home = os.environ.get('HOME')
-
-    dash_conf = os.path.join(home, ".dashcore/dash.conf")
-    if sys.platform == 'darwin':
+    if platform.system() == 'Linux':
+        home = os.environ.get('HOME')
+        dash_conf = os.path.join(home, ".dashcore/dash.conf")
+    elif sys.platform == 'darwin':
         dash_conf = os.path.join(home, "Library/Application Support/DashCore/dash.conf")
+    else:
+        dash_conf = os.path.abspath("G:\Dash\DashCore\dash.conf")
 
     dash_conf = sentinel_cfg.get('dash_conf', dash_conf)
 
@@ -74,7 +77,12 @@ def get_db_conn():
     if driver == peewee.SqliteDatabase:
         db_conn = {}
 
-    db = driver(db_name, **db_conn)
+    # db = driver(db_name, **db_conn)
+    db = driver(db_name, pragmas=(
+        ('journal_mode', 'WAL'),
+        ('cache_size', -1024*32),
+        ('mmap_size', 1024*1024*32))
+    )
 
     return db
 

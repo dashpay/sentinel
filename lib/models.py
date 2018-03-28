@@ -225,6 +225,8 @@ class GovernanceObject(BaseModel):
             if not outcome:
                 continue
 
+            #  TODO prevent this from adding duplicate votes every time it runs. Might have to just write a new method with gobject votes #objecthash# diff
+
             printdbg('\tFound a matching valid vote on the network, outcome = %s' % vdikt['outcome'])
             Vote(governance_object=self, vote_hash= vdikt['vote_hash'],
                  masternode_outpoint = vdikt['mn_collateral_outpoint'], signal=signal, outcome=outcome,
