@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# SOURCE URL
+# https://gist.github.com/esperlu/943776
+
 # Converts a mysqldump file into a Sqlite 3 compatible file. It also extracts the MySQL `KEY xxxxx` from the
 # CREATE block and create them in separate commands _after_ all the INSERTs.
 
