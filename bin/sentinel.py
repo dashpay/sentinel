@@ -19,6 +19,7 @@ from scheduler import Scheduler
 import argparse
 
 
+
 # sync dashd gobject list with our local relational DB backend
 def perform_dashd_object_sync(dashd):
     GovernanceObject.sync(dashd)
@@ -133,6 +134,13 @@ if __name__ == '__main__':
         Transient.set(mutex_key, misc.now(), timeout_seconds)
 
     # locked to this instance -- perform main logic here
+    start_time = time.time()
+
     main()
+
+    end_time = time.time()
+    duration = round((end_time-start_time), 2)
+
+    print("Took {} seconds to complete update.".format(duration))
 
     Transient.delete(mutex_key)
