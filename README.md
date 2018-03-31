@@ -1,10 +1,14 @@
 # Dash Sensei Data Engine
 
-An all-powerful tool for pulling governance data from the Dash blockchain and saving it into a structured data format (SQLite).
+An all-powerful tool for pulling governance data from the Dash network and saving it into a structured data format (SQLite).
 
-Sensei is implemented as a Python application that binds to a local version 12.1 dashd instance on a non-masternode system.
+Developed as part of the DashIntel project, we'll continue to add features to this Sentinel fork. One of the in-progress features is a governance-data boostrap tools which will get the latest data dumps from DashNinja and migrate them to the Sentinel schema before adding additional data and remaining synced with the Dash network. It will basically allow you to run your own DashNinja site (database-wise) as well as enabling outside data analysis.
+
+Sensei is implemented as a Python application that binds to a local version 12.1 dashd instance on a non-masternode system on Windows, Mac, and Linux.
 
 This guide covers installing the Sensei Data Engine onto an existing 12.1 Dash Node in Ubuntu 14.04 / 16.04.
+
+One of the tweaks recently implemented is a modification to the default SQLite code to make it more performant. It seems to have helped!
 
 ## Installation
 
