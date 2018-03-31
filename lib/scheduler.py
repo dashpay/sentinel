@@ -46,5 +46,6 @@ class Scheduler(object):
         # in case an int > 60 given as argument
         delay_in_seconds = delay_in_seconds % 60
 
-        printdbg("Delay of [%d] seconds for cron minute offset" % delay_in_seconds)
-        time.sleep(delay_in_seconds)
+        #printdbg("Delay of [%d] seconds for cron minute offset" % delay_in_seconds)
+        #time.sleep(delay_in_seconds)
+        time.sleep(1)

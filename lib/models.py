@@ -8,7 +8,7 @@ import binascii
 import datetime
 import re
 import simplejson
-from peewee import IntegerField, CharField, TextField, ForeignKeyField, DecimalField, DateTimeField
+from peewee import IntegerField, CharField, TextField, ForeignKeyField, DecimalField, DateTimeField, BooleanField
 import peewee
 import playhouse.signals
 import misc
@@ -23,6 +23,9 @@ except ImportError:
 
 # our mixin
 from governance_class import GovernanceClass
+
+# Adding in special sauce
+import pdb
 
 db = config.db
 db.connect()
@@ -68,6 +71,15 @@ class GovernanceObject(BaseModel):
     no_count = IntegerField(default=0)
     abstain_count = IntegerField(default=0)
     absolute_yes_count = IntegerField(default=0)
+    name = CharField(max_length=64)
+    payment_address = CharField(max_length=35)
+    payment_amount = DecimalField(default=0.0)
+    url = CharField(max_length=100)
+    start_epoch = IntegerField(default=int(time.time()))
+    end_epoch = IntegerField(default=int(time.time()))
+    creation_time = IntegerField(default=int(time.time()))
+    fCachedValid = BooleanField(default=0)
+    fCachedFunding = BooleanField(default=0)
 
     class Meta:
         db_table = 'governance_objects'
@@ -83,8 +95,12 @@ class GovernanceObject(BaseModel):
                 # SOMEDAY: possible archive step here
                 purged.delete_instance(recursive=True, delete_nullable=True)
 
-            for item in golist.values():
-                (go, subobj) = self.import_gobject_from_dashd(dashd, item)
+            for item in golist.values():  # monkey patch
+                try:
+                    (go, subobj) = self.import_gobject_from_dashd(dashd, item)
+                except Exception as e:
+                    printdbg("Chances are this was a Superblock: %s" % e)
+                    continue
         except Exception as e:
             printdbg("Got an error upon import: %s" % e)
 
@@ -103,6 +119,8 @@ class GovernanceObject(BaseModel):
 
         object_hex = rec['DataHex']
         object_hash = rec['Hash']
+        object_string = rec['DataString'][13:-2]
+        object_dikt = simplejson.loads(object_string)
 
         gobj_dict = {
             'object_hash': object_hash,
@@ -111,7 +129,22 @@ class GovernanceObject(BaseModel):
             'abstain_count': rec['AbstainCount'],
             'yes_count': rec['YesCount'],
             'no_count': rec['NoCount'],
+            'name': object_dikt['name'],
+            'payment_address': object_dikt['payment_address'],
+            'payment_amount': object_dikt['payment_amount'],
+            'url': object_dikt['url'],
+            'start_epoch': object_dikt['start_epoch'],
+            'end_epoch': object_dikt['end_epoch'],
+            'creation_time': rec['CreationTime'],
+            'fCachedValid': rec['fCachedValid'],
+            'fCachedFunding': rec['fCachedFunding']
         }
+
+        # Check for comma instead of decimal before attempting to write to database as a decimal
+        if ',' in str(gobj_dict['payment_amount']):
+            gobj_dict.update({"payment_amount": str(gobj_dict["payment_amount"]).replace(',', '.')})
+        else:
+            pass
 
         # shim/dashd conversion
         object_hex = dashlib.SHIM_deserialise_from_dashd(object_hex)
@@ -138,19 +171,20 @@ class GovernanceObject(BaseModel):
             printdbg("govobj updated = %d" % count)
         subdikt['governance_object'] = govobj
 
+        # Sync network votes
+        self.sync_network_vote(govobj, dashd, VoteSignals.funding)
+
         # get/create, then sync payment amounts, etc. from dashd - Dashd is the master
         try:
             newdikt = subdikt.copy()
             newdikt['object_hash'] = object_hash
             if subclass(**newdikt).is_valid() is False:
-                govobj.vote_delete(dashd)
                 return (govobj, None)
 
             subobj, created = subclass.get_or_create(object_hash=object_hash, defaults=subdikt)
         except Exception as e:
             # in this case, vote as delete, and log the vote in the DB
             printdbg("Got invalid object from dashd! %s" % e)
-            govobj.vote_delete(dashd)
             return (govobj, None)
 
         if created:
@@ -159,63 +193,11 @@ class GovernanceObject(BaseModel):
         if count:
             printdbg("subobj updated = %d" % count)
 
+
         # ATM, returns a tuple w/gov attributes and the govobj
         return (govobj, subobj)
 
-    def vote_delete(self, dashd):
-        if not self.voted_on(signal=VoteSignals.delete, outcome=VoteOutcomes.yes):
-            self.vote(dashd, VoteSignals.delete, VoteOutcomes.yes)
-        return
-
-    def get_vote_command(self, signal, outcome):
-        cmd = ['gobject', 'vote-conf', self.object_hash,
-               signal.name, outcome.name]
-        return cmd
-
-    def vote(self, dashd, signal, outcome):
-        import dashlib
-
-        # At this point, will probably never reach here. But doesn't hurt to
-        # have an extra check just in case objects get out of sync (people will
-        # muck with the DB).
-        if (self.object_hash == '0' or not misc.is_hash(self.object_hash)):
-            printdbg("No governance object hash, nothing to vote on.")
-            return
-
-        # have I already voted on this gobject with this particular signal and outcome?
-        if self.voted_on(signal=signal):
-            printdbg("Found a vote for this gobject/signal...")
-            vote = self.votes.where(Vote.signal == signal)[0]
-
-            # if the outcome is the same, move on, nothing more to do
-            if vote.outcome == outcome:
-                # move on.
-                printdbg("Already voted for this same gobject/signal/outcome, no need to re-vote.")
-                return
-            else:
-                printdbg("Found a STALE vote for this gobject/signal, deleting so that we can re-vote.")
-                vote.delete_instance()
-
-        else:
-            printdbg("Haven't voted on this gobject/signal yet...")
-
-        # now ... vote!
-
-        vote_command = self.get_vote_command(signal, outcome)
-        printdbg(' '.join(vote_command))
-        output = dashd.rpc_command(*vote_command)
-
-        # extract vote output parsing to external lib
-        voted = dashlib.did_we_vote(output)
-
-        if voted:
-            printdbg('VOTE success, saving Vote object to database')
-            Vote(governance_object=self, signal=signal, outcome=outcome,
-                 object_hash=self.object_hash).save()
-        else:
-            printdbg('VOTE failed, trying to sync with network vote')
-            self.sync_network_vote(dashd, signal)
-
+    ''' # Modified below, here is saved the original
     def sync_network_vote(self, dashd, signal):
         printdbg('\tsyncing network vote for object %s with signal %s' % (self.object_hash, signal.name))
         vote_info = dashd.get_my_gobject_votes(self.object_hash)
@@ -230,6 +212,27 @@ class GovernanceObject(BaseModel):
 
             printdbg('\tFound a matching valid vote on the network, outcome = %s' % vdikt['outcome'])
             Vote(governance_object=self, signal=signal, outcome=outcome,
+                 object_hash=self.object_hash).save()
+    '''
+
+    def sync_network_vote(self, dashd, signal):
+        printdbg('\tsyncing network vote for object %s with signal %s' % (self.object_hash, signal.name))
+        vote_info = dashd.get_gobject_votes(self.object_hash)
+
+        for vdikt in vote_info:
+            if vdikt['signal'] != signal.name:
+                continue
+
+            # ensure valid outcome
+            outcome = VoteOutcomes.get(vdikt['outcome'])
+            if not outcome:
+                continue
+
+            printdbg('\tFound a matching valid vote on the network, outcome = %s' % vdikt['outcome'])
+            Vote(governance_object=self,
+                 vote_hash=vdikt['vote_hash'],
+                 masternode_outpoint=vdikt['mn_collateral_outpoint'],
+                 signal=signal, outcome=outcome,
                  object_hash=self.object_hash).save()
 
     def voted_on(self, **kwargs):
@@ -586,6 +589,8 @@ class Vote(BaseModel):
     governance_object = ForeignKeyField(GovernanceObject, related_name='votes', on_delete='CASCADE', on_update='CASCADE')
     signal = ForeignKeyField(Signal, related_name='votes', on_delete='CASCADE', on_update='CASCADE')
     outcome = ForeignKeyField(Outcome, related_name='votes', on_delete='CASCADE', on_update='CASCADE')
+    vote_hash = CharField(max_length=64, unique=True)
+    masternode_outpoint = CharField(max_length=64)
     voted_at = DateTimeField(default=datetime.datetime.utcnow())
     created_at = DateTimeField(default=datetime.datetime.utcnow())
     updated_at = DateTimeField(default=datetime.datetime.utcnow())

@@ -1,14 +1,14 @@
-# Dash Sentinel
+# Dash Sensei Data Engine
 
-An all-powerful toolset for Dash.
+An all-powerful tool for pulling governance data from the Dash network and saving it into a structured data format (SQLite).
 
-[![Build Status](https://travis-ci.org/dashpay/sentinel.svg?branch=master)](https://travis-ci.org/dashpay/sentinel)
+Developed as part of the DashIntel project, we'll continue to add features to this Sentinel fork. One of the in-progress features is a governance-data boostrap tools which will get the latest data dumps from DashNinja and migrate them to the Sentinel schema before adding additional data and remaining synced with the Dash network. It will basically allow you to run your own DashNinja site (database-wise) as well as enabling outside data analysis.
 
-Sentinel is an autonomous agent for persisting, processing and automating Dash V12.1 governance objects and tasks, and for expanded functions in the upcoming Dash V13 release (Evolution).
+Sensei is implemented as a Python application that binds to a local version 12.1 dashd instance on a non-masternode system on Windows, Mac, and Linux.
 
-Sentinel is implemented as a Python application that binds to a local version 12.1 dashd instance on each Dash V12.1 Masternode.
+This guide covers installing the Sensei Data Engine onto an existing 12.1 Dash Node in Ubuntu 14.04 / 16.04.
 
-This guide covers installing Sentinel onto an existing 12.1 Masternode in Ubuntu 14.04 / 16.04.
+One of the tweaks recently implemented is a modification to the default SQLite code to make it more performant. It seems to have helped!
 
 ## Installation
 
@@ -31,7 +31,7 @@ Make sure the local Dash daemon running is at least version 12.1 (120100)
 
 Clone the Sentinel repo and install Python dependencies.
 
-    $ git clone https://github.com/dashpay/sentinel.git && cd sentinel
+    $ git clone https://github.com/jhodges10/sensei && cd sensei
     $ virtualenv ./venv
     $ ./venv/bin/pip install -r requirements.txt
 
@@ -45,11 +45,6 @@ In the crontab editor, add the lines below, replacing '/home/YOURUSERNAME/sentin
 
     * * * * * cd /home/YOURUSERNAME/sentinel && ./venv/bin/python bin/sentinel.py >/dev/null 2>&1
 
-### 4. Test the Configuration
-
-Test the config by runnings all tests from the sentinel folder you cloned into
-
-    $ ./venv/bin/py.test ./test
 
 With all tests passing and crontab setup, Sentinel will stay in sync with dashd and the installation is complete
 
