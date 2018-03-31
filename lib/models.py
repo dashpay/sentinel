@@ -228,11 +228,11 @@ class GovernanceObject(BaseModel):
             if not outcome:
                 continue
 
-            #  TODO prevent this from adding duplicate votes every time it runs. Might have to just write a new method with gobject votes #objecthash# diff
-
             printdbg('\tFound a matching valid vote on the network, outcome = %s' % vdikt['outcome'])
-            Vote(governance_object=self, vote_hash= vdikt['vote_hash'],
-                 masternode_outpoint = vdikt['mn_collateral_outpoint'], signal=signal, outcome=outcome,
+            Vote(governance_object=self,
+                 vote_hash=vdikt['vote_hash'],
+                 masternode_outpoint=vdikt['mn_collateral_outpoint'],
+                 signal=signal, outcome=outcome,
                  object_hash=self.object_hash).save()
 
     def voted_on(self, **kwargs):
@@ -589,7 +589,7 @@ class Vote(BaseModel):
     governance_object = ForeignKeyField(GovernanceObject, related_name='votes', on_delete='CASCADE', on_update='CASCADE')
     signal = ForeignKeyField(Signal, related_name='votes', on_delete='CASCADE', on_update='CASCADE')
     outcome = ForeignKeyField(Outcome, related_name='votes', on_delete='CASCADE', on_update='CASCADE')
-    vote_hash = CharField(max_length=64)
+    vote_hash = CharField(max_length=64, unique=True)
     masternode_outpoint = CharField(max_length=64)
     voted_at = DateTimeField(default=datetime.datetime.utcnow())
     created_at = DateTimeField(default=datetime.datetime.utcnow())
