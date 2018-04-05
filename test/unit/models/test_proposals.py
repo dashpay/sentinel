@@ -282,8 +282,20 @@ def test_approved_and_ranked(go_list_proposals):
 def test_proposal_size(proposal):
     orig = Proposal(**proposal.get_dict())  # make a copy
 
-    # fixture as-is should be valid
+    proposal.url = 'https://testurl.com/'
+    proposal_length_bytes = len(proposal.serialise()) // 2
+
+    # how much space is available in the Proposal
+    extra_bytes = (Proposal.MAX_DATA_SIZE - proposal_length_bytes)
+
+    # fill URL field with max remaining space
+    proposal.url = proposal.url + ('x' * extra_bytes)
+
+    # ensure this is the max proposal size and is valid
+    assert (len(proposal.serialise()) // 2) == Proposal.MAX_DATA_SIZE
     assert proposal.is_valid() is True
 
-    proposal.url = 'https://' + ('x' * 513) + '.com/'
+    # add one more character to URL, Proposal should now be invalid
+    proposal.url = proposal.url + 'x'
+    assert (len(proposal.serialise()) // 2) == (Proposal.MAX_DATA_SIZE + 1)
     assert proposal.is_valid() is False

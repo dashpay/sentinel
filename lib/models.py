@@ -331,7 +331,7 @@ class Proposal(GovernanceClass, BaseModel):
                 return False
 
             # Dash Core restricts proposals to 512 bytes max
-            if len(self.serialise()) >= (self.MAX_DATA_SIZE * 2):
+            if len(self.serialise()) > (self.MAX_DATA_SIZE * 2):
                 printdbg("\tProposal [%s] is too big, returning False" % self.name)
                 return False
 
