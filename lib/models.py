@@ -276,6 +276,9 @@ class Proposal(GovernanceClass, BaseModel):
     payment_amount = DecimalField(max_digits=16, decimal_places=8)
     object_hash = CharField(max_length=64)
 
+    # src/governance-validators.cpp
+    MAX_DATA_SIZE = 512
+
     govobj_type = DASHD_GOVOBJ_TYPES['proposal']
 
     class Meta:
@@ -325,6 +328,11 @@ class Proposal(GovernanceClass, BaseModel):
             # proposal URL has any whitespace
             if (re.search(r'\s', self.url)):
                 printdbg("\tProposal URL [%s] has whitespace, returning False" % self.name)
+                return False
+
+            # Dash Core restricts proposals to 512 bytes max
+            if len(self.serialise()) > (self.MAX_DATA_SIZE * 2):
+                printdbg("\tProposal [%s] is too big, returning False" % self.name)
                 return False
 
             try:

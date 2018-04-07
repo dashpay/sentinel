@@ -277,3 +277,25 @@ def test_approved_and_ranked(go_list_proposals):
 
     assert prop_list[0].object_hash == u'dfd7d63979c0b62456b63d5fc5306dbec451180adee85876cbf5b28c69d1a86c'
     assert prop_list[1].object_hash == u'0523445762025b2e01a2cd34f1d10f4816cf26ee1796167e5b029901e5873630'
+
+
+def test_proposal_size(proposal):
+    orig = Proposal(**proposal.get_dict())  # make a copy
+
+    proposal.url = 'https://testurl.com/'
+    proposal_length_bytes = len(proposal.serialise()) // 2
+
+    # how much space is available in the Proposal
+    extra_bytes = (Proposal.MAX_DATA_SIZE - proposal_length_bytes)
+
+    # fill URL field with max remaining space
+    proposal.url = proposal.url + ('x' * extra_bytes)
+
+    # ensure this is the max proposal size and is valid
+    assert (len(proposal.serialise()) // 2) == Proposal.MAX_DATA_SIZE
+    assert proposal.is_valid() is True
+
+    # add one more character to URL, Proposal should now be invalid
+    proposal.url = proposal.url + 'x'
+    assert (len(proposal.serialise()) // 2) == (Proposal.MAX_DATA_SIZE + 1)
+    assert proposal.is_valid() is False
