@@ -11,6 +11,7 @@ from bitcoinrpc.authproxy import AuthServiceProxy, JSONRPCException
 from masternode import Masternode
 from decimal import Decimal
 import time
+import urllib
 
 
 class DashDaemon():
@@ -20,7 +21,7 @@ class DashDaemon():
         password = kwargs.get('password')
         port = kwargs.get('port')
 
-        self.creds = (user, password, host, port)
+        self.creds = (urllib.quote(user, safe=''), urllib.quote(password, safe=''), host, port)
 
         # memoize calls to some dashd methods
         self.governance_info = None
