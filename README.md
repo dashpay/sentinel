@@ -47,7 +47,7 @@ In the crontab editor, add the lines below, replacing '/home/YOURUSERNAME/sentin
 
 ### 4. Test the Configuration
 
-Test the config by runnings all tests from the sentinel folder you cloned into
+Test the config by running all tests from the sentinel folder you cloned into
 
     $ ./venv/bin/py.test ./test
 
