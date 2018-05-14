@@ -225,7 +225,7 @@ class GovernanceObject(BaseModel):
             self.sync_network_vote(dashd, signal)
 
     def sync_network_vote(self, dashd, signal):
-        printdbg('\tsyncing network vote for object %s with signal %s' % (self.object_hash, signal.name))
+        printdbg('\tSyncing network vote for object %s with signal %s' % (self.object_hash, signal.name))
         vote_info = dashd.get_my_gobject_votes(self.object_hash)
         for vdikt in vote_info:
             if vdikt['signal'] != signal.name:
@@ -701,7 +701,7 @@ def check_db_sane():
     for model in db_models():
         if not getattr(model, 'table_exists')():
             missing_table_models.append(model)
-            printdbg("[warning]: table for %s (%s) doesn't exist in DB." % (model, model._meta.db_table))
+            printdbg("[warning]: Table for %s (%s) doesn't exist in DB." % (model, model._meta.db_table))
 
     if missing_table_models:
         printdbg("[warning]: Missing database tables. Auto-creating tables.")
