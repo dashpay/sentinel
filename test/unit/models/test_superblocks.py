@@ -138,12 +138,39 @@ def test_superblock_is_valid(superblock):
     superblock.payment_amounts = '7,|yzx'
     assert superblock.is_valid() is False
 
+    superblock.payment_amounts = '7|8'
+    assert superblock.is_valid() is True
+
+    superblock.payment_amounts = ' 7|8'
+    assert superblock.is_valid() is False
+
+    superblock.payment_amounts = '7|8 '
+    assert superblock.is_valid() is False
+
+    superblock.payment_amounts = ' 7|8 '
+    assert superblock.is_valid() is False
+
     # reset
     superblock = Superblock(**orig.get_dict())
     assert superblock.is_valid() is True
 
     # mess with payment addresses
     superblock.payment_addresses = 'yTC62huR4YQEPn9AJHjnQxxreHSbgAoatV|1234 Anywhere ST, Chicago, USA'
+    assert superblock.is_valid() is False
+
+    # leading spaces in payment addresses
+    superblock.payment_addresses = ' yTC62huR4YQEPn9AJHjnQxxreHSbgAoatV'
+    superblock.payment_amounts = '5.00'
+    assert superblock.is_valid() is False
+
+    # trailing spaces in payment addresses
+    superblock.payment_addresses = 'yTC62huR4YQEPn9AJHjnQxxreHSbgAoatV '
+    superblock.payment_amounts = '5.00'
+    assert superblock.is_valid() is False
+
+    # leading & trailing spaces in payment addresses
+    superblock.payment_addresses = ' yTC62huR4YQEPn9AJHjnQxxreHSbgAoatV '
+    superblock.payment_amounts = '5.00'
     assert superblock.is_valid() is False
 
     # single payment addr/amt is ok
@@ -187,19 +214,6 @@ def test_superblock_is_valid(superblock):
     assert superblock.is_valid() is True
 
 
-def test_superblock_is_deletable(superblock):
-    # now = misc.now()
-    # assert superblock.is_deletable() is False
-
-    # superblock.end_epoch = now - (86400 * 29)
-    # assert superblock.is_deletable() is False
-
-    # add a couple seconds for time variance
-    # superblock.end_epoch = now - ((86400 * 30) + 2)
-    # assert superblock.is_deletable() is True
-    pass
-
-
 def test_serialisable_fields():
     s1 = ['event_block_height', 'payment_addresses', 'payment_amounts', 'proposal_hashes']
     s2 = Superblock.serialisable_fields()
@@ -220,14 +234,43 @@ def test_deterministic_superblock_creation(go_list_proposals):
 
     max_budget = 60
     prop_list = Proposal.approved_and_ranked(proposal_quorum=1, next_superblock_max_budget=max_budget)
-    sb = dashlib.create_superblock(prop_list, 72000, budget_max=max_budget, sb_epoch_time=misc.now())
+
+    # MAX_GOVERNANCE_OBJECT_DATA_SIZE defined in governance-object.h
+    maxgovobjdatasize = 16 * 1024
+    sb = dashlib.create_superblock(prop_list, 72000, max_budget, misc.now(), maxgovobjdatasize)
 
     assert sb.event_block_height == 72000
     assert sb.payment_addresses == 'yYe8KwyaUu5YswSYmB3q3ryx8XTUu9y7Ui|yTC62huR4YQEPn9AJHjnQxxreHSbgAoatV'
     assert sb.payment_amounts == '25.75000000|32.01000000'
     assert sb.proposal_hashes == 'dfd7d63979c0b62456b63d5fc5306dbec451180adee85876cbf5b28c69d1a86c|0523445762025b2e01a2cd34f1d10f4816cf26ee1796167e5b029901e5873630'
 
-    assert sb.hex_hash() == '5534e9fa4a51423820b9e19fa6d4770c12ea0a5663e8adff8223f5e8b6df641c'
+    assert sb.hex_hash() == 'bb3f33ccf95415c396bd09d35325dbcbc7b067010d51c7ccf772a9e839c1e414'
+
+
+def test_superblock_size_limit(go_list_proposals):
+    import dashlib
+    import misc
+    from dashd import DashDaemon
+    dashd = DashDaemon.from_dash_conf(config.dash_conf)
+    for item in go_list_proposals:
+        (go, subobj) = GovernanceObject.import_gobject_from_dashd(dashd, item)
+
+    max_budget = 60
+    prop_list = Proposal.approved_and_ranked(proposal_quorum=1, next_superblock_max_budget=max_budget)
+
+    maxgovobjdatasize = 469
+    sb = dashlib.create_superblock(prop_list, 72000, max_budget, misc.now(), maxgovobjdatasize)
+
+    # two proposals in the list, but...
+    assert len(prop_list) == 2
+
+    # only one should have been included in the SB, because the 2nd one is over the limit
+    assert sb.event_block_height == 72000
+    assert sb.payment_addresses == 'yYe8KwyaUu5YswSYmB3q3ryx8XTUu9y7Ui'
+    assert sb.payment_amounts == '25.75000000'
+    assert sb.proposal_hashes == 'dfd7d63979c0b62456b63d5fc5306dbec451180adee85876cbf5b28c69d1a86c'
+
+    assert sb.hex_hash() == '6b8cababf797644f1d62003e4cc68c1c40a8c1873c8a68ed0fc88772ea77cc44'
 
 
 def test_deterministic_superblock_selection(go_list_superblocks):
@@ -238,6 +281,5 @@ def test_deterministic_superblock_selection(go_list_superblocks):
         (go, subobj) = GovernanceObject.import_gobject_from_dashd(dashd, item)
 
     # highest hash wins if same -- so just order by hash
-    sb = Superblock.find_highest_deterministic('22a5f429c5ffb2b79b1b30c3ac30751284e3efa4e710bc7fd35fbe7456b1e485')
-
+    sb = Superblock.find_highest_deterministic('542f4433e438bdd64697b8381fda1a7a9b7a111c3a4e32fad524d1821d820394')
     assert sb.object_hash == 'bc2834f357da7504138566727c838e6ada74d079e63b6104701f4f8eb05dae36'
