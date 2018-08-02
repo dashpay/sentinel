@@ -15,7 +15,7 @@ class DashConfig():
         f = io.open(filename)
         lines = []
         for line in f:
-            if re.match('^\s*#', line):
+            if re.match(r'^\s*#', line):
                 continue
             lines.append(line)
         f.close()
