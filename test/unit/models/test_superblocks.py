@@ -235,9 +235,7 @@ def test_deterministic_superblock_creation(go_list_proposals):
     max_budget = 60
     prop_list = Proposal.approved_and_ranked(proposal_quorum=1, next_superblock_max_budget=max_budget)
 
-    # MAX_GOVERNANCE_OBJECT_DATA_SIZE defined in governance-object.h
-    maxgovobjdatasize = 16 * 1024
-    sb = dashlib.create_superblock(prop_list, 72000, max_budget, misc.now(), maxgovobjdatasize)
+    sb = dashlib.create_superblock(prop_list, 72000, max_budget, misc.now())
 
     assert sb.event_block_height == 72000
     assert sb.payment_addresses == 'yYe8KwyaUu5YswSYmB3q3ryx8XTUu9y7Ui|yTC62huR4YQEPn9AJHjnQxxreHSbgAoatV'
@@ -245,43 +243,6 @@ def test_deterministic_superblock_creation(go_list_proposals):
     assert sb.proposal_hashes == 'dfd7d63979c0b62456b63d5fc5306dbec451180adee85876cbf5b28c69d1a86c|0523445762025b2e01a2cd34f1d10f4816cf26ee1796167e5b029901e5873630'
 
     assert sb.hex_hash() == 'bb3f33ccf95415c396bd09d35325dbcbc7b067010d51c7ccf772a9e839c1e414'
-
-
-def test_superblock_size_limit(go_list_proposals):
-    import dashlib
-    import misc
-    from dashd import DashDaemon
-    dashd = DashDaemon.from_dash_conf(config.dash_conf)
-    for item in go_list_proposals:
-        (go, subobj) = GovernanceObject.import_gobject_from_dashd(dashd, item)
-
-    max_budget = 60
-    prop_list = Proposal.approved_and_ranked(proposal_quorum=1, next_superblock_max_budget=max_budget)
-
-    # mock maxgovobjdatasize by setting equal to the size of a trigger
-    # (serialized) if only the first proposal had been included... anything
-    # larger should break the limit
-    single_proposal_sb = Superblock(
-        event_block_height=72000,
-        payment_addresses=prop_list[0].payment_address,
-        payment_amounts="{0:.8f}".format(prop_list[0].payment_amount),
-        proposal_hashes=prop_list[0].object_hash,
-    )
-    maxgovobjdatasize = len(single_proposal_sb.serialise())
-
-    # now try and create a Superblock with the entire proposal list
-    sb = dashlib.create_superblock(prop_list, 72000, max_budget, misc.now(), maxgovobjdatasize)
-
-    # two proposals in the list, but...
-    assert len(prop_list) == 2
-
-    # only one should have been included in the SB, because the 2nd one is over the size limit
-    assert sb.event_block_height == 72000
-    assert sb.payment_addresses == 'yYe8KwyaUu5YswSYmB3q3ryx8XTUu9y7Ui'
-    assert sb.payment_amounts == '25.75000000'
-    assert sb.proposal_hashes == 'dfd7d63979c0b62456b63d5fc5306dbec451180adee85876cbf5b28c69d1a86c'
-
-    assert sb.hex_hash() == '6b8cababf797644f1d62003e4cc68c1c40a8c1873c8a68ed0fc88772ea77cc44'
 
 
 def test_deterministic_superblock_selection(go_list_superblocks):
