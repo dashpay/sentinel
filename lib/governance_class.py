@@ -35,8 +35,7 @@ class GovernanceClass(object):
             self.vote(dashd, models.VoteSignals.valid, models.VoteOutcomes.no)
 
     def get_submit_command(self):
-        import dashlib
-        obj_data = dashlib.SHIM_serialise_for_dashd(self.serialise())
+        obj_data = self.serialise()
 
         # new objects won't have parent_hash, revision, etc...
         cmd = ['gobject', 'submit', '0', '1', str(int(time.time())), obj_data]
@@ -65,10 +64,6 @@ class GovernanceClass(object):
         import simplejson
 
         return binascii.hexlify(simplejson.dumps(self.get_dict(), sort_keys=True).encode('utf-8')).decode('utf-8')
-
-    def dashd_serialise(self):
-        import dashlib
-        return dashlib.SHIM_serialise_for_dashd(self.serialise())
 
     @classmethod
     def serialisable_fields(self):
