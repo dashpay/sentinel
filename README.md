@@ -16,6 +16,8 @@ Sentinel is an autonomous agent for persisting, processing and automating Dash g
 
 ## Install
 
+These instructions cover installing Sentinel on Ubuntu 16.04 / 18.04.
+
 ### Dependencies
 
 Make sure Python version 2.7.x or above is installed:
