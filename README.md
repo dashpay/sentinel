@@ -4,12 +4,14 @@
 
 > An automated governance helper for Dash Masternodes.
 
-Sentinel is an autonomous agent for persisting, processing and automating Dash governance objects and tasks. It is Python application which runs alongside the DashCore instance on each Dash Masternode.
+Sentinel is an autonomous agent for persisting, processing and automating Dash governance objects and tasks. It is a Python application which runs alongside the DashCore instance on each Dash Masternode.
 
 ## Table of Contents
 - [Install](#install)
   - [Dependencies](#dependencies)
 - [Usage](#usage)
+- [Configuration](#configuration)
+- [Troubleshooting](#troubleshooting)
 - [Maintainer](#maintainer)
 - [Contributing](#contributing)
 - [License](#license)
@@ -40,6 +42,10 @@ Clone the Sentinel repo and install Python dependencies.
     $ git clone https://github.com/dashpay/sentinel.git && cd sentinel
     $ virtualenv ./venv
     $ ./venv/bin/pip install -r requirements.txt
+
+## Usage
+
+Sentinel is "used" as a script called from cron every minute.
 
 ### Set up Cron
 
