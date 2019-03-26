@@ -8,16 +8,13 @@ class Masternode():
         self.txid = txid
         self.vout_index = int(vout_index)
 
-        (status, protocol, address, ip_port, lastseen, activeseconds, lastpaid) = self.parse_mn_string(mnstring)
+        (status, address, ip_port, lastpaid) = self.parse_mn_string(mnstring)
         self.status = status
-        self.protocol = int(protocol)
         self.address = address
 
         # TODO: break this out... take ipv6 into account
         self.ip_port = ip_port
 
-        self.lastseen = int(lastseen)
-        self.activeseconds = int(activeseconds)
         self.lastpaid = int(lastpaid)
 
     @classmethod
@@ -30,11 +27,16 @@ class Masternode():
         # trim whitespace
         # mn_full_out = mn_full_out.strip()
 
-        (status, protocol, address, lastseen, activeseconds, lastpaid,
-         lastpaidblock, ip_port) = mn_full_out.split()
+        try:
+            # TODO remove this after Dash Core 0.14 is fully deployed to mainnet
+            #  (only the code in the except path should stay)
+            (status, protocol, address, lastseen, activeseconds, lastpaid,
+                lastpaidblock, ip_port) = mn_full_out.split()
+        except:
+            (status, address, lastpaid, lastpaidblock, ip_port) = mn_full_out.split()
 
-        # status protocol pubkey IP lastseen activeseconds lastpaid
-        return (status, protocol, address, ip_port, lastseen, activeseconds, lastpaid)
+        # status protocol pubkey IP lastpaid
+        return (status, address, ip_port, lastpaid)
 
     @property
     def vin(self):
