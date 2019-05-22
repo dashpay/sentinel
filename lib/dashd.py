@@ -95,11 +95,7 @@ class DashDaemon():
 
     def is_synced(self):
         mnsync_status = self.rpc_command('mnsync', 'status')
-        synced = (mnsync_status['IsBlockchainSynced'] and
-                  mnsync_status['IsMasternodeListSynced'] and
-                  mnsync_status['IsWinnersListSynced'] and
-                  mnsync_status['IsSynced'] and
-                  not mnsync_status['IsFailed'])
+        synced = (mnsync_status['IsSynced'] and not mnsync_status['IsFailed'])
         return synced
 
     def current_block_hash(self):
@@ -216,11 +212,3 @@ class DashDaemon():
                 raise e
 
         return epoch
-
-    @property
-    def has_sentinel_ping(self):
-        getinfo = self.rpc_command('getinfo')
-        return (getinfo['protocolversion'] >= config.min_dashd_proto_version_with_sentinel_ping)
-
-    def ping(self):
-        self.rpc_command('sentinelping', config.sentinel_version)
