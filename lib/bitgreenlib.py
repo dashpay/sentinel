@@ -12,14 +12,14 @@ from misc import printdbg, epoch2str
 import time
 
 
-def is_valid_dash_address(address, network='mainnet'):
+def is_valid_bitgreen_address(address, network='mainnet'):
     # Only public key addresses are allowed
     # A valid address is a RIPEMD-160 hash which contains 20 bytes
     # Prior to base58 encoding 1 version byte is prepended and
     # 4 checksum bytes are appended so the total number of
     # base58 encoded bytes should be 25.  This means the number of characters
     # in the encoding should be about 34 ( 25 * log2( 256 ) / log2( 58 ) ).
-    dash_version = 140 if network == 'testnet' else 76
+    bitgreen_version = 98 if network == 'testnet' else 38
 
     # Check length (This is important because the base58 library has problems
     # with long addresses (which are invalid anyway).
@@ -32,10 +32,10 @@ def is_valid_dash_address(address, network='mainnet'):
         decoded = base58.b58decode_chk(address)
         address_version = ord(decoded[0:1])
     except:
-        # rescue from exception, not a valid Dash address
+        # rescue from exception, not a valid Bitgreen address
         return False
 
-    if (address_version != dash_version):
+    if (address_version != bitgreen_version):
         return False
 
     return True
@@ -216,7 +216,7 @@ def did_we_vote(output):
     err_msg = ''
 
     try:
-        detail = output.get('detail').get('dash.conf')
+        detail = output.get('detail').get('bitgreen.conf')
         result = detail.get('result')
         if 'errorMessage' in detail:
             err_msg = detail.get('errorMessage')
@@ -269,4 +269,4 @@ def blocks_to_seconds(blocks):
     Return the estimated number of seconds which will transpire for a given
     number of blocks.
     """
-    return blocks * 2.62 * 60
+    return blocks * 2.1 * 60

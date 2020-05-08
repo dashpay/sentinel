@@ -24,16 +24,7 @@ class Masternode():
 
     @classmethod
     def parse_mn_string(self, mn_full_out):
-        # trim whitespace
-        # mn_full_out = mn_full_out.strip()
-
-        try:
-            # TODO remove this after Dash Core 0.14 is fully deployed to mainnet
-            #  (only the code in the except path should stay)
-            (status, protocol, address, lastseen, activeseconds, lastpaid,
-                lastpaidblock, ip_port) = mn_full_out.split()
-        except:
-            (status, address, lastpaid, lastpaidblock, ip_port) = mn_full_out.split()
+        (status, address, lastpaid, lastpaidblock, ip_port) = mn_full_out.split()
 
         # status protocol pubkey IP lastpaid
         return (status, address, ip_port, lastpaid)

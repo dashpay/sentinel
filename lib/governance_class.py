@@ -19,20 +19,20 @@ class GovernanceClass(object):
         return self.governance_object
 
     # pass thru to GovernanceObject#vote
-    def vote(self, dashd, signal, outcome):
-        return self.go.vote(dashd, signal, outcome)
+    def vote(self, bitgreend, signal, outcome):
+        return self.go.vote(bitgreend, signal, outcome)
 
     # pass thru to GovernanceObject#voted_on
     def voted_on(self, **kwargs):
         return self.go.voted_on(**kwargs)
 
-    def vote_validity(self, dashd):
+    def vote_validity(self, bitgreend):
         if self.is_valid():
             printdbg("Voting valid! %s: %d" % (self.__class__.__name__, self.id))
-            self.vote(dashd, models.VoteSignals.valid, models.VoteOutcomes.yes)
+            self.vote(bitgreend, models.VoteSignals.valid, models.VoteOutcomes.yes)
         else:
             printdbg("Voting INVALID! %s: %d" % (self.__class__.__name__, self.id))
-            self.vote(dashd, models.VoteSignals.valid, models.VoteOutcomes.no)
+            self.vote(bitgreend, models.VoteSignals.valid, models.VoteOutcomes.no)
 
     def get_submit_command(self):
         obj_data = self.serialise()
@@ -46,15 +46,15 @@ class GovernanceClass(object):
 
         return cmd
 
-    def submit(self, dashd):
+    def submit(self, bitgreend):
         # don't attempt to submit a superblock unless a masternode
         # note: will probably re-factor this, this has code smell
-        if (self.only_masternode_can_submit and not dashd.is_masternode()):
+        if (self.only_masternode_can_submit and not bitgreend.is_masternode()):
             print("Not a masternode. Only masternodes may submit these objects")
             return
 
         try:
-            object_hash = dashd.rpc_command(*self.get_submit_command())
+            object_hash = bitgreend.rpc_command(*self.get_submit_command())
             printdbg("Submitted: [%s]" % object_hash)
         except JSONRPCException as e:
             print("Unable to submit: %s" % e.message)
