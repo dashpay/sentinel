@@ -51,7 +51,7 @@ def mn_status_good():
 def mn_status_bad():
     # valid masternode but not running/waiting
     status = {
-        "vin": "CTxIn(COutPoint(0000000000000000000000000000000000000000000000000000000000000000, 4294967295), coinbase )",
+        "vin": "COutPoint(0000000000000000000000000000000000000000000000000000000000000000, 4294967295), coinbase )",
         "service": "[::]:0",
         "status": "Node just started, not yet activated"
     }
