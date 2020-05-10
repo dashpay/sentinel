@@ -39,7 +39,7 @@ def mn_list():
 def mn_status_good():
     # valid masternode status enabled & running
     status = {
-        "vin": "CTxIn(COutPoint(f68a2e5d64f4a9be7ff8d0fbd9059dcd3ce98ad7a19a9260d1d6709127ffac56, 1), scriptSig=)",
+        "vin": "f68a2e5d64f4a9be7ff8d0fbd9059dcd3ce98ad7a19a9260d1d6709127ffac56-1",
         "service": "[2604:a880:800:a1::9b:0]:19999",
         "pubkey": "yUuAsYCnG5XrjgsGvRwcDqPhgLUnzNfe8L",
         "status": "Masternode successfully started"
