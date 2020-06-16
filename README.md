@@ -31,9 +31,9 @@ Make sure Python version 3.6.x or above is installed:
 
     python3 --version
 
-Make sure the local DashCore daemon running is at least version 15.0 (150000)
+Make sure the local DashCore daemon running is at least version 0.15.0.
 
-    $ dash-cli getnetworkinfo | jq -r .version
+    $ dashd --version | head -n1
 
 ### Install Sentinel
 
