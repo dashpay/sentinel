@@ -26,9 +26,13 @@ class BitgreenDaemon():
         self.governance_info = None
         self.gobject_votes = {}
 
+        self.connection = None
+
     @property
     def rpc_connection(self):
-        return AuthServiceProxy("http://{0}:{1}@{2}:{3}".format(*self.creds))
+        if self.connection is None:
+            self.connection = AuthServiceProxy("http://{0}:{1}@{2}:{3}".format(*self.creds))
+        return self.connection
 
     @classmethod
     def from_bitgreen_conf(self, bitgreen_dot_conf):
