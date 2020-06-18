@@ -7,6 +7,7 @@
 Sentinel is an autonomous agent for persisting, processing and automating BitGreen governance objects and tasks. It is a Python application which runs alongside the Bitgreen-Core instance on each BitGreen Masternode.
 
 ## Table of Contents
+
 - [Install](#install)
   - [Dependencies](#dependencies)
 - [Usage](#usage)
@@ -33,7 +34,7 @@ Update system packages and ensure virtualenv is installed:
 
 Make sure the local Bitgreen-Core daemon running is at least version 12.1 (120100)
 
-    $ bitgreen-cli getinfo | grep version
+    $ bitgreen-cli -getinfo | grep version
 
 ### Install Sentinel
 
@@ -87,17 +88,17 @@ Please follow the [Bitgreen-Core guidelines for contributing](https://github.com
 
 Specifically:
 
-* [Contributor Workflow](https://github.com/bitgreen/bitgreen/blob/master/CONTRIBUTING.md#contributor-workflow)
+- [Contributor Workflow](https://github.com/bitgreen/bitgreen/blob/master/CONTRIBUTING.md#contributor-workflow)
 
-    To contribute a patch, the workflow is as follows:
+  To contribute a patch, the workflow is as follows:
 
-    * Fork repository
-    * Create topic branch
-    * Commit patches
+  - Fork repository
+  - Create topic branch
+  - Commit patches
 
-    In general commits should be atomic and diffs should be easy to read. For this reason do not mix any formatting fixes or code moves with actual code changes.
+  In general commits should be atomic and diffs should be easy to read. For this reason do not mix any formatting fixes or code moves with actual code changes.
 
-    Commit messages should be verbose by default, consisting of a short subject line (50 chars max), a blank line and detailed explanatory text as separate paragraph(s); unless the title alone is self-explanatory (like "Corrected typo in main.cpp") then a single title line is sufficient. Commit messages should be helpful to people reading your code in the future, so explain the reasoning for your decisions. Further explanation [here](http://chris.beams.io/posts/git-commit/).
+  Commit messages should be verbose by default, consisting of a short subject line (50 chars max), a blank line and detailed explanatory text as separate paragraph(s); unless the title alone is self-explanatory (like "Corrected typo in main.cpp") then a single title line is sufficient. Commit messages should be helpful to people reading your code in the future, so explain the reasoning for your decisions. Further explanation [here](http://chris.beams.io/posts/git-commit/).
 
 ## License
 

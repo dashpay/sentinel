@@ -1,16 +1,18 @@
 """
 bitgreend JSONRPC interface
 """
+import time
+from decimal import Decimal
+from masternode import Masternode
+from bitcoinrpc.authproxy import JSONRPCException
+import requests
+import json
+import base58
+import config
 import sys
 import os
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'lib'))
-import config
-import base58
-from bitcoinrpc.authproxy import AuthServiceProxy, JSONRPCException
-from masternode import Masternode
-from decimal import Decimal
-import time
 
 
 class BitgreenDaemon():
@@ -28,11 +30,23 @@ class BitgreenDaemon():
 
         self.connection = None
 
-    @property
-    def rpc_connection(self):
-        if self.connection is None:
-            self.connection = AuthServiceProxy("http://{0}:{1}@{2}:{3}".format(*self.creds))
-        return self.connection
+    def rpc_command(self, *params):
+        payload = {'id': 1, 'method': params[0], 'rpc': '1.0'}
+        if len(params) > 1:
+            payload['params'] = params[1:]
+
+        try:
+            r = requests.post(
+                "http://{0}:{1}@{2}:{3}".format(*self.creds), data=json.dumps(payload))
+            response = json.loads(r.text)
+            if response['error'] is not None:
+                raise JSONRPCException(response['error'])
+            elif 'result' not in response:
+                raise JSONRPCException({
+                    'code': -343, 'message': 'missing JSON-RPC result'})
+            return response['result']
+        except:
+            raise Exception
 
     @classmethod
     def from_bitgreen_conf(self, bitgreen_dot_conf):
@@ -43,9 +57,6 @@ class BitgreenDaemon():
         creds[u'host'] = config.rpc_host
 
         return self(**creds)
-
-    def rpc_command(self, *params):
-        return self.rpc_connection.__getattr__(params[0])(*params[1:])
 
     # common RPC convenience methods
 
@@ -119,8 +130,10 @@ class BitgreenDaemon():
         last_superblock_height = (current_block_height // cycle) * cycle
         next_superblock_height = last_superblock_height + cycle
 
-        last_allocation = self.get_superblock_budget_allocation(last_superblock_height)
-        next_allocation = self.get_superblock_budget_allocation(next_superblock_height)
+        last_allocation = self.get_superblock_budget_allocation(
+            last_superblock_height)
+        next_allocation = self.get_superblock_budget_allocation(
+            next_superblock_height)
 
         next_superblock_max_budget = next_allocation
 
@@ -141,7 +154,8 @@ class BitgreenDaemon():
 
             cmd = ['gobject', 'getcurrentvotes', object_hash, txid, vout_index]
             raw_votes = self.rpc_command(*cmd)
-            self.gobject_votes[object_hash] = bitgreenlib.parse_raw_votes(raw_votes)
+            self.gobject_votes[object_hash] = bitgreenlib.parse_raw_votes(
+                raw_votes)
 
         return self.gobject_votes[object_hash]
 
@@ -169,7 +183,8 @@ class BitgreenDaemon():
         # find the elected MN vin for superblock creation...
         current_block_hash = self.current_block_hash()
         mn_list = self.get_masternodes()
-        winner = bitgreenlib.elect_mn(block_hash=current_block_hash, mnlist=mn_list)
+        winner = bitgreenlib.elect_mn(
+            block_hash=current_block_hash, mnlist=mn_list)
         my_vin = self.get_current_masternode_vin()
 
         # print "current_block_hash: [%s]" % current_block_hash
