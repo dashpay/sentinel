@@ -94,9 +94,7 @@ class DashDaemon():
         return not (self.get_current_masternode_vin() is None)
 
     def is_synced(self):
-        mnsync_status = self.rpc_command('mnsync', 'status')
-        synced = (mnsync_status['IsSynced'] and not mnsync_status['IsFailed'])
-        return synced
+        return self.rpc_command('mnsync', 'status')['IsSynced']
 
     def current_block_hash(self):
         height = self.rpc_command('getblockcount')
