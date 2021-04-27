@@ -1,5 +1,5 @@
 peewee==2.8.3
-py==1.4.31
+py==1.10.0
 pycodestyle==2.4.0
 pytest==3.0.1
 python-bitcoinrpc==1.0
