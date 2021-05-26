@@ -65,7 +65,7 @@ class DashDaemon():
 
     def governance_quorum(self):
         # TODO: expensive call, so memoize this
-        total_masternodes = self.rpc_command('masternode', 'count', 'enabled')
+        total_masternodes = self.rpc_command('masternode', 'count')['enabled']
         min_quorum = self.govinfo['governanceminquorum']
 
         # the minimum quorum is calculated based on the number of masternodes
