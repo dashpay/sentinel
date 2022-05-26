@@ -700,7 +700,7 @@ def check_db_sane():
     for model in db_models():
         if not getattr(model, 'table_exists')():
             missing_table_models.append(model)
-            printdbg("[warning]: Table for %s (%s) doesn't exist in DB." % (model, model._meta.db_table))
+            printdbg("[warning]: Table for %s (%s) doesn't exist in DB." % (model, model._meta.table_name))
 
     if missing_table_models:
         printdbg("[warning]: Missing database tables. Auto-creating tables.")
@@ -728,7 +728,7 @@ def check_db_schema_version():
         printdbg("[info]: Schema version mis-match. Syncing tables.")
         try:
             existing_table_names = db.get_tables()
-            existing_models = [m for m in db_models() if m._meta.db_table in existing_table_names]
+            existing_models = [m for m in db_models() if m._meta.table_name in existing_table_names]
             if (existing_models):
                 printdbg("[info]: Dropping tables...")
                 db.drop_tables(existing_models, safe=False, cascade=False)
