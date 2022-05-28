@@ -64,7 +64,7 @@ jobs:
       id: docker_meta
       uses: crazy-max/ghaction-docker-meta@v1
       with:
-        images: dashpay/sentinel
+        images: strophy/sentinel
         tag-semver: |
           {{version}}
 
