@@ -5,12 +5,10 @@ os.environ['SENTINEL_CONFIG'] = os.path.normpath(os.path.join(os.path.dirname(__
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../lib')))
 
 
-@pytest.fixture
 def valid_dash_address(network='mainnet'):
     return 'yYe8KwyaUu5YswSYmB3q3ryx8XTUu9y7Ui' if (network == 'testnet') else 'XpjStRH8SgA6PjgebtPZqCa9y7hLXP767n'
 
 
-@pytest.fixture
 def invalid_dash_address(network='mainnet'):
     return 'yYe8KwyaUu5YswSYmB3q3ryx8XTUu9y7Uj' if (network == 'testnet') else 'XpjStRH8SgA6PjgebtPZqCa9y7hLXP767m'
 
@@ -35,7 +33,6 @@ def mn_list():
     return mnlist
 
 
-@pytest.fixture
 def mn_status_good():
     # valid masternode status enabled & running
     status = {
@@ -47,7 +44,6 @@ def mn_status_good():
     return status
 
 
-@pytest.fixture
 def mn_status_bad():
     # valid masternode but not running/waiting
     status = {
