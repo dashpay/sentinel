@@ -65,7 +65,7 @@ jobs:
       id: docker_meta
       uses: docker/metadata-action@v4
       with:
-        images: strophy/sentinel
+        images: dashpay/sentinel
         tags: |
           type=semver,pattern={{version}}
 
