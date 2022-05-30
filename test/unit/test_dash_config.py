@@ -8,6 +8,7 @@ sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../
 import config
 from dash_config import DashConfig
 
+
 @pytest.fixture(name="dash_conf")
 def dash_conf_fixture():
     return dash_conf()

@@ -8,12 +8,15 @@ sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../
 def valid_dash_address(network='mainnet'):
     return 'yYe8KwyaUu5YswSYmB3q3ryx8XTUu9y7Ui' if (network == 'testnet') else 'XpjStRH8SgA6PjgebtPZqCa9y7hLXP767n'
 
+
 @pytest.fixture(name=valid_dash_address)
 def valid_dash_address_fixture():
     return valid_dash_address()
 
+
 def invalid_dash_address(network='mainnet'):
     return 'yYe8KwyaUu5YswSYmB3q3ryx8XTUu9y7Uj' if (network == 'testnet') else 'XpjStRH8SgA6PjgebtPZqCa9y7hLXP767m'
+
 
 @pytest.fixture(name=invalid_dash_address)
 def invalid_dash_address_fixture():
@@ -50,9 +53,11 @@ def mn_status_good():
     }
     return status
 
+
 @pytest.fixture(name="mn_status_good")
 def mn_status_good_fixture():
     return mn_status_good()
+
 
 def mn_status_bad():
     # valid masternode but not running/waiting
@@ -62,6 +67,7 @@ def mn_status_bad():
         "status": "Node just started, not yet activated"
     }
     return status
+
 
 @pytest.fixture(name="mn_status_bad")
 def mn_status_bad_fixture():
