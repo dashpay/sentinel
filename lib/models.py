@@ -24,7 +24,7 @@ except ImportError:
 from governance_class import GovernanceClass
 
 db = config.db
-
+db.connection()
 
 # TODO: lookup table?
 DASHD_GOVOBJ_TYPES = {
