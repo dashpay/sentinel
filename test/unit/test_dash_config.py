@@ -9,7 +9,6 @@ import config
 from dash_config import DashConfig
 
 
-@pytest.fixture
 def dash_conf(**kwargs):
     defaults = {
         'rpcuser': 'dashrpc',
