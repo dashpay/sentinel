@@ -8,10 +8,9 @@ def is_valid_python_version():
     version_valid = False
 
     ver = sys.version_info
-    if (2 == ver.major) and (7 <= ver.minor):
-        version_valid = True
 
-    if (3 == ver.major) and (4 <= ver.minor):
+    # minimum supported Python version is 3.6
+    if (3 == ver.major) and (6 <= ver.minor):
         version_valid = True
 
     return version_valid
