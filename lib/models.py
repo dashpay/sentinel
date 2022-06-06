@@ -15,10 +15,7 @@ import dashd
 from misc import (printdbg, is_numeric)
 import config
 from bitcoinrpc.authproxy import JSONRPCException
-try:
-    import urllib.parse as urlparse
-except ImportError:
-    import urlparse
+import urllib.parse as urlparse
 
 # our mixin
 from governance_class import GovernanceClass
