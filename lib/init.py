@@ -76,7 +76,7 @@ def has_dash_conf():
 
 def has_required_env_vars():
     for var in ['RPCHOST', 'RPCPASSWORD', 'RPCPORT', 'RPCUSER']:
-        if not var in os.environ:
+        if var not in os.environ:
             return False
     return True
 
@@ -107,5 +107,6 @@ def main():
     # deprecation warning
     if not has_required_env_vars() and has_dash_conf():
         print("deprecation warning: JSONRPC credentials should now be set using environment variables. Using dash.conf will be deprecated in the near future.")
+
 
 main()
