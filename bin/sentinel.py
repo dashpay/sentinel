@@ -91,13 +91,6 @@ def attempt_superblock_creation(dashd):
         sb.submit(dashd)
 
 
-def check_object_validity(dashd):
-    # vote (in)valid objects
-    for gov_class in [Proposal, Superblock]:
-        for obj in gov_class.select():
-            obj.vote_validity(dashd)
-
-
 def is_dashd_port_open(dashd):
     # test socket open before beginning, display instructive message to MN
     # operators if it's not
@@ -164,9 +157,6 @@ def main():
     #
     # load "gobject list" rpc command data, sync objects into internal database
     perform_dashd_object_sync(dashd)
-
-    # auto vote network objects as valid/invalid
-    # check_object_validity(dashd)
 
     # vote to delete expired proposals
     prune_expired_proposals(dashd)
