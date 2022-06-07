@@ -11,6 +11,7 @@ from bitcoinrpc.authproxy import AuthServiceProxy, JSONRPCException
 from masternode import Masternode
 from decimal import Decimal
 import time
+from deprecation import deprecated
 
 
 class DashDaemon():
@@ -46,6 +47,8 @@ class DashDaemon():
 
         return self(**jsonrpc_creds)
 
+    @classmethod
+    @deprecated(deprecated_in="1.7", details="Use environment variables to configure Sentinel instead.")
     def from_dash_conf(self, dash_dot_conf):
         from dash_config import DashConfig
         config_text = DashConfig.slurp_config_file(dash_dot_conf)
