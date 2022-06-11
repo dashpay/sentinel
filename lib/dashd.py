@@ -101,12 +101,10 @@ class DashDaemon():
         return self.govinfo['superblockcycle']
 
     def last_superblock_height(self):
-        height = self.rpc_command('getblockcount')
-        cycle = self.superblockcycle()
-        return cycle * (height // cycle)
+        return self.govinfo['lastsuperblock']
 
     def next_superblock_height(self):
-        return self.last_superblock_height() + self.superblockcycle()
+        return self.govinfo['nextsuperblock']
 
     def is_masternode(self):
         return not (self.get_current_masternode_vin() is None)
@@ -125,18 +123,7 @@ class DashDaemon():
         return Decimal(self.rpc_command('getsuperblockbudget', height))
 
     def next_superblock_max_budget(self):
-        cycle = self.superblockcycle()
-        current_block_height = self.rpc_command('getblockcount')
-
-        last_superblock_height = (current_block_height // cycle) * cycle
-        next_superblock_height = last_superblock_height + cycle
-
-        last_allocation = self.get_superblock_budget_allocation(last_superblock_height)
-        next_allocation = self.get_superblock_budget_allocation(next_superblock_height)
-
-        next_superblock_max_budget = next_allocation
-
-        return next_superblock_max_budget
+        return self.get_superblock_budget_allocation(self.next_superblock_height())
 
     # "my" votes refers to the current running masternode
     # memoized on a per-run, per-object_hash basis
