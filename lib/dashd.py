@@ -166,21 +166,8 @@ class DashDaemon():
         return self.gobject_votes[object_hash]
 
     def is_govobj_maturity_phase(self):
-        # 3-day period for govobj maturity
-        maturity_phase_delta = 1662      # ~(60*24*3)/2.6
-        if self.network() == 'testnet':
-            maturity_phase_delta = 24    # testnet
-
-        event_block_height = self.next_superblock_height()
-        maturity_phase_start_block = event_block_height - maturity_phase_delta
-
         current_height = self.rpc_command('getblockcount')
-        event_block_height = self.next_superblock_height()
-
-        # print "current_height = %d" % current_height
-        # print "event_block_height = %d" % event_block_height
-        # print "maturity_phase_delta = %d" % maturity_phase_delta
-        # print "maturity_phase_start_block = %d" % maturity_phase_start_block
+        maturity_phase_start_block = self.next_superblock_height() - self.govinfo['superblockmaturitywindow']
 
         return (current_height >= maturity_phase_start_block)
 
