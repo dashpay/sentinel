@@ -57,10 +57,10 @@ def elect_mn(**kwargs):
 
     candidates = []
     for mn in enabled:
-        mn_vin_hash = hashit(mn.vin)
+        mn_vin_hash = hashit(mn.outpoint)
         diff = mn_vin_hash - block_hash_hash
         absdiff = abs(diff)
-        candidates.append({'vin': mn.vin, 'diff': absdiff})
+        candidates.append({'vin': mn.outpoint, 'diff': absdiff})
 
     candidates.sort(key=lambda k: k['diff'])
 
