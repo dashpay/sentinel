@@ -36,7 +36,7 @@ def mn_list():
 def mn_status_good():
     # valid masternode status enabled & running
     status = {
-        "vin": "f68a2e5d64f4a9be7ff8d0fbd9059dcd3ce98ad7a19a9260d1d6709127ffac56-1",
+        "outpoint": "f68a2e5d64f4a9be7ff8d0fbd9059dcd3ce98ad7a19a9260d1d6709127ffac56-1",
         "service": "192.168.1.1:19999",
         "pubkey": "yUuAsYCnG5XrjgsGvRwcDqPhgLUnzNfe8L",
         "status": "Masternode successfully started"
@@ -47,7 +47,7 @@ def mn_status_good():
 def mn_status_bad():
     # valid masternode but not running/waiting
     status = {
-        "vin": "0000000000000000000000000000000000000000000000000000000000000000-0",
+        "outpoint": "0000000000000000000000000000000000000000000000000000000000000000-0",
         "service": "0.0.0.0:0",
         "status": "Node just started, not yet activated"
     }
@@ -105,15 +105,15 @@ def test_deterministic_masternode_elections(current_block_hash, mn_list):
     assert winner == '656695ed867e193490261bea74783f0a39329ff634a10a9fb6f131807eeca744-1'
 
 
-def test_parse_masternode_status_vin():
-    from dashlib import parse_masternode_status_vin
+def test_parse_masternode_status_outpoint():
+    from dashlib import parse_masternode_status_outpoint
     status = mn_status_good()
-    vin = parse_masternode_status_vin(status['vin'])
-    assert vin == 'f68a2e5d64f4a9be7ff8d0fbd9059dcd3ce98ad7a19a9260d1d6709127ffac56-1'
+    outpoint = parse_masternode_status_outpoint(status['outpoint'])
+    assert outpoint == 'f68a2e5d64f4a9be7ff8d0fbd9059dcd3ce98ad7a19a9260d1d6709127ffac56-1'
 
     status = mn_status_bad()
-    vin = parse_masternode_status_vin(status['vin'])
-    assert vin is None
+    outpoint = parse_masternode_status_outpoint(status['outpoint'])
+    assert outpoint is None
 
 
 def test_hash_function():
