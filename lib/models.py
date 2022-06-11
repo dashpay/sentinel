@@ -281,68 +281,9 @@ class Proposal(GovernanceClass, BaseModel):
     class Meta:
         db_table = 'proposals'
 
+    # leave for now so this doesn't break the generic govobj validity check
+    # above in the import
     def is_valid(self):
-        import dashlib
-
-        printdbg("In Proposal#is_valid, for Proposal: %s" % self.__dict__)
-
-        try:
-            # proposal name exists and is not null/whitespace
-            if (len(self.name.strip()) == 0):
-                printdbg("\tInvalid Proposal name [%s], returning False" % self.name)
-                return False
-
-            # proposal name is normalized (something like "[a-zA-Z0-9-_]+")
-            if not re.match(r'^[-_a-zA-Z0-9]+$', self.name):
-                printdbg("\tInvalid Proposal name [%s] (does not match regex), returning False" % self.name)
-                return False
-
-            # end date < start date
-            if (self.end_epoch <= self.start_epoch):
-                printdbg("\tProposal end_epoch [%s] <= start_epoch [%s] , returning False" % (self.end_epoch, self.start_epoch))
-                return False
-
-            # amount must be numeric
-            if misc.is_numeric(self.payment_amount) is False:
-                printdbg("\tProposal amount [%s] is not valid, returning False" % self.payment_amount)
-                return False
-
-            # amount can't be negative or 0
-            if (float(self.payment_amount) <= 0):
-                printdbg("\tProposal amount [%s] is negative or zero, returning False" % self.payment_amount)
-                return False
-
-            # payment address is valid base58 dash addr, non-multisig
-            if not dashlib.is_valid_dash_address(self.payment_address, config.network):
-                printdbg("\tPayment address [%s] not a valid Dash address for network [%s], returning False" % (self.payment_address, config.network))
-                return False
-
-            # URL
-            if (len(self.url.strip()) < 4):
-                printdbg("\tProposal URL [%s] too short, returning False" % self.url)
-                return False
-
-            # proposal URL has any whitespace
-            if (re.search(r'\s', self.url)):
-                printdbg("\tProposal URL [%s] has whitespace, returning False" % self.name)
-                return False
-
-            # Dash Core restricts proposals to 512 bytes max
-            if len(self.serialise()) > (self.MAX_DATA_SIZE * 2):
-                printdbg("\tProposal [%s] is too big, returning False" % self.name)
-                return False
-
-            try:
-                parsed = urlparse.urlparse(self.url)
-            except Exception as e:
-                printdbg("\tUnable to parse Proposal URL, marking invalid: %s" % e)
-                return False
-
-        except Exception as e:
-            printdbg("Unable to validate in Proposal#is_valid, marking invalid: %s" % e.message)
-            return False
-
-        printdbg("Leaving Proposal#is_valid, Valid = True")
         return True
 
     def is_expired(self, superblockcycle=None):
