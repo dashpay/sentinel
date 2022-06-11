@@ -64,7 +64,7 @@ class DashDaemon():
     # common RPC convenience methods
 
     def get_masternodes(self):
-        mnlist = self.rpc_command('masternodelist', 'full')
+        mnlist = self.rpc_command('masternodelist', 'json')
         return [Masternode(k, v) for (k, v) in mnlist.items()]
 
     def get_current_masternode_vin(self):
