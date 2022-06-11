@@ -105,7 +105,7 @@ def is_dashd_port_open(dashd):
 
 
 def main():
-    dashd = DashDaemon.from_dash_conf(config.dash_conf)
+    dashd = DashDaemon.initialize(config.dash_conf)
     options = process_args()
 
     # print version and return if "--version" is an argument

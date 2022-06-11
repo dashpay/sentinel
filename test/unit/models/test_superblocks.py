@@ -124,7 +124,9 @@ def superblock():
 
 def test_superblock_is_valid(superblock):
     from dashd import DashDaemon
-    dashd = DashDaemon.from_dash_conf(config.dash_conf)
+    for var in ['RPCHOST', 'RPCPASSWORD', 'RPCPORT', 'RPCUSER']:
+        os.environ[var] = 'hi'
+    dashd = DashDaemon.initialize(config.dash_conf)
 
     orig = Superblock(**superblock.get_dict())  # make a copy
 
@@ -228,7 +230,10 @@ def test_deterministic_superblock_creation(go_list_proposals):
     import dashlib
     import misc
     from dashd import DashDaemon
-    dashd = DashDaemon.from_dash_conf(config.dash_conf)
+    for var in ['RPCHOST', 'RPCPASSWORD', 'RPCPORT', 'RPCUSER']:
+        os.environ[var] = 'hi'
+    dashd = DashDaemon.initialize(config.dash_conf)
+
     for item in go_list_proposals:
         (go, subobj) = GovernanceObject.import_gobject_from_dashd(dashd, item)
 
@@ -247,7 +252,9 @@ def test_deterministic_superblock_creation(go_list_proposals):
 
 def test_deterministic_superblock_selection(go_list_superblocks):
     from dashd import DashDaemon
-    dashd = DashDaemon.from_dash_conf(config.dash_conf)
+    for var in ['RPCHOST', 'RPCPASSWORD', 'RPCPORT', 'RPCUSER']:
+        os.environ[var] = 'hi'
+    dashd = DashDaemon.initialize(config.dash_conf)
 
     for item in go_list_superblocks:
         (go, subobj) = GovernanceObject.import_gobject_from_dashd(dashd, item)

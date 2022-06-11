@@ -67,9 +67,19 @@ With all tests passing and crontab setup, Sentinel will stay in sync with dashd 
 
 ## Configuration
 
-An alternative (non-default) path to the `dash.conf` file can be specified in `sentinel.conf`:
+Configuration is done via environment variables. Example:
 
+```sh
+$ RPCUSER=dash RPCPASSWORD=password RPCHOST=127.0.0.1 RPCPORT=19998 ./venv/bin/python bin/sentinel.py
+```
+
+A path to a `dash.conf` file can be specified in `sentinel.conf`:
+
+    # warning: deprecated
     dash_conf=/path/to/dash.conf
+
+This is now deprecated and will be removed in a future version. Users are encouraged to update their configurations to use environment variables instead.
+
 
 ## Troubleshooting
 

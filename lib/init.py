@@ -74,6 +74,13 @@ def has_dash_conf():
     return valid_dash_conf
 
 
+def has_required_env_vars():
+    for var in ['RPCHOST', 'RPCPASSWORD', 'RPCPORT', 'RPCUSER']:
+        if var not in os.environ:
+            return False
+    return True
+
+
 # === begin main
 
 
@@ -93,9 +100,13 @@ def main():
         print("Please ensure correct database configuration.")
         sys.exit(1)
 
-    if not has_dash_conf():
+    if not has_required_env_vars() and not has_dash_conf():
         print("DashCore must be installed and configured, including JSONRPC access in dash.conf")
         sys.exit(1)
+
+    # deprecation warning
+    if not has_required_env_vars() and has_dash_conf():
+        print("deprecation warning: JSONRPC credentials should now be set using environment variables. Using dash.conf will be deprecated in the near future.")
 
 
 main()
