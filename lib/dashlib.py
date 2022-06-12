@@ -45,7 +45,7 @@ def hashit(data):
     return int(hashlib.sha256(data.encode('utf-8')).hexdigest(), 16)
 
 
-# returns the masternode VIN of the elected winner
+# returns the masternode outpoint of the elected winner
 def elect_mn(**kwargs):
     current_block_hash = kwargs['block_hash']
     mn_list = kwargs['mnlist']
@@ -57,33 +57,33 @@ def elect_mn(**kwargs):
 
     candidates = []
     for mn in enabled:
-        mn_vin_hash = hashit(mn.outpoint)
-        diff = mn_vin_hash - block_hash_hash
+        mn_outpoint_hash = hashit(mn.outpoint)
+        diff = mn_outpoint_hash - block_hash_hash
         absdiff = abs(diff)
-        candidates.append({'vin': mn.outpoint, 'diff': absdiff})
+        candidates.append({'outpoint': mn.outpoint, 'diff': absdiff})
 
     candidates.sort(key=lambda k: k['diff'])
 
     try:
-        winner = candidates[0]['vin']
+        winner = candidates[0]['outpoint']
     except:
         winner = None
 
     return winner
 
 
-def parse_masternode_status_vin(status_vin_string):
+def parse_masternode_status_outpoint(status_outpoint_string):
     outpoint_re = re.compile(r'([0-9a-zA-Z]+)-(\d+)')
-    m = outpoint_re.match(status_vin_string)
+    m = outpoint_re.match(status_outpoint_string)
 
     txid = m.group(1)
     index = m.group(2)
 
-    vin = txid + '-' + index
+    outpoint = txid + '-' + index
     if (txid == '0000000000000000000000000000000000000000000000000000000000000000'):
-        vin = None
+        outpoint = None
 
-    return vin
+    return outpoint
 
 
 def create_superblock(proposals, event_block_height, budget_max, sb_epoch_time):
@@ -246,7 +246,7 @@ def parse_raw_votes(raw_votes):
         signal = signal.lower()
         outcome = outcome.lower()
 
-        mn_collateral_outpoint = parse_masternode_status_vin(outpoint)
+        mn_collateral_outpoint = parse_masternode_status_outpoint(outpoint)
         v = {
             'mn_collateral_outpoint': mn_collateral_outpoint,
             'signal': signal,
