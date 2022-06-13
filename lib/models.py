@@ -333,8 +333,7 @@ class Proposal(GovernanceClass, BaseModel):
         ranked = []
         for proposal in query:
             proposal.max_budget = next_superblock_max_budget
-            if proposal.is_valid():
-                ranked.append(proposal)
+            ranked.append(proposal)
 
         return ranked
 
