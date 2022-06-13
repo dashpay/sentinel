@@ -34,7 +34,7 @@ rpcport={rpcport}
 
 def test_get_rpc_creds():
     dash_config = dash_conf()
-    creds = DashConfig.get_rpc_creds(dash_config, 'testnet')
+    creds = DashConfig.get_rpc_creds(dash_config)
 
     for key in ('user', 'password', 'port'):
         assert key in creds
@@ -43,7 +43,7 @@ def test_get_rpc_creds():
     assert creds.get('port') == 29241
 
     dash_config = dash_conf(rpcpassword='s00pers33kr1t', rpcport=8000)
-    creds = DashConfig.get_rpc_creds(dash_config, 'testnet')
+    creds = DashConfig.get_rpc_creds(dash_config)
 
     for key in ('user', 'password', 'port'):
         assert key in creds
@@ -52,7 +52,7 @@ def test_get_rpc_creds():
     assert creds.get('port') == 8000
 
     no_port_specified = re.sub('\nrpcport=.*?\n', '\n', dash_conf(), re.M)
-    creds = DashConfig.get_rpc_creds(no_port_specified, 'testnet')
+    creds = DashConfig.get_rpc_creds(no_port_specified)
 
     for key in ('user', 'password', 'port'):
         assert key in creds
