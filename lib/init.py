@@ -45,7 +45,7 @@ def is_database_correctly_configured():
 
     try:
         db = config.db
-        db.connect()
+        db.connect(reuse_if_open=True)
         configured = True
     except (peewee.ImproperlyConfigured, peewee.OperationalError, ImportError) as e:
         print("[error]: %s" % e)
