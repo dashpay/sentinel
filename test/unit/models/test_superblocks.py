@@ -6,6 +6,7 @@ sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../
 import misc
 import config
 from models import GovernanceObject, Proposal, Superblock, Vote
+from conftest import MockDashDaemon
 
 
 # clear DB tables before each execution
@@ -121,97 +122,94 @@ def superblock():
 
 
 def test_superblock_is_valid(superblock):
-    from dashd import DashDaemon
-    for var in ['RPCHOST', 'RPCPASSWORD', 'RPCPORT', 'RPCUSER']:
-        os.environ[var] = 'hi'
-    dashd = DashDaemon.initialize(config.dash_conf)
+    dashd = MockDashDaemon.initialize(None)
 
     orig = Superblock(**superblock.get_dict())  # make a copy
 
     # original as-is should be valid
-    assert orig.is_valid() is True
+    assert orig.is_valid(dashd) is True
 
     # mess with payment amounts
     superblock.payment_amounts = '7|yyzx'
-    assert superblock.is_valid() is False
+    assert superblock.is_valid(dashd) is False
 
     superblock.payment_amounts = '7,|yzx'
-    assert superblock.is_valid() is False
+    assert superblock.is_valid(dashd) is False
 
     superblock.payment_amounts = '7|8'
-    assert superblock.is_valid() is True
+    assert superblock.is_valid(dashd) is True
 
     superblock.payment_amounts = ' 7|8'
-    assert superblock.is_valid() is False
+    assert superblock.is_valid(dashd) is False
 
     superblock.payment_amounts = '7|8 '
-    assert superblock.is_valid() is False
+    assert superblock.is_valid(dashd) is False
 
     superblock.payment_amounts = ' 7|8 '
-    assert superblock.is_valid() is False
+    assert superblock.is_valid(dashd) is False
 
     # reset
     superblock = Superblock(**orig.get_dict())
-    assert superblock.is_valid() is True
+    assert superblock.is_valid(dashd) is True
 
     # mess with payment addresses
     superblock.payment_addresses = 'yTC62huR4YQEPn9AJHjnQxxreHSbgAoatV|1234 Anywhere ST, Chicago, USA'
-    assert superblock.is_valid() is False
+    assert superblock.is_valid(dashd) is False
 
     # leading spaces in payment addresses
     superblock.payment_addresses = ' yTC62huR4YQEPn9AJHjnQxxreHSbgAoatV'
     superblock.payment_amounts = '5.00'
-    assert superblock.is_valid() is False
+    assert superblock.is_valid(dashd) is False
 
     # trailing spaces in payment addresses
     superblock.payment_addresses = 'yTC62huR4YQEPn9AJHjnQxxreHSbgAoatV '
     superblock.payment_amounts = '5.00'
-    assert superblock.is_valid() is False
+    assert superblock.is_valid(dashd) is False
 
     # leading & trailing spaces in payment addresses
     superblock.payment_addresses = ' yTC62huR4YQEPn9AJHjnQxxreHSbgAoatV '
     superblock.payment_amounts = '5.00'
-    assert superblock.is_valid() is False
+    assert superblock.is_valid(dashd) is False
 
     # single payment addr/amt is ok
     superblock.payment_addresses = 'yTC62huR4YQEPn9AJHjnQxxreHSbgAoatV'
     superblock.payment_amounts = '5.00'
-    assert superblock.is_valid() is True
+    assert superblock.is_valid(dashd) is True
 
     # ensure number of payment addresses matches number of payments
     superblock.payment_addresses = 'yTC62huR4YQEPn9AJHjnQxxreHSbgAoatV'
     superblock.payment_amounts = '37.00|23.24'
-    assert superblock.is_valid() is False
+    assert superblock.is_valid(dashd) is False
 
     superblock.payment_addresses = 'yYe8KwyaUu5YswSYmB3q3ryx8XTUu9y7Ui|yTC62huR4YQEPn9AJHjnQxxreHSbgAoatV'
     superblock.payment_amounts = '37.00'
-    assert superblock.is_valid() is False
+    assert superblock.is_valid(dashd) is False
 
     # ensure amounts greater than zero
     superblock.payment_addresses = 'yTC62huR4YQEPn9AJHjnQxxreHSbgAoatV'
     superblock.payment_amounts = '-37.00'
-    assert superblock.is_valid() is False
+    assert superblock.is_valid(dashd) is False
 
     # reset
     superblock = Superblock(**orig.get_dict())
-    assert superblock.is_valid() is True
+    assert superblock.is_valid(dashd) is True
 
     # mess with proposal hashes
     superblock.proposal_hashes = '7|yyzx'
-    assert superblock.is_valid() is False
+    assert superblock.is_valid(dashd) is False
 
     superblock.proposal_hashes = '7,|yyzx'
-    assert superblock.is_valid() is False
+    assert superblock.is_valid(dashd) is False
 
     superblock.proposal_hashes = '0|1'
-    assert superblock.is_valid() is False
+    assert superblock.is_valid(dashd) is False
 
     superblock.proposal_hashes = '0000000000000000000000000000000000000000000000000000000000000000|1111111111111111111111111111111111111111111111111111111111111111'
-    assert superblock.is_valid() is True
+    assert superblock.is_valid(dashd) is True
 
     # reset
     superblock = Superblock(**orig.get_dict())
-    assert superblock.is_valid() is True
+    assert superblock.is_valid(dashd) is True
 
 
 def test_serialisable_fields():
@@ -227,10 +225,7 @@ def test_serialisable_fields():
 def test_deterministic_superblock_creation(go_list_proposals):
     import dashlib
     import misc
-    from dashd import DashDaemon
-    for var in ['RPCHOST', 'RPCPASSWORD', 'RPCPORT', 'RPCUSER']:
-        os.environ[var] = 'hi'
-    dashd = DashDaemon.initialize(config.dash_conf)
+    dashd = MockDashDaemon.initialize(None)
 
     for item in go_list_proposals:
         (go, subobj) = GovernanceObject.import_gobject_from_dashd(dashd, item)
@@ -249,10 +244,7 @@ def test_deterministic_superblock_creation(go_list_proposals):
 
 
 def test_deterministic_superblock_selection(go_list_superblocks):
-    from dashd import DashDaemon
-    for var in ['RPCHOST', 'RPCPASSWORD', 'RPCPORT', 'RPCUSER']:
-        os.environ[var] = 'hi'
-    dashd = DashDaemon.initialize(config.dash_conf)
+    dashd = MockDashDaemon.initialize(None)
 
     for item in go_list_superblocks:
         (go, subobj) = GovernanceObject.import_gobject_from_dashd(dashd, item)
