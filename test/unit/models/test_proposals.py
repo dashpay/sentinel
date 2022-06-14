@@ -3,8 +3,6 @@ import pytest
 import sys
 import os
 import time
-os.environ['SENTINEL_ENV'] = 'test'
-os.environ['SENTINEL_CONFIG'] = os.path.normpath(os.path.join(os.path.dirname(__file__), '../../test_sentinel.conf'))
 sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../../lib')))
 import misc
 import config
@@ -97,9 +95,7 @@ def test_proposal_is_expired(proposal):
 # deterministic ordering
 def test_approved_and_ranked(go_list_proposals):
     from dashd import DashDaemon
-    for var in ['RPCHOST', 'RPCPASSWORD', 'RPCPORT', 'RPCUSER']:
-        os.environ[var] = 'hi'
-    dashd = DashDaemon.initialize(config.dash_conf)
+    dashd = DashDaemon.initialize(None)
 
     for item in go_list_proposals:
         (go, subobj) = GovernanceObject.import_gobject_from_dashd(dashd, item)
