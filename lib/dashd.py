@@ -52,7 +52,7 @@ class DashDaemon():
     def from_dash_conf(self, dash_dot_conf):
         from dash_config import DashConfig
         config_text = DashConfig.slurp_config_file(dash_dot_conf)
-        creds = DashConfig.get_rpc_creds(config_text, config.network)
+        creds = DashConfig.get_rpc_creds(config_text)
 
         creds[u'host'] = config.rpc_host
 

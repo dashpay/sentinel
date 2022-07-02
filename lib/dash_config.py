@@ -26,12 +26,23 @@ class DashConfig():
         return data
 
     @classmethod
-    def get_rpc_creds(self, data, network='mainnet'):
+    def get_rpc_creds(self, data):
         # get rpc info from dash.conf
         match = re.findall(r'rpc(user|password|port)=(.*?)$', data, re.MULTILINE)
 
         # python >= 2.7
         creds = {key: value for (key, value) in match}
+
+        # determine default rpc port from testnet= setting in dash.conf
+        network = 'mainnet'
+        testnet_value = re.search(r'testnet=(.*?)$', data, re.MULTILINE)
+        if testnet_value:
+            capture = testnet_value[1].strip()
+            try:
+                if int(capture) != 0:
+                    network = 'testnet'
+            except ValueError as e:
+                network = 'testnet'
 
         # standard Dash defaults...
         default_port = 9998 if (network == 'mainnet') else 19998
