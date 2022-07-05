@@ -25,6 +25,7 @@ class DashDaemon():
 
         # memoize calls to some dashd methods
         self.governance_info = None
+        self.blockchain_info = None
         self.gobject_votes = {}
 
     @property
@@ -95,9 +96,30 @@ class DashDaemon():
             self.governance_info = self.rpc_command('getgovernanceinfo')
         return self.governance_info
 
+    @property
+    def blockchaininfo(self):
+        if (not self.blockchain_info):
+            self.blockchain_info = self.rpc_command('getblockchaininfo')
+        return self.blockchain_info
+
     # governance info convenience methods
     def superblockcycle(self):
         return self.govinfo['superblockcycle']
+
+    def network(self):
+        # from dash/src/chainparamsbase.cpp
+        # CBaseChainParams::MAIN = "main";
+        # CBaseChainParams::TESTNET = "test";
+        # CBaseChainParams::DEVNET = "devnet";
+        # CBaseChainParams::REGTEST = "regtest";
+        networks = {
+            'test': 'testnet',
+            'main': 'mainnet',
+        }
+        chain = self.blockchaininfo['chain']
+
+        # returns 'testnet' and 'mainnet' instead of 'test' and 'main'
+        return networks[chain] if chain in networks else chain
 
     def last_superblock_height(self):
         return self.govinfo['lastsuperblock']
@@ -146,7 +168,7 @@ class DashDaemon():
     def is_govobj_maturity_phase(self):
         # 3-day period for govobj maturity
         maturity_phase_delta = 1662      # ~(60*24*3)/2.6
-        if config.network == 'testnet':
+        if self.network() == 'testnet':
             maturity_phase_delta = 24    # testnet
 
         event_block_height = self.next_superblock_height()

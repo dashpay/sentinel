@@ -147,7 +147,7 @@ class GovernanceObject(BaseModel):
         try:
             newdikt = subdikt.copy()
             newdikt['object_hash'] = object_hash
-            if subclass(**newdikt).is_valid() is False:
+            if subclass(**newdikt).is_valid(dashd) is False:
                 govobj.vote_delete(dashd)
                 return (govobj, None)
 
@@ -283,7 +283,7 @@ class Proposal(GovernanceClass, BaseModel):
 
     # leave for now so this doesn't break the generic govobj validity check
     # above in the import
-    def is_valid(self):
+    def is_valid(self, dashd=None):
         return True
 
     def is_expired(self, superblockcycle=None):
@@ -373,16 +373,20 @@ class Superblock(BaseModel, GovernanceClass):
     class Meta:
         table_name = 'superblocks'
 
-    def is_valid(self):
+    def is_valid(self, dashd=None):
         import dashlib
         import decimal
 
         printdbg("In Superblock#is_valid, for SB: %s" % self.__dict__)
 
+        network = 'mainnet'
+        if dashd is not None:
+            network = dashd.network()
+
         # it's a string from the DB...
         addresses = self.payment_addresses.split('|')
         for addr in addresses:
-            if not dashlib.is_valid_dash_address(addr, config.network):
+            if not dashlib.is_valid_dash_address(addr, network):
                 printdbg("\tInvalid address [%s], returning False" % addr)
                 return False
 

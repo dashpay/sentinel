@@ -28,10 +28,6 @@ def get_dash_conf():
     return dash_conf
 
 
-def get_network():
-    return sentinel_cfg.get('network', 'mainnet')
-
-
 def get_rpchost():
     if 'RPCHOST' in os.environ:
         return os.environ['RPCHOST']
@@ -89,6 +85,5 @@ def get_db_conn():
 
 
 dash_conf = get_dash_conf()
-network = get_network()
 rpc_host = get_rpchost()
 db = get_db_conn()
