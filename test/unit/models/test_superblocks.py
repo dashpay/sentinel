@@ -114,7 +114,7 @@ def go_list_superblocks():
 def superblock():
     sb = Superblock(
         event_block_height=62500,
-        payment_addresses='yYe8KwyaUu5YswSYmB3q3ryx8XTUu9y7Ui|yTC62huR4YQEPn9AJHjnQxxreHSbgAoatV',
+        payment_addresses='yYe8KwyaUu5YswSYmB3q3ryx8XTUu9y7Ui|8j3GDpppVGTcWtEBuHAZSwcv33tWXey89M',
         payment_amounts='5|3',
         proposal_hashes='e8a0057914a2e1964ae8a945c4723491caae2077a90a00a2aabee22b40081a87|d1ce73527d7cd6f2218f8ca893990bc7d5c6b9334791ce7973bfa22f155f826e',
     )
