@@ -1,6 +1,7 @@
 import sys
 import os
-sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../lib')))
+
+sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), "../lib")))
 import init
 import misc
 from models import Transient
@@ -10,7 +11,7 @@ import random
 
 
 class Scheduler(object):
-    transient_key_scheduled = 'NEXT_SENTINEL_CHECK_AT'
+    transient_key_scheduled = "NEXT_SENTINEL_CHECK_AT"
     random_interval_max = 1800
 
     @classmethod
@@ -34,8 +35,7 @@ class Scheduler(object):
 
         next_run_at = misc.now() + random.randint(1, random_interval)
         printdbg("scheduling next sentinel run for %d" % next_run_at)
-        Transient.set(self.transient_key_scheduled, next_run_at,
-                      next_run_at)
+        Transient.set(self.transient_key_scheduled, next_run_at, next_run_at)
 
     @classmethod
     def delay(self, delay_in_seconds=None):

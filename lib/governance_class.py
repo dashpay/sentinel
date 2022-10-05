@@ -1,6 +1,7 @@
 import os
 import sys
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'lib'))
+
+sys.path.append(os.path.join(os.path.dirname(__file__), "..", "lib"))
 import models
 from bitcoinrpc.authproxy import JSONRPCException
 import misc
@@ -30,7 +31,7 @@ class GovernanceClass(object):
         obj_data = self.serialise()
 
         # new objects won't have parent_hash, revision, etc...
-        cmd = ['gobject', 'submit', '0', '1', str(int(time.time())), obj_data]
+        cmd = ["gobject", "submit", "0", "1", str(int(time.time())), obj_data]
 
         # some objects don't have a collateral tx to submit
         if not self.only_masternode_can_submit:
@@ -41,7 +42,7 @@ class GovernanceClass(object):
     def submit(self, dashd):
         # don't attempt to submit a superblock unless a masternode
         # note: will probably re-factor this, this has code smell
-        if (self.only_masternode_can_submit and not dashd.is_masternode()):
+        if self.only_masternode_can_submit and not dashd.is_masternode():
             print("Not a masternode. Only masternodes may submit these objects")
             return
 
@@ -55,7 +56,9 @@ class GovernanceClass(object):
         import binascii
         import simplejson
 
-        return binascii.hexlify(simplejson.dumps(self.get_dict(), sort_keys=True).encode('utf-8')).decode('utf-8')
+        return binascii.hexlify(
+            simplejson.dumps(self.get_dict(), sort_keys=True).encode("utf-8")
+        ).decode("utf-8")
 
     @classmethod
     def serialisable_fields(self):
@@ -64,7 +67,7 @@ class GovernanceClass(object):
         fk_columns = [fk.column_name for fk in self._meta.refs]
         do_not_use = [pk_column]
         do_not_use.extend(fk_columns)
-        do_not_use.append('object_hash')
+        do_not_use.append("object_hash")
         fields_to_serialise = list(self._meta.columns.keys())
 
         for field in do_not_use:
@@ -79,6 +82,6 @@ class GovernanceClass(object):
         for field_name in self.serialisable_fields():
             dikt[field_name] = getattr(self, field_name)
 
-        dikt['type'] = getattr(self, 'govobj_type')
+        dikt["type"] = getattr(self, "govobj_type")
 
         return dikt
