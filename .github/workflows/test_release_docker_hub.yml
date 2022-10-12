@@ -31,7 +31,7 @@ jobs:
     - name: Run tests
       run: |
         py.test -svv test/unit/
-        find ./lib ./test ./bin -name \*.py -exec pycodestyle --show-source --ignore=E501,E402,E722,E129,W503,W504 {} +
+        black . --check
 
   release:
     name: Release to Docker Hub

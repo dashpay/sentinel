@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 import sys
 import os
-sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../lib')))
+
+sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), "../lib")))
 import init
 import config
 import misc
@@ -61,11 +62,16 @@ def attempt_superblock_creation(dashd):
         printdbg("Not in maturity phase yet -- will not attempt Superblock")
         return
 
-    proposals = Proposal.approved_and_ranked(proposal_quorum=dashd.governance_quorum(), next_superblock_max_budget=dashd.next_superblock_max_budget())
+    proposals = Proposal.approved_and_ranked(
+        proposal_quorum=dashd.governance_quorum(),
+        next_superblock_max_budget=dashd.next_superblock_max_budget(),
+    )
     budget_max = dashd.get_superblock_budget_allocation(event_block_height)
     sb_epoch_time = dashd.block_height_to_epoch(event_block_height)
 
-    sb = dashlib.create_superblock(proposals, event_block_height, budget_max, sb_epoch_time)
+    sb = dashlib.create_superblock(
+        proposals, event_block_height, budget_max, sb_epoch_time
+    )
     if not sb:
         printdbg("No superblock created, sorry. Returning.")
         return
@@ -86,7 +92,7 @@ def attempt_superblock_creation(dashd):
         printdbg("The correct superblock wasn't found on the network...")
 
     # if we are the elected masternode...
-    if (dashd.we_are_the_winner()):
+    if dashd.we_are_the_winner():
         printdbg("we are the winner! Submit SB to network")
         sb.submit(dashd)
 
@@ -96,7 +102,7 @@ def is_dashd_port_open(dashd):
     # operators if it's not
     port_open = False
     try:
-        info = dashd.rpc_command('getgovernanceinfo')
+        info = dashd.rpc_command("getgovernanceinfo")
         port_open = True
     except (socket.error, JSONRPCException) as e:
         print("%s" % e)
@@ -115,12 +121,16 @@ def main():
 
     # check dashd connectivity
     if not is_dashd_port_open(dashd):
-        print("Cannot connect to dashd. Please ensure dashd is running and the JSONRPC port is open to Sentinel.")
+        print(
+            "Cannot connect to dashd. Please ensure dashd is running and the JSONRPC port is open to Sentinel."
+        )
         return
 
     # check dashd sync
     if not dashd.is_synced():
-        print("dashd not synced with network! Awaiting full sync before running Sentinel.")
+        print(
+            "dashd not synced with network! Awaiting full sync before running Sentinel."
+        )
         return
 
     # ensure valid masternode
@@ -129,9 +139,10 @@ def main():
         return
 
     # register a handler if SENTINEL_DEBUG is set
-    if os.environ.get('SENTINEL_DEBUG', None):
+    if os.environ.get("SENTINEL_DEBUG", None):
         import logging
-        logger = logging.getLogger('peewee')
+
+        logger = logging.getLogger("peewee")
         logger.setLevel(logging.DEBUG)
         logger.addHandler(logging.StreamHandler())
 
@@ -170,7 +181,7 @@ def main():
 
 def signal_handler(signum, frame):
     print("Got a signal [%d], cleaning up..." % (signum))
-    Transient.delete('SENTINEL_RUNNING')
+    Transient.delete("SENTINEL_RUNNING")
     sys.exit(1)
 
 
@@ -180,25 +191,31 @@ def cleanup():
 
 def process_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('-b', '--bypass-scheduler',
-                        action='store_true',
-                        help='Bypass scheduler and sync/vote immediately',
-                        dest='bypass')
-    parser.add_argument('-v', '--version',
-                        action='store_true',
-                        help='Print the version (Dash Sentinel vX.X.X) and exit')
+    parser.add_argument(
+        "-b",
+        "--bypass-scheduler",
+        action="store_true",
+        help="Bypass scheduler and sync/vote immediately",
+        dest="bypass",
+    )
+    parser.add_argument(
+        "-v",
+        "--version",
+        action="store_true",
+        help="Print the version (Dash Sentinel vX.X.X) and exit",
+    )
 
     args = parser.parse_args()
 
     return args
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     atexit.register(cleanup)
     signal.signal(signal.SIGINT, signal_handler)
 
     # ensure another instance of Sentinel is not currently running
-    mutex_key = 'SENTINEL_RUNNING'
+    mutex_key = "SENTINEL_RUNNING"
     # assume that all processes expire after 'timeout_seconds' seconds
     timeout_seconds = 90
 

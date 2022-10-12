@@ -1,7 +1,8 @@
 import sys
 import os
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'lib'))
+
+sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
+sys.path.append(os.path.join(os.path.dirname(__file__), "..", "lib"))
 import base58
 import hashlib
 import re
@@ -12,19 +13,19 @@ from misc import printdbg, epoch2str
 import time
 
 
-def is_valid_dash_address(address, network='mainnet'):
+def is_valid_dash_address(address, network="mainnet"):
     # Only p2pkh and p2sh addresses are allowed
     # A valid address is a RIPEMD-160 hash which contains 20 bytes
     # Prior to base58 encoding 1 version byte is prepended and
     # 4 checksum bytes are appended so the total number of
     # base58 encoded bytes should be 25.  This means the number of characters
     # in the encoding should be about 34 ( 25 * log2( 256 ) / log2( 58 ) ).
-    p2pkh_version = 140 if network == 'testnet' else 76
-    p2sh_version = 19 if network == 'testnet' else 16
+    p2pkh_version = 140 if network == "testnet" else 76
+    p2sh_version = 19 if network == "testnet" else 16
 
     # Check length (This is important because the base58 library has problems
     # with long addresses (which are invalid anyway).
-    if ((len(address) < 26) or (len(address) > 35)):
+    if (len(address) < 26) or (len(address) > 35):
         return False
 
     address_version = None
@@ -36,23 +37,23 @@ def is_valid_dash_address(address, network='mainnet'):
         # rescue from exception, not a valid Dash address
         return False
 
-    if ((address_version != p2pkh_version) and (address_version != p2sh_version)):
+    if (address_version != p2pkh_version) and (address_version != p2sh_version):
         return False
 
     return True
 
 
 def hashit(data):
-    return int(hashlib.sha256(data.encode('utf-8')).hexdigest(), 16)
+    return int(hashlib.sha256(data.encode("utf-8")).hexdigest(), 16)
 
 
 # returns the masternode outpoint of the elected winner
 def elect_mn(**kwargs):
-    current_block_hash = kwargs['block_hash']
-    mn_list = kwargs['mnlist']
+    current_block_hash = kwargs["block_hash"]
+    mn_list = kwargs["mnlist"]
 
     # filter only enabled MNs
-    enabled = [mn for mn in mn_list if mn.status == 'ENABLED']
+    enabled = [mn for mn in mn_list if mn.status == "ENABLED"]
 
     block_hash_hash = hashit(current_block_hash)
 
@@ -61,12 +62,12 @@ def elect_mn(**kwargs):
         mn_outpoint_hash = hashit(mn.outpoint)
         diff = mn_outpoint_hash - block_hash_hash
         absdiff = abs(diff)
-        candidates.append({'outpoint': mn.outpoint, 'diff': absdiff})
+        candidates.append({"outpoint": mn.outpoint, "diff": absdiff})
 
-    candidates.sort(key=lambda k: k['diff'])
+    candidates.sort(key=lambda k: k["diff"])
 
     try:
-        winner = candidates[0]['outpoint']
+        winner = candidates[0]["outpoint"]
     except:
         winner = None
 
@@ -74,14 +75,14 @@ def elect_mn(**kwargs):
 
 
 def parse_masternode_status_outpoint(status_outpoint_string):
-    outpoint_re = re.compile(r'([0-9a-zA-Z]+)-(\d+)')
+    outpoint_re = re.compile(r"([0-9a-zA-Z]+)-(\d+)")
     m = outpoint_re.match(status_outpoint_string)
 
     txid = m.group(1)
     index = m.group(2)
 
-    outpoint = txid + '-' + index
-    if (txid == '0000000000000000000000000000000000000000000000000000000000000000'):
+    outpoint = txid + "-" + index
+    if txid == "0000000000000000000000000000000000000000000000000000000000000000":
         outpoint = None
 
     return outpoint
@@ -93,7 +94,7 @@ def create_superblock(proposals, event_block_height, budget_max, sb_epoch_time):
     import copy
 
     # don't create an empty superblock
-    if (len(proposals) == 0):
+    if len(proposals) == 0:
         printdbg("No proposals, cannot create an empty superblock.")
         return None
 
@@ -108,7 +109,8 @@ def create_superblock(proposals, event_block_height, budget_max, sb_epoch_time):
         # skip proposals that are too expensive...
         if (budget_allocated + proposal.payment_amount) > budget_max:
             printdbg(
-                fmt_string % (
+                fmt_string
+                % (
                     proposal.name,
                     proposal.rank,
                     proposal.object_hash,
@@ -126,9 +128,10 @@ def create_superblock(proposals, event_block_height, budget_max, sb_epoch_time):
         printdbg("\twindow_end: %s" % epoch2str(window_end))
         printdbg("\tsb_epoch_time: %s" % epoch2str(sb_epoch_time))
 
-        if (sb_epoch_time < window_start or sb_epoch_time > window_end):
+        if sb_epoch_time < window_start or sb_epoch_time > window_end:
             printdbg(
-                fmt_string % (
+                fmt_string
+                % (
                     proposal.name,
                     proposal.rank,
                     proposal.object_hash,
@@ -139,7 +142,8 @@ def create_superblock(proposals, event_block_height, budget_max, sb_epoch_time):
             continue
 
         printdbg(
-            fmt_string % (
+            fmt_string
+            % (
                 proposal.name,
                 proposal.rank,
                 proposal.object_hash,
@@ -149,9 +153,9 @@ def create_superblock(proposals, event_block_height, budget_max, sb_epoch_time):
         )
 
         payment = {
-            'address': proposal.payment_address,
-            'amount': "{0:.8f}".format(proposal.payment_amount),
-            'proposal': "{}".format(proposal.object_hash)
+            "address": proposal.payment_address,
+            "amount": "{0:.8f}".format(proposal.payment_amount),
+            "proposal": "{}".format(proposal.object_hash),
         }
 
         temp_payments_list = copy.deepcopy(payments_list)
@@ -160,9 +164,9 @@ def create_superblock(proposals, event_block_height, budget_max, sb_epoch_time):
         # calculate size of proposed Superblock
         sb_temp = Superblock(
             event_block_height=event_block_height,
-            payment_addresses='|'.join([pd['address'] for pd in temp_payments_list]),
-            payment_amounts='|'.join([pd['amount'] for pd in temp_payments_list]),
-            proposal_hashes='|'.join([pd['proposal'] for pd in temp_payments_list])
+            payment_addresses="|".join([pd["address"] for pd in temp_payments_list]),
+            payment_amounts="|".join([pd["amount"] for pd in temp_payments_list]),
+            proposal_hashes="|".join([pd["proposal"] for pd in temp_payments_list]),
         )
         proposed_sb_size = len(sb_temp.serialise())
 
@@ -177,13 +181,13 @@ def create_superblock(proposals, event_block_height, budget_max, sb_epoch_time):
 
     # 'payments' now contains all the proposals for inclusion in the
     # Superblock, but needs to be sorted by proposal hash descending
-    payments_list.sort(key=lambda k: k['proposal'], reverse=True)
+    payments_list.sort(key=lambda k: k["proposal"], reverse=True)
 
     sb = Superblock(
         event_block_height=event_block_height,
-        payment_addresses='|'.join([pd['address'] for pd in payments_list]),
-        payment_amounts='|'.join([pd['amount'] for pd in payments_list]),
-        proposal_hashes='|'.join([pd['proposal'] for pd in payments_list]),
+        payment_addresses="|".join([pd["address"] for pd in payments_list]),
+        payment_amounts="|".join([pd["amount"] for pd in payments_list]),
+        proposal_hashes="|".join([pd["proposal"] for pd in payments_list]),
     )
     printdbg("generated superblock: %s" % sb.__dict__)
 
@@ -199,7 +203,7 @@ def deserialise(hexdata):
 
 def serialise(dikt):
     json = simplejson.dumps(dikt, sort_keys=True, use_decimal=True)
-    hexdata = binascii.hexlify(json.encode('utf-8')).decode('utf-8')
+    hexdata = binascii.hexlify(json.encode("utf-8")).decode("utf-8")
     return hexdata
 
 
@@ -208,15 +212,15 @@ def did_we_vote(output):
 
     # sentinel
     voted = False
-    err_msg = ''
+    err_msg = ""
 
     try:
-        detail = output.get('detail').get('dash.conf')
-        result = detail.get('result')
-        if 'errorMessage' in detail:
-            err_msg = detail.get('errorMessage')
+        detail = output.get("detail").get("dash.conf")
+        result = detail.get("result")
+        if "errorMessage" in detail:
+            err_msg = detail.get("errorMessage")
     except JSONRPCException as e:
-        result = 'failed'
+        result = "failed"
         err_msg = e.message
 
     # success, failed
@@ -225,15 +229,15 @@ def did_we_vote(output):
         printdbg("err_msg = [%s]" % err_msg)
 
     voted = False
-    if result == 'success':
+    if result == "success":
         voted = True
 
     # in case we spin up a new instance or server, but have already voted
     # on the network and network has recorded those votes
-    m_old = re.match(r'^time between votes is too soon', err_msg)
-    m_new = re.search(r'Masternode voting too often', err_msg, re.M)
+    m_old = re.match(r"^time between votes is too soon", err_msg)
+    m_new = re.search(r"Masternode voting too often", err_msg, re.M)
 
-    if result == 'failed' and (m_old or m_new):
+    if result == "failed" and (m_old or m_new):
         printdbg("DEBUG: Voting too often, need to sync w/network")
         voted = False
 
@@ -243,16 +247,16 @@ def did_we_vote(output):
 def parse_raw_votes(raw_votes):
     votes = []
     for v in list(raw_votes.values()):
-        (outpoint, ntime, outcome, signal) = v.split(':')
+        (outpoint, ntime, outcome, signal) = v.split(":")
         signal = signal.lower()
         outcome = outcome.lower()
 
         mn_collateral_outpoint = parse_masternode_status_outpoint(outpoint)
         v = {
-            'mn_collateral_outpoint': mn_collateral_outpoint,
-            'signal': signal,
-            'outcome': outcome,
-            'ntime': ntime,
+            "mn_collateral_outpoint": mn_collateral_outpoint,
+            "signal": signal,
+            "outcome": outcome,
+            "ntime": ntime,
         }
         votes.append(v)
 

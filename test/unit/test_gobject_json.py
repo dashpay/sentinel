@@ -1,7 +1,8 @@
 import pytest
 import sys
 import os
-sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), '../../lib')))
+
+sys.path.append(os.path.normpath(os.path.join(os.path.dirname(__file__), "../../lib")))
 import dashlib
 import gobject_json
 
@@ -34,19 +35,11 @@ def test_valid_json():
     assert gobject_json.valid_json("null") is True
     assert gobject_json.valid_json("true") is True
     assert gobject_json.valid_json("false") is True
-    assert gobject_json.valid_json("\"rubbish\"") is True
-    assert gobject_json.valid_json(
-        binascii.unhexlify(proposal_hex_old())
-    ) is True
-    assert gobject_json.valid_json(
-        binascii.unhexlify(proposal_hex_new())
-    ) is True
-    assert gobject_json.valid_json(
-        binascii.unhexlify(trigger_hex_new())
-    ) is True
-    assert gobject_json.valid_json(
-        binascii.unhexlify(trigger_hex_old())
-    ) is True
+    assert gobject_json.valid_json('"rubbish"') is True
+    assert gobject_json.valid_json(binascii.unhexlify(proposal_hex_old())) is True
+    assert gobject_json.valid_json(binascii.unhexlify(proposal_hex_new())) is True
+    assert gobject_json.valid_json(binascii.unhexlify(trigger_hex_new())) is True
+    assert gobject_json.valid_json(binascii.unhexlify(trigger_hex_old())) is True
 
     # test some invalid/bad/not JSON
     assert gobject_json.valid_json("False") is False
@@ -59,9 +52,7 @@ def test_valid_json():
     assert gobject_json.valid_json("") is False
 
     poorly_formatted = trigger_hex_old() + "7d"
-    assert gobject_json.valid_json(
-        binascii.unhexlify(poorly_formatted)
-    ) is False
+    assert gobject_json.valid_json(binascii.unhexlify(poorly_formatted)) is False
 
 
 def test_extract_object():
@@ -71,35 +62,35 @@ def test_extract_object():
     # jack sparrow needs a new ship - same expected proposal data for both new &
     # old formats
     expected = {
-        'type': 1,
-        'name': 'jack-sparrow-new-ship',
-        'url': 'https://www.dashcentral.org/black-pearl',
-        'start_epoch': 1521429194,
-        'end_epoch': 1547183994,
-        'payment_address': 'yYe8KwyaUu5YswSYmB3q3ryx8XTUu9y7Ui',
-        'payment_amount': Decimal('49'),
+        "type": 1,
+        "name": "jack-sparrow-new-ship",
+        "url": "https://www.dashcentral.org/black-pearl",
+        "start_epoch": 1521429194,
+        "end_epoch": 1547183994,
+        "payment_address": "yYe8KwyaUu5YswSYmB3q3ryx8XTUu9y7Ui",
+        "payment_amount": Decimal("49"),
     }
 
     # test proposal old format
-    json_str = binascii.unhexlify(proposal_hex_old()).decode('utf-8')
+    json_str = binascii.unhexlify(proposal_hex_old()).decode("utf-8")
     assert gobject_json.extract_object(json_str) == expected
 
     # test proposal new format
-    json_str = binascii.unhexlify(proposal_hex_new()).decode('utf-8')
+    json_str = binascii.unhexlify(proposal_hex_new()).decode("utf-8")
     assert gobject_json.extract_object(json_str) == expected
 
     # same expected trigger data for both new & old formats
     expected = {
-        'type': 2,
-        'event_block_height': 62500,
-        'payment_addresses': 'yYe8KwyaUu5YswSYmB3q3ryx8XTUu9y7Ui|yTC62huR4YQEPn9AJHjnQxxreHSbgAoatV',
-        'payment_amounts': '5|3',
+        "type": 2,
+        "event_block_height": 62500,
+        "payment_addresses": "yYe8KwyaUu5YswSYmB3q3ryx8XTUu9y7Ui|yTC62huR4YQEPn9AJHjnQxxreHSbgAoatV",
+        "payment_amounts": "5|3",
     }
 
     # test trigger old format
-    json_str = binascii.unhexlify(trigger_hex_old()).decode('utf-8')
+    json_str = binascii.unhexlify(trigger_hex_old()).decode("utf-8")
     assert gobject_json.extract_object(json_str) == expected
 
     # test trigger new format
-    json_str = binascii.unhexlify(trigger_hex_new()).decode('utf-8')
+    json_str = binascii.unhexlify(trigger_hex_new()).decode("utf-8")
     assert gobject_json.extract_object(json_str) == expected

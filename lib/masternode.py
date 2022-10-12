@@ -2,11 +2,11 @@
 # "masternodelist full"
 
 
-class Masternode():
+class Masternode:
     def __init__(self, collateral, mnobj):
         self.outpoint = collateral
         self.mnobj = mnobj
 
     @property
     def status(self):
-        return self.mnobj['status']
+        return self.mnobj["status"]
