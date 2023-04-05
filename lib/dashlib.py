@@ -247,7 +247,7 @@ def did_we_vote(output):
 def parse_raw_votes(raw_votes):
     votes = []
     for v in list(raw_votes.values()):
-        (outpoint, ntime, outcome, signal) = v.split(":")
+        (outpoint, ntime, outcome, signal, vote_weight) = v.split(":")
         signal = signal.lower()
         outcome = outcome.lower()
 
@@ -257,6 +257,7 @@ def parse_raw_votes(raw_votes):
             "signal": signal,
             "outcome": outcome,
             "ntime": ntime,
+            "vote_weight": vote_weight,
         }
         votes.append(v)
 
