@@ -114,7 +114,7 @@ Specifically:
 Please use `black` to format code automatically before opening a PR:
 
 ```sh
-./venv/bin/pip black .
+./venv/bin/black .
 ```
 
 ## License
