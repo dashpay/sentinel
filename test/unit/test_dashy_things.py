@@ -169,3 +169,41 @@ def test_blocks_to_seconds():
         314.4
     ).quantize(precision)
     assert int(dashlib.blocks_to_seconds(16616)) == 2612035
+
+
+def test_parse_raw_votes():
+    import dashlib
+    from decimal import Decimal
+
+    sample_raw_votes = {
+        "4891b066619b4e2fa216dc50b389a17177466a0b2e8b60a08b16e36e517e85fc": "24668e26fea429b81e7d6e2f94ceaa4e3aefb0cbb23514c288d13c9199115007-0:1679654925:yes:delete",
+        "66dc0496fb953fb9fa0c52195faf0205c5f9559d8e57d3883f46527591bcf7ff": "4cf1a990965c98feff7e583685b5c90bc0ddcaa594d39d1deed462f51b849e07-1:1679654927:no:funding",
+        "292bf38f9afe4e7d0ebe630ec9fdf5d364d8440862d2d3b7d935a9c207166f4d": "8a0275f11c71d73cf6e0162dc4f86aa66b33c5a5d8bb2fcdff5a716b44684407-1:1679654979:yes:funding",
+    }
+
+    votes = dashlib.parse_raw_votes(sample_raw_votes)
+
+    # sort vote dicts to ensure ordering is the same as the expected output
+    # below
+    votes = sorted(votes, key=lambda x: x["mn_collateral_outpoint"])
+
+    assert votes == [
+        {
+            "mn_collateral_outpoint": "24668e26fea429b81e7d6e2f94ceaa4e3aefb0cbb23514c288d13c9199115007-0",
+            "signal": "delete",
+            "outcome": "yes",
+            "ntime": "1679654925",
+        },
+        {
+            "mn_collateral_outpoint": "4cf1a990965c98feff7e583685b5c90bc0ddcaa594d39d1deed462f51b849e07-1",
+            "signal": "funding",
+            "outcome": "no",
+            "ntime": "1679654927",
+        },
+        {
+            "mn_collateral_outpoint": "8a0275f11c71d73cf6e0162dc4f86aa66b33c5a5d8bb2fcdff5a716b44684407-1",
+            "signal": "funding",
+            "outcome": "yes",
+            "ntime": "1679654979",
+        },
+    ]
