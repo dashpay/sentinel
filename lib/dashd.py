@@ -87,12 +87,20 @@ class DashDaemon:
         return my_outpoint
 
     def governance_quorum(self):
-        # TODO: expensive call, so memoize this
-        total_masternodes = self.rpc_command("masternode", "count")["enabled"]
         min_quorum = self.govinfo["governanceminquorum"]
 
+        total_weight = 0
+        # TODO: expensive call, so memoize this
+        masternode_count = self.rpc_command("masternode", "count")
+        if "detailed" in masternode_count:
+            regular_weight = masternode_count["detailed"]["regular"]["enabled"]
+            hpmn_weight = masternode_count["detailed"]["hpmn"]["enabled"] * 4
+            total_weight = regular_weight + hpmn_weight
+        else:
+            total_weight = self.rpc_command("masternode", "count")["enabled"]
+
         # the minimum quorum is calculated based on the number of masternodes
-        quorum = max(min_quorum, (total_masternodes // 10))
+        quorum = max(min_quorum, (total_weight // 10))
         return quorum
 
     @property
