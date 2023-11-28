@@ -1,8 +1,10 @@
-# Dash Sentinel
+# Dash Sentinel (DEPRECATED)
 
 [![Test Status](https://github.com/dashpay/sentinel/actions/workflows/test.yml/badge.svg)](https://github.com/dashpay/sentinel/actions/workflows/test.yml)
 
 > An automated governance helper for Dash Masternodes.
+
+**Note: Sentinel was [deprecated by Dash Core 20.0](https://github.com/dashpay/dash/blob/v20.0.0/doc/release-notes.md#sentinel-deprecation) which migrated all functionality directly into Dash Core.**
 
 Sentinel is an autonomous agent for persisting, processing and automating Dash governance objects and tasks. It is a Python application which runs alongside the DashCore instance on each Dash Masternode.
 
