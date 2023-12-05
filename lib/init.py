@@ -87,6 +87,10 @@ def has_required_env_vars():
 
 
 def main():
+    print(
+        "deprecation warning: Dash Sentinel is deprecated and should be uninstalled. See https://github.com/dashpay/sentinel for details."
+    )
+
     install_instructions = "\tpip install -r requirements.txt"
 
     if not is_valid_python_version():
